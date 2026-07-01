@@ -57,50 +57,6 @@ $$;
 COMMENT ON FUNCTION identity.current_user_id() IS
   'Returns the authenticated user UUID from the JWT session.';
 
-CREATE OR REPLACE FUNCTION identity.user_has_role(p_role_slug TEXT)
-RETURNS BOOLEAN
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = identity, public, auth
-AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM identity.user_roles ur
-    INNER JOIN identity.roles r ON r.id = ur.role_id
-    WHERE ur.user_id = auth.uid()
-      AND r.slug = p_role_slug
-      AND r.is_active = TRUE
-      AND (ur.expires_at IS NULL OR ur.expires_at > NOW())
-  );
-$$;
-
-COMMENT ON FUNCTION identity.user_has_role(TEXT) IS
-  'Checks whether the current authenticated user holds an active role by slug.';
-
-CREATE OR REPLACE FUNCTION identity.user_has_permission(p_permission_slug TEXT)
-RETURNS BOOLEAN
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = identity, public, auth
-AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM identity.user_roles ur
-    INNER JOIN identity.roles r ON r.id = ur.role_id
-    INNER JOIN identity.role_permissions rp ON rp.role_id = r.id
-    INNER JOIN identity.permissions p ON p.id = rp.permission_id
-    WHERE ur.user_id = auth.uid()
-      AND p.slug = p_permission_slug
-      AND r.is_active = TRUE
-      AND (ur.expires_at IS NULL OR ur.expires_at > NOW())
-  );
-$$;
-
-COMMENT ON FUNCTION identity.user_has_permission(TEXT) IS
-  'Checks whether the current authenticated user has a permission via any active role.';
-
 -- ---------------------------------------------------------------------------
 -- 1. profiles
 -- ---------------------------------------------------------------------------
@@ -354,6 +310,54 @@ CREATE TRIGGER user_roles_set_updated_at
   BEFORE UPDATE ON identity.user_roles
   FOR EACH ROW
   EXECUTE FUNCTION identity.set_updated_at();
+
+-- ---------------------------------------------------------------------------
+-- Authorization helpers that depend on RBAC tables
+-- ---------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION identity.user_has_role(p_role_slug TEXT)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = identity, public, auth
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM identity.user_roles ur
+    INNER JOIN identity.roles r ON r.id = ur.role_id
+    WHERE ur.user_id = auth.uid()
+      AND r.slug = p_role_slug
+      AND r.is_active = TRUE
+      AND (ur.expires_at IS NULL OR ur.expires_at > NOW())
+  );
+$$;
+
+COMMENT ON FUNCTION identity.user_has_role(TEXT) IS
+  'Checks whether the current authenticated user holds an active role by slug.';
+
+CREATE OR REPLACE FUNCTION identity.user_has_permission(p_permission_slug TEXT)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = identity, public, auth
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM identity.user_roles ur
+    INNER JOIN identity.roles r ON r.id = ur.role_id
+    INNER JOIN identity.role_permissions rp ON rp.role_id = r.id
+    INNER JOIN identity.permissions p ON p.id = rp.permission_id
+    WHERE ur.user_id = auth.uid()
+      AND p.slug = p_permission_slug
+      AND r.is_active = TRUE
+      AND (ur.expires_at IS NULL OR ur.expires_at > NOW())
+  );
+$$;
+
+COMMENT ON FUNCTION identity.user_has_permission(TEXT) IS
+  'Checks whether the current authenticated user has a permission via any active role.';
 
 -- ---------------------------------------------------------------------------
 -- 6. user_settings
