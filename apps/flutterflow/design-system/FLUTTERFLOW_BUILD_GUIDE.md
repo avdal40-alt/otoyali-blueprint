@@ -108,7 +108,8 @@ Optional but recommended:
 2. Add `OtoyaliPriceText` from `apps/flutterflow/custom-widgets/otoyali_price_text.dart`.
 3. Add `OtoyaliImageWithFallback` from `apps/flutterflow/custom-widgets/otoyali_image_with_fallback.dart`.
 4. Add `OtoyaliLoadingSkeleton` from `apps/flutterflow/custom-widgets/otoyali_loading_skeleton.dart`.
-5. Do not add external pubspec dependencies for these widgets.
+5. Add `OtoyaliVehicleCard` from `apps/flutterflow/custom-widgets/otoyali_vehicle_card.dart`.
+6. Do not add external pubspec dependencies for these widgets.
 
 ## 6. Auth Helper Action Chains
 
@@ -158,8 +159,8 @@ Create these action chains in FlutterFlow using app state and Supabase auth.
    - Navigate to `SearchPage`.
 9. Add Backend Query on `ff_home_listings`.
 10. Sort by `published_at` descending.
-11. Create ListView of `VehicleHorizontalCard`.
-12. Bind all fields from `ff_home_listings`.
+11. Create ListView of `OtoyaliVehicleCard`.
+12. Bind all fields from `ff_home_listings` using `apps/flutterflow/HOME_DATA_BINDING.md`.
 13. On card tap:
    - Navigate to `ListingDetailsPage`.
    - Pass `listingId = item.listing_id`.

@@ -14,6 +14,7 @@ Use these names exactly in FlutterFlow Components. Keep all components parameter
 | `BrandCard` | Make filter card | `ff_makes` |
 | `VehicleHorizontalCard` | Home compact listings | `ff_home_listings` |
 | `VehicleVerticalCard` | Search grid/list cards | `ff_home_listings` |
+| `OtoyaliVehicleCard` | Bindable Home/Search custom widget | `ff_home_listings` |
 | `VehicleDetailHero` | Listing detail top area | `ff_listing_details`, `ff_listing_media` |
 | `VehicleSpecChip` | Year/mileage/fuel/transmission | View fields |
 | `NewsCard` | Static/manual news MVP | Local/static data |
@@ -186,6 +187,45 @@ Responsive:
 Actions:
 
 - Card tap: Navigate to `ListingDetailsPage`, pass `listingId`.
+
+## OtoyaliVehicleCard
+
+Purpose: FlutterFlow custom widget replacement for manually wired Home `CarCard`.
+
+Use when FlutterFlow binding fails because a component image parameter expects `Image Path` while `ff_home_listings.cover_image_url` is a String URL.
+
+Custom widget file:
+
+- `apps/flutterflow/custom-widgets/otoyali_vehicle_card.dart`
+
+Inputs:
+
+| Input | Type | View field |
+|---|---|---|
+| `listingId` | String | `listing_id` |
+| `imageUrl` | String | `cover_image_url` |
+| `title` | String | `title` |
+| `priceAmount` | Double / Number | `price_amount` |
+| `currency` | String | `currency` |
+| `city` | String | `city` |
+| `year` | Integer | `year` |
+| `mileageKm` | Integer | `mileage_km` |
+| `fuelType` | String | `fuel_type` |
+| `transmission` | String | `transmission` |
+
+Layout:
+
+- Large 16:10 rounded remote image with loading and fallback states.
+- Title max 2 lines.
+- Internal price formatting, example `1,250,000 TRY`.
+- Specs line generated internally from year, mileage, transmission, fuel.
+- City row.
+- Visual favorite icon.
+
+Action:
+
+- Add navigation in FlutterFlow at the wrapper/ListView item level.
+- On tap, navigate to `ListingDetailsPage` and pass `listingId`.
 
 ## VehicleDetailHero
 
