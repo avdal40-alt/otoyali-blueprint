@@ -2,9 +2,17 @@ import type { HomeListing } from "@/lib/supabase/types";
 import { EmptyState } from "@/components/ui/States";
 import { VehicleCard } from "./VehicleCard";
 
-export function VehicleGrid({ listings }: { listings: HomeListing[] }) {
+export function VehicleGrid({
+  listings,
+  title = "Ilan bulunamadi",
+  body = "Filtreleri degistirerek tekrar deneyin."
+}: {
+  listings: HomeListing[];
+  title?: string;
+  body?: string;
+}) {
   if (listings.length === 0) {
-    return <EmptyState title="Ilan bulunamadi" body="Filtreleri degistirerek tekrar deneyin." href="/sell" action="Ilan yayinla" />;
+    return <EmptyState title={title} body={body} href="/sell" action="Ilan yayinla" />;
   }
 
   return (

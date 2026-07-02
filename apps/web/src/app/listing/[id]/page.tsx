@@ -9,15 +9,20 @@ import { ErrorState } from "@/components/ui/States";
 import { VehicleGallery } from "@/components/vehicle/VehicleGallery";
 import { SpecChip } from "@/components/vehicle/SpecChip";
 import { FavoriteButton } from "@/components/vehicle/FavoriteButton";
-import { getListingDetails, getHomeListings } from "@/lib/queries/listings";
-import { getListingMedia } from "@/lib/queries/media";
+import { getListingDetails, getHomeListings, getHomeListingById } from "@/lib/queries/listings";
+import { getListingMedia, getListingMediaByVehicleProfileId } from "@/lib/queries/media";
 import { formatMileage, formatPrice, fuelLabel, transmissionLabel } from "@/lib/format";
+import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import { ContactSellerButton } from "./_components/ContactSellerButton";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function ListingDetailsPage({ params }: { params: { id: string } }) {
-  const [detailsResult, mediaResult, similarResult] = await Promise.all([
+  const [detailsResult, mediaResult, fallbackListingResult, similarResult] = await Promise.all([
     getListingDetails(params.id),
     getListingMedia(params.id),
+    getHomeListingById(params.id),
     getHomeListings(3)
   ]);
 
@@ -26,27 +31,36 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
   }
 
   const listing = detailsResult.data;
+  const title = listing?.title?.trim() || "Bilgi yok";
+  const city = listing?.city?.trim() || "Konum belirtilmedi";
+  const fallbackCoverImage = fallbackListingResult.data?.cover_image_url;
+  const fallbackMediaResult =
+    mediaResult.data.length === 0 && listing?.vehicle_profile_id
+      ? await getListingMediaByVehicleProfileId(listing.vehicle_profile_id)
+      : null;
+  const mediaRows = mediaResult.data.length > 0 ? mediaResult.data : fallbackMediaResult?.data ?? [];
 
   return (
     <>
       <AppHeader />
       <PageContainer>
         {detailsResult.error ? <ErrorState message={detailsResult.error} /> : null}
+        <DevQueryDebug items={[detailsResult, mediaResult, fallbackListingResult, ...(fallbackMediaResult ? [fallbackMediaResult] : [])]} />
         {listing ? (
           <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
             <div>
-              <VehicleGallery media={mediaResult.data} title={listing.title} />
+              <VehicleGallery media={mediaRows} title={title} fallbackImageUrl={fallbackCoverImage} />
               <div className="mt-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <Badge>{listing.city}</Badge>
-                    <h1 className="mt-3 text-3xl font-black tracking-tight text-oto-text">{listing.title}</h1>
+                    <Badge>{city}</Badge>
+                    <h1 className="mt-3 text-3xl font-black tracking-tight text-oto-text">{title}</h1>
                     <p className="mt-3 text-3xl font-black text-oto-text">{formatPrice(listing.price_amount, listing.currency)}</p>
                   </div>
                   <FavoriteButton listingId={listing.listing_id} />
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <SpecChip>{listing.year}</SpecChip>
+                  <SpecChip>{listing.year ?? "Bilgi yok"}</SpecChip>
                   <SpecChip>{formatMileage(listing.mileage_km)}</SpecChip>
                   <SpecChip>{fuelLabel(listing.fuel_type)}</SpecChip>
                   <SpecChip>{transmissionLabel(listing.transmission)}</SpecChip>
@@ -65,7 +79,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                       .slice(0, 3)
                       .map((item) => (
                         <Link key={item.listing_id} href={`/listing/${item.listing_id}`} className="rounded-full border border-oto-border px-3 py-2 text-xs font-bold text-oto-muted hover:text-oto-blue">
-                          {item.make_name} {item.model_name}
+                          {[item.make_name, item.model_name].filter(Boolean).join(" ") || "Bilgi yok"}
                         </Link>
                       ))}
                   </div>

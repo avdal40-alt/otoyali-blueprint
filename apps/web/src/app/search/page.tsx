@@ -2,6 +2,9 @@ import { getHomeListings } from "@/lib/queries/listings";
 import { getMakes, getModels } from "@/lib/queries/makes";
 import { SearchClient } from "./_components/SearchClient";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function SearchPage({
   searchParams
 }: {
@@ -17,6 +20,7 @@ export default async function SearchPage({
       initialQuery={searchParams.q}
       initialMake={searchParams.make}
       error={listingsResult.error ?? makesResult.error ?? modelsResult.error}
+      debugItems={[listingsResult, makesResult, modelsResult]}
     />
   );
 }

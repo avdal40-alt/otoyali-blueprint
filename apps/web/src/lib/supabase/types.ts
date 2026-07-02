@@ -1,61 +1,62 @@
 export type HomeListing = {
   listing_id: string;
-  vehicle_profile_id: string;
-  title: string;
-  price_amount: number;
-  currency: string;
-  city: string;
+  vehicle_profile_id?: string | null;
+  title?: string | null;
+  price_amount?: number | null;
+  currency?: string | null;
+  city?: string | null;
   published_at: string | null;
-  make_name: string;
-  model_name: string;
-  year: number;
-  mileage_km: number;
-  fuel_type: string;
-  transmission: string;
-  cover_image_url: string | null;
+  make_name?: string | null;
+  model_name?: string | null;
+  year?: number | null;
+  mileage_km?: number | null;
+  fuel_type?: string | null;
+  transmission?: string | null;
+  cover_image_url?: string | null;
 };
 
 export type ListingDetails = {
   listing_id: string;
-  vehicle_profile_id: string;
-  seller_id: string;
-  title: string;
+  vehicle_profile_id?: string | null;
+  seller_id?: string | null;
+  title?: string | null;
   description: string | null;
-  price_amount: number;
-  currency: string;
-  price_negotiable: boolean;
-  city: string;
+  price_amount?: number | null;
+  currency?: string | null;
+  price_negotiable?: boolean | null;
+  city?: string | null;
   published_at: string | null;
-  make_name: string;
-  model_name: string;
-  year: number;
-  mileage_km: number;
-  fuel_type: string;
-  transmission: string;
+  make_name?: string | null;
+  model_name?: string | null;
+  year?: number | null;
+  mileage_km?: number | null;
+  fuel_type?: string | null;
+  transmission?: string | null;
+  cover_image_url?: string | null;
 };
 
 export type ListingMedia = {
   listing_id: string;
-  vehicle_profile_id: string;
-  media_id: string;
-  url: string;
-  storage_path: string;
-  sort_order: number;
-  is_cover: boolean;
+  vehicle_profile_id?: string | null;
+  media_id?: string | null;
+  url?: string | null;
+  storage_path?: string | null;
+  sort_order?: number | null;
+  is_cover?: boolean | null;
 };
 
 export type Make = {
   make_id: string;
-  make_name: string;
-  make_slug: string;
+  make_name?: string | null;
+  make_slug?: string | null;
 };
 
 export type Model = {
   model_id: string;
-  make_id: string;
-  make_name: string;
-  model_name: string;
-  model_slug: string;
+  make_id?: string | null;
+  make_name?: string | null;
+  model_name?: string | null;
+  model_slug?: string | null;
 };
 
 export type Profile = {

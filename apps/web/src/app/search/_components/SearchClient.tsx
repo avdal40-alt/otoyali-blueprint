@@ -8,6 +8,8 @@ import { PageContainer, SectionHeader } from "@/components/layout/PageContainer"
 import { FilterDrawer, type SearchFilters } from "@/components/search/FilterDrawer";
 import { VehicleGrid } from "@/components/vehicle/VehicleGrid";
 import { ErrorState } from "@/components/ui/States";
+import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
+import type { QueryResult } from "@/lib/queries/listings";
 
 export function SearchClient({
   listings,
@@ -15,7 +17,8 @@ export function SearchClient({
   models,
   initialQuery,
   initialMake,
-  error
+  error,
+  debugItems = []
 }: {
   listings: HomeListing[];
   makes: Make[];
@@ -23,6 +26,7 @@ export function SearchClient({
   initialQuery?: string;
   initialMake?: string;
   error?: string | null;
+  debugItems?: Array<Pick<QueryResult<unknown>, "queryName" | "count" | "error">>;
 }) {
   const [filters, setFilters] = useState<SearchFilters>({
     q: initialQuery ?? "",
@@ -46,16 +50,23 @@ export function SearchClient({
     const mileage = Number(filters.mileage || 0);
 
     const result = listings.filter((listing) => {
+      const title = listing.title ?? "";
+      const makeName = listing.make_name ?? "";
+      const modelName = listing.model_name ?? "";
+      const city = listing.city ?? "";
+      const priceAmount = Number(listing.price_amount ?? 0);
+      const listingYear = Number(listing.year ?? 0);
+      const listingMileage = Number(listing.mileage_km ?? 0);
       const textMatch = q
-        ? [listing.title, listing.make_name, listing.model_name, listing.city].join(" ").toLowerCase().includes(q)
+        ? [title, makeName, modelName, city].join(" ").toLowerCase().includes(q)
         : true;
-      const makeMatch = filters.make ? listing.make_name === filters.make : true;
-      const modelMatch = filters.model ? listing.model_name === filters.model : true;
-      const cityMatch = filters.city ? listing.city === filters.city : true;
-      const minMatch = minPrice ? listing.price_amount >= minPrice : true;
-      const maxMatch = maxPrice ? listing.price_amount <= maxPrice : true;
-      const yearMatch = year ? listing.year >= year : true;
-      const mileageMatch = mileage ? listing.mileage_km <= mileage : true;
+      const makeMatch = filters.make ? makeName === filters.make : true;
+      const modelMatch = filters.model ? modelName === filters.model : true;
+      const cityMatch = filters.city ? city === filters.city : true;
+      const minMatch = minPrice ? priceAmount >= minPrice : true;
+      const maxMatch = maxPrice ? priceAmount <= maxPrice : true;
+      const yearMatch = year ? listingYear >= year : true;
+      const mileageMatch = mileage ? listingMileage > 0 && listingMileage <= mileage : true;
       const fuelMatch = filters.fuelType ? listing.fuel_type === filters.fuelType : true;
       const transmissionMatch = filters.transmission ? listing.transmission === filters.transmission : true;
 
@@ -63,8 +74,8 @@ export function SearchClient({
     });
 
     return result.sort((a, b) => {
-      if (filters.sort === "price_asc") return a.price_amount - b.price_amount;
-      if (filters.sort === "price_desc") return b.price_amount - a.price_amount;
+      if (filters.sort === "price_asc") return Number(a.price_amount ?? 0) - Number(b.price_amount ?? 0);
+      if (filters.sort === "price_desc") return Number(b.price_amount ?? 0) - Number(a.price_amount ?? 0);
       return new Date(b.published_at ?? 0).getTime() - new Date(a.published_at ?? 0).getTime();
     });
   }, [filters, listings]);
@@ -75,6 +86,7 @@ export function SearchClient({
       <PageContainer>
         <SectionHeader title="Arac ara" eyebrow="Filtrele" />
         {error ? <ErrorState message={error} /> : null}
+        <DevQueryDebug items={debugItems} />
         <div className="mt-4 grid gap-6 lg:grid-cols-[320px_1fr]">
           <FilterDrawer filters={filters} makes={makes} models={models} onChange={setFilters} />
           <div>

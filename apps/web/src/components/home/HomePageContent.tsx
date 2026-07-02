@@ -13,16 +13,20 @@ import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { NewsGrid } from "@/components/news/NewsGrid";
 import { ButtonLink } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/States";
+import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
+import type { QueryResult } from "@/lib/queries/listings";
 
 export function HomePageContent({
   listings,
   makes,
   error,
+  debugItems = [],
   locale = "tr"
 }: {
   listings: HomeListing[];
   makes: Make[];
   error?: string | null;
+  debugItems?: Array<Pick<QueryResult<unknown>, "queryName" | "count" | "error">>;
   locale?: "tr" | "en";
 }) {
   const dict = locale === "en" ? en : tr;
@@ -45,6 +49,7 @@ export function HomePageContent({
         </section>
 
         {error ? <div className="mt-6"><ErrorState message={error} /></div> : null}
+        <DevQueryDebug items={debugItems} />
 
         <section className="mt-8">
           <SectionHeader title="Populer markalar" eyebrow="Kesfet" action={<Link href="/search" className="text-sm font-bold text-oto-blue">Tumunu gor</Link>} />
@@ -60,7 +65,7 @@ export function HomePageContent({
               ))}
             </div>
           ) : (
-            <VehicleGrid listings={[]} />
+            <VehicleGrid listings={[]} title="Aktif ilan bulunamadi" body="Supabase verisi geldigi anda burada gorunecek." />
           )}
         </section>
 

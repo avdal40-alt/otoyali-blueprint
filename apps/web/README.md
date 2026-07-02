@@ -114,3 +114,80 @@ Do not build a separate Android app until the web MVP proves the product flow.
 - No chat.
 - No dealer dashboard.
 - No CMS.
+
+## Troubleshooting
+
+### Environment missing
+
+If pages show empty data and the development debug panel says environment variables are missing, create `apps/web/.env.local` with:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
+
+Restart `npm run dev` after changing env values.
+
+### Invalid API key
+
+Supabase accepts both legacy anon JWT keys beginning with `eyJ...` and publishable keys beginning with `sb_publishable_...`.
+
+Do not paste service role keys into the web app.
+
+### Supabase rows exist but UI is empty
+
+Open the development-only route:
+
+```text
+/debug/supabase
+```
+
+It shows:
+
+- env presence
+- Supabase URL domain only
+- key type without exposing the key
+- row counts for `ff_makes`, `ff_home_listings`, `ff_listing_details`, and `ff_listing_media`
+- first 3 safe `ff_home_listings` rows
+
+This route returns 404 in production.
+
+### SQL checks
+
+In Supabase SQL editor, confirm:
+
+```sql
+select count(*) from vehicle.makes;
+select count(*) from vehicle.models;
+select count(*) from marketplace.listings;
+select count(*) from public.ff_home_listings;
+select count(*) from public.ff_makes;
+```
+
+Expected demo seed baseline:
+
+- `vehicle.makes = 8`
+- `vehicle.models = 16`
+- `marketplace.listings = 6`
+- `public.ff_home_listings = 6`
+
+### Seed data
+
+Local/demo data comes from `supabase/seed.sql`. If public views return zero rows, apply migrations and seed data, then reload PostgREST schema:
+
+```sql
+notify pgrst, 'reload schema';
+```
+
+### Grants
+
+Public views must be readable by guest users:
+
+```sql
+grant usage on schema public to anon, authenticated;
+grant select on table public.ff_home_listings to anon, authenticated;
+grant select on table public.ff_listing_details to anon, authenticated;
+grant select on table public.ff_listing_media to anon, authenticated;
+grant select on table public.ff_makes to anon, authenticated;
+grant select on table public.ff_models to anon, authenticated;
+```

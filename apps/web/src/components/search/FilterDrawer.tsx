@@ -28,7 +28,7 @@ export function FilterDrawer({
   models: Model[];
   onChange: (filters: SearchFilters) => void;
 }) {
-  const filteredModels = filters.make ? models.filter((model) => model.make_name === filters.make) : models;
+  const filteredModels = filters.make ? models.filter((model) => (model.make_name ?? "") === filters.make) : models;
 
   function setValue(key: keyof SearchFilters, value: string) {
     onChange({
@@ -45,16 +45,16 @@ export function FilterDrawer({
         <Select value={filters.make} onChange={(event) => setValue("make", event.target.value)}>
           <option value="">Marka</option>
           {makes.map((make) => (
-            <option key={make.make_id} value={make.make_name}>
-              {make.make_name}
+            <option key={make.make_id} value={make.make_name ?? ""}>
+              {make.make_name ?? "Bilgi yok"}
             </option>
           ))}
         </Select>
         <Select value={filters.model} onChange={(event) => setValue("model", event.target.value)}>
           <option value="">Model</option>
           {filteredModels.map((model) => (
-            <option key={model.model_id} value={model.model_name}>
-              {model.model_name}
+            <option key={model.model_id} value={model.model_name ?? ""}>
+              {model.model_name ?? "Bilgi yok"}
             </option>
           ))}
         </Select>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { NewsArticle } from "@/data/news";
 import { Badge } from "@/components/ui/Badge";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { formatDate } from "@/lib/format";
 
 export function NewsCard({ article }: { article: NewsArticle }) {
@@ -8,7 +9,7 @@ export function NewsCard({ article }: { article: NewsArticle }) {
     <article className="overflow-hidden rounded-oto border border-oto-border bg-white shadow-soft transition hover:shadow-oto">
       <Link href={`/news/${article.slug}`}>
         <div className="aspect-[16/9] bg-oto-surface">
-          <img src={article.imageUrl} alt={article.title} className="h-full w-full object-cover" />
+          <SafeImage src={article.imageUrl} alt={article.title} />
         </div>
         <div className="p-4">
           <div className="mb-3 flex items-center gap-2">

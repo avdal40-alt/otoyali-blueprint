@@ -1,5 +1,9 @@
-export function formatPrice(amount: number, currency = "TRY", locale = "tr-TR") {
-  const rounded = Math.round(Number(amount || 0));
+export function formatPrice(amount?: number | null, currency: string | null | undefined = "TRY", locale = "tr-TR") {
+  if (amount === null || amount === undefined || Number.isNaN(Number(amount))) {
+    return "Fiyat belirtilmedi";
+  }
+
+  const rounded = Math.round(Number(amount));
   const formatted = new Intl.NumberFormat(locale, {
     maximumFractionDigits: 0
   }).format(rounded);
@@ -7,8 +11,12 @@ export function formatPrice(amount: number, currency = "TRY", locale = "tr-TR") 
   return `${formatted} ${currency || "TRY"}`;
 }
 
-export function formatMileage(km: number, locale = "tr-TR") {
-  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Number(km || 0))} km`;
+export function formatMileage(km?: number | null, locale = "tr-TR") {
+  if (km === null || km === undefined || Number.isNaN(Number(km))) {
+    return "Bilgi yok";
+  }
+
+  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Number(km))} km`;
 }
 
 export function formatDate(value: string | null, locale = "tr-TR") {
@@ -23,7 +31,11 @@ export function formatDate(value: string | null, locale = "tr-TR") {
   }).format(new Date(value));
 }
 
-export function fuelLabel(value: string, locale = "tr") {
+export function fuelLabel(value?: string | null, locale = "tr") {
+  if (!value) {
+    return "Bilgi yok";
+  }
+
   const labels: Record<string, Record<string, string>> = {
     tr: {
       gasoline: "Benzin",
@@ -44,7 +56,11 @@ export function fuelLabel(value: string, locale = "tr") {
   return labels[locale]?.[value] ?? titleCase(value);
 }
 
-export function transmissionLabel(value: string, locale = "tr") {
+export function transmissionLabel(value?: string | null, locale = "tr") {
+  if (!value) {
+    return "Bilgi yok";
+  }
+
   const labels: Record<string, Record<string, string>> = {
     tr: {
       manual: "Manuel",
