@@ -14,9 +14,15 @@ const labels: Partial<Record<keyof ListingSearchFilters, string>> = {
   mileageMax: "Km max",
   fuelType: "Yakit",
   transmission: "Vites",
+  bodyType: "Kasa",
+  driveType: "Cekis",
+  color: "Renk",
+  condition: "Durum",
+  sellerType: "Satici tipi",
   onlyWithPhotos: "Fotografli",
   negotiableOnly: "Pazarlik",
   promotedOnly: "One cikan",
+  tradeOnly: "Takas",
   advanced: "Gelismis"
 };
 

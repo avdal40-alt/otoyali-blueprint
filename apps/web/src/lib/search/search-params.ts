@@ -12,9 +12,15 @@ export type ListingSearchFilters = {
   mileageMax: string;
   fuelType: string;
   transmission: string;
+  bodyType: string;
+  driveType: string;
+  color: string;
+  condition: string;
+  sellerType: string;
   onlyWithPhotos: boolean;
   negotiableOnly: boolean;
   promotedOnly: boolean;
+  tradeOnly: boolean;
   advanced: boolean;
   sort: SortOption;
 };
@@ -31,9 +37,15 @@ export const defaultSearchFilters: ListingSearchFilters = {
   mileageMax: "",
   fuelType: "",
   transmission: "",
+  bodyType: "",
+  driveType: "",
+  color: "",
+  condition: "",
+  sellerType: "",
   onlyWithPhotos: false,
   negotiableOnly: false,
   promotedOnly: false,
+  tradeOnly: false,
   advanced: false,
   sort: "newest"
 };
@@ -57,9 +69,15 @@ export function parseSearchParams(searchParams: RawSearchParams): ListingSearchF
     mileageMax: value("mileageMax", "mileage_max"),
     fuelType: value("fuelType", "fuel_type"),
     transmission: value("transmission"),
+    bodyType: value("bodyType", "body_type"),
+    driveType: value("driveType", "drive_type"),
+    color: value("color"),
+    condition: value("condition"),
+    sellerType: value("sellerType", "seller_type"),
     onlyWithPhotos: isTruthy(value("onlyWithPhotos", "with_photos")),
     negotiableOnly: isTruthy(value("negotiableOnly", "negotiable")),
     promotedOnly: isTruthy(value("promotedOnly", "promoted")),
+    tradeOnly: isTruthy(value("tradeOnly", "trade")),
     advanced: isTruthy(value("advanced")),
     sort: isSortOption(sort) ? sort : "newest"
   };
@@ -79,10 +97,16 @@ export function buildSearchUrl(filters: Partial<ListingSearchFilters>, path = "/
   add(params, "mileageMax", filters.mileageMax);
   add(params, "fuelType", filters.fuelType);
   add(params, "transmission", filters.transmission);
+  add(params, "bodyType", filters.bodyType);
+  add(params, "driveType", filters.driveType);
+  add(params, "color", filters.color);
+  add(params, "condition", filters.condition);
+  add(params, "sellerType", filters.sellerType);
   add(params, "sort", filters.sort && filters.sort !== "newest" ? filters.sort : "");
   add(params, "onlyWithPhotos", filters.onlyWithPhotos ? "1" : "");
   add(params, "negotiableOnly", filters.negotiableOnly ? "1" : "");
   add(params, "promotedOnly", filters.promotedOnly ? "1" : "");
+  add(params, "tradeOnly", filters.tradeOnly ? "1" : "");
   add(params, "advanced", filters.advanced ? "1" : "");
 
   const query = params.toString();
