@@ -44,7 +44,7 @@ export function MarketplaceFooter() {
             OTOYALI
           </Link>
           <p className="mt-3 max-w-sm text-sm leading-6 text-oto-muted">
-            AI-first ulasim ekosistemi. Sprint 1 arac arama, ilan inceleme, haber ve ilan yayinlama deneyimine odaklanir.
+            AI-first ulasim ekosistemi. Arac arama, ilan inceleme, haber ve ilan yayinlama deneyimini tek yerde toplar.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">

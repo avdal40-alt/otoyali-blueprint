@@ -2,12 +2,13 @@
 
 import { FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Make, Model } from "@/lib/supabase/types";
+import type { HomeListing, Make, Model } from "@/lib/supabase/types";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { formatPrice } from "@/lib/format";
+import { getPriceSuggestion } from "@/lib/market-price/analysis";
 
 type WizardState = {
   makeId: string;
@@ -41,7 +42,7 @@ const initialState: WizardState = {
   photos: []
 };
 
-export function SellWizard({ makes, models }: { makes: Make[]; models: Model[] }) {
+export function SellWizard({ makes, models, listings }: { makes: Make[]; models: Model[]; listings: HomeListing[] }) {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -72,13 +73,28 @@ export function SellWizard({ makes, models }: { makes: Make[]; models: Model[] }
   }, [router]);
 
   const selectedMake = makes.find((make) => make.make_id === state.makeId);
+  const selectedModel = models.find((item) => item.model_id === state.modelId);
   const filteredModels = state.makeId ? models.filter((model) => model.make_id === state.makeId) : models;
 
   const generatedTitle = useMemo(() => {
-    const model = models.find((item) => item.model_id === state.modelId);
-    if (!state.year || !selectedMake || !model) return "";
-    return `${state.year} ${selectedMake.make_name} ${model.model_name}`;
-  }, [models, selectedMake, state.modelId, state.year]);
+    if (!state.year || !selectedMake || !selectedModel) return "";
+    return `${state.year} ${selectedMake.make_name} ${selectedModel.model_name}`;
+  }, [selectedMake, selectedModel, state.year]);
+
+  const priceSuggestion = useMemo(() => {
+    if (!selectedMake || !selectedModel || !state.year || !state.mileageKm || !state.fuelType || !state.transmission) {
+      return null;
+    }
+
+    return getPriceSuggestion(
+      {
+        make_name: selectedMake.make_name,
+        model_name: selectedModel.model_name,
+        year: Number(state.year)
+      },
+      listings
+    );
+  }, [listings, selectedMake, selectedModel, state.fuelType, state.mileageKm, state.transmission, state.year]);
 
   function update<K extends keyof WizardState>(key: K, value: WizardState[K]) {
     setState((current) => ({ ...current, [key]: value }));
@@ -276,6 +292,9 @@ export function SellWizard({ makes, models }: { makes: Make[]; models: Model[] }
             <input type="checkbox" checked={state.priceNegotiable} onChange={(event) => update("priceNegotiable", event.target.checked)} />
             Pazarlik var
           </label>
+          {selectedMake && selectedModel && state.year && state.mileageKm ? (
+            <PriceSuggestionCard suggestion={priceSuggestion} currency={state.currency} />
+          ) : null}
         </Panel>
       ) : null}
 
@@ -305,6 +324,33 @@ export function SellWizard({ makes, models }: { makes: Make[]; models: Model[] }
         {step < 5 ? <Button type="button" onClick={() => setStep((current) => Math.min(5, current + 1))}>Devam</Button> : null}
       </div>
     </form>
+  );
+}
+
+function PriceSuggestionCard({
+  suggestion,
+  currency
+}: {
+  suggestion: ReturnType<typeof getPriceSuggestion>;
+  currency: string;
+}) {
+  return (
+    <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
+      <h3 className="text-base font-black text-oto-text">Tahmini piyasa fiyati</h3>
+      {suggestion ? (
+        <div className="mt-3 grid gap-2 text-sm font-semibold text-oto-muted">
+          <p>
+            Benzer ilan araligi: {formatPrice(suggestion.minPrice, currency)} - {formatPrice(suggestion.maxPrice, currency)}
+          </p>
+          <p>Daha hizli satis icin onerilen fiyat: {formatPrice(suggestion.averagePrice, currency)}</p>
+          <p className="text-xs">{suggestion.comparableCount} benzer ilan uzerinden hesaplandi. Garanti edilen satis fiyati degildir.</p>
+        </div>
+      ) : (
+        <p className="mt-3 text-sm font-semibold leading-6 text-oto-muted">
+          Fiyat onerisi icin yeterli veri yok. Bu ozellik daha fazla ilan verisiyle daha akilli hale gelecek.
+        </p>
+      )}
+    </div>
   );
 }
 

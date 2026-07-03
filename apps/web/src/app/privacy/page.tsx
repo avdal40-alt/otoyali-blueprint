@@ -8,8 +8,8 @@ export default function PrivacyPage() {
       <PageContainer className="max-w-3xl">
         <h1 className="text-3xl font-black text-oto-text">Gizlilik Politikasi</h1>
         <p className="mt-4 leading-7 text-oto-muted">
-          OTOYALI Sprint 1 MVP kapsaminda hesap, profil ve ilan yayinlama icin gerekli minimum verileri kullanir. Detayli
-          hukuki metin yayina hazirlik surecinde guncellenecektir.
+          OTOYALI, hesap, profil ve ilan yayinlama deneyimi icin gerekli minimum verileri kullanir. Kisisel verilerinizi
+          sade, guvenli ve seffaf bir yaklasimla korumayi hedefler.
         </p>
       </PageContainer>
     </>

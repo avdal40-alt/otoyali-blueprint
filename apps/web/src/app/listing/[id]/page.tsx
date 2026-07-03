@@ -6,12 +6,15 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Badge } from "@/components/ui/Badge";
 import { ErrorState } from "@/components/ui/States";
 import { VehicleGallery } from "@/components/vehicle/VehicleGallery";
+import { MarketPriceAnalysis } from "@/components/vehicle/MarketPriceAnalysis";
 import { SpecChip } from "@/components/vehicle/SpecChip";
+import { VehicleTrustReportCard } from "@/components/vehicle/VehicleTrustReportCard";
 import { FavoriteButton } from "@/components/vehicle/FavoriteButton";
 import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { getListingDetails, getHomeListings, getHomeListingById } from "@/lib/queries/listings";
 import { getListingMedia, getListingMediaByVehicleProfileId } from "@/lib/queries/media";
 import { formatDate, formatMileage, formatPrice, fuelLabel, transmissionLabel } from "@/lib/format";
+import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import { ContactSellerButton } from "./_components/ContactSellerButton";
 import { ShareListingButton } from "./_components/ShareListingButton";
@@ -24,7 +27,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
     getListingDetails(params.id),
     getListingMedia(params.id),
     getHomeListingById(params.id),
-    getHomeListings(6)
+    getHomeListings()
   ]);
 
   if (!detailsResult.data && !detailsResult.error) {
@@ -88,6 +91,10 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                     ))}
                   </div>
                 </section>
+                <div className="mt-6 grid gap-6 xl:grid-cols-2">
+                  <MarketPriceAnalysis listing={listing} comparables={similarResult.data} />
+                  <VehicleTrustReportCard />
+                </div>
                 <section className="mt-8 rounded-oto border border-oto-border bg-white p-5">
                   <h2 className="text-lg font-bold text-oto-text">Aciklama</h2>
                   <p className="mt-3 whitespace-pre-line text-sm leading-7 text-oto-muted">{listing.description || "Satici aciklama eklememis."}</p>
@@ -97,7 +104,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                   {similarListings.length > 0 ? (
                     <div className="mt-4 grid gap-4 md:grid-cols-3">
                       {similarListings.map((item) => (
-                        <VehicleCard key={item.listing_id} listing={item} compact />
+                        <VehicleCard key={item.listing_id} listing={item} compact priceBadge={getPriceBadgeForListing(item, similarResult.data)} />
                       ))}
                     </div>
                   ) : (

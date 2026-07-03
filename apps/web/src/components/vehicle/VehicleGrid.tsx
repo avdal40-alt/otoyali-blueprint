@@ -1,4 +1,5 @@
 import type { HomeListing } from "@/lib/supabase/types";
+import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 import { EmptyState } from "@/components/ui/States";
 import { VehicleCard } from "./VehicleCard";
 
@@ -18,7 +19,7 @@ export function VehicleGrid({
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {listings.map((listing) => (
-        <VehicleCard key={listing.listing_id} listing={listing} />
+        <VehicleCard key={listing.listing_id} listing={listing} priceBadge={getPriceBadgeForListing(listing, listings)} />
       ))}
     </div>
   );

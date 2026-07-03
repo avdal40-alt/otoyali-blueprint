@@ -16,10 +16,10 @@ export default function AboutPage() {
           ulasim gorevlerini tek yerde cozer.
         </p>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {["Guest-first browsing", "Premium automotive UX", "Turkey-first foundation"].map((item) => (
+          {["Misafir olarak kesfet", "Premium otomotiv deneyimi", "Turkiye odakli altyapi"].map((item) => (
             <div key={item} className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
               <h2 className="font-bold text-oto-text">{item}</h2>
-              <p className="mt-2 text-sm leading-6 text-oto-muted">Sprint 1 sade, hizli ve genisletilebilir bir temel kurar.</p>
+              <p className="mt-2 text-sm leading-6 text-oto-muted">OTOYALI, arac arama ve ilan deneyimini sade, hizli ve guvenilir hale getirir.</p>
             </div>
           ))}
         </div>

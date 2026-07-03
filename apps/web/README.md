@@ -147,7 +147,7 @@ Filtering is client-side for Sprint 1. The code is structured so these filters c
 
 ## Hot Listings Monetization Plan
 
-The Home "One cikan ilanlar" block is the future paid placement surface. Sprint 1 uses the first active listings from `ff_home_listings` as a fallback and does not claim they are sponsored.
+The Home "One cikan ilanlar" block is the future paid placement surface. The current implementation uses active listings from `ff_home_listings` as a fallback and does not claim they are sponsored.
 
 Future safe extension:
 
@@ -155,7 +155,41 @@ Future safe extension:
 - expose only active promotions through public read views
 - keep payment logic out until monetization is explicitly implemented
 
-No Supabase schema change was made for WEB-03.
+No Supabase schema change was made for WEB-03 or WEB-04.
+
+## Market Price Analysis
+
+Listing details include a local market price analysis built from `public.ff_home_listings` and `public.ff_listing_details`.
+
+Comparison order:
+
+- same make, model, and year
+- same make/model within year +/- 2
+- same make/model
+
+If fewer than 3 comparable listings exist, the UI shows an insufficient-data state. The analysis calculates average, min, max, difference from average, percentage difference, price position, and a badge: `Iyi fiyat`, `Piyasa fiyati`, or `Yuksek fiyat`.
+
+This is not AI, not a guaranteed valuation, and not persisted to Supabase.
+
+## Trust Report Placeholder
+
+Listing details include an `OTOYALI guven raporu` placeholder marked `Yakinda`. It does not claim real history checks, does not require VIN, and does not charge payment.
+
+Future extension points:
+
+- `vehicle_trust_reports`
+- `vehicle_listing_history`
+- `vehicle_price_snapshots`
+- `market_price_estimates`
+- `trust_score`
+
+No trust-report tables were added in WEB-04.
+
+## Sell Price Suggestion
+
+The `/sell` wizard shows a non-blocking price suggestion card after vehicle basics are entered. It uses the same public listing data and shows a rough range only when at least 3 comparable listings exist.
+
+This is guidance only and does not claim a guaranteed sale price.
 
 ## App Download Placeholder
 
@@ -186,6 +220,8 @@ Do not start iOS native work before the web MVP validates retention-focused flow
 - Photo upload requires the `vehicle-photos` bucket migration to be applied, but publishing can proceed without photos for MVP testing.
 - Search filters are client-side for Sprint 1 scale.
 - Hot listings are visual/promotional placeholders backed by active listings.
+- Market price analysis depends on current public listing density.
+- Trust report is a clearly marked `Yakinda` placeholder.
 - Native app download buttons are placeholders.
 - SMS OTP depends on Supabase phone auth and SMS provider configuration.
 - No AI assistant.

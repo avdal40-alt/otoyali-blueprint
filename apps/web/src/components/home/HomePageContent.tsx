@@ -15,6 +15,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/States";
 import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import type { QueryResult } from "@/lib/queries/listings";
+import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 import { sortListings } from "@/lib/search/filter-listings";
 import { HomeVehicleSearchPanel } from "./HomeVehicleSearchPanel";
 import { HotListingsSection } from "./HotListingsSection";
@@ -70,7 +71,7 @@ export function HomePageContent({
           {featured.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-3">
               {featured.map((listing) => (
-                <VehicleCard key={listing.listing_id} listing={listing} />
+                <VehicleCard key={listing.listing_id} listing={listing} priceBadge={getPriceBadgeForListing(listing, orderedListings)} />
               ))}
             </div>
           ) : (

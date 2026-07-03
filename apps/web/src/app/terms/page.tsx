@@ -8,8 +8,8 @@ export default function TermsPage() {
       <PageContainer className="max-w-3xl">
         <h1 className="text-3xl font-black text-oto-text">Kullanim Sartlari</h1>
         <p className="mt-4 leading-7 text-oto-muted">
-          OTOYALI, kullanicilarin arac ilanlarini goruntulemesine ve yayinlamasina yardimci olan bir platformdur. Sprint
-          1 hukuki metinleri prod yayin oncesinde son hale getirilecektir.
+          OTOYALI, kullanicilarin arac ilanlarini goruntulemesine, aramasina ve yayinlamasina yardimci olan bir
+          platformdur. Platformu kullanirken ilan bilgilerinin dogrulugundan ilan sahipleri sorumludur.
         </p>
       </PageContainer>
     </>
