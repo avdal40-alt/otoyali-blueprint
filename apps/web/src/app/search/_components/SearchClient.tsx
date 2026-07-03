@@ -1,100 +1,132 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { HomeListing, Make, Model } from "@/lib/supabase/types";
 import { AppHeader } from "@/components/layout/AppHeader";
+import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer, SectionHeader } from "@/components/layout/PageContainer";
-import { FilterDrawer, type SearchFilters } from "@/components/search/FilterDrawer";
+import { ActiveFilterChips } from "@/components/search/ActiveFilterChips";
+import { MobileFilterDrawer } from "@/components/search/MobileFilterDrawer";
+import { SearchFilters } from "@/components/search/SearchFilters";
+import { SortSelect } from "@/components/search/SortSelect";
 import { VehicleGrid } from "@/components/vehicle/VehicleGrid";
+import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/States";
 import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import type { QueryResult } from "@/lib/queries/listings";
+import { buildSearchUrl, defaultSearchFilters, type ListingSearchFilters } from "@/lib/search/search-params";
+import { filterListings, getAvailableFilterFields, getUniqueCities } from "@/lib/search/filter-listings";
 
 export function SearchClient({
   listings,
   makes,
   models,
-  initialQuery,
-  initialMake,
+  initialFilters,
   error,
   debugItems = []
 }: {
   listings: HomeListing[];
   makes: Make[];
   models: Model[];
-  initialQuery?: string;
-  initialMake?: string;
+  initialFilters: ListingSearchFilters;
   error?: string | null;
   debugItems?: Array<Pick<QueryResult<unknown>, "queryName" | "count" | "error">>;
 }) {
-  const [filters, setFilters] = useState<SearchFilters>({
-    q: initialQuery ?? "",
-    make: initialMake ?? "",
-    model: "",
-    city: "",
-    minPrice: "",
-    maxPrice: "",
-    year: "",
-    mileage: "",
-    fuelType: "",
-    transmission: "",
-    sort: "newest"
-  });
+  const router = useRouter();
+  const [filters, setFilters] = useState<ListingSearchFilters>(initialFilters);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const cities = useMemo(() => getUniqueCities(listings), [listings]);
+  const support = useMemo(() => getAvailableFilterFields(listings), [listings]);
+  const filtered = useMemo(() => filterListings(listings, filters), [filters, listings]);
+  const showAdvancedFilters =
+    filters.advanced ||
+    Boolean(filters.fuelType || filters.transmission || filters.onlyWithPhotos || filters.negotiableOnly || filters.promotedOnly);
 
-  const filtered = useMemo(() => {
-    const q = filters.q.trim().toLowerCase();
-    const minPrice = Number(filters.minPrice || 0);
-    const maxPrice = Number(filters.maxPrice || 0);
-    const year = Number(filters.year || 0);
-    const mileage = Number(filters.mileage || 0);
+  function submit(nextFilters = filters) {
+    router.push(buildSearchUrl(nextFilters));
+    setMobileFiltersOpen(false);
+  }
 
-    const result = listings.filter((listing) => {
-      const title = listing.title ?? "";
-      const makeName = listing.make_name ?? "";
-      const modelName = listing.model_name ?? "";
-      const city = listing.city ?? "";
-      const priceAmount = Number(listing.price_amount ?? 0);
-      const listingYear = Number(listing.year ?? 0);
-      const listingMileage = Number(listing.mileage_km ?? 0);
-      const textMatch = q
-        ? [title, makeName, modelName, city].join(" ").toLowerCase().includes(q)
-        : true;
-      const makeMatch = filters.make ? makeName === filters.make : true;
-      const modelMatch = filters.model ? modelName === filters.model : true;
-      const cityMatch = filters.city ? city === filters.city : true;
-      const minMatch = minPrice ? priceAmount >= minPrice : true;
-      const maxMatch = maxPrice ? priceAmount <= maxPrice : true;
-      const yearMatch = year ? listingYear >= year : true;
-      const mileageMatch = mileage ? listingMileage > 0 && listingMileage <= mileage : true;
-      const fuelMatch = filters.fuelType ? listing.fuel_type === filters.fuelType : true;
-      const transmissionMatch = filters.transmission ? listing.transmission === filters.transmission : true;
+  function reset() {
+    setFilters(defaultSearchFilters);
+    router.push("/search");
+    setMobileFiltersOpen(false);
+  }
 
-      return textMatch && makeMatch && modelMatch && cityMatch && minMatch && maxMatch && yearMatch && mileageMatch && fuelMatch && transmissionMatch;
-    });
+  function removeFilter(key: keyof ListingSearchFilters) {
+    const nextFilters = { ...filters, [key]: defaultSearchFilters[key] };
+    setFilters(nextFilters);
+    router.push(buildSearchUrl(nextFilters));
+  }
 
-    return result.sort((a, b) => {
-      if (filters.sort === "price_asc") return Number(a.price_amount ?? 0) - Number(b.price_amount ?? 0);
-      if (filters.sort === "price_desc") return Number(b.price_amount ?? 0) - Number(a.price_amount ?? 0);
-      return new Date(b.published_at ?? 0).getTime() - new Date(a.published_at ?? 0).getTime();
-    });
-  }, [filters, listings]);
+  function setSort(sort: ListingSearchFilters["sort"]) {
+    const nextFilters = { ...filters, sort };
+    setFilters(nextFilters);
+    router.push(buildSearchUrl(nextFilters));
+  }
+
+  function renderFilterPanel() {
+    return (
+      <SearchFilters
+        filters={filters}
+        makes={makes}
+        models={models}
+        cities={cities}
+        showAdvanced={showAdvancedFilters}
+        support={support}
+        onChange={setFilters}
+        onSubmit={() => submit()}
+        onReset={reset}
+      />
+    );
+  }
 
   return (
     <>
       <AppHeader />
       <PageContainer>
-        <SectionHeader title="Arac ara" eyebrow="Filtrele" />
+        <SectionHeader title="Arac ara" eyebrow="Pazar" />
         {error ? <ErrorState message={error} /> : null}
         <DevQueryDebug items={debugItems} />
+        {process.env.NODE_ENV !== "production" && (!support.priceNegotiable || !support.promoted) ? (
+          <div className="mt-4 rounded-oto border border-dashed border-oto-border bg-oto-surface p-3 text-xs font-semibold text-oto-muted">
+            Dev notu: pazarlik ve one cikan filtreleri mevcut ff_home_listings alanlarinda yoksa uretimde gizlenir.
+          </div>
+        ) : null}
         <div className="mt-4 grid gap-6 lg:grid-cols-[320px_1fr]">
-          <FilterDrawer filters={filters} makes={makes} models={models} onChange={setFilters} />
+          <div className="hidden lg:block">{renderFilterPanel()}</div>
           <div>
-            <p className="mb-4 text-sm font-semibold text-oto-muted">{filtered.length} ilan bulundu</p>
+            <MobileFilterDrawer open={mobileFiltersOpen} onOpen={() => setMobileFiltersOpen(true)} onClose={() => setMobileFiltersOpen(false)}>
+              {renderFilterPanel()}
+            </MobileFilterDrawer>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-oto-muted">
+                <span className="font-black text-oto-text">{filtered.length}</span> ilan bulundu
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant={filters.advanced ? "primary" : "secondary"}
+                  onClick={() => {
+                    const nextFilters = { ...filters, advanced: !filters.advanced };
+                    setFilters(nextFilters);
+                    router.push(buildSearchUrl(nextFilters));
+                  }}
+                  className="h-10"
+                >
+                  Gelismis
+                </Button>
+                <SortSelect value={filters.sort} onChange={setSort} />
+              </div>
+            </div>
+            <ActiveFilterChips filters={filters} onRemove={removeFilter} onReset={reset} />
             <VehicleGrid listings={filtered} />
           </div>
         </div>
       </PageContainer>
+      <MarketplaceFooter />
       <MobileBottomNav />
     </>
   );

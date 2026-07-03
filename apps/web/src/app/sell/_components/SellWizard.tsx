@@ -98,11 +98,6 @@ export function SellWizard({ makes, models }: { makes: Make[]; models: Model[] }
       return;
     }
 
-    if (state.photos.length === 0) {
-      setError("En az bir fotograf ekleyin.");
-      return;
-    }
-
     setSubmitting(true);
     const supabase = getSupabaseBrowserClient();
 
@@ -170,11 +165,13 @@ export function SellWizard({ makes, models }: { makes: Make[]; models: Model[] }
       });
     }
 
-    const { error: mediaError } = await supabase.schema("vehicle").from("profile_media").insert(mediaRows);
-    if (mediaError) {
-      setSubmitting(false);
-      setError(mediaError.message);
-      return;
+    if (mediaRows.length > 0) {
+      const { error: mediaError } = await supabase.schema("vehicle").from("profile_media").insert(mediaRows);
+      if (mediaError) {
+        setSubmitting(false);
+        setError(mediaError.message);
+        return;
+      }
     }
 
     const listingTitle = state.title.trim() || generatedTitle || "OTOYALI ilani";
@@ -206,26 +203,33 @@ export function SellWizard({ makes, models }: { makes: Make[]; models: Model[] }
   }
 
   if (checkingAuth) return <LoadingState label="Oturum kontrol ediliyor" />;
+  const steps = ["Fotograflar", "Arac bilgileri", "Fiyat", "Aciklama", "On izleme"];
 
   return (
     <form onSubmit={publish} className="grid gap-5">
       <div className="flex gap-2 overflow-x-auto pb-1">
-        {[1, 2, 3, 4, 5].map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setStep(item)}
-            className={step === item ? "rounded-full bg-oto-blue px-4 py-2 text-sm font-bold text-white" : "rounded-full bg-oto-surface px-4 py-2 text-sm font-bold text-oto-muted"}
-          >
-            Adim {item}
-          </button>
-        ))}
+        {steps.map((label, index) => {
+          const item = index + 1;
+          return (
+            <button
+              key={item}
+              type="button"
+              onClick={() => setStep(item)}
+              className={step === item ? "rounded-full bg-oto-blue px-4 py-2 text-sm font-bold text-white" : "rounded-full bg-oto-surface px-4 py-2 text-sm font-bold text-oto-muted"}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {step === 1 ? (
         <Panel title="Fotograflar">
           <Input type="file" accept="image/*" multiple onChange={(event) => update("photos", Array.from(event.target.files ?? []))} />
           <p className="text-sm text-oto-muted">{state.photos.length} fotograf secildi.</p>
+          {process.env.NODE_ENV !== "production" ? (
+            <p className="text-xs font-semibold text-oto-muted">Gelistirme notu: Storage hazir degilse ilan fotograf olmadan yayinlanabilir.</p>
+          ) : null}
         </Panel>
       ) : null}
 

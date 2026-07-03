@@ -1,19 +1,20 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/layout/AppHeader";
+import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
-import { PageContainer, SectionHeader } from "@/components/layout/PageContainer";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Badge } from "@/components/ui/Badge";
-import { ButtonLink } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/States";
 import { VehicleGallery } from "@/components/vehicle/VehicleGallery";
 import { SpecChip } from "@/components/vehicle/SpecChip";
 import { FavoriteButton } from "@/components/vehicle/FavoriteButton";
+import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { getListingDetails, getHomeListings, getHomeListingById } from "@/lib/queries/listings";
 import { getListingMedia, getListingMediaByVehicleProfileId } from "@/lib/queries/media";
-import { formatMileage, formatPrice, fuelLabel, transmissionLabel } from "@/lib/format";
+import { formatDate, formatMileage, formatPrice, fuelLabel, transmissionLabel } from "@/lib/format";
 import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import { ContactSellerButton } from "./_components/ContactSellerButton";
+import { ShareListingButton } from "./_components/ShareListingButton";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -23,7 +24,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
     getListingDetails(params.id),
     getListingMedia(params.id),
     getHomeListingById(params.id),
-    getHomeListings(3)
+    getHomeListings(6)
   ]);
 
   if (!detailsResult.data && !detailsResult.error) {
@@ -39,6 +40,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
       ? await getListingMediaByVehicleProfileId(listing.vehicle_profile_id)
       : null;
   const mediaRows = mediaResult.data.length > 0 ? mediaResult.data : fallbackMediaResult?.data ?? [];
+  const similarListings = similarResult.data.filter((item) => item.listing_id !== listing?.listing_id).slice(0, 3);
 
   return (
     <>
@@ -47,7 +49,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
         {detailsResult.error ? <ErrorState message={detailsResult.error} /> : null}
         <DevQueryDebug items={[detailsResult, mediaResult, fallbackListingResult, ...(fallbackMediaResult ? [fallbackMediaResult] : [])]} />
         {listing ? (
-          <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div>
               <VehicleGallery media={mediaRows} title={title} fallbackImageUrl={fallbackCoverImage} />
               <div className="mt-6">
@@ -66,23 +68,41 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                   <SpecChip>{transmissionLabel(listing.transmission)}</SpecChip>
                   {listing.price_negotiable ? <SpecChip>Pazarlik var</SpecChip> : null}
                 </div>
+                <section className="mt-6 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
+                  <h2 className="text-lg font-bold text-oto-text">Arac ozellikleri</h2>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {[
+                      ["Marka", listing.make_name || "Bilgi yok"],
+                      ["Model", listing.model_name || "Bilgi yok"],
+                      ["Yil", listing.year ?? "Bilgi yok"],
+                      ["Kilometre", formatMileage(listing.mileage_km)],
+                      ["Yakit", fuelLabel(listing.fuel_type)],
+                      ["Vites", transmissionLabel(listing.transmission)],
+                      ["Sehir", city],
+                      ["Yayin tarihi", formatDate(listing.published_at) || "Bilgi yok"]
+                    ].map(([label, value]) => (
+                      <div key={String(label)} className="rounded-md bg-oto-surface p-3">
+                        <p className="text-xs font-bold uppercase tracking-wide text-oto-muted">{label}</p>
+                        <p className="mt-1 text-sm font-black text-oto-text">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
                 <section className="mt-8 rounded-oto border border-oto-border bg-white p-5">
                   <h2 className="text-lg font-bold text-oto-text">Aciklama</h2>
                   <p className="mt-3 whitespace-pre-line text-sm leading-7 text-oto-muted">{listing.description || "Satici aciklama eklememis."}</p>
                 </section>
                 <section className="mt-6 rounded-oto border border-oto-border bg-white p-5">
                   <h2 className="text-lg font-bold text-oto-text">Benzer ilanlar</h2>
-                  <p className="mt-2 text-sm leading-6 text-oto-muted">Bu alan Sprint 1 sonrasi akilli oneriler icin hazir tutulur.</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {similarResult.data
-                      .filter((item) => item.listing_id !== listing.listing_id)
-                      .slice(0, 3)
-                      .map((item) => (
-                        <Link key={item.listing_id} href={`/listing/${item.listing_id}`} className="rounded-full border border-oto-border px-3 py-2 text-xs font-bold text-oto-muted hover:text-oto-blue">
-                          {[item.make_name, item.model_name].filter(Boolean).join(" ") || "Bilgi yok"}
-                        </Link>
+                  {similarListings.length > 0 ? (
+                    <div className="mt-4 grid gap-4 md:grid-cols-3">
+                      {similarListings.map((item) => (
+                        <VehicleCard key={item.listing_id} listing={item} compact />
                       ))}
-                  </div>
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-sm leading-6 text-oto-muted">Benzer ilanlar aktif veri arttikca burada gorunecek.</p>
+                  )}
                 </section>
               </div>
             </div>
@@ -91,17 +111,16 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
               <p className="mt-2 text-sm leading-6 text-oto-muted">Satici bilgileri gizlilik icin sinirli tutulur. Iletisim icin giris yapmaniz gerekir.</p>
               <div className="mt-4 grid gap-3">
                 <ContactSellerButton />
-                <ButtonLink href={`/listing/${listing.listing_id}`} variant="secondary" className="w-full">
-                  Paylas
-                </ButtonLink>
+                <ShareListingButton title={title} />
               </div>
               <p className="mt-5 rounded-md bg-oto-surface p-3 text-sm font-semibold leading-6 text-oto-muted">
-                OTOYALI helps you buy and sell vehicles safely.
+                OTOYALI, arac alim satimini daha guvenli ve kolay hale getirir.
               </p>
             </aside>
           </div>
         ) : null}
       </PageContainer>
+      <MarketplaceFooter />
       <MobileBottomNav />
     </>
   );

@@ -1,4 +1,5 @@
 import { AppHeader } from "@/components/layout/AppHeader";
+import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer, SectionHeader } from "@/components/layout/PageContainer";
 import { NewsGrid } from "@/components/news/NewsGrid";
@@ -12,12 +13,13 @@ export default function NewsPage() {
       <PageContainer>
         <SectionHeader title="Otomotiv haberleri" eyebrow="Gundem" />
         <div className="mb-5 flex flex-wrap gap-2">
-          {["Guncel", "Elektrikli", "Rehber", "Piyasa"].map((item) => (
+          {["Guncel", "Elektrikli", "Rehber", "Piyasa", "Guvenlik", "Bakim"].map((item) => (
             <Badge key={item}>{item}</Badge>
           ))}
         </div>
         <NewsGrid articles={newsArticles} />
       </PageContainer>
+      <MarketplaceFooter />
       <MobileBottomNav />
     </>
   );

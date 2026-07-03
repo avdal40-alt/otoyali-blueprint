@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/layout/AppHeader";
+import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
@@ -33,6 +35,8 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
           Piyasadaki ilanlara bak
         </ButtonLink>
       </PageContainer>
+      <MarketplaceFooter />
+      <MobileBottomNav />
     </>
   );
 }

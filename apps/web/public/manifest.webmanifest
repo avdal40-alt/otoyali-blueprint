@@ -3,16 +3,36 @@
   "short_name": "OTOYALI",
   "description": "AI-first transportation platform for Turkey.",
   "start_url": "/",
+  "scope": "/",
+  "id": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#2563EB",
   "lang": "tr",
+  "categories": ["shopping", "automotive", "news"],
   "icons": [
     {
       "src": "/icons/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Arac ara",
+      "short_name": "Ara",
+      "url": "/search"
+    },
+    {
+      "name": "Ilan yayinla",
+      "short_name": "Ilan ver",
+      "url": "/sell"
+    },
+    {
+      "name": "Haberler",
+      "short_name": "Haber",
+      "url": "/news"
     }
   ]
 }

@@ -21,11 +21,11 @@ export function ContactSellerButton() {
       return;
     }
 
-    alert("Satici ile iletisim ozelligi Sprint 1 sonrasi etkinlestirilecek.");
+    alert("Satici iletisim ozelligi yakinda aktif olacak.");
   }
 
   return (
-    <Button onClick={contact} className="w-full">
+    <Button onClick={contact} variant="orange" className="w-full">
       Satici ile iletisime gec
     </Button>
   );

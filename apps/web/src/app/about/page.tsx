@@ -1,4 +1,6 @@
 import { AppHeader } from "@/components/layout/AppHeader";
+import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -25,6 +27,8 @@ export default function AboutPage() {
           Ana sayfaya don
         </ButtonLink>
       </PageContainer>
+      <MarketplaceFooter />
+      <MobileBottomNav />
     </>
   );
 }

@@ -31,12 +31,22 @@ export function ProfileClient() {
         return;
       }
       setUserId(user.id);
+      const fallbackProfile: Profile = {
+        id: user.id,
+        phone: user.phone ?? null,
+        first_name: null,
+        last_name: null,
+        language: "tr",
+        country: "TR",
+        city: null,
+        timezone: "Europe/Istanbul"
+      };
 
       const { data, error: profileError } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
       if (profileError) {
         setError(profileError.message);
       }
-      setProfile((data as Profile | null) ?? null);
+      setProfile((data as Profile | null) ?? fallbackProfile);
       setLoading(false);
     }
 
@@ -48,13 +58,17 @@ export function ProfileClient() {
     const supabase = getSupabaseBrowserClient();
     const { error: updateError } = await supabase
       .from("profiles")
-      .update({
+      .upsert({
+        id: userId,
+        phone: profile.phone,
         first_name: profile.first_name,
         last_name: profile.last_name,
+        language: profile.language,
+        country: profile.country,
         city: profile.city,
+        timezone: profile.timezone,
         onboarding_completed_at: new Date().toISOString()
-      })
-      .eq("id", userId);
+      }, { onConflict: "id" });
 
     if (updateError) {
       setError(updateError.message);

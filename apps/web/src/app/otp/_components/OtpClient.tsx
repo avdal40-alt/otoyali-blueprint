@@ -11,10 +11,11 @@ export function OtpClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get("phone") || "";
-  const next = searchParams.get("next") || "/";
+  const next = searchParams.get("next") || "/profile";
   const [token, setToken] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
 
   async function verify() {
     setError(null);
@@ -33,7 +34,38 @@ export function OtpClient() {
       return;
     }
 
-    router.replace(next.startsWith("/") ? next : "/");
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData.user) {
+      await supabase.from("profiles").upsert(
+        {
+          id: userData.user.id,
+          phone,
+          language: "tr",
+          country: "TR",
+          timezone: "Europe/Istanbul"
+        },
+        { onConflict: "id" }
+      );
+    }
+
+    router.replace(next.startsWith("/") ? next : "/profile");
+  }
+
+  async function resend() {
+    setError(null);
+    if (!hasSupabaseEnv()) {
+      setError("Supabase ortam degiskenleri eksik.");
+      return;
+    }
+
+    setResending(true);
+    const supabase = getSupabaseBrowserClient();
+    const { error: resendError } = await supabase.auth.signInWithOtp({ phone });
+    setResending(false);
+
+    if (resendError) {
+      setError(`${resendError.message}. SMS saglayicisi henuz yapilandirilmadiysa gelistirme asamasinda giris test edilemeyebilir.`);
+    }
   }
 
   return (
@@ -45,6 +77,9 @@ export function OtpClient() {
         {error ? <ErrorState message={error} /> : null}
         <Button onClick={verify} disabled={loading || token.length !== 6}>
           {loading ? "Dogrulaniyor" : "Dogrula"}
+        </Button>
+        <Button onClick={resend} variant="secondary" disabled={resending || !phone}>
+          {resending ? "Gonderiliyor" : "Kodu tekrar gonder"}
         </Button>
       </div>
     </div>

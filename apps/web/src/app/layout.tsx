@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://otoyali.com"),
+  metadataBase: new URL("https://otoyali.vercel.app"),
   title: {
     default: "OTOYALI - AI-first transportation platform",
     template: "%s | OTOYALI"
@@ -17,10 +17,15 @@ export const metadata: Metadata = {
   openGraph: {
     title: "OTOYALI",
     description: "AI-first transportation platform for Turkey.",
-    url: "https://otoyali.com",
+    url: "https://otoyali.vercel.app",
     siteName: "OTOYALI",
     locale: "tr_TR",
     type: "website"
+  },
+  appleWebApp: {
+    capable: true,
+    title: "OTOYALI",
+    statusBarStyle: "default"
   }
 };
 

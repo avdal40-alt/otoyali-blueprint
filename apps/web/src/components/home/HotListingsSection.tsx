@@ -1,0 +1,28 @@
+import type { HomeListing } from "@/lib/supabase/types";
+import { VehicleCard } from "@/components/vehicle/VehicleCard";
+import { EmptyState } from "@/components/ui/States";
+
+export function HotListingsSection({ listings }: { listings: HomeListing[] }) {
+  const hotListings = listings.slice(0, 4);
+
+  return (
+    <section className="mt-8">
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wide text-oto-orange">Vitrin</p>
+          <h2 className="text-xl font-bold text-oto-text md:text-2xl">One cikan ilanlar</h2>
+          <p className="mt-1 max-w-2xl text-sm text-oto-muted">Saticilarin daha hizli gorunurluk kazanacagi alan. Sprint 1 icin aktif ilanlardan gosterilir.</p>
+        </div>
+      </div>
+      {hotListings.length > 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {hotListings.map((listing) => (
+            <VehicleCard key={listing.listing_id} listing={listing} compact promoted />
+          ))}
+        </div>
+      ) : (
+        <EmptyState title="One cikan ilan yok" body="Aktif ilanlar geldiginde bu alan otomatik dolacak." />
+      )}
+    </section>
+  );
+}

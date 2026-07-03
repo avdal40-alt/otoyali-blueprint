@@ -1,4 +1,6 @@
 import { AppHeader } from "@/components/layout/AppHeader";
+import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer, SectionHeader } from "@/components/layout/PageContainer";
 import { getMakes, getModels } from "@/lib/queries/makes";
 import { SellWizard } from "./_components/SellWizard";
@@ -13,6 +15,8 @@ export default async function SellPage() {
         <SectionHeader title="Ilan yayinla" eyebrow="Sat" />
         <SellWizard makes={makesResult.data} models={modelsResult.data} />
       </PageContainer>
+      <MarketplaceFooter />
+      <MobileBottomNav />
     </>
   );
 }
