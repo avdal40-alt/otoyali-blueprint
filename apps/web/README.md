@@ -17,6 +17,20 @@ FlutterFlow remains a UI prototype/reference. This app is the real web product: 
 - Vercel-ready structure
 - PWA-ready manifest and icon placeholder
 
+## Brand Assets
+
+Production brand assets live in `public/brand`.
+
+- `otoyali-logo-header.svg`: compact header wordmark
+- `otoyali-logo-full.svg`: full presentation logo with cyan/blue underline
+- `otoyali-logo-white.svg`: white logo for dark surfaces
+- `otoyali-logo-monochrome.svg`: single-color logo
+- `otoyali-app-icon.svg`: app icon source
+- `favicon.svg`: simplified wheel/o mark
+- `apple-touch-icon.png`, `android-chrome-192x192.png`, `android-chrome-512x512.png`, `app-icon-1024.png`: generated app icon exports
+
+All brand files use the lowercase `otoyali` wordmark, a shared wheel geometry in the first `o`, and a shared star/spark geometry. Orange remains reserved for CTAs and is not used in logo assets.
+
 ## Environment Variables
 
 Create `apps/web/.env.local`:

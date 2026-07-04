@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 180" role="img" aria-labelledby="title desc">
+  <title id="title">otoyali full logo</title>
+  <desc id="desc">Full lowercase otoyali wordmark with wheel, star, and subtle cyan blue underline accent.</desc>
+  <g transform="translate(55 26)">
+    <g fill="none">
+      <circle cx="52" cy="52" r="38" fill="#0D47A1"/>
+      <circle cx="52" cy="52" r="25" fill="#FFFFFF"/>
+      <circle cx="52" cy="52" r="20" stroke="#0D47A1" stroke-width="5"/>
+      <g stroke="#0D47A1" stroke-width="5" stroke-linecap="round">
+        <path d="M52 52V34"/>
+        <path d="M52 52V70"/>
+        <path d="M52 52L36.4 43"/>
+        <path d="M52 52L67.6 61"/>
+        <path d="M52 52L36.4 61"/>
+        <path d="M52 52L67.6 43"/>
+      </g>
+      <circle cx="52" cy="52" r="6" fill="#0D47A1"/>
+    </g>
+    <text x="94" y="76" fill="#0D47A1" font-family="Inter, Arial, Helvetica, sans-serif" font-size="76" font-weight="900" letter-spacing="-2">toyali</text>
+    <path d="M386 5L392.2 19.8L407 26L392.2 32.2L386 47L379.8 32.2L365 26L379.8 19.8Z" fill="#1565C0"/>
+  </g>
+  <path d="M58 142H225" stroke="#00D4C8" stroke-width="10" stroke-linecap="square"/>
+  <path d="M252 142H483" stroke="#1565C0" stroke-width="10" stroke-linecap="square"/>
+</svg>

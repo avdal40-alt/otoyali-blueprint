@@ -11,8 +11,13 @@ export const metadata: Metadata = {
   applicationName: "OTOYALI",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/icons/icon.svg",
-    apple: "/icons/icon.svg"
+    icon: [
+      { url: "/brand/favicon.svg", type: "image/svg+xml" },
+      { url: "/brand/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/brand/android-chrome-512x512.png", sizes: "512x512", type: "image/png" }
+    ],
+    shortcut: "/brand/favicon.svg",
+    apple: "/brand/apple-touch-icon.png"
   },
   openGraph: {
     title: "OTOYALI",

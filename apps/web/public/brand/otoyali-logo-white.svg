@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 104" role="img" aria-labelledby="title desc">
+  <title id="title">otoyali white logo</title>
+  <desc id="desc">White lowercase otoyali wordmark for dark backgrounds.</desc>
+  <g fill="none">
+    <circle cx="52" cy="52" r="38" fill="#FFFFFF"/>
+    <circle cx="52" cy="52" r="25" fill="none"/>
+    <circle cx="52" cy="52" r="20" stroke="#FFFFFF" stroke-width="5"/>
+    <g stroke="#FFFFFF" stroke-width="5" stroke-linecap="round">
+      <path d="M52 52V34"/>
+      <path d="M52 52V70"/>
+      <path d="M52 52L36.4 43"/>
+      <path d="M52 52L67.6 61"/>
+      <path d="M52 52L36.4 61"/>
+      <path d="M52 52L67.6 43"/>
+    </g>
+    <circle cx="52" cy="52" r="6" fill="#FFFFFF"/>
+  </g>
+  <text x="94" y="76" fill="#FFFFFF" font-family="Inter, Arial, Helvetica, sans-serif" font-size="76" font-weight="900" letter-spacing="-2">toyali</text>
+  <path d="M386 5L392.2 19.8L407 26L392.2 32.2L386 47L379.8 32.2L365 26L379.8 19.8Z" fill="#FFFFFF"/>
+</svg>

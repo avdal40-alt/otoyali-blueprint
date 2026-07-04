@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
@@ -23,8 +24,8 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-oto-border bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6 lg:px-8">
-        <Link href="/" className="text-xl font-black tracking-tight text-oto-text" aria-label="OTOYALI home">
-          OTOYALI
+        <Link href="/" className="flex items-center" aria-label="otoyali home">
+          <Image src="/brand/otoyali-logo-header.svg" alt="otoyali" width={146} height={35} priority className="h-8 w-auto" />
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-semibold text-oto-muted md:flex">
           <Link href="/search" className="hover:text-oto-text">
