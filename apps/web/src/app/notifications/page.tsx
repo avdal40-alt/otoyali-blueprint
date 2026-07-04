@@ -10,7 +10,7 @@ export default function NotificationsPage() {
       <AppHeader />
       <PageContainer>
         <SectionHeader title="Bildirimler" eyebrow="Hesabim" />
-        <EmptyState title="Bildirim yok" body="Onemli ilan ve hesap bildirimleri burada gorunecek." />
+        <EmptyState title="Bildirim yok" body="Önemli ilan ve hesap bildirimleri burada görünecek." />
       </PageContainer>
       <MarketplaceFooter />
       <MobileBottomNav />

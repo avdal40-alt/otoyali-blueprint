@@ -16,7 +16,7 @@ export function FavoritesClient() {
   useEffect(() => {
     async function load() {
       if (!hasSupabaseEnv()) {
-        setError("Supabase ortam degiskenleri eksik.");
+        setError("Supabase ortam değişkenleri eksik.");
         setLoading(false);
         return;
       }
@@ -59,7 +59,7 @@ export function FavoritesClient() {
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;
-  if (listings.length === 0) return <EmptyState title="Favori yok" body="Begendiginiz ilanlari kaydederek daha sonra hizlica geri donebilirsiniz." href="/search" action="Ilan ara" />;
+  if (listings.length === 0) return <EmptyState title="Favori yok" body="Beğendiğiniz ilanları kaydederek daha sonra hızlıca geri dönebilirsiniz." href="/search" action="İlan ara" />;
 
   return <VehicleGrid listings={listings} />;
 }

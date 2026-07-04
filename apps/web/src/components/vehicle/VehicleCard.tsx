@@ -33,7 +33,7 @@ export function VehicleCard({
         <div className={cn("relative bg-oto-surface", compact ? "aspect-[4/3]" : "aspect-[16/10]")}>
           {promoted ? (
             <span className="absolute left-3 top-3 z-10 rounded-full bg-oto-orange px-3 py-1 text-xs font-black text-white shadow-soft">
-              One cikan
+              Öne çıkan
             </span>
           ) : null}
           <SafeImage src={listing.cover_image_url} alt={title} className="transition duration-300 group-hover:scale-[1.02]" />

@@ -8,8 +8,8 @@ export default function PrivacyPage() {
       <PageContainer className="max-w-3xl">
         <h1 className="text-3xl font-black text-oto-text">Gizlilik Politikasi</h1>
         <p className="mt-4 leading-7 text-oto-muted">
-          OTOYALI, hesap, profil ve ilan yayinlama deneyimi icin gerekli minimum verileri kullanir. Kisisel verilerinizi
-          sade, guvenli ve seffaf bir yaklasimla korumayi hedefler.
+          OTOYALI, hesap, profil ve ilan yayınlama deneyimi için gerekli minimum verileri kullanır. Kişisel verilerinizi
+          sade, güvenli ve şeffaf bir yaklaşımla korumayı hedefler.
         </p>
       </PageContainer>
     </>

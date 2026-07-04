@@ -5,8 +5,8 @@ export const tr = {
   sell: "Sat",
   news: "Haberler",
   profile: "Profil",
-  heroTitle: "Aracinizi bulun",
-  heroSubtitle: "OTOYALI ile premium, hizli ve guvenli otomotiv deneyimi.",
+  heroTitle: "Aracınızı bulun",
+  heroSubtitle: "OTOYALI ile premium, hızlı ve güvenli otomotiv deneyimi.",
   searchPlaceholder: "Araba, marka veya model ara",
-  publishCta: "Ilan yayinla"
+  publishCta: "İlan yayınla"
 };

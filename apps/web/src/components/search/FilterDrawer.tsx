@@ -59,10 +59,15 @@ export function FilterDrawer({
           ))}
         </Select>
         <Select value={filters.city} onChange={(event) => setValue("city", event.target.value)}>
-          <option value="">Sehir</option>
-          {["Istanbul", "Ankara", "Izmir", "Antalya"].map((city) => (
-            <option key={city} value={city}>
-              {city}
+          <option value="">Şehir</option>
+          {[
+            { value: "Istanbul", label: "İstanbul" },
+            { value: "Ankara", label: "Ankara" },
+            { value: "Izmir", label: "İzmir" },
+            { value: "Antalya", label: "Antalya" }
+          ].map((city) => (
+            <option key={city.value} value={city.value}>
+              {city.label}
             </option>
           ))}
         </Select>
@@ -71,11 +76,11 @@ export function FilterDrawer({
           <Input value={filters.maxPrice} onChange={(event) => setValue("maxPrice", event.target.value)} placeholder="Max fiyat" inputMode="numeric" />
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Input value={filters.year} onChange={(event) => setValue("year", event.target.value)} placeholder="Yil" inputMode="numeric" />
+          <Input value={filters.year} onChange={(event) => setValue("year", event.target.value)} placeholder="Yıl" inputMode="numeric" />
           <Input value={filters.mileage} onChange={(event) => setValue("mileage", event.target.value)} placeholder="Max km" inputMode="numeric" />
         </div>
         <Select value={filters.fuelType} onChange={(event) => setValue("fuelType", event.target.value)}>
-          <option value="">Yakit</option>
+          <option value="">Yakıt</option>
           <option value="gasoline">Benzin</option>
           <option value="diesel">Dizel</option>
           <option value="lpg">LPG</option>

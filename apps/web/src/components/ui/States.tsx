@@ -27,7 +27,7 @@ export function EmptyState({
   );
 }
 
-export function LoadingState({ label = "Yukleniyor" }: { label?: string }) {
+export function LoadingState({ label = "Yükleniyor" }: { label?: string }) {
   return (
     <div className="rounded-oto border border-oto-border bg-white p-8 text-center text-sm font-semibold text-oto-muted">
       {label}

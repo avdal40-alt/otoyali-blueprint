@@ -4,32 +4,32 @@ const groups = [
   {
     title: "OTOYALI",
     links: [
-      { href: "/about", label: "Hakkinda" },
+      { href: "/about", label: "Hakkında" },
       { href: "/privacy", label: "Gizlilik" },
-      { href: "/terms", label: "Kullanim sartlari" }
+      { href: "/terms", label: "Kullanım şartları" }
     ]
   },
   {
     title: "Pazar",
     links: [
-      { href: "/search", label: "Arac al" },
-      { href: "/sell", label: "Ilan ver" },
+      { href: "/search", label: "Araç al" },
+      { href: "/sell", label: "İlan ver" },
       { href: "/favorites", label: "Favoriler" }
     ]
   },
   {
-    title: "Icerik",
+    title: "İçerik",
     links: [
       { href: "/news", label: "Haberler" },
-      { href: "/settings", label: "Yardim" },
+      { href: "/settings", label: "Yardım" },
       { href: "/notifications", label: "Bildirimler" }
     ]
   },
   {
     title: "Mobil uygulama",
     links: [
-      { href: "/#app", label: "Android yakinda" },
-      { href: "/#app", label: "iOS yakinda" },
+      { href: "/#app", label: "Android yakında" },
+      { href: "/#app", label: "iOS yakında" },
       { href: "/#app", label: "PWA" }
     ]
   }
@@ -44,7 +44,7 @@ export function MarketplaceFooter() {
             OTOYALI
           </Link>
           <p className="mt-3 max-w-sm text-sm leading-6 text-oto-muted">
-            AI-first ulasim ekosistemi. Arac arama, ilan inceleme, haber ve ilan yayinlama deneyimini tek yerde toplar.
+            AI-first ulaşım ekosistemi. Araç arama, ilan inceleme, haber ve ilan yayınlama deneyimini tek yerde toplar.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">

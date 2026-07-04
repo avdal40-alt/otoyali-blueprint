@@ -62,12 +62,12 @@ export function HomePageContent({
         <HotListingsSection listings={orderedListings} />
 
         <section className="mt-8">
-          <SectionHeader title="Populer markalar" eyebrow="Kesfet" action={<Link href="/search" className="text-sm font-bold text-oto-blue">Tumunu gor</Link>} />
+          <SectionHeader title="Popüler markalar" eyebrow="Keşfet" action={<Link href="/search" className="text-sm font-bold text-oto-blue">Tümünü gör</Link>} />
           <BrandCarousel makes={makes} />
         </section>
 
         <section className="mt-10">
-          <SectionHeader title="Vitrin ilanlari" eyebrow="Oneriler" action={<ButtonLink href="/sell" variant="orange">Ilan yayinla</ButtonLink>} />
+          <SectionHeader title="Vitrin ilanları" eyebrow="Öneriler" action={<ButtonLink href="/sell" variant="orange">İlan yayınla</ButtonLink>} />
           {featured.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-3">
               {featured.map((listing) => (
@@ -75,7 +75,7 @@ export function HomePageContent({
               ))}
             </div>
           ) : (
-            <VehicleGrid listings={[]} title="Aktif ilan bulunamadi" body="Supabase verisi geldigi anda burada gorunecek." />
+            <VehicleGrid listings={[]} title="Aktif ilan bulunamadı" body="Supabase verisi geldiği anda burada görünecek." />
           )}
         </section>
 

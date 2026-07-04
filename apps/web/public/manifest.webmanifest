@@ -32,13 +32,13 @@
   ],
   "shortcuts": [
     {
-      "name": "Arac ara",
+      "name": "Araç ara",
       "short_name": "Ara",
       "url": "/search"
     },
     {
-      "name": "Ilan yayinla",
-      "short_name": "Ilan ver",
+      "name": "İlan yayınla",
+      "short_name": "İlan ver",
       "url": "/sell"
     },
     {

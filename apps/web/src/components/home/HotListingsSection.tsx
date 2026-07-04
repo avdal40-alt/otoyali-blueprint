@@ -11,8 +11,8 @@ export function HotListingsSection({ listings }: { listings: HomeListing[] }) {
       <div className="mb-4 flex items-end justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-oto-orange">Vitrin</p>
-          <h2 className="text-xl font-bold text-oto-text md:text-2xl">One cikan ilanlar</h2>
-          <p className="mt-1 max-w-2xl text-sm text-oto-muted">Dikkat ceken araclari hizlica kesfedin ve favori ilanlarinizi kacirmayin.</p>
+          <h2 className="text-xl font-bold text-oto-text md:text-2xl">Öne çıkan ilanlar</h2>
+          <p className="mt-1 max-w-2xl text-sm text-oto-muted">Dikkat çeken araçları hızlıca keşfedin ve favori ilanlarınızı kaçırmayın.</p>
         </div>
       </div>
       {hotListings.length > 0 ? (
@@ -22,7 +22,7 @@ export function HotListingsSection({ listings }: { listings: HomeListing[] }) {
           ))}
         </div>
       ) : (
-        <EmptyState title="One cikan ilan yok" body="Aktif ilanlar geldiginde bu alan otomatik dolacak." />
+        <EmptyState title="Öne çıkan ilan yok" body="Aktif ilanlar geldiğinde bu alan otomatik dolacak." />
       )}
     </section>
   );

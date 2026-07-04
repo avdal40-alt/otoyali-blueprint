@@ -6,10 +6,10 @@ export default function TermsPage() {
     <>
       <AppHeader />
       <PageContainer className="max-w-3xl">
-        <h1 className="text-3xl font-black text-oto-text">Kullanim Sartlari</h1>
+        <h1 className="text-3xl font-black text-oto-text">Kullanım Şartları</h1>
         <p className="mt-4 leading-7 text-oto-muted">
-          OTOYALI, kullanicilarin arac ilanlarini goruntulemesine, aramasina ve yayinlamasina yardimci olan bir
-          platformdur. Platformu kullanirken ilan bilgilerinin dogrulugundan ilan sahipleri sorumludur.
+          OTOYALI, kullanıcıların araç ilanlarını görüntülemesine, aramasına ve yayınlamasına yardımcı olan bir
+          platformdur. Platformu kullanırken ilan bilgilerinin doğruluğundan ilan sahipleri sorumludur.
         </p>
       </PageContainer>
     </>

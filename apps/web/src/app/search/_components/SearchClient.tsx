@@ -87,7 +87,7 @@ export function SearchClient({
     <>
       <AppHeader />
       <PageContainer>
-        <SectionHeader title="Arac ara" eyebrow="Pazar" />
+        <SectionHeader title="Araç ara" eyebrow="Pazar" />
         {error ? <ErrorState message={error} /> : null}
         <DevQueryDebug items={debugItems} />
         {process.env.NODE_ENV !== "production" && (!support.priceNegotiable || !support.promoted) ? (
@@ -116,7 +116,7 @@ export function SearchClient({
                   }}
                   className="h-10"
                 >
-                  Gelismis
+                  Gelişmiş
                 </Button>
                 <SortSelect value={filters.sort} onChange={setSort} />
               </div>

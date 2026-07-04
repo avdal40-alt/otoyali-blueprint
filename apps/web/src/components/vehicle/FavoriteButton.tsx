@@ -35,7 +35,7 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
 
   async function toggleFavorite() {
     if (!hasSupabaseEnv()) {
-      alert("Supabase ortam degiskenleri eksik.");
+      alert("Supabase ortam değişkenleri eksik.");
       return;
     }
 

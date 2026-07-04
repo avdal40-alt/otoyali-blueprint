@@ -10,7 +10,7 @@ export function ContactSellerButton() {
 
   async function contact() {
     if (!hasSupabaseEnv()) {
-      alert("Supabase ortam degiskenleri eksik.");
+      alert("Supabase ortam değişkenleri eksik.");
       return;
     }
 
@@ -21,12 +21,12 @@ export function ContactSellerButton() {
       return;
     }
 
-    alert("Satici iletisim ozelligi yakinda aktif olacak.");
+    alert("Satıcı iletişim özelliği yakında aktif olacak.");
   }
 
   return (
     <Button onClick={contact} variant="orange" className="w-full">
-      Satici ile iletisime gec
+      Satıcı ile iletişime geç
     </Button>
   );
 }

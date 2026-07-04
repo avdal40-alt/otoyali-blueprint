@@ -5,15 +5,15 @@ import { VehicleCard } from "./VehicleCard";
 
 export function VehicleGrid({
   listings,
-  title = "Ilan bulunamadi",
-  body = "Filtreleri degistirerek tekrar deneyin."
+  title = "İlan bulunamadı",
+  body = "Filtreleri değiştirerek tekrar deneyin."
 }: {
   listings: HomeListing[];
   title?: string;
   body?: string;
 }) {
   if (listings.length === 0) {
-    return <EmptyState title={title} body={body} href="/sell" action="Ilan yayinla" />;
+    return <EmptyState title={title} body={body} href="/sell" action="İlan yayınla" />;
   }
 
   return (

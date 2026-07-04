@@ -18,7 +18,7 @@ export function ProfileClient() {
   useEffect(() => {
     async function load() {
       if (!hasSupabaseEnv()) {
-        setError("Supabase ortam degiskenleri eksik.");
+        setError("Supabase ortam değişkenleri eksik.");
         setLoading(false);
         return;
       }
@@ -82,7 +82,7 @@ export function ProfileClient() {
   }
 
   if (loading) return <LoadingState />;
-  if (!userId) return <EmptyState title="Profil icin giris yapin" body="Ilan yayinlamak, favorileri kaydetmek ve profil duzenlemek icin telefonla giris yapin." href="/login?next=/profile" action="Giris yap" />;
+  if (!userId) return <EmptyState title="Profil için giriş yapın" body="İlan yayınlamak, favorileri kaydetmek ve profil düzenlemek için telefonla giriş yapın." href="/login?next=/profile" action="Giriş yap" />;
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
@@ -92,16 +92,16 @@ export function ProfileClient() {
         <div className="mt-5 grid gap-3 md:grid-cols-2">
           <Input value={profile?.first_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, first_name: event.target.value } : current)} placeholder="Ad" />
           <Input value={profile?.last_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, last_name: event.target.value } : current)} placeholder="Soyad" />
-          <Input value={profile?.city ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, city: event.target.value } : current)} placeholder="Sehir" />
+          <Input value={profile?.city ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, city: event.target.value } : current)} placeholder="Şehir" />
         </div>
         {error ? <div className="mt-4"><ErrorState message={error} /></div> : null}
         <div className="mt-5 flex flex-wrap gap-3">
           <Button onClick={save}>Kaydet</Button>
-          <Button onClick={logout} variant="secondary">Cikis yap</Button>
+          <Button onClick={logout} variant="secondary">Çıkış yap</Button>
         </div>
       </section>
       <aside className="grid h-fit gap-3 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-        <ButtonLink href="/profile/listings" variant="secondary">Ilanlarim</ButtonLink>
+        <ButtonLink href="/profile/listings" variant="secondary">İlanlarım</ButtonLink>
         <ButtonLink href="/favorites" variant="secondary">Favoriler</ButtonLink>
         <ButtonLink href="/settings" variant="secondary">Ayarlar</ButtonLink>
       </aside>

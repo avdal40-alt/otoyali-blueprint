@@ -22,12 +22,12 @@ export function LoginClient() {
     setError(null);
 
     if (!isValidPhone) {
-      setError("Gecerli bir Turkiye telefon numarasi girin.");
+      setError("Geçerli bir Türkiye telefon numarası girin.");
       return;
     }
 
     if (!hasSupabaseEnv()) {
-      setError("Supabase ortam degiskenleri eksik. .env.local dosyasini kontrol edin.");
+      setError("Supabase ortam değişkenleri eksik. .env.local dosyasını kontrol edin.");
       return;
     }
 
@@ -37,7 +37,7 @@ export function LoginClient() {
     setLoading(false);
 
     if (otpError) {
-      setError(`${otpError.message}. SMS saglayicisi henuz yapilandirilmadiysa gelistirme asamasinda giris test edilemeyebilir.`);
+      setError(`${otpError.message}. SMS gönderimi şu anda kullanılamıyor olabilir. Lütfen daha sonra tekrar deneyin.`);
       return;
     }
 
@@ -46,16 +46,16 @@ export function LoginClient() {
 
   return (
     <div className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-      <h1 className="text-2xl font-black text-oto-text">Telefon ile giris</h1>
-      <p className="mt-2 text-sm leading-6 text-oto-muted">E-posta veya sifre yok. OTOYALI sadece telefon OTP ile giris yapar.</p>
+      <h1 className="text-2xl font-black text-oto-text">Telefon ile giriş</h1>
+      <p className="mt-2 text-sm leading-6 text-oto-muted">E-posta veya şifre yok. OTOYALI sadece telefon OTP ile giriş yapar.</p>
       <p className="mt-2 rounded-md bg-oto-surface p-3 text-xs font-semibold leading-5 text-oto-muted">
-        SMS saglayicisi henuz yapilandirilmadiysa gelistirme asamasinda giris test edilemeyebilir.
+        Kod birkaç dakika içinde gelmezse tekrar gönderebilirsiniz.
       </p>
       <div className="mt-5 grid gap-4">
         <PhoneInput value={phone} onChange={setPhone} />
         {error ? <ErrorState message={error} /> : null}
         <Button onClick={submit} disabled={loading || !isValidPhone}>
-          {loading ? "Gonderiliyor" : "Kod gonder"}
+          {loading ? "Gönderiliyor" : "Kod gönder"}
         </Button>
       </div>
     </div>

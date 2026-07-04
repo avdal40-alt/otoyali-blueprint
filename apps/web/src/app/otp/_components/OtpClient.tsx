@@ -20,7 +20,7 @@ export function OtpClient() {
   async function verify() {
     setError(null);
     if (!hasSupabaseEnv()) {
-      setError("Supabase ortam degiskenleri eksik.");
+      setError("Supabase ortam değişkenleri eksik.");
       return;
     }
 
@@ -54,7 +54,7 @@ export function OtpClient() {
   async function resend() {
     setError(null);
     if (!hasSupabaseEnv()) {
-      setError("Supabase ortam degiskenleri eksik.");
+      setError("Supabase ortam değişkenleri eksik.");
       return;
     }
 
@@ -64,22 +64,22 @@ export function OtpClient() {
     setResending(false);
 
     if (resendError) {
-      setError(`${resendError.message}. SMS saglayicisi henuz yapilandirilmadiysa gelistirme asamasinda giris test edilemeyebilir.`);
+      setError(`${resendError.message}. SMS gönderimi şu anda kullanılamıyor olabilir. Lütfen daha sonra tekrar deneyin.`);
     }
   }
 
   return (
     <div className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft">
       <h1 className="text-2xl font-black text-oto-text">Kodu girin</h1>
-      <p className="mt-2 text-sm leading-6 text-oto-muted">{phone} numarasina gelen 6 haneli kodu yazin.</p>
+      <p className="mt-2 text-sm leading-6 text-oto-muted">{phone} numarasına gelen 6 haneli kodu yazın.</p>
       <div className="mt-5 grid gap-4">
         <OtpInput value={token} onChange={setToken} />
         {error ? <ErrorState message={error} /> : null}
         <Button onClick={verify} disabled={loading || token.length !== 6}>
-          {loading ? "Dogrulaniyor" : "Dogrula"}
+          {loading ? "Doğrulanıyor" : "Doğrula"}
         </Button>
         <Button onClick={resend} variant="secondary" disabled={resending || !phone}>
-          {resending ? "Gonderiliyor" : "Kodu tekrar gonder"}
+          {resending ? "Gönderiliyor" : "Kodu tekrar gönder"}
         </Button>
       </div>
     </div>

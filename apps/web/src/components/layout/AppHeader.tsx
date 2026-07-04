@@ -35,7 +35,7 @@ export function AppHeader() {
             Haberler
           </Link>
           <Link href="/about" className="hover:text-oto-text">
-            Hakkinda
+            Hakkında
           </Link>
         </nav>
         <div className="flex items-center gap-2">
@@ -54,7 +54,7 @@ export function AppHeader() {
             <UserIcon />
           </Link>
           <ButtonLink href="/sell" variant="orange" className="hidden md:inline-flex">
-            Ilan yayinla
+            İlan yayınla
           </ButtonLink>
         </div>
       </div>

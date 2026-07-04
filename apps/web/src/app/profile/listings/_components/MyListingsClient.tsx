@@ -24,7 +24,7 @@ export function MyListingsClient() {
   useEffect(() => {
     async function load() {
       if (!hasSupabaseEnv()) {
-        setError("Supabase ortam degiskenleri eksik.");
+        setError("Supabase ortam değişkenleri eksik.");
         setLoading(false);
         return;
       }
@@ -55,7 +55,7 @@ export function MyListingsClient() {
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;
-  if (items.length === 0) return <EmptyState title="Henuz ilan yok" body="Ilk ilaninizla OTOYALI'de gorunur olun." href="/sell" action="Ilan yayinla" />;
+  if (items.length === 0) return <EmptyState title="Henüz ilan yok" body="İlk ilanınızla OTOYALI'de görünür olun." href="/sell" action="İlan yayınla" />;
 
   return (
     <div className="grid gap-3">

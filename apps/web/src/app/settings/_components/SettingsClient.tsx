@@ -16,7 +16,7 @@ export function SettingsClient() {
   useEffect(() => {
     async function load() {
       if (!hasSupabaseEnv()) {
-        setError("Supabase ortam degiskenleri eksik.");
+        setError("Supabase ortam değişkenleri eksik.");
         return;
       }
       const supabase = getSupabaseBrowserClient();
@@ -49,7 +49,7 @@ export function SettingsClient() {
       <div className="grid gap-3 md:grid-cols-2">
         <Input value={profile.first_name ?? ""} onChange={(event) => setProfile({ ...profile, first_name: event.target.value })} placeholder="Ad" />
         <Input value={profile.last_name ?? ""} onChange={(event) => setProfile({ ...profile, last_name: event.target.value })} placeholder="Soyad" />
-        <Input value={profile.city ?? ""} onChange={(event) => setProfile({ ...profile, city: event.target.value })} placeholder="Sehir" />
+        <Input value={profile.city ?? ""} onChange={(event) => setProfile({ ...profile, city: event.target.value })} placeholder="Şehir" />
         <Select value={profile.language} onChange={(event) => setProfile({ ...profile, language: event.target.value })}>
           <option value="tr">Turkce</option>
           <option value="en">English</option>

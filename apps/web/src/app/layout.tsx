@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     default: "OTOYALI - AI-first transportation platform",
     template: "%s | OTOYALI"
   },
-  description: "OTOYALI ile araclari kesfedin, arayin, ilanlari inceleyin ve guvenle yayinlayin.",
+  description: "OTOYALI ile araçları keşfedin, arayın, ilanları inceleyin ve güvenle yayınlayın.",
   applicationName: "OTOYALI",
   manifest: "/manifest.webmanifest",
   icons: {

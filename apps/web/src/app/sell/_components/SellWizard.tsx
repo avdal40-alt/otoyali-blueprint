@@ -54,7 +54,7 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
   useEffect(() => {
     async function checkAuth() {
       if (!hasSupabaseEnv()) {
-        setError("Supabase ortam degiskenleri eksik.");
+        setError("Supabase ortam değişkenleri eksik.");
         setCheckingAuth(false);
         return;
       }
@@ -110,7 +110,7 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
     }
 
     if (!state.makeId || !state.modelId || !state.year || !state.mileageKm || !state.priceAmount || !state.city) {
-      setError("Zorunlu alanlari doldurun.");
+      setError("Zorunlu alanları doldurun.");
       return;
     }
 
@@ -136,7 +136,7 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
 
     if (profileError || !profile) {
       setSubmitting(false);
-      setError(profileError?.message ?? "Arac profili olusturulamadi.");
+      setError(profileError?.message ?? "Araç profili oluşturulamadı.");
       return;
     }
 
@@ -190,7 +190,7 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
       }
     }
 
-    const listingTitle = state.title.trim() || generatedTitle || "OTOYALI ilani";
+    const listingTitle = state.title.trim() || generatedTitle || "OTOYALI ilanı";
     const { data: listing, error: listingError } = await supabase
       .schema("marketplace")
       .from("listings")
@@ -211,7 +211,7 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
     setSubmitting(false);
 
     if (listingError || !listing) {
-      setError(listingError?.message ?? "Ilan olusturulamadi.");
+      setError(listingError?.message ?? "İlan oluşturulamadı.");
       return;
     }
 
@@ -219,7 +219,7 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
   }
 
   if (checkingAuth) return <LoadingState label="Oturum kontrol ediliyor" />;
-  const steps = ["Fotograflar", "Arac bilgileri", "Fiyat", "Aciklama", "On izleme"];
+  const steps = ["Fotoğraflar", "Araç bilgileri", "Fiyat", "Açıklama", "Ön izleme"];
 
   return (
     <form onSubmit={publish} className="grid gap-5">
@@ -240,17 +240,17 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
       </div>
 
       {step === 1 ? (
-        <Panel title="Fotograflar">
+        <Panel title="Fotoğraflar">
           <Input type="file" accept="image/*" multiple onChange={(event) => update("photos", Array.from(event.target.files ?? []))} />
-          <p className="text-sm text-oto-muted">{state.photos.length} fotograf secildi.</p>
+          <p className="text-sm text-oto-muted">{state.photos.length} fotoğraf seçildi.</p>
           {process.env.NODE_ENV !== "production" ? (
-            <p className="text-xs font-semibold text-oto-muted">Gelistirme notu: Storage hazir degilse ilan fotograf olmadan yayinlanabilir.</p>
+            <p className="text-xs font-semibold text-oto-muted">Fotoğraflar ilan kalitesini artırır.</p>
           ) : null}
         </Panel>
       ) : null}
 
       {step === 2 ? (
-        <Panel title="Arac bilgileri">
+        <Panel title="Araç bilgileri">
           <div className="grid gap-3 md:grid-cols-2">
             <Select value={state.makeId} onChange={(event) => update("makeId", event.target.value)}>
               <option value="">Marka</option>
@@ -260,7 +260,7 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
               <option value="">Model</option>
               {filteredModels.map((model) => <option key={model.model_id} value={model.model_id}>{model.model_name}</option>)}
             </Select>
-            <Input value={state.year} onChange={(event) => update("year", event.target.value)} placeholder="Yil" inputMode="numeric" />
+            <Input value={state.year} onChange={(event) => update("year", event.target.value)} placeholder="Yıl" inputMode="numeric" />
             <Input value={state.mileageKm} onChange={(event) => update("mileageKm", event.target.value)} placeholder="Kilometre" inputMode="numeric" />
             <Select value={state.fuelType} onChange={(event) => update("fuelType", event.target.value)}>
               <option value="gasoline">Benzin</option>
@@ -274,7 +274,12 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
               <option value="manual">Manuel</option>
             </Select>
             <Select value={state.city} onChange={(event) => update("city", event.target.value)}>
-              {["Istanbul", "Ankara", "Izmir", "Antalya"].map((city) => <option key={city} value={city}>{city}</option>)}
+              {[
+                { value: "Istanbul", label: "İstanbul" },
+                { value: "Ankara", label: "Ankara" },
+                { value: "Izmir", label: "İzmir" },
+                { value: "Antalya", label: "Antalya" }
+              ].map((city) => <option key={city.value} value={city.value}>{city.label}</option>)}
             </Select>
           </div>
         </Panel>
@@ -290,7 +295,7 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
           </div>
           <label className="flex items-center gap-2 text-sm font-semibold text-oto-muted">
             <input type="checkbox" checked={state.priceNegotiable} onChange={(event) => update("priceNegotiable", event.target.checked)} />
-            Pazarlik var
+            Pazarlık var
           </label>
           {selectedMake && selectedModel && state.year && state.mileageKm ? (
             <PriceSuggestionCard suggestion={priceSuggestion} currency={state.currency} />
@@ -299,22 +304,22 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
       ) : null}
 
       {step === 4 ? (
-        <Panel title="Aciklama">
-          <Input value={state.title} onChange={(event) => update("title", event.target.value)} placeholder={generatedTitle || "Ilan basligi"} />
-          <Textarea value={state.description} onChange={(event) => update("description", event.target.value)} placeholder="Aracin durumunu kisaca anlatin" />
+        <Panel title="Açıklama">
+          <Input value={state.title} onChange={(event) => update("title", event.target.value)} placeholder={generatedTitle || "İlan başlığı"} />
+          <Textarea value={state.description} onChange={(event) => update("description", event.target.value)} placeholder="Aracın durumunu kısaca anlatın" />
         </Panel>
       ) : null}
 
       {step === 5 ? (
-        <Panel title="Onizleme">
+        <Panel title="Ön izleme">
           <div className="rounded-oto bg-oto-surface p-4">
-            <h2 className="text-xl font-black text-oto-text">{state.title || generatedTitle || "Ilan basligi"}</h2>
+            <h2 className="text-xl font-black text-oto-text">{state.title || generatedTitle || "İlan başlığı"}</h2>
             <p className="mt-2 text-2xl font-black text-oto-text">{formatPrice(Number(state.priceAmount || 0), state.currency)}</p>
             <p className="mt-2 text-sm text-oto-muted">{state.city} - {state.year} - {state.mileageKm} km</p>
           </div>
           {error ? <ErrorState message={error} /> : null}
           <Button type="submit" variant="orange" disabled={submitting}>
-            {submitting ? "Yayinlaniyor" : "Yayinla"}
+            {submitting ? "Yayınlanıyor" : "Yayınla"}
           </Button>
         </Panel>
       ) : null}
@@ -336,18 +341,18 @@ function PriceSuggestionCard({
 }) {
   return (
     <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
-      <h3 className="text-base font-black text-oto-text">Tahmini piyasa fiyati</h3>
+      <h3 className="text-base font-black text-oto-text">Tahmini piyasa fiyatı</h3>
       {suggestion ? (
         <div className="mt-3 grid gap-2 text-sm font-semibold text-oto-muted">
           <p>
-            Benzer ilan araligi: {formatPrice(suggestion.minPrice, currency)} - {formatPrice(suggestion.maxPrice, currency)}
+            Benzer ilan aralığı: {formatPrice(suggestion.minPrice, currency)} - {formatPrice(suggestion.maxPrice, currency)}
           </p>
-          <p>Daha hizli satis icin onerilen fiyat: {formatPrice(suggestion.averagePrice, currency)}</p>
-          <p className="text-xs">{suggestion.comparableCount} benzer ilan uzerinden hesaplandi. Garanti edilen satis fiyati degildir.</p>
+          <p>Daha hızlı satış için önerilen fiyat: {formatPrice(suggestion.averagePrice, currency)}</p>
+          <p className="text-xs">{suggestion.comparableCount} benzer ilan üzerinden hesaplandı. Garanti edilen satış fiyatı değildir.</p>
         </div>
       ) : (
         <p className="mt-3 text-sm font-semibold leading-6 text-oto-muted">
-          Fiyat onerisi icin yeterli veri yok. Bu ozellik daha fazla ilan verisiyle daha akilli hale gelecek.
+          Fiyat önerisi için yeterli veri yok. Bu özellik daha fazla ilan verisiyle daha akıllı hale gelecek.
         </p>
       )}
     </div>

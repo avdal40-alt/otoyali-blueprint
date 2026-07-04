@@ -13,7 +13,7 @@ export default function NewsPage() {
       <PageContainer>
         <SectionHeader title="Otomotiv haberleri" eyebrow="Gundem" />
         <div className="mb-5 flex flex-wrap gap-2">
-          {["Guncel", "Elektrikli", "Rehber", "Piyasa", "Guvenlik", "Bakim"].map((item) => (
+          {["Güncel", "Elektrikli", "Rehber", "Piyasa", "Güvenlik", "Bakım"].map((item) => (
             <Badge key={item}>{item}</Badge>
           ))}
         </div>

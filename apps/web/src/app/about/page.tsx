@@ -12,14 +12,14 @@ export default function AboutPage() {
         <p className="text-sm font-bold uppercase tracking-wide text-oto-blue">OTOYALI</p>
         <h1 className="mt-3 text-4xl font-black tracking-tight text-oto-text">AI-first transportation platform</h1>
         <p className="mt-5 text-lg leading-8 text-oto-muted">
-          OTOYALI sadece bir arac pazaryeri degildir. Kullanici arac arama, ilan yayinlama, haber okuma ve gelecekteki
-          ulasim gorevlerini tek yerde cozer.
+          OTOYALI sadece bir araç pazaryeri değildir. Kullanıcı araç arama, ilan yayınlama, haber okuma ve gelecekteki
+          ulaşım görevlerini tek yerde çözer.
         </p>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {["Misafir olarak kesfet", "Premium otomotiv deneyimi", "Turkiye odakli altyapi"].map((item) => (
+          {["Misafir olarak keşfet", "Premium otomotiv deneyimi", "Türkiye odaklı altyapı"].map((item) => (
             <div key={item} className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
               <h2 className="font-bold text-oto-text">{item}</h2>
-              <p className="mt-2 text-sm leading-6 text-oto-muted">OTOYALI, arac arama ve ilan deneyimini sade, hizli ve guvenilir hale getirir.</p>
+              <p className="mt-2 text-sm leading-6 text-oto-muted">OTOYALI, araç arama ve ilan deneyimini sade, hızlı ve güvenilir hale getirir.</p>
             </div>
           ))}
         </div>

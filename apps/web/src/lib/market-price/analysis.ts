@@ -100,9 +100,9 @@ export function getPriceSuggestion(input: ComparableVehicle, listings: HomeListi
 }
 
 export function priceBadgeLabel(kind: PriceBadgeKind) {
-  if (kind === "good") return "Iyi fiyat";
-  if (kind === "high") return "Yuksek fiyat";
-  return "Piyasa fiyati";
+  if (kind === "good") return "İyi fiyat";
+  if (kind === "high") return "Yüksek fiyat";
+  return "Piyasa fiyatı";
 }
 
 export function priceBadgeClass(kind: PriceBadgeKind) {

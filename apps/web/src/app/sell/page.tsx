@@ -13,7 +13,7 @@ export default async function SellPage() {
     <>
       <AppHeader />
       <PageContainer className="max-w-4xl">
-        <SectionHeader title="Ilan yayinla" eyebrow="Sat" />
+        <SectionHeader title="İlan yayınla" eyebrow="Sat" />
         <SellWizard makes={makesResult.data} models={modelsResult.data} listings={listingsResult.data} />
       </PageContainer>
       <MarketplaceFooter />

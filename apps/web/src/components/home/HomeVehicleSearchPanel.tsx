@@ -45,7 +45,7 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
         <label className="grid gap-1 md:col-span-1 lg:col-span-2">
           <span className="text-xs font-bold text-oto-muted">Marka</span>
           <Select value={filters.make} onChange={(event) => setValue("make", event.target.value)}>
-            <option value="">Tum markalar</option>
+            <option value="">Tüm markalar</option>
             {makes.map((make) => (
               <option key={make.make_id} value={make.make_name ?? ""}>
                 {make.make_name ?? "Bilgi yok"}
@@ -56,7 +56,7 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
         <label className="grid gap-1 md:col-span-1 lg:col-span-2">
           <span className="text-xs font-bold text-oto-muted">Model</span>
           <Select value={filters.model} onChange={(event) => setValue("model", event.target.value)}>
-            <option value="">Tum modeller</option>
+            <option value="">Tüm modeller</option>
             {filteredModels.map((model) => (
               <option key={model.model_id} value={model.model_name ?? ""}>
                 {model.model_name ?? "Bilgi yok"}
@@ -65,9 +65,9 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
           </Select>
         </label>
         <label className="grid gap-1 md:col-span-1 lg:col-span-2">
-          <span className="text-xs font-bold text-oto-muted">Sehir</span>
+          <span className="text-xs font-bold text-oto-muted">Şehir</span>
           <Select value={filters.city} onChange={(event) => setValue("city", event.target.value)}>
-            <option value="">Tum sehirler</option>
+            <option value="">Tüm şehirler</option>
             {cities.map((city) => (
               <option key={city} value={city}>
                 {city}
@@ -87,11 +87,11 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
         </div>
         <div className="hidden grid-cols-3 gap-2 md:col-span-4 lg:col-span-5 lg:grid">
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">Yil min</span>
+            <span className="text-xs font-bold text-oto-muted">Yıl min</span>
             <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder="2020" inputMode="numeric" />
           </label>
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">Yil max</span>
+            <span className="text-xs font-bold text-oto-muted">Yıl max</span>
             <Input value={filters.yearMax} onChange={(event) => setValue("yearMax", event.target.value)} placeholder="2026" inputMode="numeric" />
           </label>
           <label className="grid gap-1">
@@ -111,7 +111,7 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
             aria-expanded={advancedOpen}
             aria-controls="home-advanced-filters"
           >
-            Gelismis filtreler
+            Gelişmiş filtreler
           </Button>
         </div>
       </div>
@@ -126,9 +126,9 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
         <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             <label className="grid gap-1">
-              <span className="text-xs font-bold text-oto-muted">Yakit tipi</span>
+              <span className="text-xs font-bold text-oto-muted">Yakıt tipi</span>
               <Select value={filters.fuelType} onChange={(event) => setValue("fuelType", event.target.value)}>
-                <option value="">Tum yakit tipleri</option>
+                <option value="">Tüm yakıt tipleri</option>
                 <option value="gasoline">Benzin</option>
                 <option value="diesel">Dizel</option>
                 <option value="lpg">LPG</option>
@@ -139,7 +139,7 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
             <label className="grid gap-1">
               <span className="text-xs font-bold text-oto-muted">Vites</span>
               <Select value={filters.transmission} onChange={(event) => setValue("transmission", event.target.value)}>
-                <option value="">Tum vitesler</option>
+                <option value="">Tüm vitesler</option>
                 <option value="automatic">Otomatik</option>
                 <option value="manual">Manuel</option>
               </Select>
@@ -147,7 +147,7 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
             <label className="grid gap-1">
               <span className="text-xs font-bold text-oto-muted">Kasa tipi</span>
               <Select value={filters.bodyType} onChange={(event) => setValue("bodyType", event.target.value)}>
-                <option value="">Tum kasa tipleri</option>
+                <option value="">Tüm kasa tipleri</option>
                 <option value="sedan">Sedan</option>
                 <option value="hatchback">Hatchback</option>
                 <option value="suv">SUV</option>
@@ -156,49 +156,49 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
               </Select>
             </label>
             <label className="grid gap-1">
-              <span className="text-xs font-bold text-oto-muted">Cekis</span>
+              <span className="text-xs font-bold text-oto-muted">Çekiş</span>
               <Select value={filters.driveType} onChange={(event) => setValue("driveType", event.target.value)}>
-                <option value="">Tum cekis tipleri</option>
-                <option value="front">Onden cekis</option>
-                <option value="rear">Arkadan itis</option>
+                <option value="">Tüm çekiş tipleri</option>
+                <option value="front">Önden çekiş</option>
+                <option value="rear">Arkadan itiş</option>
                 <option value="awd">4x4 / AWD</option>
               </Select>
             </label>
             <label className="grid gap-1">
               <span className="text-xs font-bold text-oto-muted">Renk</span>
               <Select value={filters.color} onChange={(event) => setValue("color", event.target.value)}>
-                <option value="">Tum renkler</option>
+                <option value="">Tüm renkler</option>
                 <option value="white">Beyaz</option>
                 <option value="black">Siyah</option>
                 <option value="gray">Gri</option>
                 <option value="blue">Mavi</option>
-                <option value="red">Kirmizi</option>
+                <option value="red">Kırmızı</option>
               </Select>
             </label>
             <label className="grid gap-1">
               <span className="text-xs font-bold text-oto-muted">Durum</span>
               <Select value={filters.condition} onChange={(event) => setValue("condition", event.target.value)}>
-                <option value="">Tum durumlar</option>
-                <option value="used">Ikinci el</option>
+                <option value="">Tüm durumlar</option>
+                <option value="used">İkinci el</option>
                 <option value="new">Yeni</option>
               </Select>
             </label>
             <label className="grid gap-1">
-              <span className="text-xs font-bold text-oto-muted">Satici tipi</span>
+              <span className="text-xs font-bold text-oto-muted">Satıcı tipi</span>
               <Select value={filters.sellerType} onChange={(event) => setValue("sellerType", event.target.value)}>
-                <option value="">Tum saticilar</option>
+                <option value="">Tüm satıcılar</option>
                 <option value="individual">Bireysel</option>
                 <option value="corporate">Kurumsal</option>
               </Select>
             </label>
             <label className="grid gap-1">
-              <span className="text-xs font-bold text-oto-muted">Siralama</span>
+              <span className="text-xs font-bold text-oto-muted">Sıralama</span>
               <Select value={filters.sort} onChange={(event) => setValue("sort", event.target.value as ListingSearchFilters["sort"])}>
                 <option value="newest">En yeni</option>
-                <option value="price_asc">Once en dusuk fiyat</option>
-                <option value="price_desc">Once en yuksek fiyat</option>
-                <option value="year_desc">Once yeni yil</option>
-                <option value="mileage_asc">Once dusuk kilometre</option>
+                <option value="price_asc">Önce en düşük fiyat</option>
+                <option value="price_desc">Önce en yüksek fiyat</option>
+                <option value="year_desc">Önce yeni yıl</option>
+                <option value="mileage_asc">Önce düşük kilometre</option>
               </Select>
             </label>
           </div>
@@ -209,7 +209,7 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
             </label>
             <label className="flex items-center gap-2 rounded-md bg-white px-3 py-3 text-sm font-semibold text-oto-muted">
               <input type="checkbox" checked={filters.onlyWithPhotos} onChange={(event) => setValue("onlyWithPhotos", event.target.checked)} />
-              Fotografli ilanlar
+              Fotoğraflı ilanlar
             </label>
           </div>
         </div>

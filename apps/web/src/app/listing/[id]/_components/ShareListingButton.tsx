@@ -24,7 +24,7 @@ export function ShareListingButton({ title }: { title: string }) {
 
   return (
     <Button type="button" variant="secondary" onClick={() => void share()} className="w-full">
-      {copied ? "Link kopyalandi" : "Paylas"}
+      {copied ? "Link kopyalandı" : "Paylaş"}
     </Button>
   );
 }

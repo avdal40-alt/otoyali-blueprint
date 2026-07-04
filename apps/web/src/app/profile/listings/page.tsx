@@ -7,7 +7,7 @@ export default function MyListingsPage() {
     <>
       <AppHeader />
       <PageContainer>
-        <SectionHeader title="Ilanlarim" eyebrow="Hesabim" />
+        <SectionHeader title="İlanlarım" eyebrow="Hesabım" />
         <MyListingsClient />
       </PageContainer>
     </>

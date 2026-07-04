@@ -7,10 +7,10 @@ export function SortSelect({ value, onChange }: { value: SortOption; onChange: (
   return (
     <Select value={value} onChange={(event) => onChange(event.target.value as SortOption)} className="h-10 min-w-52">
       <option value="newest">En yeni</option>
-      <option value="price_asc">Once en dusuk fiyat</option>
-      <option value="price_desc">Once en yuksek fiyat</option>
-      <option value="year_desc">Once yeni yil</option>
-      <option value="mileage_asc">Once dusuk kilometre</option>
+      <option value="price_asc">Önce en düşük fiyat</option>
+      <option value="price_desc">Önce en yüksek fiyat</option>
+      <option value="year_desc">Önce yeni yıl</option>
+      <option value="mileage_asc">Önce düşük kilometre</option>
     </Select>
   );
 }

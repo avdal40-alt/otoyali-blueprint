@@ -69,19 +69,19 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                   <SpecChip>{formatMileage(listing.mileage_km)}</SpecChip>
                   <SpecChip>{fuelLabel(listing.fuel_type)}</SpecChip>
                   <SpecChip>{transmissionLabel(listing.transmission)}</SpecChip>
-                  {listing.price_negotiable ? <SpecChip>Pazarlik var</SpecChip> : null}
+                  {listing.price_negotiable ? <SpecChip>Pazarlık var</SpecChip> : null}
                 </div>
                 <section className="mt-6 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-                  <h2 className="text-lg font-bold text-oto-text">Arac ozellikleri</h2>
+                  <h2 className="text-lg font-bold text-oto-text">Araç özellikleri</h2>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {[
                       ["Marka", listing.make_name || "Bilgi yok"],
                       ["Model", listing.model_name || "Bilgi yok"],
-                      ["Yil", listing.year ?? "Bilgi yok"],
+                      ["Yıl", listing.year ?? "Bilgi yok"],
                       ["Kilometre", formatMileage(listing.mileage_km)],
-                      ["Yakit", fuelLabel(listing.fuel_type)],
+                      ["Yakıt", fuelLabel(listing.fuel_type)],
                       ["Vites", transmissionLabel(listing.transmission)],
-                      ["Sehir", city],
+                      ["Şehir", city],
                       ["Yayin tarihi", formatDate(listing.published_at) || "Bilgi yok"]
                     ].map(([label, value]) => (
                       <div key={String(label)} className="rounded-md bg-oto-surface p-3">
@@ -96,8 +96,8 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                   <VehicleTrustReportCard />
                 </div>
                 <section className="mt-8 rounded-oto border border-oto-border bg-white p-5">
-                  <h2 className="text-lg font-bold text-oto-text">Aciklama</h2>
-                  <p className="mt-3 whitespace-pre-line text-sm leading-7 text-oto-muted">{listing.description || "Satici aciklama eklememis."}</p>
+                  <h2 className="text-lg font-bold text-oto-text">Açıklama</h2>
+                  <p className="mt-3 whitespace-pre-line text-sm leading-7 text-oto-muted">{listing.description || "Satıcı açıklama eklememiş."}</p>
                 </section>
                 <section className="mt-6 rounded-oto border border-oto-border bg-white p-5">
                   <h2 className="text-lg font-bold text-oto-text">Benzer ilanlar</h2>
@@ -108,20 +108,20 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                       ))}
                     </div>
                   ) : (
-                    <p className="mt-2 text-sm leading-6 text-oto-muted">Benzer ilanlar aktif veri arttikca burada gorunecek.</p>
+                    <p className="mt-2 text-sm leading-6 text-oto-muted">Benzer ilanlar aktif veri arttıkça burada görünecek.</p>
                   )}
                 </section>
               </div>
             </div>
             <aside className="h-fit rounded-oto border border-oto-border bg-white p-5 shadow-soft lg:sticky lg:top-24">
-              <h2 className="text-lg font-bold text-oto-text">Satici</h2>
-              <p className="mt-2 text-sm leading-6 text-oto-muted">Satici bilgileri gizlilik icin sinirli tutulur. Iletisim icin giris yapmaniz gerekir.</p>
+              <h2 className="text-lg font-bold text-oto-text">Satıcı</h2>
+              <p className="mt-2 text-sm leading-6 text-oto-muted">Satıcı bilgileri gizlilik için sınırlı tutulur. İletişim için giriş yapmanız gerekir.</p>
               <div className="mt-4 grid gap-3">
                 <ContactSellerButton />
                 <ShareListingButton title={title} />
               </div>
               <p className="mt-5 rounded-md bg-oto-surface p-3 text-sm font-semibold leading-6 text-oto-muted">
-                OTOYALI, arac alim satimini daha guvenli ve kolay hale getirir.
+                OTOYALI, araç alım satımını daha güvenli ve kolay hale getirir.
               </p>
             </aside>
           </div>
