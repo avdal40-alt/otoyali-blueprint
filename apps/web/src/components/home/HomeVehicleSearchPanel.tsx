@@ -5,8 +5,20 @@ import { useRouter } from "next/navigation";
 import type { HomeListing, Make, Model } from "@/lib/supabase/types";
 import { buildSearchUrl, defaultSearchFilters, type ListingSearchFilters } from "@/lib/search/search-params";
 import { getUniqueCities } from "@/lib/search/filter-listings";
+import { cityLabel } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
+import { ConditionTabs } from "@/components/search/ConditionTabs";
+
+const quickTags: Array<{ label: string; filters: Partial<ListingSearchFilters> }> = [
+  { label: "1.500.000 TRY altı", filters: { priceMax: "1500000" } },
+  { label: "SUV", filters: { bodyType: "suv", advanced: true } },
+  { label: "Otomatik", filters: { transmission: "automatic", advanced: true } },
+  { label: "Elektrikli", filters: { fuelType: "electric", advanced: true } },
+  { label: "Ankara", filters: { city: "Ankara" } },
+  { label: "İstanbul", filters: { city: "Istanbul" } },
+  { label: "Düşük kilometre", filters: { mileageMax: "50000" } }
+];
 
 export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Make[]; models: Model[]; listings: HomeListing[] }) {
   const router = useRouter();
@@ -39,8 +51,16 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
     router.push(buildSearchUrl({ ...filters, advanced: advancedOpen || hasAdvancedSelection }));
   }
 
+  function quickSearch(nextFilters: Partial<ListingSearchFilters>) {
+    router.push(buildSearchUrl({ ...defaultSearchFilters, ...nextFilters }));
+  }
+
   return (
     <div className="rounded-oto border border-oto-border bg-white p-4 shadow-oto md:p-5">
+      <div className="mb-4">
+        <ConditionTabs value={filters.condition} onChange={(value) => setValue("condition", value)} />
+      </div>
+
       <div className="grid gap-3 md:grid-cols-4 lg:grid-cols-8">
         <label className="grid gap-1 md:col-span-1 lg:col-span-2">
           <span className="text-xs font-bold text-oto-muted">Marka</span>
@@ -70,7 +90,7 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
             <option value="">Tüm şehirler</option>
             {cities.map((city) => (
               <option key={city} value={city}>
-                {city}
+                {cityLabel(city)}
               </option>
             ))}
           </Select>
@@ -115,6 +135,20 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
           </Button>
         </div>
       </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {quickTags.map((tag) => (
+          <button
+            key={tag.label}
+            type="button"
+            onClick={() => quickSearch(tag.filters)}
+            className="rounded-full border border-oto-border bg-oto-surface px-3 py-1.5 text-xs font-bold text-oto-muted transition hover:border-oto-blue hover:bg-white hover:text-oto-text"
+          >
+            {tag.label}
+          </button>
+        ))}
+      </div>
+
       <div
         id="home-advanced-filters"
         className={
@@ -133,7 +167,7 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
                 <option value="diesel">Dizel</option>
                 <option value="lpg">LPG</option>
                 <option value="hybrid">Hibrit</option>
-                <option value="electric">Elektrik</option>
+                <option value="electric">Elektrikli</option>
               </Select>
             </label>
             <label className="grid gap-1">
@@ -178,17 +212,17 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
             <label className="grid gap-1">
               <span className="text-xs font-bold text-oto-muted">Durum</span>
               <Select value={filters.condition} onChange={(event) => setValue("condition", event.target.value)}>
-                <option value="">Tüm durumlar</option>
+                <option value="">Tüm ilanlar</option>
                 <option value="used">İkinci el</option>
-                <option value="new">Yeni</option>
+                <option value="new">Sıfır km</option>
               </Select>
             </label>
             <label className="grid gap-1">
               <span className="text-xs font-bold text-oto-muted">Satıcı tipi</span>
               <Select value={filters.sellerType} onChange={(event) => setValue("sellerType", event.target.value)}>
-                <option value="">Tüm satıcılar</option>
-                <option value="individual">Bireysel</option>
-                <option value="corporate">Kurumsal</option>
+                <option value="">Tümü</option>
+                <option value="private">Bireysel</option>
+                <option value="dealer">Galeri</option>
               </Select>
             </label>
             <label className="grid gap-1">

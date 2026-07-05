@@ -75,6 +75,85 @@ export function transmissionLabel(value?: string | null, locale = "tr") {
   return labels[locale]?.[value] ?? titleCase(value);
 }
 
+export function conditionLabel(value?: string | null) {
+  const labels: Record<string, string> = {
+    used: "İkinci el",
+    new: "Sıfır km"
+  };
+
+  return value ? labels[value] ?? titleCase(value) : "Bilgi yok";
+}
+
+export function sellerTypeLabel(value?: string | null) {
+  const labels: Record<string, string> = {
+    private: "Bireysel",
+    individual: "Bireysel",
+    dealer: "Galeri",
+    corporate: "Galeri"
+  };
+
+  return value ? labels[value] ?? titleCase(value) : "Bilgi yok";
+}
+
+export function bodyTypeLabel(value?: string | null) {
+  const labels: Record<string, string> = {
+    sedan: "Sedan",
+    hatchback: "Hatchback",
+    suv: "SUV",
+    wagon: "Station wagon",
+    coupe: "Coupe"
+  };
+
+  return value ? labels[value.toLocaleLowerCase("tr-TR")] ?? titleCase(value) : "Bilgi yok";
+}
+
+export function driveTypeLabel(value?: string | null) {
+  const labels: Record<string, string> = {
+    front: "Önden çekiş",
+    rear: "Arkadan itiş",
+    awd: "4x4 / AWD"
+  };
+
+  return value ? labels[value] ?? titleCase(value) : "Bilgi yok";
+}
+
+export function damageStateLabel(value?: string | null) {
+  const labels: Record<string, string> = {
+    unknown: "Bilinmiyor",
+    none: "Hasarsız",
+    minor: "Hafif hasarlı",
+    major: "Ağır hasarlı"
+  };
+
+  return value ? labels[value] ?? titleCase(value) : "Bilgi yok";
+}
+
+export function colorLabel(value?: string | null) {
+  const labels: Record<string, string> = {
+    white: "Beyaz",
+    black: "Siyah",
+    gray: "Gri",
+    blue: "Mavi",
+    red: "Kırmızı",
+    silver: "Gümüş"
+  };
+
+  return value ? labels[value] ?? titleCase(value) : "Bilgi yok";
+}
+
+export function cityLabel(value?: string | null) {
+  const labels: Record<string, string> = {
+    Istanbul: "İstanbul",
+    İstanbul: "İstanbul",
+    Izmir: "İzmir",
+    İzmir: "İzmir",
+    Ankara: "Ankara",
+    Antalya: "Antalya"
+  };
+
+  return value ? labels[value] ?? value : "Konum belirtilmedi";
+}
+
 export function titleCase(value: string) {
   const clean = value.trim();
   if (!clean) {

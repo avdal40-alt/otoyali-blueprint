@@ -36,7 +36,7 @@ export function analyzeMarketPrice(current: ListingDetails | HomeListing, listin
   const modelName = normalize(current.model_name);
 
   if (!currentPrice || !makeName || !modelName) {
-    return { status: "insufficient", reason: "Piyasa analizi icin yeterli veri yok." };
+    return { status: "insufficient", reason: "Piyasa analizi için yeterli veri yok." };
   }
 
   const comparablePool = listings.filter((listing) => {
@@ -55,7 +55,7 @@ export function analyzeMarketPrice(current: ListingDetails | HomeListing, listin
   }
 
   if (comparables.length < 3) {
-    return { status: "insufficient", reason: "Piyasa analizi icin yeterli veri yok." };
+    return { status: "insufficient", reason: "Piyasa analizi için yeterli veri yok." };
   }
 
   return calculateAnalysis(currentPrice, comparables);

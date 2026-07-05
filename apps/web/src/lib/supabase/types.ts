@@ -4,6 +4,7 @@ export type HomeListing = {
   title?: string | null;
   price_amount?: number | null;
   currency?: string | null;
+  price_negotiable?: boolean | null;
   city?: string | null;
   published_at: string | null;
   make_name?: string | null;
@@ -13,6 +14,15 @@ export type HomeListing = {
   fuel_type?: string | null;
   transmission?: string | null;
   cover_image_url?: string | null;
+  media_count?: number | null;
+  body_type?: string | null;
+  condition?: string | null;
+  seller_type?: string | null;
+  drive_type?: string | null;
+  color?: string | null;
+  engine_volume_l?: number | null;
+  damage_state?: string | null;
+  owner_count?: number | null;
 };
 
 export type ListingDetails = {
@@ -33,6 +43,15 @@ export type ListingDetails = {
   fuel_type?: string | null;
   transmission?: string | null;
   cover_image_url?: string | null;
+  media_count?: number | null;
+  body_type?: string | null;
+  condition?: string | null;
+  seller_type?: string | null;
+  drive_type?: string | null;
+  color?: string | null;
+  engine_volume_l?: number | null;
+  damage_state?: string | null;
+  owner_count?: number | null;
 };
 
 export type ListingMedia = {

@@ -17,6 +17,9 @@ export type ListingSearchFilters = {
   color: string;
   condition: string;
   sellerType: string;
+  engineVolume: string;
+  damageState: string;
+  ownerCount: string;
   onlyWithPhotos: boolean;
   negotiableOnly: boolean;
   promotedOnly: boolean;
@@ -42,6 +45,9 @@ export const defaultSearchFilters: ListingSearchFilters = {
   color: "",
   condition: "",
   sellerType: "",
+  engineVolume: "",
+  damageState: "",
+  ownerCount: "",
   onlyWithPhotos: false,
   negotiableOnly: false,
   promotedOnly: false,
@@ -53,31 +59,35 @@ export const defaultSearchFilters: ListingSearchFilters = {
 type RawSearchParams = Record<string, string | string[] | undefined>;
 
 export function parseSearchParams(searchParams: RawSearchParams): ListingSearchFilters {
-  const value = (key: string, fallbackKey?: string) => first(searchParams[key]) || (fallbackKey ? first(searchParams[fallbackKey]) : "") || "";
+  const value = (...keys: string[]) => firstAvailable(searchParams, keys);
+  const listValue = (...keys: string[]) => allValues(searchParams, keys).join(",");
   const sort = value("sort") as SortOption;
 
   return {
     ...defaultSearchFilters,
     q: value("q"),
-    make: value("make"),
-    model: value("model"),
-    city: value("city"),
-    priceMin: value("priceMin", "price_min"),
-    priceMax: value("priceMax", "price_max"),
-    yearMin: value("yearMin", "year_min"),
-    yearMax: value("yearMax", "year_max"),
-    mileageMax: value("mileageMax", "mileage_max"),
-    fuelType: value("fuelType", "fuel_type"),
-    transmission: value("transmission"),
-    bodyType: value("bodyType", "body_type"),
-    driveType: value("driveType", "drive_type"),
+    make: listValue("make"),
+    model: listValue("model"),
+    city: listValue("city"),
+    priceMin: value("price_min", "priceMin", "min_price"),
+    priceMax: value("price_max", "priceMax", "max_price"),
+    yearMin: value("year_min", "yearMin", "min_year"),
+    yearMax: value("year_max", "yearMax", "max_year"),
+    mileageMax: value("max_mileage", "mileage_max", "mileageMax"),
+    fuelType: listValue("fuel_type", "fuelType"),
+    transmission: listValue("transmission"),
+    bodyType: listValue("body_type", "bodyType"),
+    driveType: value("drive_type", "driveType"),
     color: value("color"),
     condition: value("condition"),
-    sellerType: value("sellerType", "seller_type"),
-    onlyWithPhotos: isTruthy(value("onlyWithPhotos", "with_photos")),
-    negotiableOnly: isTruthy(value("negotiableOnly", "negotiable")),
-    promotedOnly: isTruthy(value("promotedOnly", "promoted")),
-    tradeOnly: isTruthy(value("tradeOnly", "trade")),
+    sellerType: value("seller_type", "sellerType"),
+    engineVolume: value("engine_volume", "engineVolume"),
+    damageState: value("damage_state", "damageState"),
+    ownerCount: value("owner_count", "ownerCount"),
+    onlyWithPhotos: isTruthy(value("with_photos", "onlyWithPhotos")),
+    negotiableOnly: isTruthy(value("negotiable", "negotiableOnly")),
+    promotedOnly: isTruthy(value("promoted", "promotedOnly")),
+    tradeOnly: isTruthy(value("trade", "tradeOnly")),
     advanced: isTruthy(value("advanced")),
     sort: isSortOption(sort) ? sort : "newest"
   };
@@ -87,26 +97,29 @@ export function buildSearchUrl(filters: Partial<ListingSearchFilters>, path = "/
   const params = new URLSearchParams();
 
   add(params, "q", filters.q);
-  add(params, "make", filters.make);
-  add(params, "model", filters.model);
-  add(params, "city", filters.city);
-  add(params, "priceMin", filters.priceMin);
-  add(params, "priceMax", filters.priceMax);
-  add(params, "yearMin", filters.yearMin);
-  add(params, "yearMax", filters.yearMax);
-  add(params, "mileageMax", filters.mileageMax);
-  add(params, "fuelType", filters.fuelType);
-  add(params, "transmission", filters.transmission);
-  add(params, "bodyType", filters.bodyType);
-  add(params, "driveType", filters.driveType);
+  addList(params, "make", filters.make);
+  addList(params, "model", filters.model);
+  addList(params, "city", filters.city);
+  add(params, "price_min", filters.priceMin);
+  add(params, "price_max", filters.priceMax);
+  add(params, "year_min", filters.yearMin);
+  add(params, "year_max", filters.yearMax);
+  add(params, "max_mileage", filters.mileageMax);
+  addList(params, "fuel_type", filters.fuelType);
+  addList(params, "transmission", filters.transmission);
+  addList(params, "body_type", filters.bodyType);
+  add(params, "drive_type", filters.driveType);
   add(params, "color", filters.color);
   add(params, "condition", filters.condition);
-  add(params, "sellerType", filters.sellerType);
+  add(params, "seller_type", filters.sellerType);
+  add(params, "engine_volume", filters.engineVolume);
+  add(params, "damage_state", filters.damageState);
+  add(params, "owner_count", filters.ownerCount);
   add(params, "sort", filters.sort && filters.sort !== "newest" ? filters.sort : "");
-  add(params, "onlyWithPhotos", filters.onlyWithPhotos ? "1" : "");
-  add(params, "negotiableOnly", filters.negotiableOnly ? "1" : "");
-  add(params, "promotedOnly", filters.promotedOnly ? "1" : "");
-  add(params, "tradeOnly", filters.tradeOnly ? "1" : "");
+  add(params, "with_photos", filters.onlyWithPhotos ? "1" : "");
+  add(params, "negotiable", filters.negotiableOnly ? "1" : "");
+  add(params, "promoted", filters.promotedOnly ? "1" : "");
+  add(params, "trade", filters.tradeOnly ? "1" : "");
   add(params, "advanced", filters.advanced ? "1" : "");
 
   const query = params.toString();
@@ -121,6 +134,43 @@ export function hasActiveFilters(filters: ListingSearchFilters) {
   });
 }
 
+export function selectedValues(value: string) {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+export function toggleSelectedValue(current: string, value: string) {
+  const values = selectedValues(current);
+  return values.includes(value)
+    ? values.filter((item) => item !== value).join(",")
+    : [...values, value].join(",");
+}
+
+function firstAvailable(searchParams: RawSearchParams, keys: string[]) {
+  for (const key of keys) {
+    const value = first(searchParams[key]);
+    if (value) return value;
+  }
+
+  return "";
+}
+
+function allValues(searchParams: RawSearchParams, keys: string[]) {
+  const values: string[] = [];
+
+  for (const key of keys) {
+    const raw = searchParams[key];
+    const items = Array.isArray(raw) ? raw : raw ? [raw] : [];
+    for (const item of items) {
+      values.push(...selectedValues(item));
+    }
+  }
+
+  return Array.from(new Set(values));
+}
+
 function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -130,6 +180,12 @@ function add(params: URLSearchParams, key: string, value: string | boolean | und
     return;
   }
   params.set(key, String(value));
+}
+
+function addList(params: URLSearchParams, key: string, value: string | undefined) {
+  for (const item of selectedValues(value ?? "")) {
+    params.append(key, item);
+  }
 }
 
 function isTruthy(value: string) {

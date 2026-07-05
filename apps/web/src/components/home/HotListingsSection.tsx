@@ -1,9 +1,15 @@
-import type { HomeListing } from "@/lib/supabase/types";
+import type { HomeListing, ListingMedia } from "@/lib/supabase/types";
 import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { EmptyState } from "@/components/ui/States";
 
-export function HotListingsSection({ listings }: { listings: HomeListing[] }) {
+export function HotListingsSection({
+  listings,
+  mediaByListing = {}
+}: {
+  listings: HomeListing[];
+  mediaByListing?: Record<string, ListingMedia[]>;
+}) {
   const hotListings = listings.slice(0, 4);
 
   return (
@@ -18,7 +24,7 @@ export function HotListingsSection({ listings }: { listings: HomeListing[] }) {
       {hotListings.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {hotListings.map((listing) => (
-            <VehicleCard key={listing.listing_id} listing={listing} compact promoted priceBadge={getPriceBadgeForListing(listing, listings)} />
+            <VehicleCard key={listing.listing_id} listing={listing} media={mediaByListing[listing.listing_id]} compact promoted priceBadge={getPriceBadgeForListing(listing, listings)} />
           ))}
         </div>
       ) : (

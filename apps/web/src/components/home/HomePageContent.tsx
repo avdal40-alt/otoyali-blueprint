@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { HomeListing, Make, Model } from "@/lib/supabase/types";
+import type { HomeListing, ListingMedia, Make, Model } from "@/lib/supabase/types";
 import { tr } from "@/i18n/tr";
 import { en } from "@/i18n/en";
 import { newsArticles } from "@/data/news";
@@ -16,13 +16,14 @@ import { ErrorState } from "@/components/ui/States";
 import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import type { QueryResult } from "@/lib/queries/listings";
 import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
-import { sortListings } from "@/lib/search/filter-listings";
+import { getListingCountByMake, sortListings } from "@/lib/search/filter-listings";
 import { HomeVehicleSearchPanel } from "./HomeVehicleSearchPanel";
 import { HotListingsSection } from "./HotListingsSection";
 import { AppPromoSection } from "./AppPromoSection";
 
 export function HomePageContent({
   listings,
+  listingMedia = [],
   makes,
   models,
   error,
@@ -30,6 +31,7 @@ export function HomePageContent({
   locale = "tr"
 }: {
   listings: HomeListing[];
+  listingMedia?: ListingMedia[];
   makes: Make[];
   models: Model[];
   error?: string | null;
@@ -40,6 +42,8 @@ export function HomePageContent({
   const orderedListings = sortListings(listings, "newest");
   const featured = orderedListings.slice(4, 7).length > 0 ? orderedListings.slice(4, 7) : orderedListings.slice(0, 3);
   const latest = orderedListings.slice(0, 6);
+  const mediaByListing = groupMediaByListing(listingMedia);
+  const countsByMake = getListingCountByMake(listings);
 
   return (
     <>
@@ -59,11 +63,11 @@ export function HomePageContent({
         {error ? <div className="mt-6"><ErrorState message={error} /></div> : null}
         <DevQueryDebug items={debugItems} />
 
-        <HotListingsSection listings={orderedListings} />
+        <HotListingsSection listings={orderedListings} mediaByListing={mediaByListing} />
 
         <section className="mt-8">
           <SectionHeader title="Popüler markalar" eyebrow="Keşfet" action={<Link href="/search" className="text-sm font-bold text-oto-blue">Tümünü gör</Link>} />
-          <BrandCarousel makes={makes} />
+          <BrandCarousel makes={makes} countsByMake={countsByMake} />
         </section>
 
         <section className="mt-10">
@@ -71,7 +75,7 @@ export function HomePageContent({
           {featured.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-3">
               {featured.map((listing) => (
-                <VehicleCard key={listing.listing_id} listing={listing} priceBadge={getPriceBadgeForListing(listing, orderedListings)} />
+                <VehicleCard key={listing.listing_id} listing={listing} media={mediaByListing[listing.listing_id]} priceBadge={getPriceBadgeForListing(listing, orderedListings)} />
               ))}
             </div>
           ) : (
@@ -81,11 +85,11 @@ export function HomePageContent({
 
         <section className="mt-10">
           <SectionHeader title="En yeni ilanlar" eyebrow="Pazar" />
-          <VehicleGrid listings={latest} />
+          <VehicleGrid listings={latest} listingMedia={listingMedia} />
         </section>
 
         <section className="mt-10">
-          <SectionHeader title="Otomotiv haberleri" eyebrow="Gundem" action={<Link href="/news" className="text-sm font-bold text-oto-blue">Haberler</Link>} />
+          <SectionHeader title="Otomotiv haberleri" eyebrow="Gündem" action={<Link href="/news" className="text-sm font-bold text-oto-blue">Haberler</Link>} />
           <NewsGrid articles={newsArticles.slice(0, 3)} />
         </section>
 
@@ -97,4 +101,12 @@ export function HomePageContent({
       <MobileBottomNav />
     </>
   );
+}
+
+function groupMediaByListing(media: ListingMedia[]) {
+  return media.reduce<Record<string, ListingMedia[]>>((groups, item) => {
+    if (!item.listing_id) return groups;
+    groups[item.listing_id] = [...(groups[item.listing_id] ?? []), item];
+    return groups;
+  }, {});
 }

@@ -2,13 +2,15 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { HomeListing, Make, Model } from "@/lib/supabase/types";
+import type { HomeListing, ListingMedia, Make, Model } from "@/lib/supabase/types";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer, SectionHeader } from "@/components/layout/PageContainer";
 import { ActiveFilterChips } from "@/components/search/ActiveFilterChips";
+import { ConditionTabs } from "@/components/search/ConditionTabs";
 import { MobileFilterDrawer } from "@/components/search/MobileFilterDrawer";
+import { SavedSearchButton } from "@/components/search/SavedSearchButton";
 import { SearchFilters } from "@/components/search/SearchFilters";
 import { SortSelect } from "@/components/search/SortSelect";
 import { VehicleGrid } from "@/components/vehicle/VehicleGrid";
@@ -21,6 +23,7 @@ import { filterListings, getAvailableFilterFields, getUniqueCities } from "@/lib
 
 export function SearchClient({
   listings,
+  listingMedia = [],
   makes,
   models,
   initialFilters,
@@ -28,6 +31,7 @@ export function SearchClient({
   debugItems = []
 }: {
   listings: HomeListing[];
+  listingMedia?: ListingMedia[];
   makes: Make[];
   models: Model[];
   initialFilters: ListingSearchFilters;
@@ -42,7 +46,21 @@ export function SearchClient({
   const filtered = useMemo(() => filterListings(listings, filters), [filters, listings]);
   const showAdvancedFilters =
     filters.advanced ||
-    Boolean(filters.fuelType || filters.transmission || filters.onlyWithPhotos || filters.negotiableOnly || filters.promotedOnly);
+    Boolean(
+      filters.fuelType ||
+        filters.transmission ||
+        filters.bodyType ||
+        filters.driveType ||
+        filters.color ||
+        filters.condition ||
+        filters.sellerType ||
+        filters.engineVolume ||
+        filters.damageState ||
+        filters.ownerCount ||
+        filters.onlyWithPhotos ||
+        filters.negotiableOnly ||
+        filters.promotedOnly
+    );
 
   function submit(nextFilters = filters) {
     router.push(buildSearchUrl(nextFilters));
@@ -63,6 +81,12 @@ export function SearchClient({
 
   function setSort(sort: ListingSearchFilters["sort"]) {
     const nextFilters = { ...filters, sort };
+    setFilters(nextFilters);
+    router.push(buildSearchUrl(nextFilters));
+  }
+
+  function setCondition(condition: string) {
+    const nextFilters = { ...filters, condition };
     setFilters(nextFilters);
     router.push(buildSearchUrl(nextFilters));
   }
@@ -90,22 +114,23 @@ export function SearchClient({
         <SectionHeader title="Araç ara" eyebrow="Pazar" />
         {error ? <ErrorState message={error} /> : null}
         <DevQueryDebug items={debugItems} />
-        {process.env.NODE_ENV !== "production" && (!support.priceNegotiable || !support.promoted) ? (
-          <div className="mt-4 rounded-oto border border-dashed border-oto-border bg-oto-surface p-3 text-xs font-semibold text-oto-muted">
-            Dev notu: pazarlik ve one cikan filtreleri mevcut ff_home_listings alanlarinda yoksa uretimde gizlenir.
-          </div>
-        ) : null}
+
+        <div className="mt-4 rounded-oto border border-oto-border bg-white p-3 shadow-soft">
+          <ConditionTabs value={filters.condition} onChange={setCondition} />
+        </div>
+
         <div className="mt-4 grid gap-6 lg:grid-cols-[320px_1fr]">
           <div className="hidden lg:block">{renderFilterPanel()}</div>
           <div>
             <MobileFilterDrawer open={mobileFiltersOpen} onOpen={() => setMobileFiltersOpen(true)} onClose={() => setMobileFiltersOpen(false)}>
               {renderFilterPanel()}
             </MobileFilterDrawer>
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <p className="text-sm font-semibold text-oto-muted">
                 <span className="font-black text-oto-text">{filtered.length}</span> ilan bulundu
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-start gap-2">
+                <SavedSearchButton />
                 <Button
                   type="button"
                   variant={filters.advanced ? "primary" : "secondary"}
@@ -122,7 +147,7 @@ export function SearchClient({
               </div>
             </div>
             <ActiveFilterChips filters={filters} onRemove={removeFilter} onReset={reset} />
-            <VehicleGrid listings={filtered} />
+            <VehicleGrid listings={filtered} listingMedia={listingMedia} />
           </div>
         </div>
       </PageContainer>

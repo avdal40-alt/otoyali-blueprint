@@ -7,7 +7,7 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/States";
-import { formatPrice } from "@/lib/format";
+import { cityLabel, formatPrice } from "@/lib/format";
 import { getPriceSuggestion } from "@/lib/market-price/analysis";
 
 type WizardState = {
@@ -15,8 +15,16 @@ type WizardState = {
   modelId: string;
   year: string;
   mileageKm: string;
+  condition: string;
+  sellerType: string;
+  bodyType: string;
   fuelType: string;
   transmission: string;
+  driveType: string;
+  color: string;
+  engineVolumeL: string;
+  damageState: string;
+  ownerCount: string;
   city: string;
   priceAmount: string;
   currency: string;
@@ -31,8 +39,16 @@ const initialState: WizardState = {
   modelId: "",
   year: "",
   mileageKm: "",
+  condition: "used",
+  sellerType: "private",
+  bodyType: "",
   fuelType: "gasoline",
   transmission: "automatic",
+  driveType: "",
+  color: "",
+  engineVolumeL: "",
+  damageState: "",
+  ownerCount: "",
   city: "Istanbul",
   priceAmount: "",
   currency: "TRY",
@@ -41,6 +57,13 @@ const initialState: WizardState = {
   description: "",
   photos: []
 };
+
+const cityOptions = [
+  { value: "Istanbul", label: "İstanbul" },
+  { value: "Ankara", label: "Ankara" },
+  { value: "Izmir", label: "İzmir" },
+  { value: "Antalya", label: "Antalya" }
+];
 
 export function SellWizard({ makes, models, listings }: { makes: Make[]; models: Model[]; listings: HomeListing[] }) {
   const router = useRouter();
@@ -125,8 +148,15 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
         model_id: state.modelId,
         year: Number(state.year),
         mileage_km: Number(state.mileageKm),
+        condition: state.condition,
         fuel_type: state.fuelType,
         transmission: state.transmission,
+        body_type: state.bodyType || null,
+        drive_type: state.driveType || null,
+        color: state.color || null,
+        engine_volume_l: state.engineVolumeL ? Number(state.engineVolumeL) : null,
+        damage_state: state.damageState || null,
+        owner_count: state.ownerCount ? Number(state.ownerCount) : null,
         created_source: "manual",
         profile_status: "active",
         created_by: userId
@@ -203,6 +233,7 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
         price_amount: Number(state.priceAmount),
         currency: state.currency,
         price_negotiable: state.priceNegotiable,
+        seller_type: state.sellerType,
         city: state.city
       })
       .select("id")
@@ -241,17 +272,32 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
 
       {step === 1 ? (
         <Panel title="Fotoğraflar">
+          <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-black text-oto-text">Plaka/VIN ile doldur</h3>
+                <p className="mt-1 text-sm font-semibold text-oto-muted">Araç bilgilerini otomatik doldurma yakında.</p>
+              </div>
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-oto-muted">Yakında</span>
+            </div>
+          </div>
           <Input type="file" accept="image/*" multiple onChange={(event) => update("photos", Array.from(event.target.files ?? []))} />
           <p className="text-sm text-oto-muted">{state.photos.length} fotoğraf seçildi.</p>
-          {process.env.NODE_ENV !== "production" ? (
-            <p className="text-xs font-semibold text-oto-muted">Fotoğraflar ilan kalitesini artırır.</p>
-          ) : null}
+          <p className="text-xs font-semibold text-oto-muted">Fotoğraflar ilan kalitesini artırır.</p>
         </Panel>
       ) : null}
 
       {step === 2 ? (
         <Panel title="Araç bilgileri">
           <div className="grid gap-3 md:grid-cols-2">
+            <Select value={state.condition} onChange={(event) => update("condition", event.target.value)}>
+              <option value="used">İkinci el</option>
+              <option value="new">Sıfır km</option>
+            </Select>
+            <Select value={state.sellerType} onChange={(event) => update("sellerType", event.target.value)}>
+              <option value="private">Bireysel</option>
+              <option value="dealer">Galeri</option>
+            </Select>
             <Select value={state.makeId} onChange={(event) => update("makeId", event.target.value)}>
               <option value="">Marka</option>
               {makes.map((make) => <option key={make.make_id} value={make.make_id}>{make.make_name}</option>)}
@@ -262,24 +308,50 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
             </Select>
             <Input value={state.year} onChange={(event) => update("year", event.target.value)} placeholder="Yıl" inputMode="numeric" />
             <Input value={state.mileageKm} onChange={(event) => update("mileageKm", event.target.value)} placeholder="Kilometre" inputMode="numeric" />
+            <Select value={state.bodyType} onChange={(event) => update("bodyType", event.target.value)}>
+              <option value="">Kasa tipi</option>
+              <option value="sedan">Sedan</option>
+              <option value="hatchback">Hatchback</option>
+              <option value="suv">SUV</option>
+              <option value="wagon">Station wagon</option>
+              <option value="coupe">Coupe</option>
+            </Select>
             <Select value={state.fuelType} onChange={(event) => update("fuelType", event.target.value)}>
               <option value="gasoline">Benzin</option>
               <option value="diesel">Dizel</option>
               <option value="lpg">LPG</option>
-              <option value="electric">Elektrik</option>
+              <option value="electric">Elektrikli</option>
               <option value="hybrid">Hibrit</option>
             </Select>
             <Select value={state.transmission} onChange={(event) => update("transmission", event.target.value)}>
               <option value="automatic">Otomatik</option>
               <option value="manual">Manuel</option>
             </Select>
+            <Select value={state.driveType} onChange={(event) => update("driveType", event.target.value)}>
+              <option value="">Çekiş</option>
+              <option value="front">Önden çekiş</option>
+              <option value="rear">Arkadan itiş</option>
+              <option value="awd">4x4 / AWD</option>
+            </Select>
+            <Select value={state.color} onChange={(event) => update("color", event.target.value)}>
+              <option value="">Renk</option>
+              <option value="white">Beyaz</option>
+              <option value="black">Siyah</option>
+              <option value="gray">Gri</option>
+              <option value="blue">Mavi</option>
+              <option value="red">Kırmızı</option>
+            </Select>
+            <Input value={state.engineVolumeL} onChange={(event) => update("engineVolumeL", event.target.value)} placeholder="Motor hacmi, örn. 1.6" inputMode="decimal" />
+            <Select value={state.damageState} onChange={(event) => update("damageState", event.target.value)}>
+              <option value="">Hasar durumu</option>
+              <option value="unknown">Bilinmiyor</option>
+              <option value="none">Hasarsız</option>
+              <option value="minor">Hafif hasarlı</option>
+              <option value="major">Ağır hasarlı</option>
+            </Select>
+            <Input value={state.ownerCount} onChange={(event) => update("ownerCount", event.target.value)} placeholder="Sahip sayısı" inputMode="numeric" />
             <Select value={state.city} onChange={(event) => update("city", event.target.value)}>
-              {[
-                { value: "Istanbul", label: "İstanbul" },
-                { value: "Ankara", label: "Ankara" },
-                { value: "Izmir", label: "İzmir" },
-                { value: "Antalya", label: "Antalya" }
-              ].map((city) => <option key={city.value} value={city.value}>{city.label}</option>)}
+              {cityOptions.map((city) => <option key={city.value} value={city.value}>{city.label}</option>)}
             </Select>
           </div>
         </Panel>
@@ -315,7 +387,7 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
           <div className="rounded-oto bg-oto-surface p-4">
             <h2 className="text-xl font-black text-oto-text">{state.title || generatedTitle || "İlan başlığı"}</h2>
             <p className="mt-2 text-2xl font-black text-oto-text">{formatPrice(Number(state.priceAmount || 0), state.currency)}</p>
-            <p className="mt-2 text-sm text-oto-muted">{state.city} - {state.year} - {state.mileageKm} km</p>
+            <p className="mt-2 text-sm text-oto-muted">{cityLabel(state.city)} - {state.year} - {state.mileageKm} km</p>
           </div>
           {error ? <ErrorState message={error} /> : null}
           <Button type="submit" variant="orange" disabled={submitting}>
@@ -352,7 +424,7 @@ function PriceSuggestionCard({
         </div>
       ) : (
         <p className="mt-3 text-sm font-semibold leading-6 text-oto-muted">
-          Fiyat önerisi için yeterli veri yok. Bu özellik daha fazla ilan verisiyle daha akıllı hale gelecek.
+          Yeterli benzer ilan yok. Fiyat önerisi yakında daha güçlü olacak.
         </p>
       )}
     </div>
