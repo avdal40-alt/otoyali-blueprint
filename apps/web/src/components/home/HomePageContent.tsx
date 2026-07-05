@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { HomeListing, ListingMedia, Make, Model } from "@/lib/supabase/types";
+import type { City, HomeListing, ListingMedia, Make, Model } from "@/lib/supabase/types";
 import { tr } from "@/i18n/tr";
 import { en } from "@/i18n/en";
 import { newsArticles } from "@/data/news";
@@ -26,6 +26,7 @@ export function HomePageContent({
   listingMedia = [],
   makes,
   models,
+  cities = [],
   error,
   debugItems = [],
   locale = "tr"
@@ -34,6 +35,7 @@ export function HomePageContent({
   listingMedia?: ListingMedia[];
   makes: Make[];
   models: Model[];
+  cities?: City[];
   error?: string | null;
   debugItems?: Array<Pick<QueryResult<unknown>, "queryName" | "count" | "error">>;
   locale?: "tr" | "en";
@@ -56,7 +58,7 @@ export function HomePageContent({
               <h1 className="mt-2 text-3xl font-black tracking-tight text-oto-text md:text-4xl">{dict.heroTitle}</h1>
               <p className="mt-3 max-w-xl text-sm leading-6 text-oto-muted md:text-base">{dict.heroSubtitle}</p>
             </div>
-            <HomeVehicleSearchPanel makes={makes} models={models} listings={listings} />
+            <HomeVehicleSearchPanel makes={makes} models={models} cities={cities} listings={listings} />
           </div>
         </section>
 

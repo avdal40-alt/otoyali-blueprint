@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import type { Make, Model } from "@/lib/supabase/types";
 import type { ListingSearchFilters } from "@/lib/search/search-params";
 import { selectedValues, toggleSelectedValue } from "@/lib/search/search-params";
@@ -115,6 +116,7 @@ export function SearchFilters({
           options={makes.map((make) => ({ value: make.make_name ?? "", label: make.make_name ?? "Bilgi yok" }))}
           onToggle={(value) => toggleValue("make", value)}
           emptyLabel="Tüm markalar"
+          searchable
         />
 
         <MultiSelectGroup
@@ -123,6 +125,7 @@ export function SearchFilters({
           options={filteredModels.map((model) => ({ value: model.model_name ?? "", label: model.model_name ?? "Bilgi yok" }))}
           onToggle={(value) => toggleValue("model", value)}
           emptyLabel="Tüm modeller"
+          searchable
         />
 
         <MultiSelectGroup
@@ -131,6 +134,7 @@ export function SearchFilters({
           options={cities.map((city) => ({ value: city, label: cityLabel(city) }))}
           onToggle={(value) => toggleValue("city", value)}
           emptyLabel="Tüm şehirler"
+          searchable
         />
 
         <div className="grid grid-cols-2 gap-2">
@@ -241,7 +245,8 @@ function MultiSelectGroup({
   options,
   onToggle,
   emptyLabel,
-  disabled = false
+  disabled = false,
+  searchable = false
 }: {
   label: string;
   values: string[];
@@ -249,9 +254,25 @@ function MultiSelectGroup({
   onToggle: (value: string) => void;
   emptyLabel: string;
   disabled?: boolean;
+  searchable?: boolean;
 }) {
-  const cleanOptions = options.filter((option) => option.value);
-  const limited = cleanOptions.slice(0, 8);
+  const cleanOptions = useMemo(() => options.filter((option) => option.value), [options]);
+  const [query, setQuery] = useState("");
+  const normalizedQuery = normalizeOption(query);
+  const selectedOptions = useMemo(
+    () => values
+      .map((value) => cleanOptions.find((option) => option.value === value) ?? { value, label: value })
+      .filter((option) => option.value),
+    [cleanOptions, values]
+  );
+  const filteredOptions = useMemo(
+    () =>
+      searchable
+        ? cleanOptions.filter((option) => !normalizedQuery || normalizeOption(option.label).includes(normalizedQuery) || normalizeOption(option.value).includes(normalizedQuery))
+        : cleanOptions,
+    [cleanOptions, normalizedQuery, searchable]
+  );
+  const visibleOptions = searchable ? mergeOptions(selectedOptions, filteredOptions).slice(0, 16) : cleanOptions;
 
   return (
     <div className="grid gap-2">
@@ -259,8 +280,17 @@ function MultiSelectGroup({
         <span className="text-xs font-bold text-oto-muted">{label}</span>
         <span className="text-[11px] font-bold text-oto-muted">{values.length > 0 ? `${values.length} seçili` : emptyLabel}</span>
       </div>
+      {searchable ? (
+        <Input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={`${label} ara`}
+          disabled={disabled || cleanOptions.length === 0}
+          className="h-10"
+        />
+      ) : null}
       <div className="flex flex-wrap gap-2">
-        {limited.map((option) => {
+        {visibleOptions.map((option) => {
           const active = values.includes(option.value);
           return (
             <button
@@ -278,7 +308,24 @@ function MultiSelectGroup({
             </button>
           );
         })}
+        {visibleOptions.length === 0 ? <p className="text-xs font-semibold text-oto-muted">Sonuç bulunamadı.</p> : null}
       </div>
     </div>
   );
+}
+
+function normalizeOption(value: string) {
+  return value.trim().toLocaleLowerCase("tr-TR");
+}
+
+function mergeOptions(
+  selectedOptions: Array<{ value: string; label: string }>,
+  filteredOptions: Array<{ value: string; label: string }>
+) {
+  const seen = new Set<string>();
+  return [...selectedOptions, ...filteredOptions].filter((option) => {
+    if (seen.has(option.value)) return false;
+    seen.add(option.value);
+    return true;
+  });
 }

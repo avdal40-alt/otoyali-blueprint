@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { HomeListing, ListingMedia, Make, Model } from "@/lib/supabase/types";
+import type { City, HomeListing, ListingMedia, Make, Model } from "@/lib/supabase/types";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
@@ -26,6 +26,7 @@ export function SearchClient({
   listingMedia = [],
   makes,
   models,
+  cities,
   initialFilters,
   error,
   debugItems = []
@@ -34,6 +35,7 @@ export function SearchClient({
   listingMedia?: ListingMedia[];
   makes: Make[];
   models: Model[];
+  cities?: City[];
   initialFilters: ListingSearchFilters;
   error?: string | null;
   debugItems?: Array<Pick<QueryResult<unknown>, "queryName" | "count" | "error">>;
@@ -41,7 +43,13 @@ export function SearchClient({
   const router = useRouter();
   const [filters, setFilters] = useState<ListingSearchFilters>(initialFilters);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const cities = useMemo(() => getUniqueCities(listings), [listings]);
+  const cityOptions = useMemo(() => {
+    const catalogCities = (cities ?? [])
+      .map((city) => city.city_name?.trim())
+      .filter(Boolean) as string[];
+
+    return catalogCities.length > 0 ? catalogCities : getUniqueCities(listings);
+  }, [cities, listings]);
   const support = useMemo(() => getAvailableFilterFields(listings), [listings]);
   const filtered = useMemo(() => filterListings(listings, filters), [filters, listings]);
   const showAdvancedFilters =
@@ -97,7 +105,7 @@ export function SearchClient({
         filters={filters}
         makes={makes}
         models={models}
-        cities={cities}
+        cities={cityOptions}
         showAdvanced={showAdvancedFilters}
         support={support}
         onChange={setFilters}

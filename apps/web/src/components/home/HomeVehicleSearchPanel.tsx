@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { HomeListing, Make, Model } from "@/lib/supabase/types";
+import type { City, HomeListing, Make, Model } from "@/lib/supabase/types";
 import { buildSearchUrl, defaultSearchFilters, type ListingSearchFilters } from "@/lib/search/search-params";
 import { getUniqueCities } from "@/lib/search/filter-listings";
 import { cityLabel } from "@/lib/format";
@@ -16,15 +16,31 @@ const quickTags: Array<{ label: string; filters: Partial<ListingSearchFilters> }
   { label: "Otomatik", filters: { transmission: "automatic", advanced: true } },
   { label: "Elektrikli", filters: { fuelType: "electric", advanced: true } },
   { label: "Ankara", filters: { city: "Ankara" } },
-  { label: "İstanbul", filters: { city: "Istanbul" } },
+  { label: "İstanbul", filters: { city: "İstanbul" } },
   { label: "Düşük kilometre", filters: { mileageMax: "50000" } }
 ];
 
-export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Make[]; models: Model[]; listings: HomeListing[] }) {
+export function HomeVehicleSearchPanel({
+  makes,
+  models,
+  cities,
+  listings
+}: {
+  makes: Make[];
+  models: Model[];
+  cities?: City[];
+  listings: HomeListing[];
+}) {
   const router = useRouter();
   const [filters, setFilters] = useState<ListingSearchFilters>(defaultSearchFilters);
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const cities = useMemo(() => getUniqueCities(listings), [listings]);
+  const cityOptions = useMemo(() => {
+    const catalogCities = (cities ?? [])
+      .map((city) => city.city_name?.trim())
+      .filter(Boolean) as string[];
+
+    return catalogCities.length > 0 ? catalogCities : getUniqueCities(listings);
+  }, [cities, listings]);
   const filteredModels = filters.make ? models.filter((model) => (model.make_name ?? "") === filters.make) : models;
   const hasAdvancedSelection = Boolean(
     filters.fuelType ||
@@ -88,7 +104,7 @@ export function HomeVehicleSearchPanel({ makes, models, listings }: { makes: Mak
           <span className="text-xs font-bold text-oto-muted">Şehir</span>
           <Select value={filters.city} onChange={(event) => setValue("city", event.target.value)}>
             <option value="">Tüm şehirler</option>
-            {cities.map((city) => (
+            {cityOptions.map((city) => (
               <option key={city} value={city}>
                 {cityLabel(city)}
               </option>

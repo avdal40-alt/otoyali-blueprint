@@ -1,4 +1,5 @@
 import type { HomeListing } from "@/lib/supabase/types";
+import { cityLabel } from "@/lib/format";
 import type { ListingSearchFilters } from "./search-params";
 import { selectedValues } from "./search-params";
 
@@ -18,6 +19,7 @@ export function filterListings(listings: HomeListing[], filters: ListingSearchFi
   const makeValues = selectedValues(filters.make);
   const modelValues = selectedValues(filters.model);
   const cityValues = selectedValues(filters.city);
+  const normalizedCityValues = cityValues.map((city) => normalize(cityLabel(city)));
   const fuelValues = selectedValues(filters.fuelType);
   const transmissionValues = selectedValues(filters.transmission);
   const bodyValues = selectedValues(filters.bodyType).map(normalize);
@@ -33,7 +35,7 @@ export function filterListings(listings: HomeListing[], filters: ListingSearchFi
     if (q && !text.includes(q)) return false;
     if (makeValues.length > 0 && !makeValues.includes(listing.make_name ?? "")) return false;
     if (modelValues.length > 0 && !modelValues.includes(listing.model_name ?? "")) return false;
-    if (cityValues.length > 0 && !cityValues.includes(listing.city ?? "")) return false;
+    if (normalizedCityValues.length > 0 && !normalizedCityValues.includes(normalize(cityLabel(listing.city)))) return false;
     if (priceMin && price < priceMin) return false;
     if (priceMax && price > priceMax) return false;
     if (yearMin && year < yearMin) return false;

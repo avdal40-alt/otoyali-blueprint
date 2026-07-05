@@ -78,6 +78,14 @@ export type Model = {
   model_slug?: string | null;
 };
 
+export type City = {
+  city_id: string;
+  city_name?: string | null;
+  city_slug?: string | null;
+  country_code?: string | null;
+  sort_order?: number | null;
+};
+
 export type Profile = {
   id: string;
   phone: string | null;

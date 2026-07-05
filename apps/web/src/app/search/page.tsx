@@ -1,3 +1,4 @@
+import { getCities } from "@/lib/queries/cities";
 import { getHomeListings } from "@/lib/queries/listings";
 import { getListingMediaForListings } from "@/lib/queries/media";
 import { getMakes, getModels } from "@/lib/queries/makes";
@@ -12,7 +13,7 @@ export default async function SearchPage({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  const [listingsResult, makesResult, modelsResult] = await Promise.all([getHomeListings(), getMakes(), getModels()]);
+  const [listingsResult, makesResult, modelsResult, citiesResult] = await Promise.all([getHomeListings(), getMakes(), getModels(), getCities()]);
   const mediaResult = await getListingMediaForListings(listingsResult.data.map((listing) => listing.listing_id));
 
   return (
@@ -21,9 +22,10 @@ export default async function SearchPage({
       listingMedia={mediaResult.data}
       makes={makesResult.data}
       models={modelsResult.data}
+      cities={citiesResult.data}
       initialFilters={parseSearchParams(searchParams)}
       error={listingsResult.error ?? mediaResult.error ?? makesResult.error ?? modelsResult.error}
-      debugItems={[listingsResult, mediaResult, makesResult, modelsResult]}
+      debugItems={[listingsResult, mediaResult, makesResult, modelsResult, citiesResult]}
     />
   );
 }

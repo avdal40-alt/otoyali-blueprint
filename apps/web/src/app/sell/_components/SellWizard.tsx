@@ -2,7 +2,7 @@
 
 import { FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { HomeListing, Make, Model } from "@/lib/supabase/types";
+import type { City, HomeListing, Make, Model } from "@/lib/supabase/types";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
@@ -49,7 +49,7 @@ const initialState: WizardState = {
   engineVolumeL: "",
   damageState: "",
   ownerCount: "",
-  city: "Istanbul",
+  city: "İstanbul",
   priceAmount: "",
   currency: "TRY",
   priceNegotiable: true,
@@ -58,14 +58,19 @@ const initialState: WizardState = {
   photos: []
 };
 
-const cityOptions = [
-  { value: "Istanbul", label: "İstanbul" },
-  { value: "Ankara", label: "Ankara" },
-  { value: "Izmir", label: "İzmir" },
-  { value: "Antalya", label: "Antalya" }
-];
+const fallbackCityOptions = ["İstanbul", "Ankara", "İzmir", "Antalya"];
 
-export function SellWizard({ makes, models, listings }: { makes: Make[]; models: Model[]; listings: HomeListing[] }) {
+export function SellWizard({
+  makes,
+  models,
+  cities,
+  listings
+}: {
+  makes: Make[];
+  models: Model[];
+  cities?: City[];
+  listings: HomeListing[];
+}) {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -98,6 +103,14 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
   const selectedMake = makes.find((make) => make.make_id === state.makeId);
   const selectedModel = models.find((item) => item.model_id === state.modelId);
   const filteredModels = state.makeId ? models.filter((model) => model.make_id === state.makeId) : models;
+  const cityOptions = useMemo(() => {
+    const catalogCities = (cities ?? [])
+      .map((city) => city.city_name?.trim())
+      .filter(Boolean) as string[];
+
+    return catalogCities.length > 0 ? catalogCities : fallbackCityOptions;
+  }, [cities]);
+  const usesFallbackCatalogOption = selectedMake?.make_name === "Diğer" || selectedModel?.model_name === "Diğer";
 
   const generatedTitle = useMemo(() => {
     if (!state.year || !selectedMake || !selectedModel) return "";
@@ -121,6 +134,10 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
 
   function update<K extends keyof WizardState>(key: K, value: WizardState[K]) {
     setState((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateMake(makeId: string) {
+    setState((current) => ({ ...current, makeId, modelId: "" }));
   }
 
   async function publish(event: FormEvent) {
@@ -298,7 +315,7 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
               <option value="private">Bireysel</option>
               <option value="dealer">Galeri</option>
             </Select>
-            <Select value={state.makeId} onChange={(event) => update("makeId", event.target.value)}>
+            <Select value={state.makeId} onChange={(event) => updateMake(event.target.value)}>
               <option value="">Marka</option>
               {makes.map((make) => <option key={make.make_id} value={make.make_id}>{make.make_name}</option>)}
             </Select>
@@ -351,9 +368,14 @@ export function SellWizard({ makes, models, listings }: { makes: Make[]; models:
             </Select>
             <Input value={state.ownerCount} onChange={(event) => update("ownerCount", event.target.value)} placeholder="Sahip sayısı" inputMode="numeric" />
             <Select value={state.city} onChange={(event) => update("city", event.target.value)}>
-              {cityOptions.map((city) => <option key={city.value} value={city.value}>{city.label}</option>)}
+              {cityOptions.map((city) => <option key={city} value={city}>{cityLabel(city)}</option>)}
             </Select>
           </div>
+          {usesFallbackCatalogOption ? (
+            <p className="rounded-md bg-oto-surface px-3 py-2 text-sm font-semibold text-oto-muted">
+              Eksik marka veya modeli destek ekibine bildirebilirsiniz.
+            </p>
+          ) : null}
         </Panel>
       ) : null}
 
