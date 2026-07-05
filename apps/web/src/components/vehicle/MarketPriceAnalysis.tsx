@@ -6,7 +6,7 @@ export function MarketPriceAnalysis({ listing, comparables }: { listing: Listing
   const analysis = analyzeMarketPrice(listing, comparables);
 
   return (
-    <section className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
+    <section className="h-full rounded-oto border border-oto-border bg-white p-5 shadow-soft">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-oto-text">Piyasa fiyat analizi</h2>
@@ -20,7 +20,20 @@ export function MarketPriceAnalysis({ listing, comparables }: { listing: Listing
       </div>
 
       {analysis.status === "insufficient" ? (
-        <p className="mt-5 rounded-md bg-oto-surface p-4 text-sm font-semibold leading-6 text-oto-muted">{analysis.reason}</p>
+        <div className="mt-4 rounded-md bg-oto-surface p-4">
+          <h3 className="text-base font-black text-oto-text">Benzer ilan sayısı henüz yeterli değil.</h3>
+          <p className="mt-2 text-sm font-semibold leading-6 text-oto-muted">
+            Daha fazla ilan eklendikçe OTOYALI piyasa aralığını gösterecek.
+          </p>
+          <div className="mt-4">
+            <div className="h-2 rounded-full bg-gradient-to-r from-green-100 via-amber-100 to-red-100 opacity-60" />
+            <div className="mt-2 grid grid-cols-3 text-xs font-bold text-oto-muted">
+              <span>Daha uygun</span>
+              <span className="text-center">Ortalama</span>
+              <span className="text-right">Daha yüksek</span>
+            </div>
+          </div>
+        </div>
       ) : (
         <div className="mt-5">
           <div className="grid gap-3 sm:grid-cols-3">

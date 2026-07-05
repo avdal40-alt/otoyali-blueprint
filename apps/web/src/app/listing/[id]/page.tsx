@@ -118,7 +118,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                     ))}
                   </div>
                 </section>
-                <div className="mt-6 grid gap-6 xl:grid-cols-2">
+                <div className="mt-6 grid items-stretch gap-6 xl:grid-cols-2">
                   <MarketPriceAnalysis listing={listing} comparables={similarResult.data} />
                   <VehicleTrustReportCard />
                 </div>
@@ -142,7 +142,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
             </div>
             <aside className="h-fit rounded-oto border border-oto-border bg-white p-5 shadow-soft lg:sticky lg:top-24">
               <h2 className="text-lg font-bold text-oto-text">Satıcı</h2>
-              <p className="mt-2 text-sm leading-6 text-oto-muted">Satıcı bilgileri gizlilik için sınırlı tutulur. İletişim için giriş yapmanız gerekir.</p>
+              <p className="mt-2 text-sm leading-6 text-oto-muted">Satıcıyla güvenli şekilde iletişime geçmek için giriş yapın.</p>
               <div className="mt-4 grid gap-3">
                 <ContactSellerButton />
                 <Button type="button" variant="secondary" disabled>Mesaj yaz · Yakında</Button>
