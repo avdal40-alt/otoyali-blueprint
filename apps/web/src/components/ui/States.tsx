@@ -46,7 +46,7 @@ export function ErrorState({ message }: { message: string }) {
 export function SkeletonCard() {
   return (
     <div className="animate-pulse rounded-oto border border-oto-border bg-white p-3">
-      <div className="aspect-[16/10] rounded-md bg-oto-surface" />
+      <div className="aspect-[4/3] rounded-md bg-oto-surface" />
       <div className="mt-4 h-4 w-3/4 rounded bg-oto-surface" />
       <div className="mt-3 h-5 w-1/2 rounded bg-oto-surface" />
       <div className="mt-3 h-3 w-full rounded bg-oto-surface" />

@@ -13,7 +13,7 @@ export default async function SearchPage({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  const [listingsResult, makesResult, modelsResult, citiesResult] = await Promise.all([getHomeListings(), getMakes(), getModels(), getCities()]);
+  const [listingsResult, makesResult, modelsResult, citiesResult] = await Promise.all([getHomeListings(80), getMakes(), getModels(), getCities()]);
   const mediaResult = await getListingMediaForListings(listingsResult.data.map((listing) => listing.listing_id));
 
   return (

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function HomePage() {
-  const [listingsResult, makesResult, modelsResult, citiesResult] = await Promise.all([getHomeListings(), getMakes(), getModels(), getCities()]);
+  const [listingsResult, makesResult, modelsResult, citiesResult] = await Promise.all([getHomeListings(12), getMakes(), getModels(), getCities()]);
   const mediaResult = await getListingMediaForListings(listingsResult.data.map((listing) => listing.listing_id));
 
   return (

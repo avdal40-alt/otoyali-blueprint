@@ -41,8 +41,9 @@ export function fuelLabel(value?: string | null, locale = "tr") {
       gasoline: "Benzin",
       diesel: "Dizel",
       lpg: "LPG",
-      electric: "Elektrik",
-      hybrid: "Hibrit"
+      electric: "Elektrikli",
+      hybrid: "Hibrit",
+      other: "Diğer"
     },
     en: {
       gasoline: "Petrol",
@@ -64,7 +65,8 @@ export function transmissionLabel(value?: string | null, locale = "tr") {
   const labels: Record<string, Record<string, string>> = {
     tr: {
       manual: "Manuel",
-      automatic: "Otomatik"
+      automatic: "Otomatik",
+      semi_automatic: "Yarı otomatik"
     },
     en: {
       manual: "Manual",
@@ -101,7 +103,11 @@ export function bodyTypeLabel(value?: string | null) {
     hatchback: "Hatchback",
     suv: "SUV",
     wagon: "Station wagon",
-    coupe: "Coupe"
+    coupe: "Coupe",
+    pickup: "Pickup",
+    minivan: "Minivan",
+    commercial: "Ticari",
+    other: "Diğer"
   };
 
   return value ? labels[value.toLocaleLowerCase("tr-TR")] ?? titleCase(value) : "Bilgi yok";
@@ -111,7 +117,8 @@ export function driveTypeLabel(value?: string | null) {
   const labels: Record<string, string> = {
     front: "Önden çekiş",
     rear: "Arkadan itiş",
-    awd: "4x4 / AWD"
+    awd: "AWD",
+    "4x4": "4x4"
   };
 
   return value ? labels[value] ?? titleCase(value) : "Bilgi yok";
@@ -122,7 +129,10 @@ export function damageStateLabel(value?: string | null) {
     unknown: "Bilinmiyor",
     none: "Hasarsız",
     minor: "Hafif hasarlı",
-    major: "Ağır hasarlı"
+    major: "Ağır hasarlı",
+    painted: "Boyalı",
+    replaced: "Değişenli",
+    heavy_damage: "Ağır hasar kayıtlı"
   };
 
   return value ? labels[value] ?? titleCase(value) : "Bilgi yok";

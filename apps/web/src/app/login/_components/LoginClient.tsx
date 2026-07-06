@@ -37,7 +37,7 @@ export function LoginClient() {
     setLoading(false);
 
     if (otpError) {
-      setError(`${otpError.message}. SMS gönderimi şu anda kullanılamıyor olabilir. Lütfen daha sonra tekrar deneyin.`);
+      setError("SMS gönderimi henüz yapılandırılmadı. Lütfen daha sonra tekrar deneyin.");
       return;
     }
 

@@ -42,7 +42,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
     getListingDetails(params.id),
     getListingMedia(params.id),
     getHomeListingById(params.id),
-    getHomeListings()
+    getHomeListings(12)
   ]);
 
   if (!detailsResult.data && !detailsResult.error) {
@@ -142,6 +142,10 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
             </div>
             <aside className="h-fit rounded-oto border border-oto-border bg-white p-5 shadow-soft lg:sticky lg:top-24">
               <h2 className="text-lg font-bold text-oto-text">Satıcı</h2>
+              <div className="mt-3 rounded-md bg-oto-surface p-3">
+                <p className="text-sm font-black text-oto-text">{listing.seller_display_name || "OTOYALI satıcısı"}</p>
+                <p className="mt-1 text-xs font-bold text-oto-muted">{sellerTypeLabel(listing.seller_type)}</p>
+              </div>
               <p className="mt-2 text-sm leading-6 text-oto-muted">Satıcıyla güvenli şekilde iletişime geçmek için giriş yapın.</p>
               <div className="mt-4 grid gap-3">
                 <ContactSellerButton />

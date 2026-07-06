@@ -8,7 +8,7 @@ import { getMakes, getModels } from "@/lib/queries/makes";
 import { SellWizard } from "./_components/SellWizard";
 
 export default async function SellPage() {
-  const [makesResult, modelsResult, listingsResult, citiesResult] = await Promise.all([getMakes(), getModels(), getHomeListings(), getCities()]);
+  const [makesResult, modelsResult, listingsResult, citiesResult] = await Promise.all([getMakes(), getModels(), getHomeListings(80), getCities()]);
 
   return (
     <>

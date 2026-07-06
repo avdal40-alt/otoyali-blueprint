@@ -13,7 +13,6 @@ import { FavoriteButton } from "./FavoriteButton";
 export function VehicleCard({
   listing,
   media = [],
-  compact = false,
   promoted = false,
   priceBadge
 }: {
@@ -44,7 +43,7 @@ export function VehicleCard({
         promoted ? "border-amber-200 ring-1 ring-amber-100" : "border-oto-border"
       )}
     >
-      <div className={cn("relative bg-oto-surface", compact ? "aspect-[4/3]" : "aspect-[16/10]")}>
+      <div className="relative aspect-[4/3] bg-oto-surface">
         <Link href={`/listing/${listing.listing_id}`} className="block h-full">
           <SafeImage src={currentImage} alt={title} className="transition duration-300 group-hover:scale-[1.02]" />
         </Link>

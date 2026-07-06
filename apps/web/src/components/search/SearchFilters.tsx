@@ -6,34 +6,41 @@ import type { ListingSearchFilters } from "@/lib/search/search-params";
 import { selectedValues, toggleSelectedValue } from "@/lib/search/search-params";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
-import { bodyTypeLabel, cityLabel } from "@/lib/format";
+import { bodyTypeLabel, cityLabel, damageStateLabel, driveTypeLabel, fuelLabel, transmissionLabel } from "@/lib/format";
 
 export const fuelOptions = [
-  { value: "gasoline", label: "Benzin" },
-  { value: "diesel", label: "Dizel" },
-  { value: "lpg", label: "LPG" },
-  { value: "electric", label: "Elektrikli" },
-  { value: "hybrid", label: "Hibrit" }
+  { value: "gasoline", label: fuelLabel("gasoline") },
+  { value: "diesel", label: fuelLabel("diesel") },
+  { value: "hybrid", label: fuelLabel("hybrid") },
+  { value: "electric", label: fuelLabel("electric") },
+  { value: "lpg", label: fuelLabel("lpg") },
+  { value: "other", label: fuelLabel("other") }
 ];
 
 export const transmissionOptions = [
-  { value: "manual", label: "Manuel" },
-  { value: "automatic", label: "Otomatik" }
+  { value: "automatic", label: transmissionLabel("automatic") },
+  { value: "manual", label: transmissionLabel("manual") },
+  { value: "semi_automatic", label: transmissionLabel("semi_automatic") }
 ];
 
 const bodyTypeOptions = [
-  { value: "sedan", label: "Sedan" },
-  { value: "hatchback", label: "Hatchback" },
-  { value: "suv", label: "SUV" },
-  { value: "wagon", label: "Station wagon" },
-  { value: "coupe", label: "Coupe" }
+  { value: "sedan", label: bodyTypeLabel("sedan") },
+  { value: "hatchback", label: bodyTypeLabel("hatchback") },
+  { value: "suv", label: bodyTypeLabel("suv") },
+  { value: "coupe", label: bodyTypeLabel("coupe") },
+  { value: "wagon", label: bodyTypeLabel("wagon") },
+  { value: "pickup", label: bodyTypeLabel("pickup") },
+  { value: "minivan", label: bodyTypeLabel("minivan") },
+  { value: "commercial", label: bodyTypeLabel("commercial") },
+  { value: "other", label: bodyTypeLabel("other") }
 ];
 
 const driveTypeOptions = [
   { value: "", label: "Tüm çekiş tipleri" },
-  { value: "front", label: "Önden çekiş" },
-  { value: "rear", label: "Arkadan itiş" },
-  { value: "awd", label: "4x4 / AWD" }
+  { value: "front", label: driveTypeLabel("front") },
+  { value: "rear", label: driveTypeLabel("rear") },
+  { value: "4x4", label: driveTypeLabel("4x4") },
+  { value: "awd", label: driveTypeLabel("awd") }
 ];
 
 const colorOptions = [
@@ -47,10 +54,13 @@ const colorOptions = [
 
 const damageOptions = [
   { value: "", label: "Tüm hasar durumları" },
-  { value: "unknown", label: "Bilinmiyor" },
-  { value: "none", label: "Hasarsız" },
-  { value: "minor", label: "Hafif hasarlı" },
-  { value: "major", label: "Ağır hasarlı" }
+  { value: "unknown", label: "Belirtilmemiş" },
+  { value: "none", label: damageStateLabel("none") },
+  { value: "painted", label: damageStateLabel("painted") },
+  { value: "replaced", label: damageStateLabel("replaced") },
+  { value: "heavy_damage", label: damageStateLabel("heavy_damage") },
+  { value: "minor", label: damageStateLabel("minor") },
+  { value: "major", label: damageStateLabel("major") }
 ];
 
 type FilterSupport = {
@@ -168,7 +178,7 @@ export function SearchFilters({
             <MultiSelectGroup
               label="Kasa tipi"
               values={selectedValues(filters.bodyType)}
-              options={bodyTypeOptions.map((option) => ({ ...option, label: bodyTypeLabel(option.value) }))}
+              options={bodyTypeOptions}
               onToggle={(value) => toggleValue("bodyType", value)}
               emptyLabel="Tüm kasa tipleri"
               disabled={!support.bodyType}

@@ -181,9 +181,10 @@ export function HomeVehicleSearchPanel({
                 <option value="">Tüm yakıt tipleri</option>
                 <option value="gasoline">Benzin</option>
                 <option value="diesel">Dizel</option>
-                <option value="lpg">LPG</option>
                 <option value="hybrid">Hibrit</option>
                 <option value="electric">Elektrikli</option>
+                <option value="lpg">LPG</option>
+                <option value="other">Diğer</option>
               </Select>
             </label>
             <label className="grid gap-1">
@@ -192,6 +193,7 @@ export function HomeVehicleSearchPanel({
                 <option value="">Tüm vitesler</option>
                 <option value="automatic">Otomatik</option>
                 <option value="manual">Manuel</option>
+                <option value="semi_automatic">Yarı otomatik</option>
               </Select>
             </label>
             <label className="grid gap-1">
@@ -201,8 +203,12 @@ export function HomeVehicleSearchPanel({
                 <option value="sedan">Sedan</option>
                 <option value="hatchback">Hatchback</option>
                 <option value="suv">SUV</option>
-                <option value="wagon">Station wagon</option>
                 <option value="coupe">Coupe</option>
+                <option value="wagon">Station wagon</option>
+                <option value="pickup">Pickup</option>
+                <option value="minivan">Minivan</option>
+                <option value="commercial">Ticari</option>
+                <option value="other">Diğer</option>
               </Select>
             </label>
             <label className="grid gap-1">
@@ -211,7 +217,8 @@ export function HomeVehicleSearchPanel({
                 <option value="">Tüm çekiş tipleri</option>
                 <option value="front">Önden çekiş</option>
                 <option value="rear">Arkadan itiş</option>
-                <option value="awd">4x4 / AWD</option>
+                <option value="4x4">4x4</option>
+                <option value="awd">AWD</option>
               </Select>
             </label>
             <label className="grid gap-1">

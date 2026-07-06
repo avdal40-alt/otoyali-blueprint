@@ -64,7 +64,7 @@ export function OtpClient() {
     setResending(false);
 
     if (resendError) {
-      setError(`${resendError.message}. SMS gönderimi şu anda kullanılamıyor olabilir. Lütfen daha sonra tekrar deneyin.`);
+      setError("SMS gönderimi henüz yapılandırılmadı. Lütfen daha sonra tekrar deneyin.");
     }
   }
 

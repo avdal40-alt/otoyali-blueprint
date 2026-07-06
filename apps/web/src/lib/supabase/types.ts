@@ -23,6 +23,8 @@ export type HomeListing = {
   engine_volume_l?: number | null;
   damage_state?: string | null;
   owner_count?: number | null;
+  quality_score?: number | null;
+  seller_display_name?: string | null;
 };
 
 export type ListingDetails = {
@@ -52,6 +54,8 @@ export type ListingDetails = {
   engine_volume_l?: number | null;
   damage_state?: string | null;
   owner_count?: number | null;
+  quality_score?: number | null;
+  seller_display_name?: string | null;
 };
 
 export type ListingMedia = {
@@ -60,6 +64,7 @@ export type ListingMedia = {
   media_id?: string | null;
   url?: string | null;
   storage_path?: string | null;
+  media_type?: string | null;
   sort_order?: number | null;
   is_cover?: boolean | null;
 };
@@ -93,6 +98,9 @@ export type Profile = {
   first_name: string | null;
   last_name: string | null;
   avatar_url?: string | null;
+  full_name?: string | null;
+  display_name?: string | null;
+  seller_type?: string | null;
   language: string;
   country: string;
   city: string | null;
