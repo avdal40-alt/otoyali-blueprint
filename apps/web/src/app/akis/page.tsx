@@ -85,7 +85,7 @@ export default async function AkisPage({
 
 function AkisVideoCard({ video, eager }: { video: AkisVideo; eager: boolean }) {
   const title = video.title?.trim() || video.listing_title?.trim() || "Araç videosu";
-  const poster = video.thumbnail_url || video.cover_image_url || undefined;
+  const poster = video.poster_url || video.thumbnail_url || video.cover_image_url || undefined;
   const details = [
     video.year ? String(video.year) : null,
     video.mileage_km !== null && video.mileage_km !== undefined ? formatMileage(video.mileage_km) : null,

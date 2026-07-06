@@ -137,7 +137,7 @@ Seller uploads start from `/my-listings` with `Video ekle`. Uploaded files are s
 user_id/listing_id/video-file-name
 ```
 
-Allowed video MIME types are `video/mp4`, `video/webm`, and `video/quicktime`. Max size is 100 MB. Browser metadata validation blocks videos over 60 seconds when the browser can read duration.
+Allowed video MIME types are `video/mp4`, `video/webm`, and `video/quicktime` when the browser supports them. Max size is 100 MB. Recommended format is vertical video. Browser metadata validation blocks videos over 60 seconds when the browser can read duration.
 
 New uploads are inserted as `pending_review`; they are not public until manually approved in Supabase:
 
@@ -148,6 +148,30 @@ where id = '<video-id>';
 ```
 
 There is no transcoding, no fake moderation dashboard, and no automatic verification claim in WEB-07. Home, Search, and listing cards must not load video files; they may show only the `Video` badge from `video_count`.
+
+Future media pipeline:
+
+OTOYALI will later support server-side image compression, video compression, poster generation, and automatic license plate blur through a dedicated media processing worker. WEB-07 only prepares the fields and UI placeholders. It does not perform real AI blur, FFmpeg processing, or video transcoding.
+
+Prepared placeholder fields:
+
+- `marketplace.listing_videos.original_video_url`
+- `marketplace.listing_videos.processed_video_url`
+- `marketplace.listing_videos.poster_url`
+- `marketplace.listing_videos.processing_status`
+- `marketplace.listing_videos.blur_status`
+- `marketplace.listing_videos.moderation_status`
+- `marketplace.listing_videos.processing_error`
+- `marketplace.listing_videos.processed_at`
+- `vehicle.profile_media.original_url`
+- `vehicle.profile_media.large_url`
+- `vehicle.profile_media.card_url`
+- `vehicle.profile_media.thumb_url`
+- `vehicle.profile_media.processed_status`
+- `vehicle.profile_media.blur_status`
+- `vehicle.profile_media.has_detected_plate`
+- `vehicle.profile_media.processed_at`
+- `vehicle.profile_media.processing_error`
 
 ## Supabase Seed Note
 

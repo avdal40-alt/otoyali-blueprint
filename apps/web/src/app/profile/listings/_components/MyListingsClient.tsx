@@ -242,10 +242,14 @@ export function MyListingsClient() {
           title: videoTitle.trim() || item.title,
           description: videoDescription.trim() || null,
           video_url: publicUrl.publicUrl,
+          original_video_url: publicUrl.publicUrl,
           storage_path: storagePath,
           duration_seconds: Math.max(1, Math.round(duration)),
           status: "pending_review",
-          visibility: "public"
+          visibility: "public",
+          processing_status: "skipped",
+          blur_status: "not_started",
+          moderation_status: "pending_review"
         });
 
       if (insertError) {
@@ -346,7 +350,12 @@ export function MyListingsClient() {
                       />
                     </label>
                     <p className="text-xs font-semibold leading-5 text-oto-muted">
-                      MP4, WebM veya QuickTime. En fazla 100 MB. Yayınlanmadan önce manuel inceleme yapılır.
+                      60 saniyeye kadar video yükleyin. Dikey video önerilir. En fazla 100 MB.
+                      MP4, WebM veya tarayıcınız destekliyorsa MOV/QuickTime kullanabilirsiniz.
+                    </p>
+                    <p className="text-xs font-semibold leading-5 text-oto-muted">
+                      Video içeriği satıcı tarafından sağlanır. Plakanızı gizlemek istiyorsanız videoyu yüklemeden önce düzenleyebilirsiniz.
+                      Yayınlanmadan önce manuel inceleme yapılır.
                     </p>
                     {videoError ? <p className="rounded-md bg-red-50 p-3 text-sm font-bold text-oto-danger">{videoError}</p> : null}
                     {videoSuccess ? <p className="rounded-md bg-emerald-50 p-3 text-sm font-bold text-emerald-700">{videoSuccess}</p> : null}

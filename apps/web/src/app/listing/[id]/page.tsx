@@ -145,7 +145,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                           className="group overflow-hidden rounded-md border border-oto-border bg-oto-surface transition hover:border-oto-blue"
                         >
                           <div className="aspect-[9/16] bg-black">
-                            <SafeImage src={video.thumbnail_url || video.cover_image_url} alt={video.title || title} />
+                            <SafeImage src={video.poster_url || video.thumbnail_url || video.cover_image_url} alt={video.title || title} />
                           </div>
                           <div className="p-3">
                             <p className="line-clamp-2 text-sm font-black text-oto-text">{video.title || "Araç videosu"}</p>

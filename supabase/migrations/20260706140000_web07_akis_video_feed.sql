@@ -18,11 +18,19 @@ CREATE TABLE IF NOT EXISTS marketplace.listing_videos (
   title            TEXT,
   description      TEXT,
   video_url        TEXT,
+  original_video_url TEXT,
+  processed_video_url TEXT,
   storage_path     TEXT,
   thumbnail_url    TEXT,
+  poster_url       TEXT,
   duration_seconds INT,
   status           TEXT        NOT NULL DEFAULT 'pending_review',
   visibility       TEXT        NOT NULL DEFAULT 'public',
+  processing_status TEXT      NOT NULL DEFAULT 'pending',
+  blur_status      TEXT        NOT NULL DEFAULT 'not_started',
+  moderation_status TEXT      NOT NULL DEFAULT 'pending_review',
+  processing_error TEXT,
+  processed_at     TIMESTAMPTZ,
   sort_order       INT         NOT NULL DEFAULT 0,
   likes_count      INT         NOT NULL DEFAULT 0,
   views_count      INT         NOT NULL DEFAULT 0,
@@ -38,11 +46,23 @@ CREATE TABLE IF NOT EXISTS marketplace.listing_videos (
   CONSTRAINT listing_videos_video_url_not_empty_chk
     CHECK (video_url IS NULL OR char_length(trim(video_url)) > 0),
 
+  CONSTRAINT listing_videos_original_video_url_not_empty_chk
+    CHECK (original_video_url IS NULL OR char_length(trim(original_video_url)) > 0),
+
+  CONSTRAINT listing_videos_processed_video_url_not_empty_chk
+    CHECK (processed_video_url IS NULL OR char_length(trim(processed_video_url)) > 0),
+
   CONSTRAINT listing_videos_storage_path_not_empty_chk
     CHECK (storage_path IS NULL OR char_length(trim(storage_path)) > 0),
 
   CONSTRAINT listing_videos_thumbnail_url_not_empty_chk
     CHECK (thumbnail_url IS NULL OR char_length(trim(thumbnail_url)) > 0),
+
+  CONSTRAINT listing_videos_poster_url_not_empty_chk
+    CHECK (poster_url IS NULL OR char_length(trim(poster_url)) > 0),
+
+  CONSTRAINT listing_videos_processing_error_not_empty_chk
+    CHECK (processing_error IS NULL OR char_length(trim(processing_error)) > 0),
 
   CONSTRAINT listing_videos_duration_seconds_chk
     CHECK (duration_seconds IS NULL OR duration_seconds BETWEEN 1 AND 60),
@@ -55,6 +75,15 @@ CREATE TABLE IF NOT EXISTS marketplace.listing_videos (
 
   CONSTRAINT listing_videos_visibility_chk
     CHECK (visibility IN ('public', 'unlisted', 'private')),
+
+  CONSTRAINT listing_videos_processing_status_chk
+    CHECK (processing_status IN ('pending', 'processing', 'processed', 'failed', 'skipped')),
+
+  CONSTRAINT listing_videos_blur_status_chk
+    CHECK (blur_status IN ('not_started', 'processing', 'blurred', 'failed', 'manual_required', 'skipped')),
+
+  CONSTRAINT listing_videos_moderation_status_chk
+    CHECK (moderation_status IN ('pending_review', 'approved', 'rejected', 'manual_required')),
 
   CONSTRAINT listing_videos_sort_order_chk
     CHECK (sort_order >= 0),
@@ -69,6 +98,98 @@ COMMENT ON COLUMN marketplace.listing_videos.status IS
   'Video moderation state. Seller uploads default to pending_review and require manual approval for public feed visibility.';
 COMMENT ON COLUMN marketplace.listing_videos.visibility IS
   'Public feed visibility. MVP uses public rows after approval; private/unlisted are reserved states.';
+COMMENT ON COLUMN marketplace.listing_videos.processing_status IS
+  'Future media pipeline state. WEB-07 does not perform compression, poster generation, blur, AI detection, or transcoding.';
+COMMENT ON COLUMN marketplace.listing_videos.blur_status IS
+  'Future license plate blur state. WEB-07 only stores this placeholder and performs no automatic blur.';
+COMMENT ON COLUMN marketplace.listing_videos.moderation_status IS
+  'Manual moderation placeholder separate from public listing status. WEB-07 has no admin dashboard.';
+
+-- Future-ready additive image media fields. Existing url remains the active
+-- display URL and existing demo/media rows remain valid.
+ALTER TABLE vehicle.profile_media
+  ADD COLUMN IF NOT EXISTS original_url TEXT,
+  ADD COLUMN IF NOT EXISTS large_url TEXT,
+  ADD COLUMN IF NOT EXISTS card_url TEXT,
+  ADD COLUMN IF NOT EXISTS thumb_url TEXT,
+  ADD COLUMN IF NOT EXISTS processed_status TEXT DEFAULT 'pending',
+  ADD COLUMN IF NOT EXISTS blur_status TEXT DEFAULT 'not_started',
+  ADD COLUMN IF NOT EXISTS has_detected_plate BOOLEAN,
+  ADD COLUMN IF NOT EXISTS processed_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS processing_error TEXT;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'profile_media_original_url_not_empty_chk'
+  ) THEN
+    ALTER TABLE vehicle.profile_media
+      ADD CONSTRAINT profile_media_original_url_not_empty_chk
+      CHECK (original_url IS NULL OR char_length(trim(original_url)) > 0);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'profile_media_large_url_not_empty_chk'
+  ) THEN
+    ALTER TABLE vehicle.profile_media
+      ADD CONSTRAINT profile_media_large_url_not_empty_chk
+      CHECK (large_url IS NULL OR char_length(trim(large_url)) > 0);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'profile_media_card_url_not_empty_chk'
+  ) THEN
+    ALTER TABLE vehicle.profile_media
+      ADD CONSTRAINT profile_media_card_url_not_empty_chk
+      CHECK (card_url IS NULL OR char_length(trim(card_url)) > 0);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'profile_media_thumb_url_not_empty_chk'
+  ) THEN
+    ALTER TABLE vehicle.profile_media
+      ADD CONSTRAINT profile_media_thumb_url_not_empty_chk
+      CHECK (thumb_url IS NULL OR char_length(trim(thumb_url)) > 0);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'profile_media_processed_status_chk'
+  ) THEN
+    ALTER TABLE vehicle.profile_media
+      ADD CONSTRAINT profile_media_processed_status_chk
+      CHECK (processed_status IS NULL OR processed_status IN ('pending', 'processing', 'processed', 'failed', 'skipped'));
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'profile_media_blur_status_chk'
+  ) THEN
+    ALTER TABLE vehicle.profile_media
+      ADD CONSTRAINT profile_media_blur_status_chk
+      CHECK (blur_status IS NULL OR blur_status IN ('not_started', 'processing', 'blurred', 'failed', 'manual_required', 'skipped'));
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'profile_media_processing_error_not_empty_chk'
+  ) THEN
+    ALTER TABLE vehicle.profile_media
+      ADD CONSTRAINT profile_media_processing_error_not_empty_chk
+      CHECK (processing_error IS NULL OR char_length(trim(processing_error)) > 0);
+  END IF;
+END;
+$$;
+
+COMMENT ON COLUMN vehicle.profile_media.original_url IS
+  'Future media pipeline source image URL. Existing url remains the active display URL.';
+COMMENT ON COLUMN vehicle.profile_media.large_url IS
+  'Future processed large image URL placeholder. WEB-07 does not generate it.';
+COMMENT ON COLUMN vehicle.profile_media.card_url IS
+  'Future processed card image URL placeholder. WEB-07 does not generate it.';
+COMMENT ON COLUMN vehicle.profile_media.thumb_url IS
+  'Future processed thumbnail image URL placeholder. WEB-07 does not generate it.';
+COMMENT ON COLUMN vehicle.profile_media.processed_status IS
+  'Future image processing state. WEB-07 performs no compression or AI processing.';
+COMMENT ON COLUMN vehicle.profile_media.blur_status IS
+  'Future license plate blur state. WEB-07 performs no automatic blur.';
 
 CREATE INDEX IF NOT EXISTS listing_videos_public_feed_idx
   ON marketplace.listing_videos (status, visibility, sort_order, created_at DESC);
@@ -246,6 +367,7 @@ SELECT
   v.description,
   v.video_url,
   v.thumbnail_url,
+  v.poster_url,
   v.duration_seconds,
   v.likes_count,
   v.views_count,

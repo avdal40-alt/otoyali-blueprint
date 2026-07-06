@@ -67,6 +67,7 @@ export type AkisVideo = {
   description?: string | null;
   video_url?: string | null;
   thumbnail_url?: string | null;
+  poster_url?: string | null;
   duration_seconds?: number | null;
   likes_count?: number | null;
   views_count?: number | null;
