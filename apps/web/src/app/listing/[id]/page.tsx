@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/States";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { VehicleGallery } from "@/components/vehicle/VehicleGallery";
 import { MarketPriceAnalysis } from "@/components/vehicle/MarketPriceAnalysis";
 import { SpecChip } from "@/components/vehicle/SpecChip";
@@ -15,6 +17,7 @@ import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import type { ListingMedia } from "@/lib/supabase/types";
 import { getListingDetails, getHomeListings, getHomeListingById } from "@/lib/queries/listings";
 import { getListingMedia, getListingMediaByVehicleProfileId, getListingMediaForListings } from "@/lib/queries/media";
+import { getListingVideos } from "@/lib/queries/videos";
 import {
   bodyTypeLabel,
   cityLabel,
@@ -44,6 +47,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
     getHomeListingById(params.id),
     getHomeListings(12)
   ]);
+  const videosResult = await getListingVideos(params.id, 3);
 
   if (!detailsResult.data && !detailsResult.error) {
     notFound();
@@ -67,7 +71,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
       <AppHeader />
       <PageContainer className={listing ? "pb-40 md:pb-24" : undefined}>
         {detailsResult.error ? <ErrorState message={detailsResult.error} /> : null}
-        <DevQueryDebug items={[detailsResult, mediaResult, fallbackListingResult, similarMediaResult, ...(fallbackMediaResult ? [fallbackMediaResult] : [])]} />
+        <DevQueryDebug items={[detailsResult, mediaResult, fallbackListingResult, videosResult, similarMediaResult, ...(fallbackMediaResult ? [fallbackMediaResult] : [])]} />
         {listing ? (
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div>
@@ -122,6 +126,36 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                   <MarketPriceAnalysis listing={listing} comparables={similarResult.data} />
                   <VehicleTrustReportCard />
                 </div>
+                {videosResult.data.length > 0 ? (
+                  <section className="mt-6 rounded-oto border border-oto-border bg-white p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h2 className="text-lg font-bold text-oto-text">Araç videoları</h2>
+                        <p className="mt-1 text-sm leading-6 text-oto-muted">Satıcının kısa araç tanıtımlarını Akış içinde izleyin.</p>
+                      </div>
+                      <ButtonLink href={`/akis?listing=${listing.listing_id}`} variant="secondary">
+                        Akışta izle
+                      </ButtonLink>
+                    </div>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                      {videosResult.data.map((video) => (
+                        <Link
+                          key={video.video_id}
+                          href={`/akis?listing=${listing.listing_id}`}
+                          className="group overflow-hidden rounded-md border border-oto-border bg-oto-surface transition hover:border-oto-blue"
+                        >
+                          <div className="aspect-[9/16] bg-black">
+                            <SafeImage src={video.thumbnail_url || video.cover_image_url} alt={video.title || title} />
+                          </div>
+                          <div className="p-3">
+                            <p className="line-clamp-2 text-sm font-black text-oto-text">{video.title || "Araç videosu"}</p>
+                            <p className="mt-1 text-xs font-bold text-oto-blue">Videoyu aç</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
                 <section className="mt-8 rounded-oto border border-oto-border bg-white p-5">
                   <h2 className="text-lg font-bold text-oto-text">Açıklama</h2>
                   <p className="mt-3 whitespace-pre-line text-sm leading-7 text-oto-muted">{listing.description || "Satıcı açıklama eklememiş."}</p>

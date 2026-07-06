@@ -19,6 +19,7 @@ import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 import { getListingCountByMake, sortListings } from "@/lib/search/filter-listings";
 import { HomeVehicleSearchPanel } from "./HomeVehicleSearchPanel";
 import { HotListingsSection } from "./HotListingsSection";
+import { AkisTeaserSection } from "./AkisTeaserSection";
 import { AppPromoSection } from "./AppPromoSection";
 
 export function HomePageContent({
@@ -66,6 +67,8 @@ export function HomePageContent({
         <DevQueryDebug items={debugItems} />
 
         <HotListingsSection listings={orderedListings} mediaByListing={mediaByListing} />
+
+        <AkisTeaserSection />
 
         <section className="mt-8">
           <SectionHeader title="Popüler markalar" eyebrow="Keşfet" action={<Link href="/search" className="text-sm font-bold text-oto-blue">Tümünü gör</Link>} />

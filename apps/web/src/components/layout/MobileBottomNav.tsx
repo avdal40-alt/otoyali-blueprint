@@ -3,6 +3,7 @@ import Link from "next/link";
 const tabs = [
   { href: "/", label: "Ana", icon: HomeIcon },
   { href: "/search", label: "Ara", icon: SearchIcon },
+  { href: "/akis", label: "Akış", icon: PlayIcon },
   { href: "/sell", label: "Sat", icon: PlusIcon, cta: true },
   { href: "/news", label: "Haber", icon: NewsIcon },
   { href: "/profile", label: "Profil", icon: UserIcon }
@@ -11,7 +12,7 @@ const tabs = [
 export function MobileBottomNav() {
   return (
     <nav className="safe-bottom fixed inset-x-0 bottom-0 z-50 border-t border-oto-border bg-white md:hidden">
-      <div className="grid h-16 grid-cols-5">
+      <div className="grid h-16 grid-cols-6">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
@@ -38,6 +39,10 @@ function SearchIcon() {
 
 function PlusIcon() {
   return <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/><path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>;
+}
+
+function PlayIcon() {
+  return <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="5" stroke="currentColor" strokeWidth="2"/><path d="m10 9 6 3-6 3V9Z" fill="currentColor"/></svg>;
 }
 
 function NewsIcon() {

@@ -25,6 +25,7 @@ export type HomeListing = {
   owner_count?: number | null;
   quality_score?: number | null;
   seller_display_name?: string | null;
+  video_count?: number | null;
 };
 
 export type ListingDetails = {
@@ -56,6 +57,31 @@ export type ListingDetails = {
   owner_count?: number | null;
   quality_score?: number | null;
   seller_display_name?: string | null;
+  video_count?: number | null;
+};
+
+export type AkisVideo = {
+  video_id: string;
+  listing_id?: string | null;
+  title?: string | null;
+  description?: string | null;
+  video_url?: string | null;
+  thumbnail_url?: string | null;
+  duration_seconds?: number | null;
+  likes_count?: number | null;
+  views_count?: number | null;
+  created_at?: string | null;
+  sort_order?: number | null;
+  listing_title?: string | null;
+  price_amount?: number | null;
+  currency?: string | null;
+  city?: string | null;
+  year?: number | null;
+  mileage_km?: number | null;
+  fuel_type?: string | null;
+  seller_type?: string | null;
+  seller_display_name?: string | null;
+  cover_image_url?: string | null;
 };
 
 export type ListingMedia = {

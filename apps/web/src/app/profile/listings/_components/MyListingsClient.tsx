@@ -1,5 +1,6 @@
 "use client";
 
+import type { ChangeEvent, FormEvent } from "react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -24,11 +25,22 @@ type MyListing = {
   cover_image_url?: string | null;
 };
 
+const MAX_VIDEO_SIZE_BYTES = 100 * 1024 * 1024;
+const ALLOWED_VIDEO_TYPES = new Set(["video/mp4", "video/webm", "video/quicktime"]);
+
 export function MyListingsClient() {
   const router = useRouter();
   const [items, setItems] = useState<MyListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [videoListingId, setVideoListingId] = useState<string | null>(null);
+  const [videoTitle, setVideoTitle] = useState("");
+  const [videoDescription, setVideoDescription] = useState("");
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoUploading, setVideoUploading] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
+  const [videoSuccess, setVideoSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -44,6 +56,7 @@ export function MyListingsClient() {
         router.replace("/login?next=/my-listings");
         return;
       }
+      setUserId(userData.user.id);
 
       const { data, error: listingError } = await supabase
         .schema("marketplace")
@@ -133,6 +146,123 @@ export function MyListingsClient() {
     setItems((current) => current.map((item) => item.id === listingId ? { ...item, status } : item));
   }
 
+  function openVideoForm(item: MyListing) {
+    if (videoListingId === item.id) {
+      resetVideoForm();
+      return;
+    }
+
+    setVideoListingId(item.id);
+    setVideoTitle(item.title);
+    setVideoDescription("");
+    setVideoFile(null);
+    setVideoError(null);
+    setVideoSuccess(null);
+  }
+
+  function resetVideoForm() {
+    setVideoListingId(null);
+    setVideoTitle("");
+    setVideoDescription("");
+    setVideoFile(null);
+    setVideoError(null);
+    setVideoSuccess(null);
+    setVideoUploading(false);
+  }
+
+  function handleVideoFile(event: ChangeEvent<HTMLInputElement>) {
+    setVideoError(null);
+    setVideoSuccess(null);
+    setVideoFile(event.target.files?.[0] ?? null);
+  }
+
+  async function submitVideo(event: FormEvent<HTMLFormElement>, item: MyListing) {
+    event.preventDefault();
+    setVideoError(null);
+    setVideoSuccess(null);
+
+    if (!userId) {
+      setVideoError("Video yüklemek için giriş yapmanız gerekir.");
+      return;
+    }
+
+    if (!videoFile) {
+      setVideoError("Video dosyası seçin.");
+      return;
+    }
+
+    if (!ALLOWED_VIDEO_TYPES.has(videoFile.type)) {
+      setVideoError("Video yüklenemedi. Lütfen tekrar deneyin.");
+      return;
+    }
+
+    if (videoFile.size > MAX_VIDEO_SIZE_BYTES) {
+      setVideoError("Video dosyası çok büyük.");
+      return;
+    }
+
+    setVideoUploading(true);
+    try {
+      const duration = await getVideoDuration(videoFile);
+      if (!Number.isFinite(duration) || duration <= 0) {
+        setVideoError("Video yüklenemedi. Lütfen tekrar deneyin.");
+        setVideoUploading(false);
+        return;
+      }
+
+      if (duration > 60) {
+        setVideoError("Video en fazla 60 saniye olabilir.");
+        setVideoUploading(false);
+        return;
+      }
+
+      const supabase = getSupabaseBrowserClient();
+      const storagePath = `${userId}/${item.id}/${Date.now()}-${safeFileName(videoFile.name)}`;
+      const { error: uploadError } = await supabase.storage
+        .from("listing-videos")
+        .upload(storagePath, videoFile, {
+          cacheControl: "3600",
+          contentType: videoFile.type,
+          upsert: false
+        });
+
+      if (uploadError) {
+        setVideoError("Video yüklenemedi. Lütfen tekrar deneyin.");
+        setVideoUploading(false);
+        return;
+      }
+
+      const { data: publicUrl } = supabase.storage.from("listing-videos").getPublicUrl(storagePath);
+      const { error: insertError } = await supabase
+        .schema("marketplace")
+        .from("listing_videos")
+        .insert({
+          listing_id: item.id,
+          seller_user_id: userId,
+          title: videoTitle.trim() || item.title,
+          description: videoDescription.trim() || null,
+          video_url: publicUrl.publicUrl,
+          storage_path: storagePath,
+          duration_seconds: Math.max(1, Math.round(duration)),
+          status: "pending_review",
+          visibility: "public"
+        });
+
+      if (insertError) {
+        setVideoError("Video yüklenemedi. Lütfen tekrar deneyin.");
+        setVideoUploading(false);
+        return;
+      }
+
+      setVideoFile(null);
+      setVideoSuccess("Videonuz incelenmek üzere alındı.");
+    } catch {
+      setVideoError("Video yüklenemedi. Lütfen tekrar deneyin.");
+    } finally {
+      setVideoUploading(false);
+    }
+  }
+
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;
   if (items.length === 0) return <EmptyState title="Henüz ilanınız yok." body="İlk ilanınızı yayınlayın." href="/sell" action="İlan yayınla" />;
@@ -172,7 +302,65 @@ export function MyListingsClient() {
                 ) : item.status === "paused" ? (
                   <Button type="button" variant="secondary" onClick={() => setStatus(item.id, "active")}>Yeniden yayınla</Button>
                 ) : null}
+                <Button type="button" variant="secondary" onClick={() => openVideoForm(item)}>Video ekle</Button>
               </div>
+              {videoListingId === item.id ? (
+                <form className="mt-4 rounded-md border border-oto-border bg-oto-surface p-4" onSubmit={(event) => submitVideo(event, item)}>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-black text-oto-text">Video ekle</h3>
+                      <p className="mt-1 text-xs font-bold leading-5 text-oto-muted">60 saniyeye kadar aracınızı tanıtın.</p>
+                    </div>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-oto-muted">İnceleme bekler</span>
+                  </div>
+                  <div className="mt-4 grid gap-3">
+                    <label className="grid gap-1 text-sm font-bold text-oto-text">
+                      Video başlığı
+                      <input
+                        value={videoTitle}
+                        onChange={(event) => setVideoTitle(event.target.value)}
+                        className="h-11 rounded-md border border-oto-border bg-white px-3 text-sm font-semibold outline-none focus:border-oto-blue"
+                        maxLength={120}
+                        required
+                      />
+                    </label>
+                    <label className="grid gap-1 text-sm font-bold text-oto-text">
+                      Açıklama
+                      <textarea
+                        value={videoDescription}
+                        onChange={(event) => setVideoDescription(event.target.value)}
+                        className="min-h-24 rounded-md border border-oto-border bg-white px-3 py-2 text-sm font-semibold outline-none focus:border-oto-blue"
+                        maxLength={500}
+                        placeholder="Kısa tanıtım, öne çıkan özellikler veya kullanım notları"
+                      />
+                    </label>
+                    <label className="grid gap-1 text-sm font-bold text-oto-text">
+                      Video dosyası
+                      <input
+                        key={videoSuccess ?? videoListingId}
+                        type="file"
+                        accept="video/mp4,video/webm,video/quicktime"
+                        onChange={handleVideoFile}
+                        className="rounded-md border border-dashed border-oto-border bg-white p-3 text-sm font-semibold text-oto-muted"
+                        required
+                      />
+                    </label>
+                    <p className="text-xs font-semibold leading-5 text-oto-muted">
+                      MP4, WebM veya QuickTime. En fazla 100 MB. Yayınlanmadan önce manuel inceleme yapılır.
+                    </p>
+                    {videoError ? <p className="rounded-md bg-red-50 p-3 text-sm font-bold text-oto-danger">{videoError}</p> : null}
+                    {videoSuccess ? <p className="rounded-md bg-emerald-50 p-3 text-sm font-bold text-emerald-700">{videoSuccess}</p> : null}
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="submit" disabled={videoUploading}>
+                        {videoUploading ? "Yükleniyor" : "İncelemeye gönder"}
+                      </Button>
+                      <Button type="button" variant="secondary" onClick={resetVideoForm} disabled={videoUploading}>
+                        Kapat
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+              ) : null}
             </div>
           </div>
         </article>
@@ -194,4 +382,31 @@ function statusLabel(status: string) {
   };
 
   return labels[status] ?? status;
+}
+
+function getVideoDuration(file: File) {
+  return new Promise<number>((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    video.preload = "metadata";
+
+    video.onloadedmetadata = () => {
+      URL.revokeObjectURL(url);
+      resolve(video.duration);
+    };
+
+    video.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Video metadata could not be loaded"));
+    };
+
+    video.src = url;
+  });
+}
+
+function safeFileName(fileName: string) {
+  const parts = fileName.split(".");
+  const extension = parts.length > 1 ? parts.pop() : "mp4";
+  const base = parts.join(".") || "video";
+  return `${base.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "video"}.${extension?.toLowerCase() || "mp4"}`;
 }

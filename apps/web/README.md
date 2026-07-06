@@ -4,7 +4,7 @@ OTOYALI Web is the code-first production MVP for OTOYALI.
 
 Production URL: https://otoyali.vercel.app
 
-FlutterFlow remains a UI prototype/reference. This app is the real web product: a mobile-first Next.js experience for browsing listings, searching vehicles, viewing details, publishing listings, phone authentication, profiles, favorites, and automotive news.
+FlutterFlow remains a UI prototype/reference. This app is the real web product: a mobile-first Next.js experience for browsing listings, searching vehicles, viewing details, publishing listings, short vehicle videos, phone authentication, profiles, favorites, and automotive news.
 
 ## Stack
 
@@ -89,6 +89,8 @@ Public browsing uses existing public views:
 - `public.ff_home_listings`
 - `public.ff_listing_details`
 - `public.ff_listing_media`
+- `public.ff_akis_videos`
+- `public.ff_listing_video_counts`
 - `public.ff_makes`
 - `public.ff_models`
 - `public.profiles`
@@ -105,11 +107,47 @@ Authenticated mutations use existing domain tables:
 - `vehicle.profile_ownership`
 - `vehicle.profile_media`
 - `marketplace.listings`
+- `marketplace.listing_videos`
 
 WEB-01 adds one minimal migration for:
 
 - `marketplace.listing_favorites`
 - `vehicle-photos` Supabase Storage bucket and policies
+
+WEB-07 adds:
+
+- `marketplace.listing_videos`
+- `listing-videos` Supabase Storage bucket and policies
+- `public.ff_akis_videos`
+- `public.ff_listing_video_counts`
+
+Apply migrations before testing Akış:
+
+```bash
+npx supabase db push
+```
+
+## Akış Video Feed
+
+`/akis` is the OTOYALI short vehicle video feed. It reads small batches from `public.ff_akis_videos` and uses `preload="metadata"` with poster images when available.
+
+Seller uploads start from `/my-listings` with `Video ekle`. Uploaded files are stored under:
+
+```text
+user_id/listing_id/video-file-name
+```
+
+Allowed video MIME types are `video/mp4`, `video/webm`, and `video/quicktime`. Max size is 100 MB. Browser metadata validation blocks videos over 60 seconds when the browser can read duration.
+
+New uploads are inserted as `pending_review`; they are not public until manually approved in Supabase:
+
+```sql
+update marketplace.listing_videos
+set status = 'active'
+where id = '<video-id>';
+```
+
+There is no transcoding, no fake moderation dashboard, and no automatic verification claim in WEB-07. Home, Search, and listing cards must not load video files; they may show only the `Video` badge from `video_count`.
 
 ## Supabase Seed Note
 

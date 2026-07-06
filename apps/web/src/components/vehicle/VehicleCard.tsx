@@ -63,6 +63,14 @@ export function VehicleCard({
               {conditionLabel(listing.condition)}
             </span>
           ) : null}
+          {(listing.video_count ?? 0) > 0 ? (
+            <Link
+              href={`/akis?listing=${listing.listing_id}`}
+              className="rounded-full bg-oto-blue px-3 py-1 text-xs font-black text-white shadow-soft"
+            >
+              Video
+            </Link>
+          ) : null}
         </div>
 
         {imageCount > 1 ? (
