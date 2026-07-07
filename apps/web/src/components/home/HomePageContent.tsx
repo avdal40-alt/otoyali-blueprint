@@ -20,6 +20,7 @@ import { getListingCountByMake, sortListings } from "@/lib/search/filter-listing
 import { HomeVehicleSearchPanel } from "./HomeVehicleSearchPanel";
 import { HotListingsSection } from "./HotListingsSection";
 import { VideoTeaserSection } from "./VideoTeaserSection";
+import { SeoEntryLinks } from "./SeoEntryLinks";
 import { AppPromoSection } from "./AppPromoSection";
 
 export function HomePageContent({
@@ -74,6 +75,8 @@ export function HomePageContent({
           <SectionHeader title="Popüler markalar" eyebrow="Keşfet" action={<Link href="/search" className="text-sm font-bold text-oto-blue">Tümünü gör</Link>} />
           <BrandCarousel makes={makes} countsByMake={countsByMake} />
         </section>
+
+        <SeoEntryLinks makes={makes} cities={cities} />
 
         <section className="mt-10">
           <SectionHeader title="Vitrin ilanları" eyebrow="Öneriler" action={<ButtonLink href="/sell" variant="orange">İlan yayınla</ButtonLink>} />
