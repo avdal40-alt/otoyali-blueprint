@@ -1,5 +1,5 @@
 -- =============================================================================
--- OTOYALI - WEB-07 Akış short video feed
+-- OTOYALI - WEB-07 Video short feed
 -- Migration: 20260706140000_web07_akis_video_feed.sql
 -- Scope: minimal listing video metadata, storage bucket, public feed views,
 --        and active-video counts for listing cards.
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS marketplace.listing_videos (
 );
 
 COMMENT ON TABLE marketplace.listing_videos IS
-  'Short seller-uploaded vehicle videos for OTOYALI Akış. Public feed only shows active public rows.';
+  'Short seller-uploaded vehicle videos for OTOYALI Video. Public feed only shows active public rows.';
 COMMENT ON COLUMN marketplace.listing_videos.status IS
   'Video moderation state. Seller uploads default to pending_review and require manual approval for public feed visibility.';
 COMMENT ON COLUMN marketplace.listing_videos.visibility IS
@@ -417,7 +417,7 @@ WHERE v.status = 'active'
   );
 
 COMMENT ON VIEW public.ff_akis_videos IS
-  'Public read view for OTOYALI Akış. Active public videos only; no private seller profile data.';
+  'Public read view for OTOYALI Video. Active public videos only; no private seller profile data.';
 
 CREATE OR REPLACE VIEW public.ff_listing_video_counts
 WITH (security_invoker = true)

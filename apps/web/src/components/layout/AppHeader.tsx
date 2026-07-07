@@ -31,8 +31,8 @@ export function AppHeader() {
           <Link href="/search" className="hover:text-oto-text">
             Ara
           </Link>
-          <Link href="/akis" className="hover:text-oto-text">
-            Akış
+          <Link href="/video" className="hover:text-oto-text">
+            Video
           </Link>
           <Link href="/news" className="hover:text-oto-text">
             Haberler

@@ -15,7 +15,7 @@ const previews = [
   }
 ];
 
-export function AkisTeaserSection() {
+export function VideoTeaserSection() {
   return (
     <section className="mt-10 overflow-hidden rounded-oto border border-oto-border bg-[#061A40] text-white shadow-oto">
       <div className="grid gap-6 p-5 md:grid-cols-[0.9fr_1.1fr] md:p-7">
@@ -23,15 +23,15 @@ export function AkisTeaserSection() {
           <span className="rounded-full bg-cyan-400 px-3 py-1 text-xs font-black text-[#061A40]">
             Yeni
           </span>
-          <h2 className="mt-4 text-2xl font-black tracking-tight md:text-3xl">OTOYALI Akış</h2>
+          <h2 className="mt-4 text-2xl font-black tracking-tight md:text-3xl">OTOYALI Video</h2>
           <p className="mt-3 text-sm leading-6 text-blue-50">
             Araç videoları, galeri fırsatları ve kısa tanıtımlar.
           </p>
           <p className="mt-2 text-sm leading-6 text-blue-100">
             Satıcılar araçlarını 60 saniyeye kadar kısa videolarla tanıtabilecek.
           </p>
-          <ButtonLink href="/akis" variant="orange" className="mt-5 w-full md:w-auto">
-            Akışı keşfet
+          <ButtonLink href="/video" variant="orange" className="mt-5 w-full md:w-auto">
+            Videoları keşfet
           </ButtonLink>
         </div>
         <div className="grid gap-3 sm:grid-cols-3 md:items-stretch">

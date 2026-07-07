@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 
-export function AkisShareButton({
+export function VideoShareButton({
   title,
   listingId
 }: {
@@ -13,7 +13,7 @@ export function AkisShareButton({
   const [copied, setCopied] = useState(false);
 
   async function share() {
-    const href = listingId ? `/akis?listing=${listingId}` : "/akis";
+    const href = listingId ? `/video?listing=${listingId}` : "/video";
     const url = `${window.location.origin}${href}`;
 
     if (navigator.share) {

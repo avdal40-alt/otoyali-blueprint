@@ -89,7 +89,7 @@ Public browsing uses existing public views:
 - `public.ff_home_listings`
 - `public.ff_listing_details`
 - `public.ff_listing_media`
-- `public.ff_akis_videos`
+- public video feed read view
 - `public.ff_listing_video_counts`
 - `public.ff_makes`
 - `public.ff_models`
@@ -118,18 +118,18 @@ WEB-07 adds:
 
 - `marketplace.listing_videos`
 - `listing-videos` Supabase Storage bucket and policies
-- `public.ff_akis_videos`
+- public video feed read view
 - `public.ff_listing_video_counts`
 
-Apply migrations before testing Akış:
+Apply migrations before testing OTOYALI Video:
 
 ```bash
 npx supabase db push
 ```
 
-## Akış Video Feed
+## OTOYALI Video
 
-`/akis` is the OTOYALI short vehicle video feed. It reads small batches from `public.ff_akis_videos` and uses `preload="metadata"` with poster images when available.
+`/video` is the OTOYALI short vehicle video feed. It reads small batches from the public video feed view and uses `preload="metadata"` with poster images when available.
 
 Seller uploads start from `/my-listings` with `Video ekle`. Uploaded files are stored under:
 

@@ -131,17 +131,17 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <h2 className="text-lg font-bold text-oto-text">Araç videoları</h2>
-                        <p className="mt-1 text-sm leading-6 text-oto-muted">Satıcının kısa araç tanıtımlarını Akış içinde izleyin.</p>
+                        <p className="mt-1 text-sm leading-6 text-oto-muted">Satıcının kısa araç tanıtımlarını OTOYALI Video içinde izleyin.</p>
                       </div>
-                      <ButtonLink href={`/akis?listing=${listing.listing_id}`} variant="secondary">
-                        Akışta izle
+                      <ButtonLink href={`/video?listing=${listing.listing_id}`} variant="secondary">
+                        Videoda izle
                       </ButtonLink>
                     </div>
                     <div className="mt-4 grid gap-3 sm:grid-cols-3">
                       {videosResult.data.map((video) => (
                         <Link
                           key={video.video_id}
-                          href={`/akis?listing=${listing.listing_id}`}
+                          href={`/video?listing=${listing.listing_id}`}
                           className="group overflow-hidden rounded-md border border-oto-border bg-oto-surface transition hover:border-oto-blue"
                         >
                           <div className="aspect-[9/16] bg-black">

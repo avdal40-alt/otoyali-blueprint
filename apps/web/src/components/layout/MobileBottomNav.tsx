@@ -3,7 +3,7 @@ import Link from "next/link";
 const tabs = [
   { href: "/", label: "Ana", icon: HomeIcon },
   { href: "/search", label: "Ara", icon: SearchIcon },
-  { href: "/akis", label: "Akış", icon: PlayIcon },
+  { href: "/video", label: "Video", icon: PlayIcon },
   { href: "/sell", label: "Sat", icon: PlusIcon, cta: true },
   { href: "/news", label: "Haber", icon: NewsIcon },
   { href: "/profile", label: "Profil", icon: UserIcon }

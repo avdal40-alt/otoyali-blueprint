@@ -60,7 +60,7 @@ export type ListingDetails = {
   video_count?: number | null;
 };
 
-export type AkisVideo = {
+export type OtoyaliVideo = {
   video_id: string;
   listing_id?: string | null;
   title?: string | null;

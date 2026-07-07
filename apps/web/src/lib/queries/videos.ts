@@ -1,14 +1,14 @@
 import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
-import type { AkisVideo } from "@/lib/supabase/types";
+import type { OtoyaliVideo } from "@/lib/supabase/types";
 import type { QueryResult } from "./listings";
 
-export async function getAkisVideos({
+export async function getVideoFeed({
   listingId,
   limit = 6
 }: {
   listingId?: string | null;
   limit?: number;
-} = {}): Promise<QueryResult<AkisVideo[]>> {
+} = {}): Promise<QueryResult<OtoyaliVideo[]>> {
   const queryName = "ff_akis_videos";
   if (!hasSupabaseEnv()) {
     return { data: [], error: "Supabase environment variables are missing.", count: 0, queryName };
@@ -28,23 +28,23 @@ export async function getAkisVideos({
 
   const { data, error, count } = await query;
 
-  if (isMissingAkisView(error?.message)) {
+  if (isMissingVideoFeedView(error?.message)) {
     return { data: [], error: null, count: 0, queryName };
   }
 
   return {
-    data: (data ?? []) as AkisVideo[],
+    data: (data ?? []) as OtoyaliVideo[],
     error: error?.message ?? null,
     count: count ?? data?.length ?? 0,
     queryName
   };
 }
 
-export async function getListingVideos(listingId: string, limit = 3): Promise<QueryResult<AkisVideo[]>> {
-  return getAkisVideos({ listingId, limit });
+export async function getListingVideos(listingId: string, limit = 3): Promise<QueryResult<OtoyaliVideo[]>> {
+  return getVideoFeed({ listingId, limit });
 }
 
-function isMissingAkisView(message?: string | null) {
+function isMissingVideoFeedView(message?: string | null) {
   if (!message) return false;
   return message.includes("ff_akis_videos") && (message.includes("does not exist") || message.includes("Could not find"));
 }
