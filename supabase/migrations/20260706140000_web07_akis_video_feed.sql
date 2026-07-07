@@ -453,7 +453,6 @@ SELECT
   vp.transmission::TEXT AS transmission,
   cover_media.url AS cover_image_url,
   COALESCE(media_stats.media_count, 0) AS media_count,
-  COALESCE(video_stats.video_count, 0) AS video_count,
   l.price_negotiable,
   vp.body_type,
   COALESCE(vp.condition, 'used') AS condition,
@@ -464,7 +463,8 @@ SELECT
   vp.damage_state,
   vp.owner_count,
   l.quality_score,
-  l.seller_display_name
+  l.seller_display_name,
+  COALESCE(video_stats.video_count, 0) AS video_count
 FROM marketplace.listings l
 INNER JOIN vehicle.vehicle_profiles vp ON vp.id = l.vehicle_profile_id
 INNER JOIN vehicle.makes ma ON ma.id = vp.make_id
@@ -519,7 +519,6 @@ SELECT
   vp.transmission::TEXT AS transmission,
   cover_media.url AS cover_image_url,
   COALESCE(media_stats.media_count, 0) AS media_count,
-  COALESCE(video_stats.video_count, 0) AS video_count,
   vp.body_type,
   COALESCE(vp.condition, 'used') AS condition,
   l.seller_type,
@@ -529,7 +528,8 @@ SELECT
   vp.damage_state,
   vp.owner_count,
   l.quality_score,
-  l.seller_display_name
+  l.seller_display_name,
+  COALESCE(video_stats.video_count, 0) AS video_count
 FROM marketplace.listings l
 INNER JOIN vehicle.vehicle_profiles vp ON vp.id = l.vehicle_profile_id
 INNER JOIN vehicle.makes ma ON ma.id = vp.make_id
