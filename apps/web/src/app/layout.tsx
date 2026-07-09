@@ -4,10 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://otoyali.vercel.app"),
   title: {
-    default: "OTOYALI - AI-first transportation platform",
+    default: "OTOYALI - Türkiye'nin akıllı araç pazarı",
     template: "%s | OTOYALI"
   },
-  description: "OTOYALI ile araçları keşfedin, arayın, ilanları inceleyin ve güvenle yayınlayın.",
+  description: "Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.",
   applicationName: "OTOYALI",
   manifest: "/manifest.webmanifest",
   icons: {
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "OTOYALI",
-    description: "AI-first transportation platform for Turkey.",
+    description: "Türkiye'nin akıllı araç pazarı.",
     url: "https://otoyali.vercel.app",
     siteName: "OTOYALI",
     locale: "tr_TR",

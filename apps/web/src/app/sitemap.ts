@@ -17,7 +17,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/sifir-km-araba",
     "/elektrikli-araclar",
     "/otomatik-vites-araclar",
-    "/suv-araclar"
+    "/suv-araclar",
+    "/ticari-araclar",
+    "/deniz-araclari",
+    "/yedek-parca",
+    "/sigorta",
+    "/servisler",
+    "/ai-asistan"
   ];
 
   const [makesResult, modelsResult, citiesResult, listingsResult] = await Promise.all([

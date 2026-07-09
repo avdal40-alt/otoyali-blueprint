@@ -29,16 +29,16 @@ export function AppHeader() {
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-semibold text-oto-muted md:flex">
           <Link href="/search" className="hover:text-oto-text">
-            Ara
+            Araç al
           </Link>
           <Link href="/video" className="hover:text-oto-text">
             Video
           </Link>
-          <Link href="/news" className="hover:text-oto-text">
-            Haberler
+          <Link href="/#kategoriler" className="hover:text-oto-text">
+            Kategoriler
           </Link>
-          <Link href="/about" className="hover:text-oto-text">
-            Hakkında
+          <Link href="/favorites" className="hover:text-oto-text">
+            Favoriler
           </Link>
         </nav>
         <div className="flex items-center gap-2">

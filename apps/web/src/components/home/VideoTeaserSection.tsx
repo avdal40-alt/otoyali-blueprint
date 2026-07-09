@@ -2,16 +2,16 @@ import { ButtonLink } from "@/components/ui/Button";
 
 const previews = [
   {
-    title: "Video ilanlar",
-    body: "İlanı görmeden önce kısa tanıtımı izleyin."
+    title: "Araç videosu",
+    body: "İlanı görmeden önce kısa tanıtım detaylarını keşfedin."
   },
   {
     title: "Galeri fırsatları",
-    body: "Galerilerden öne çıkan araçları hızlıca keşfedin."
+    body: "Galerilerden öne çıkan araçları hızlıca inceleyin."
   },
   {
-    title: "Kısa araç tanıtımları",
-    body: "Satıcıların 60 saniyeye kadar hazırladığı videolar."
+    title: "Kısa tanıtımlar",
+    body: "Satıcıların 60 saniyeye kadar hazırladığı araç videoları."
   }
 ];
 
@@ -21,14 +21,11 @@ export function VideoTeaserSection() {
       <div className="grid gap-6 p-5 md:grid-cols-[0.9fr_1.1fr] md:p-7">
         <div>
           <span className="rounded-full bg-cyan-400 px-3 py-1 text-xs font-black text-[#061A40]">
-            Yeni
+            Video İlanlar
           </span>
           <h2 className="mt-4 text-2xl font-black tracking-tight md:text-3xl">OTOYALI Video</h2>
           <p className="mt-3 text-sm leading-6 text-blue-50">
             Araç videoları, galeri fırsatları ve kısa tanıtımlar.
-          </p>
-          <p className="mt-2 text-sm leading-6 text-blue-100">
-            Satıcılar araçlarını 60 saniyeye kadar kısa videolarla tanıtabilecek.
           </p>
           <ButtonLink href="/video" variant="orange" className="mt-5 w-full md:w-auto">
             Videoları keşfet

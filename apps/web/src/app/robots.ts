@@ -19,7 +19,13 @@ export default function robots(): MetadataRoute.Robots {
         "/sehir/*",
         "/elektrikli-araclar",
         "/otomatik-vites-araclar",
-        "/suv-araclar"
+        "/suv-araclar",
+        "/ticari-araclar",
+        "/deniz-araclari",
+        "/yedek-parca",
+        "/sigorta",
+        "/servisler",
+        "/ai-asistan"
       ],
       disallow: [
         "/profile",

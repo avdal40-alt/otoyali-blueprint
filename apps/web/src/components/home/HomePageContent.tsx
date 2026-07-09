@@ -1,7 +1,5 @@
 import Link from "next/link";
 import type { City, HomeListing, ListingMedia, Make, Model } from "@/lib/supabase/types";
-import { tr } from "@/i18n/tr";
-import { en } from "@/i18n/en";
 import { newsArticles } from "@/data/news";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
@@ -18,9 +16,13 @@ import type { QueryResult } from "@/lib/queries/listings";
 import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 import { getListingCountByMake, sortListings } from "@/lib/search/filter-listings";
 import { HomeVehicleSearchPanel } from "./HomeVehicleSearchPanel";
+import { PrimaryCategoryStrip } from "./PrimaryCategoryStrip";
 import { HotListingsSection } from "./HotListingsSection";
 import { VideoTeaserSection } from "./VideoTeaserSection";
+import { MarketplaceVerticalsSection } from "./MarketplaceVerticalsSection";
+import { PopularCitiesSection } from "./PopularCitiesSection";
 import { SeoEntryLinks } from "./SeoEntryLinks";
+import { HomeTrustSection } from "./HomeTrustSection";
 import { AppPromoSection } from "./AppPromoSection";
 
 export function HomePageContent({
@@ -30,8 +32,7 @@ export function HomePageContent({
   models,
   cities = [],
   error,
-  debugItems = [],
-  locale = "tr"
+  debugItems = []
 }: {
   listings: HomeListing[];
   listingMedia?: ListingMedia[];
@@ -42,7 +43,6 @@ export function HomePageContent({
   debugItems?: Array<Pick<QueryResult<unknown>, "queryName" | "count" | "error">>;
   locale?: "tr" | "en";
 }) {
-  const dict = locale === "en" ? en : tr;
   const orderedListings = sortListings(listings, "newest");
   const featured = orderedListings.slice(4, 7).length > 0 ? orderedListings.slice(4, 7) : orderedListings.slice(0, 3);
   const latest = orderedListings.slice(0, 6);
@@ -57,12 +57,16 @@ export function HomePageContent({
           <div className="grid gap-5 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
             <div>
               <p className="text-xs font-bold uppercase tracking-wide text-oto-blue">OTOYALI</p>
-              <h1 className="mt-2 text-3xl font-black tracking-tight text-oto-text md:text-4xl">{dict.heroTitle}</h1>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-oto-muted md:text-base">{dict.heroSubtitle}</p>
+              <h1 className="mt-2 text-3xl font-black tracking-tight text-oto-text md:text-4xl">Türkiye&apos;nin akıllı araç pazarı</h1>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-oto-muted md:text-base">
+                Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.
+              </p>
             </div>
             <HomeVehicleSearchPanel makes={makes} models={models} cities={cities} listings={listings} />
           </div>
         </section>
+
+        <PrimaryCategoryStrip />
 
         {error ? <div className="mt-6"><ErrorState message={error} /></div> : null}
         <DevQueryDebug items={debugItems} />
@@ -71,12 +75,16 @@ export function HomePageContent({
 
         <VideoTeaserSection />
 
+        <MarketplaceVerticalsSection />
+
         <section className="mt-8">
           <SectionHeader title="Popüler markalar" eyebrow="Keşfet" action={<Link href="/search" className="text-sm font-bold text-oto-blue">Tümünü gör</Link>} />
           <BrandCarousel makes={makes} countsByMake={countsByMake} />
         </section>
 
-        <SeoEntryLinks makes={makes} cities={cities} />
+        <PopularCitiesSection cities={cities} />
+
+        <SeoEntryLinks />
 
         <section className="mt-10">
           <SectionHeader title="Vitrin ilanları" eyebrow="Öneriler" action={<ButtonLink href="/sell" variant="orange">İlan yayınla</ButtonLink>} />
@@ -87,7 +95,7 @@ export function HomePageContent({
               ))}
             </div>
           ) : (
-            <VehicleGrid listings={[]} title="Aktif ilan bulunamadı" body="Supabase verisi geldiği anda burada görünecek." />
+            <VehicleGrid listings={[]} title="Aktif ilan bulunamadı" body="Yeni ilanlar eklendiğinde burada görünecek." />
           )}
         </section>
 
@@ -95,6 +103,8 @@ export function HomePageContent({
           <SectionHeader title="En yeni ilanlar" eyebrow="Pazar" />
           <VehicleGrid listings={latest} listingMedia={listingMedia} />
         </section>
+
+        <HomeTrustSection />
 
         <section className="mt-10">
           <SectionHeader title="Otomotiv haberleri" eyebrow="Gündem" action={<Link href="/news" className="text-sm font-bold text-oto-blue">Haberler</Link>} />
