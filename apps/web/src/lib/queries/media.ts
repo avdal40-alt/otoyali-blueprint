@@ -2,6 +2,8 @@ import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import type { ListingMedia } from "@/lib/supabase/types";
 import type { QueryResult } from "./listings";
 
+const LISTING_MEDIA_COLUMNS = "listing_id,vehicle_profile_id,media_id,url,storage_path,sort_order,is_cover";
+
 export async function getListingMedia(listingId: string): Promise<QueryResult<ListingMedia[]>> {
   const queryName = "ff_listing_media";
   if (!hasSupabaseEnv()) {
@@ -9,9 +11,9 @@ export async function getListingMedia(listingId: string): Promise<QueryResult<Li
   }
 
   const supabase = getSupabaseServerClient();
-  const { data, error, count } = await supabase
+  const { data, error } = await supabase
     .from("ff_listing_media")
-    .select("*", { count: "exact" })
+    .select(LISTING_MEDIA_COLUMNS)
     .eq("listing_id", listingId)
     .order("is_cover", { ascending: false })
     .order("sort_order", { ascending: true });
@@ -19,7 +21,7 @@ export async function getListingMedia(listingId: string): Promise<QueryResult<Li
   return {
     data: (data ?? []) as ListingMedia[],
     error: error?.message ?? null,
-    count: count ?? data?.length ?? 0,
+    count: data?.length ?? 0,
     queryName
   };
 }
@@ -31,9 +33,9 @@ export async function getListingMediaByVehicleProfileId(vehicleProfileId: string
   }
 
   const supabase = getSupabaseServerClient();
-  const { data, error, count } = await supabase
+  const { data, error } = await supabase
     .from("ff_listing_media")
-    .select("*", { count: "exact" })
+    .select(LISTING_MEDIA_COLUMNS)
     .eq("vehicle_profile_id", vehicleProfileId)
     .order("is_cover", { ascending: false })
     .order("sort_order", { ascending: true });
@@ -41,7 +43,7 @@ export async function getListingMediaByVehicleProfileId(vehicleProfileId: string
   return {
     data: (data ?? []) as ListingMedia[],
     error: error?.message ?? null,
-    count: count ?? data?.length ?? 0,
+    count: data?.length ?? 0,
     queryName
   };
 }
@@ -59,9 +61,9 @@ export async function getListingMediaForListings(listingIds: string[]): Promise<
   }
 
   const supabase = getSupabaseServerClient();
-  const { data, error, count } = await supabase
+  const { data, error } = await supabase
     .from("ff_listing_media")
-    .select("*", { count: "exact" })
+    .select(LISTING_MEDIA_COLUMNS)
     .in("listing_id", uniqueIds)
     .order("listing_id", { ascending: true })
     .order("is_cover", { ascending: false })
@@ -70,7 +72,7 @@ export async function getListingMediaForListings(listingIds: string[]): Promise<
   return {
     data: (data ?? []) as ListingMedia[],
     error: error?.message ?? null,
-    count: count ?? data?.length ?? 0,
+    count: data?.length ?? 0,
     queryName
   };
 }

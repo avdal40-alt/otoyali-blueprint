@@ -8,6 +8,68 @@ export type QueryResult<T> = {
   queryName: string;
 };
 
+const HOME_LISTING_COLUMNS = [
+  "listing_id",
+  "vehicle_profile_id",
+  "title",
+  "price_amount",
+  "currency",
+  "city",
+  "published_at",
+  "make_name",
+  "model_name",
+  "year",
+  "mileage_km",
+  "fuel_type",
+  "transmission",
+  "cover_image_url",
+  "media_count",
+  "price_negotiable",
+  "body_type",
+  "condition",
+  "seller_type",
+  "drive_type",
+  "color",
+  "engine_volume_l",
+  "damage_state",
+  "owner_count",
+  "quality_score",
+  "seller_display_name",
+  "video_count"
+].join(",");
+
+const LISTING_DETAILS_COLUMNS = [
+  "listing_id",
+  "vehicle_profile_id",
+  "seller_id",
+  "title",
+  "description",
+  "price_amount",
+  "currency",
+  "price_negotiable",
+  "city",
+  "published_at",
+  "make_name",
+  "model_name",
+  "year",
+  "mileage_km",
+  "fuel_type",
+  "transmission",
+  "cover_image_url",
+  "media_count",
+  "body_type",
+  "condition",
+  "seller_type",
+  "drive_type",
+  "color",
+  "engine_volume_l",
+  "damage_state",
+  "owner_count",
+  "quality_score",
+  "seller_display_name",
+  "video_count"
+].join(",");
+
 export async function getHomeListings(limit?: number): Promise<QueryResult<HomeListing[]>> {
   const queryName = "ff_home_listings";
   if (!hasSupabaseEnv()) {
@@ -17,19 +79,19 @@ export async function getHomeListings(limit?: number): Promise<QueryResult<HomeL
   const supabase = getSupabaseServerClient();
   let query = supabase
     .from("ff_home_listings")
-    .select("*", { count: "exact" })
+    .select(HOME_LISTING_COLUMNS)
     .order("published_at", { ascending: false, nullsFirst: false });
 
   if (limit) {
     query = query.limit(limit);
   }
 
-  const { data, error, count } = await query;
+  const { data, error } = await query;
 
   return {
-    data: (data ?? []) as HomeListing[],
+    data: (data ?? []) as unknown as HomeListing[],
     error: error?.message ?? null,
-    count: count ?? data?.length ?? 0,
+    count: data?.length ?? 0,
     queryName
   };
 }
@@ -43,7 +105,7 @@ export async function getListingDetails(listingId: string): Promise<QueryResult<
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from("ff_listing_details")
-    .select("*")
+    .select(LISTING_DETAILS_COLUMNS)
     .eq("listing_id", listingId)
     .maybeSingle();
 
@@ -64,7 +126,7 @@ export async function getHomeListingById(listingId: string): Promise<QueryResult
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from("ff_home_listings")
-    .select("*")
+    .select(HOME_LISTING_COLUMNS)
     .eq("listing_id", listingId)
     .maybeSingle();
 

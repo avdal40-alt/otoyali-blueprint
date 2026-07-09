@@ -10,9 +10,8 @@ import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import { getCities } from "@/lib/queries/cities";
 import { getHomeListings } from "@/lib/queries/listings";
-import { getListingMediaForListings } from "@/lib/queries/media";
 import { getMakes, getModels } from "@/lib/queries/makes";
-import type { City, HomeListing, ListingMedia, Make, Model } from "@/lib/supabase/types";
+import type { City, HomeListing, Make, Model } from "@/lib/supabase/types";
 import { citySeoSlug, makeSeoSlug, modelSeoSlug } from "@/lib/seo/slugs";
 import { absoluteUrl } from "@/lib/seo/metadata";
 import { defaultSearchFilters, buildSearchUrl, type ListingSearchFilters } from "@/lib/search/search-params";
@@ -37,7 +36,7 @@ export type MarketplaceSeoConfig = {
 
 export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoConfig }) {
   const [listingsResult, makesResult, modelsResult, citiesResult] = await Promise.all([
-    getHomeListings(240),
+    getHomeListings(80),
     getMakes(),
     getModels(),
     getCities()
@@ -50,10 +49,8 @@ export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoCon
   };
   const filteredListings = filterListings(listingsResult.data, filters);
   const previewListings = filteredListings.slice(0, 6);
-  const mediaResult = await getListingMediaForListings(previewListings.map((listing) => listing.listing_id));
-  const mediaByListing = groupMediaByListing(mediaResult.data);
   const searchUrl = buildSearchUrl(config.filters);
-  const pageError = listingsResult.error ?? makesResult.error ?? modelsResult.error ?? citiesResult.error ?? mediaResult.error;
+  const pageError = listingsResult.error ?? makesResult.error ?? modelsResult.error ?? citiesResult.error;
 
   return (
     <>
@@ -82,7 +79,7 @@ export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoCon
         </section>
 
         {pageError ? <div className="mt-6"><ErrorState message={pageError} /></div> : null}
-        <DevQueryDebug items={[listingsResult, mediaResult, makesResult, modelsResult, citiesResult]} />
+        <DevQueryDebug items={[listingsResult, makesResult, modelsResult, citiesResult]} />
 
         <section className="mt-8">
           <SectionHeader
@@ -96,7 +93,6 @@ export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoCon
                 <VehicleCard
                   key={listing.listing_id}
                   listing={listing}
-                  media={mediaByListing[listing.listing_id]}
                   priceBadge={getPriceBadgeForListing(listing, filteredListings)}
                 />
               ))}
@@ -259,14 +255,6 @@ function buildJsonLd(config: MarketplaceSeoConfig, listings: HomeListing[]) {
     "@context": "https://schema.org",
     "@graph": graph
   };
-}
-
-function groupMediaByListing(media: ListingMedia[]) {
-  return media.reduce<Record<string, ListingMedia[]>>((groups, item) => {
-    if (!item.listing_id) return groups;
-    groups[item.listing_id] = [...(groups[item.listing_id] ?? []), item];
-    return groups;
-  }, {});
 }
 
 function prioritizedMakes(makes: Make[]) {

@@ -13,7 +13,7 @@ export function VehicleGallery({ media, title, fallbackImageUrl }: { media: List
   return (
     <div className="space-y-3">
       <div className="relative aspect-[16/10] overflow-hidden rounded-oto bg-oto-surface md:aspect-[21/9]">
-        <SafeImage src={activeImage?.url} alt={title} fallbackClassName="text-lg" />
+        <SafeImage src={activeImage?.largeUrl} alt={title} fallbackClassName="text-lg" />
         {images.length > 0 ? (
           <span className="absolute bottom-3 left-3 rounded-full bg-black/60 px-3 py-1 text-xs font-black text-white">
             {activeIndex + 1}/{images.length} fotoğraf
@@ -33,7 +33,7 @@ export function VehicleGallery({ media, title, fallbackImageUrl }: { media: List
               )}
               aria-label={`${index + 1}. fotoğrafı göster`}
             >
-              <SafeImage src={item.url} alt={title} />
+              <SafeImage src={item.thumbUrl} alt={title} />
             </button>
           ))}
         </div>
@@ -46,12 +46,13 @@ function getGalleryImages(media: ListingMedia[], fallbackImageUrl?: string | nul
   const images = media
     .map((item) => ({
       key: item.media_id ?? item.url ?? item.storage_path ?? "",
-      url: item.url
+      largeUrl: item.large_url || item.url,
+      thumbUrl: item.thumb_url || item.card_url || item.url
     }))
-    .filter((item) => item.url);
+    .filter((item) => item.largeUrl);
 
   if (images.length === 0 && fallbackImageUrl) {
-    return [{ key: fallbackImageUrl, url: fallbackImageUrl }];
+    return [{ key: fallbackImageUrl, largeUrl: fallbackImageUrl, thumbUrl: fallbackImageUrl }];
   }
 
   return images;

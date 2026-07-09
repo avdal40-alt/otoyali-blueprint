@@ -90,6 +90,10 @@ export type ListingMedia = {
   vehicle_profile_id?: string | null;
   media_id?: string | null;
   url?: string | null;
+  original_url?: string | null;
+  large_url?: string | null;
+  card_url?: string | null;
+  thumb_url?: string | null;
   storage_path?: string | null;
   media_type?: string | null;
   sort_order?: number | null;

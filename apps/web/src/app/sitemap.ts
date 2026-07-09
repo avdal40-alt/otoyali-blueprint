@@ -30,7 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getMakes(),
     getModels(),
     getCities(),
-    getHomeListings(1000)
+    getHomeListings(300)
   ]);
 
   const entries = new Map<string, MetadataRoute.Sitemap[number]>();

@@ -65,6 +65,17 @@ npm run typecheck
 npm run build
 ```
 
+## Performance Guardrails
+
+- Home, Search, SEO pages, and listing cards must not load video files. They may show only lightweight metadata such as `video_count`.
+- Public list pages must use limited queries and explicit columns. Do not use `SELECT *` on listing-card paths.
+- Listing cards should use `cover_image_url` or future card-sized variants such as `card_url`/`thumb_url`.
+- Use large images only on listing detail pages and keep all image containers fixed-ratio to avoid layout shift.
+- Keep placeholder vertical pages static. They should not query Supabase or show fake inventory.
+- Add indexes when adding new filters, sorts, moderation queues, or public read views.
+- Keep `/video` in small batches and avoid preloading many videos. Posters or placeholders should appear before video bytes load.
+- Run `npm run build` before pushing production UI changes.
+
 ## Production Preview
 
 ```bash
@@ -129,7 +140,7 @@ npx supabase db push
 
 ## OTOYALI Video
 
-`/video` is the OTOYALI short vehicle video feed. It reads small batches from the public video feed view and uses `preload="metadata"` with poster images when available.
+`/video` is the OTOYALI short vehicle video feed. It reads small batches from the public video feed view and uses poster images when available. Video elements use `preload="none"` so files load only after user intent.
 
 Seller uploads start from `/my-listings` with `Video ekle`. Uploaded files are stored under:
 

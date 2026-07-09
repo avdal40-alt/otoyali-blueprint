@@ -9,15 +9,15 @@ export async function getMakes(): Promise<QueryResult<Make[]>> {
   }
 
   const supabase = getSupabaseServerClient();
-  const { data, error, count } = await supabase
+  const { data, error } = await supabase
     .from("ff_makes")
-    .select("*", { count: "exact" })
+    .select("make_id,make_name,make_slug")
     .order("make_name", { ascending: true });
 
   return {
     data: (data ?? []) as Make[],
     error: error?.message ?? null,
-    count: count ?? data?.length ?? 0,
+    count: data?.length ?? 0,
     queryName
   };
 }
@@ -29,16 +29,16 @@ export async function getModels(): Promise<QueryResult<Model[]>> {
   }
 
   const supabase = getSupabaseServerClient();
-  const { data, error, count } = await supabase
+  const { data, error } = await supabase
     .from("ff_models")
-    .select("*", { count: "exact" })
+    .select("model_id,make_id,make_name,model_name,model_slug")
     .order("make_name", { ascending: true })
     .order("model_name", { ascending: true });
 
   return {
     data: (data ?? []) as Model[],
     error: error?.message ?? null,
-    count: count ?? data?.length ?? 0,
+    count: data?.length ?? 0,
     queryName
   };
 }

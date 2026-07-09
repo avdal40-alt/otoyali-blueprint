@@ -31,7 +31,7 @@ export default async function VideoPage({
           <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
               <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-100">
-                Yeni
+                Video İlanlar
               </span>
               <h1 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">OTOYALI Video</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-50 md:text-base">
@@ -53,8 +53,8 @@ export default async function VideoPage({
         {videos.length > 0 ? (
           <section className="mx-auto mt-8 grid max-w-5xl gap-6 lg:grid-cols-[minmax(320px,460px)_1fr]">
             <div className="grid gap-6 lg:col-start-1">
-              {videos.map((video, index) => (
-                <VideoCard key={video.video_id} video={video} eager={index === 0} />
+              {videos.map((video) => (
+                <VideoCard key={video.video_id} video={video} />
               ))}
             </div>
             <aside className="hidden h-fit rounded-oto border border-oto-border bg-white p-5 shadow-soft lg:sticky lg:top-24 lg:block">
@@ -83,7 +83,7 @@ export default async function VideoPage({
   );
 }
 
-function VideoCard({ video, eager }: { video: OtoyaliVideo; eager: boolean }) {
+function VideoCard({ video }: { video: OtoyaliVideo }) {
   const title = video.title?.trim() || video.listing_title?.trim() || "Araç videosu";
   const poster = video.poster_url || video.thumbnail_url || video.cover_image_url || undefined;
   const details = [
@@ -101,7 +101,7 @@ function VideoCard({ video, eager }: { video: OtoyaliVideo; eager: boolean }) {
           controls
           muted
           playsInline
-          preload={eager ? "metadata" : "none"}
+          preload="none"
           poster={poster}
           src={video.video_url || undefined}
         />

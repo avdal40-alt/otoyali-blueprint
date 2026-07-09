@@ -7,6 +7,36 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { VehicleGrid } from "@/components/vehicle/VehicleGrid";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 
+const FAVORITE_LISTING_COLUMNS = [
+  "listing_id",
+  "vehicle_profile_id",
+  "title",
+  "price_amount",
+  "currency",
+  "city",
+  "published_at",
+  "make_name",
+  "model_name",
+  "year",
+  "mileage_km",
+  "fuel_type",
+  "transmission",
+  "cover_image_url",
+  "media_count",
+  "price_negotiable",
+  "body_type",
+  "condition",
+  "seller_type",
+  "drive_type",
+  "color",
+  "engine_volume_l",
+  "damage_state",
+  "owner_count",
+  "quality_score",
+  "seller_display_name",
+  "video_count"
+].join(",");
+
 export function FavoritesClient() {
   const router = useRouter();
   const [listings, setListings] = useState<HomeListing[]>([]);
@@ -32,7 +62,8 @@ export function FavoritesClient() {
         .schema("marketplace")
         .from("listing_favorites")
         .select("listing_id")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(60);
 
       if (favoriteError) {
         setError(favoriteError.message);
@@ -46,11 +77,11 @@ export function FavoritesClient() {
         return;
       }
 
-      const { data, error: listingError } = await supabase.from("ff_home_listings").select("*").in("listing_id", ids);
+      const { data, error: listingError } = await supabase.from("ff_home_listings").select(FAVORITE_LISTING_COLUMNS).in("listing_id", ids);
       if (listingError) {
         setError(listingError.message);
       }
-      setListings((data ?? []) as HomeListing[]);
+      setListings((data ?? []) as unknown as HomeListing[]);
       setLoading(false);
     }
 

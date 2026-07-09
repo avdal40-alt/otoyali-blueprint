@@ -139,7 +139,7 @@ export function VehicleCard({
 
 function getPreviewImages(listing: HomeListing, media: ListingMedia[]) {
   const urls = media
-    .map((item) => item.url?.trim())
+    .map((item) => (item.card_url || item.thumb_url || item.url)?.trim())
     .filter(Boolean) as string[];
 
   if (listing.cover_image_url) {

@@ -14,9 +14,8 @@ import { SpecChip } from "@/components/vehicle/SpecChip";
 import { VehicleTrustReportCard } from "@/components/vehicle/VehicleTrustReportCard";
 import { FavoriteButton } from "@/components/vehicle/FavoriteButton";
 import { VehicleCard } from "@/components/vehicle/VehicleCard";
-import type { ListingMedia } from "@/lib/supabase/types";
 import { getListingDetails, getHomeListings, getHomeListingById } from "@/lib/queries/listings";
-import { getListingMedia, getListingMediaByVehicleProfileId, getListingMediaForListings } from "@/lib/queries/media";
+import { getListingMedia, getListingMediaByVehicleProfileId } from "@/lib/queries/media";
 import { getListingVideos } from "@/lib/queries/videos";
 import {
   bodyTypeLabel,
@@ -63,15 +62,13 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
       : null;
   const mediaRows = mediaResult.data.length > 0 ? mediaResult.data : fallbackMediaResult?.data ?? [];
   const similarListings = similarResult.data.filter((item) => item.listing_id !== listing?.listing_id).slice(0, 3);
-  const similarMediaResult = await getListingMediaForListings(similarListings.map((item) => item.listing_id));
-  const similarMediaByListing = groupMediaByListing(similarMediaResult.data);
 
   return (
     <>
       <AppHeader />
       <PageContainer className={listing ? "pb-40 md:pb-24" : undefined}>
         {detailsResult.error ? <ErrorState message={detailsResult.error} /> : null}
-        <DevQueryDebug items={[detailsResult, mediaResult, fallbackListingResult, videosResult, similarMediaResult, ...(fallbackMediaResult ? [fallbackMediaResult] : [])]} />
+        <DevQueryDebug items={[detailsResult, mediaResult, fallbackListingResult, videosResult, ...(fallbackMediaResult ? [fallbackMediaResult] : [])]} />
         {listing ? (
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div>
@@ -165,7 +162,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                   {similarListings.length > 0 ? (
                     <div className="mt-4 grid gap-4 md:grid-cols-3">
                       {similarListings.map((item) => (
-                        <VehicleCard key={item.listing_id} listing={item} media={similarMediaByListing[item.listing_id]} compact priceBadge={getPriceBadgeForListing(item, similarResult.data)} />
+                        <VehicleCard key={item.listing_id} listing={item} compact priceBadge={getPriceBadgeForListing(item, similarResult.data)} />
                       ))}
                     </div>
                   ) : (
@@ -205,12 +202,4 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
       <MobileBottomNav />
     </>
   );
-}
-
-function groupMediaByListing(media: ListingMedia[]) {
-  return media.reduce<Record<string, ListingMedia[]>>((groups, item) => {
-    if (!item.listing_id) return groups;
-    groups[item.listing_id] = [...(groups[item.listing_id] ?? []), item];
-    return groups;
-  }, {});
 }

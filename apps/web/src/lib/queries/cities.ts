@@ -9,16 +9,16 @@ export async function getCities(): Promise<QueryResult<City[]>> {
   }
 
   const supabase = getSupabaseServerClient();
-  const { data, error, count } = await supabase
+  const { data, error } = await supabase
     .from("ff_cities")
-    .select("*", { count: "exact" })
+    .select("city_id,city_name,city_slug,country_code,sort_order")
     .order("sort_order", { ascending: true, nullsFirst: false })
     .order("city_name", { ascending: true });
 
   return {
     data: (data ?? []) as City[],
     error: error?.message ?? null,
-    count: count ?? data?.length ?? 0,
+    count: data?.length ?? 0,
     queryName
   };
 }

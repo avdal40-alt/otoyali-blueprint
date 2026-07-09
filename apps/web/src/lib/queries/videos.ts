@@ -2,6 +2,31 @@ import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import type { OtoyaliVideo } from "@/lib/supabase/types";
 import type { QueryResult } from "./listings";
 
+const VIDEO_FEED_COLUMNS = [
+  "video_id",
+  "listing_id",
+  "title",
+  "description",
+  "video_url",
+  "thumbnail_url",
+  "poster_url",
+  "duration_seconds",
+  "likes_count",
+  "views_count",
+  "created_at",
+  "sort_order",
+  "listing_title",
+  "price_amount",
+  "currency",
+  "city",
+  "year",
+  "mileage_km",
+  "fuel_type",
+  "seller_type",
+  "seller_display_name",
+  "cover_image_url"
+].join(",");
+
 export async function getVideoFeed({
   listingId,
   limit = 6
@@ -17,7 +42,7 @@ export async function getVideoFeed({
   const supabase = getSupabaseServerClient();
   let query = supabase
     .from("ff_akis_videos")
-    .select("*", { count: "exact" })
+    .select(VIDEO_FEED_COLUMNS)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false, nullsFirst: false })
     .limit(limit);
@@ -26,16 +51,16 @@ export async function getVideoFeed({
     query = query.eq("listing_id", listingId);
   }
 
-  const { data, error, count } = await query;
+  const { data, error } = await query;
 
   if (isMissingVideoFeedView(error?.message)) {
     return { data: [], error: null, count: 0, queryName };
   }
 
   return {
-    data: (data ?? []) as OtoyaliVideo[],
+    data: (data ?? []) as unknown as OtoyaliVideo[],
     error: error?.message ?? null,
-    count: count ?? data?.length ?? 0,
+    count: data?.length ?? 0,
     queryName
   };
 }
