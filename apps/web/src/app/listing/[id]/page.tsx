@@ -35,6 +35,7 @@ import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import { ContactSellerButton } from "./_components/ContactSellerButton";
 import { ShareListingButton } from "./_components/ShareListingButton";
+import { ReportListingButton } from "./_components/ReportListingButton";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -186,6 +187,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
               <p className="mt-5 rounded-md bg-oto-surface p-3 text-sm font-semibold leading-6 text-oto-muted">
                 OTOYALI, araç alım satımını daha güvenli ve kolay hale getirir.
               </p>
+              <ReportListingButton listingId={listing.listing_id} />
             </aside>
           </div>
         ) : null}

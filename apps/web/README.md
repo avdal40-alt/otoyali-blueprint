@@ -184,6 +184,25 @@ Prepared placeholder fields:
 - `vehicle.profile_media.processed_at`
 - `vehicle.profile_media.processing_error`
 
+## Admin Bootstrap
+
+Admin routes live under `/admin` and are protected by `public.admin_users` plus Supabase RLS. Normal authenticated users cannot read admin data unless they have an active admin row.
+
+To bootstrap the first owner:
+
+1. Sign in once with the target admin user.
+2. Copy that user's `auth.users.id` from Supabase.
+3. Run this SQL in the Supabase SQL editor:
+
+```sql
+insert into public.admin_users (user_id, role, is_active)
+values ('YOUR_AUTH_USER_ID', 'owner', true)
+on conflict (user_id)
+do update set role = excluded.role, is_active = excluded.is_active;
+```
+
+Admin actions should write to `public.admin_audit_logs`. Reports are stored in `marketplace.reports` and are private; public pages never expose report data.
+
 ## Supabase Seed Note
 
 Demo marketplace data is expected from `supabase/seed.sql`. Home and Search need active rows in `public.ff_home_listings` plus make/model rows in `public.ff_makes` and `public.ff_models`.

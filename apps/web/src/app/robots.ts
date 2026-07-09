@@ -32,6 +32,7 @@ export default function robots(): MetadataRoute.Robots {
         "/my-listings",
         "/settings",
         "/admin",
+        "/admin/*",
         "/login",
         "/otp",
         "/debug",
