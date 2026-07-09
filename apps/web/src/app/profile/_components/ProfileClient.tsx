@@ -15,6 +15,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -38,6 +39,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
         return;
       }
       setUserId(user.id);
+      setCreatedAt(user.created_at ?? null);
       const fallbackProfile: Profile = {
         id: user.id,
         phone: user.phone ?? null,
@@ -105,13 +107,29 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   }
 
   if (loading) return <LoadingState />;
-  if (!userId) return <EmptyState title="Profil için giriş yapın" body="İlan yayınlamak, favorileri kaydetmek ve profil düzenlemek için telefonla giriş yapın." href="/login?next=/profile" action="Giriş yap" />;
+  if (!userId) {
+    return (
+      <EmptyState
+        title="Devam etmek için giriş yapın"
+        body="Bu işlemi yapmak için telefon numaranızla giriş yapmanız gerekiyor."
+        href="/login?next=/profile"
+        action="Giriş yap"
+      />
+    );
+  }
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
       <section className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
         <h1 className="text-2xl font-black text-oto-text">Profil</h1>
-        <p className="mt-1 text-sm text-oto-muted">Satıcı profiliniz ilan yayınlama sırasında kullanılır.</p>
+        <p className="mt-1 text-sm text-oto-muted">Hesap ve satıcı bilgileriniz ilan yayınlama sırasında kullanılır.</p>
+
+        <div className="mt-4 grid gap-3 rounded-md bg-oto-surface p-4 text-sm font-bold text-oto-muted md:grid-cols-3">
+          <p>Hesap: <span className="text-oto-text">{userId.slice(0, 8)}...{userId.slice(-4)}</span></p>
+          <p>Telefon: <span className="text-oto-text">{profile?.phone || "Yok"}</span></p>
+          <p>Oluşturulma: <span className="text-oto-text">{createdAt ? new Intl.DateTimeFormat("tr-TR").format(new Date(createdAt)) : "Yok"}</span></p>
+        </div>
+
         <div className="mt-5 grid gap-3 md:grid-cols-2">
           <label className="grid gap-1">
             <span className="text-xs font-bold text-oto-muted">Ad soyad</span>
@@ -149,8 +167,9 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
       </section>
       <aside className="grid h-fit gap-3 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
         <ButtonLink href="/my-listings" variant="secondary">İlanlarım</ButtonLink>
-        <ButtonLink href="/favorites" variant="secondary">Favoriler</ButtonLink>
+        <ButtonLink href="/favorites" variant="secondary">Favorilerim</ButtonLink>
         <ButtonLink href="/settings" variant="secondary">Ayarlar</ButtonLink>
+        <ButtonLink href="/sell" variant="orange">İlan yayınla</ButtonLink>
       </aside>
     </div>
   );

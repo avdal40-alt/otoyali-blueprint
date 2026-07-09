@@ -6,27 +6,31 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import type { Profile } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
-import { ErrorState, LoadingState } from "@/components/ui/States";
+import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 
 export function SettingsClient() {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
       if (!hasSupabaseEnv()) {
         setError("Supabase ortam değişkenleri eksik.");
+        setLoading(false);
         return;
       }
       const supabase = getSupabaseBrowserClient();
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) {
-        router.replace("/login?next=/settings");
+        setLoading(false);
         return;
       }
-      const { data } = await supabase.from("profiles").select("*").eq("id", userData.user.id).maybeSingle();
+      const { data, error: profileError } = await supabase.from("profiles").select("*").eq("id", userData.user.id).maybeSingle();
       setProfile((data as Profile | null) ?? null);
+      setError(profileError?.message ?? null);
+      setLoading(false);
     }
     void load();
   }, [router]);
@@ -41,8 +45,18 @@ export function SettingsClient() {
     if (updateError) setError(updateError.message);
   }
 
+  if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;
-  if (!profile) return <LoadingState />;
+  if (!profile) {
+    return (
+      <EmptyState
+        title="Devam etmek için giriş yapın"
+        body="Bu işlemi yapmak için telefon numaranızla giriş yapmanız gerekiyor."
+        href="/login?next=/settings"
+        action="Giriş yap"
+      />
+    );
+  }
 
   return (
     <div className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
@@ -51,11 +65,11 @@ export function SettingsClient() {
         <Input value={profile.last_name ?? ""} onChange={(event) => setProfile({ ...profile, last_name: event.target.value })} placeholder="Soyad" />
         <Input value={profile.city ?? ""} onChange={(event) => setProfile({ ...profile, city: event.target.value })} placeholder="Şehir" />
         <Select value={profile.language} onChange={(event) => setProfile({ ...profile, language: event.target.value })}>
-          <option value="tr">Turkce</option>
+          <option value="tr">Türkçe</option>
           <option value="en">English</option>
         </Select>
       </div>
-      <Button onClick={save} className="mt-5">Ayarlari kaydet</Button>
+      <Button onClick={save} className="mt-5">Ayarları kaydet</Button>
     </div>
   );
 }

@@ -6,12 +6,13 @@ import { OtpInput } from "@/components/auth/OtpInput";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/States";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
+import { friendlyAuthError, safeNextPath } from "@/lib/auth/auth-ui";
 
 export function OtpClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get("phone") || "";
-  const next = searchParams.get("next") || "/profile";
+  const next = safeNextPath(searchParams.get("next"), "/profile");
   const [token, setToken] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -30,7 +31,10 @@ export function OtpClient() {
     setLoading(false);
 
     if (otpError) {
-      setError(otpError.message);
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("Supabase OTP verify error:", otpError.message);
+      }
+      setError(friendlyAuthError(otpError.message));
       return;
     }
 
@@ -48,7 +52,7 @@ export function OtpClient() {
       );
     }
 
-    router.replace(next.startsWith("/") ? next : "/profile");
+    router.replace(next);
   }
 
   async function resend() {
@@ -64,19 +68,23 @@ export function OtpClient() {
     setResending(false);
 
     if (resendError) {
-      setError("SMS gönderimi henüz yapılandırılmadı. Lütfen daha sonra tekrar deneyin.");
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("Supabase phone OTP resend error:", resendError.message);
+      }
+      setError(friendlyAuthError(resendError.message));
     }
   }
 
   return (
     <div className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-      <h1 className="text-2xl font-black text-oto-text">Kodu girin</h1>
+      <p className="text-xs font-black uppercase tracking-wide text-oto-blue">OTOYALI</p>
+      <h1 className="mt-2 text-2xl font-black text-oto-text">Doğrulama kodu</h1>
       <p className="mt-2 text-sm leading-6 text-oto-muted">{phone} numarasına gelen 6 haneli kodu yazın.</p>
       <div className="mt-5 grid gap-4">
         <OtpInput value={token} onChange={setToken} />
         {error ? <ErrorState message={error} /> : null}
-        <Button onClick={verify} disabled={loading || token.length !== 6}>
-          {loading ? "Doğrulanıyor" : "Doğrula"}
+        <Button onClick={verify} disabled={loading || token.length !== 6 || !phone}>
+          {loading ? "Doğrulanıyor" : "Giriş yap"}
         </Button>
         <Button onClick={resend} variant="secondary" disabled={resending || !phone}>
           {resending ? "Gönderiliyor" : "Kodu tekrar gönder"}

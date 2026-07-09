@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
+import { isMissingAuthSessionError } from "@/lib/auth/auth-ui";
 import { formatPrice } from "@/lib/format";
 
 type AdminSection = "dashboard" | "listings" | "videos" | "reports" | "users" | "settings";
@@ -116,7 +117,7 @@ export function AdminClient({ section }: { section: AdminSection }) {
 
       const supabase = getSupabaseBrowserClient();
       const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError) {
+      if (userError && !isMissingAuthSessionError(userError.message)) {
         setAdmin({ status: "error", userId: null, role: null, error: userError.message });
         return;
       }
@@ -169,10 +170,10 @@ export function AdminClient({ section }: { section: AdminSection }) {
 
         {admin.status === "loading" ? <LoadingState /> : null}
         {admin.status === "login" ? (
-          <EmptyState title="Giriş gerekli" body="Admin alanına erişmek için önce giriş yapmanız gerekir." href="/login?next=/admin" action="Giriş yap" />
+          <EmptyState title="Admin paneline erişmek için giriş yapın." body="Bu alan yalnızca yetkili OTOYALI ekip üyeleri içindir." href="/login?next=/admin" action="Giriş yap" />
         ) : null}
         {admin.status === "denied" ? (
-          <ErrorState message="Bu kullanıcı admin alanına erişemez. public.admin_users içinde aktif admin kaydı gerekir." />
+          <ErrorState message="Bu alana erişim yetkiniz yok." />
         ) : null}
         {admin.status === "error" ? <ErrorState message={admin.error ?? "Admin kontrolü tamamlanamadı."} /> : null}
         {admin.status === "ready" && admin.userId ? <AdminSectionContent section={section} userId={admin.userId} role={admin.role ?? "moderator"} /> : null}

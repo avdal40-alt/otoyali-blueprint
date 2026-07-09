@@ -190,16 +190,25 @@ Admin routes live under `/admin` and are protected by `public.admin_users` plus 
 
 To bootstrap the first owner:
 
-1. Sign in once with the target admin user.
-2. Copy that user's `auth.users.id` from Supabase.
-3. Run this SQL in the Supabase SQL editor:
+1. Login once on the website with the intended owner account.
+2. Go to Supabase Dashboard.
+3. Open Authentication -> Users.
+4. Copy that user's UUID.
+5. Run this SQL in the Supabase SQL editor:
 
 ```sql
 insert into public.admin_users (user_id, role, is_active)
 values ('YOUR_AUTH_USER_ID', 'owner', true)
 on conflict (user_id)
-do update set role = excluded.role, is_active = excluded.is_active;
+do update
+set role = excluded.role,
+    is_active = excluded.is_active,
+    updated_at = now();
 ```
+
+6. Open `/admin` again.
+
+If the Supabase SMS provider is not configured, phone login will not send OTP. Configure a Supabase Auth SMS provider before production launch. Until SMS is configured, admin login cannot be tested through phone OTP unless you use the Supabase manual/test user workflow.
 
 Admin actions should write to `public.admin_audit_logs`. Reports are stored in `marketplace.reports` and are private; public pages never expose report data.
 
