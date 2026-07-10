@@ -188,6 +188,14 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                 OTOYALI, araç alım satımını daha güvenli ve kolay hale getirir.
               </p>
               <ReportListingButton listingId={listing.listing_id} />
+              <div className="mt-3 grid gap-2 rounded-md border border-oto-border bg-white p-3 text-sm font-bold">
+                <Link href="/listing-rules" className="text-oto-blue hover:underline">
+                  İlan kurallarını incele
+                </Link>
+                <Link href="/trust" className="text-oto-muted hover:text-oto-blue">
+                  Güvenli alışveriş önerileri
+                </Link>
+              </div>
             </aside>
           </div>
         ) : null}

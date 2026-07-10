@@ -25,7 +25,14 @@ export default function robots(): MetadataRoute.Robots {
         "/yedek-parca",
         "/sigorta",
         "/servisler",
-        "/ai-asistan"
+        "/ai-asistan",
+        "/terms",
+        "/privacy",
+        "/cookies",
+        "/listing-rules",
+        "/moderation-policy",
+        "/trust",
+        "/contact"
       ],
       disallow: [
         "/profile",

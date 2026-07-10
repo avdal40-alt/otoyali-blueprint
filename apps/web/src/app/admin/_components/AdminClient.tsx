@@ -611,6 +611,20 @@ on conflict (user_id)
 do update set role = excluded.role, is_active = excluded.is_active;`}</pre>
       </div>
       <div className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
+        <h2 className="text-lg font-black text-oto-text">Politika bağlantıları</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link href="/moderation-policy" className="rounded-md border border-oto-border px-3 py-2 text-sm font-black text-oto-text hover:border-oto-blue">
+            Moderasyon Politikası
+          </Link>
+          <Link href="/listing-rules" className="rounded-md border border-oto-border px-3 py-2 text-sm font-black text-oto-text hover:border-oto-blue">
+            İlan Kuralları
+          </Link>
+          <Link href="/trust" className="rounded-md border border-oto-border px-3 py-2 text-sm font-black text-oto-text hover:border-oto-blue">
+            Güven Merkezi
+          </Link>
+        </div>
+      </div>
+      <div className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
         <h2 className="text-lg font-black text-oto-text">Notlar</h2>
         <div className="mt-3 grid gap-2 text-sm leading-6 text-oto-muted">
           <p>Admin rolleri dikkatli yönetilmelidir. Normal kullanıcılar admin verisi okuyamaz.</p>

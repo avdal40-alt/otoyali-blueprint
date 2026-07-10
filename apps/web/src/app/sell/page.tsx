@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
@@ -15,6 +16,17 @@ export default async function SellPage() {
       <AppHeader />
       <PageContainer className="max-w-4xl">
         <SectionHeader title="İlan yayınla" eyebrow="Sat" />
+        <div className="mb-5 rounded-oto border border-oto-border bg-white p-4 text-sm leading-6 text-oto-muted shadow-soft">
+          İlan yayınlayarak{" "}
+          <Link href="/listing-rules" className="font-black text-oto-blue">
+            İlan Yayınlama Kuralları
+          </Link>
+          {" "}ve{" "}
+          <Link href="/terms" className="font-black text-oto-blue">
+            Kullanım Şartları
+          </Link>
+          kapsamında doğru ve güncel bilgi paylaşmayı kabul etmiş olursunuz.
+        </div>
         <SellWizard makes={makesResult.data} models={modelsResult.data} cities={citiesResult.data} listings={listingsResult.data} />
       </PageContainer>
       <MarketplaceFooter />

@@ -5,8 +5,8 @@ const groups = [
     title: "OTOYALI",
     links: [
       { href: "/about", label: "Hakkında" },
-      { href: "/privacy", label: "Gizlilik" },
-      { href: "/terms", label: "Kullanım şartları" }
+      { href: "/trust", label: "Güven Merkezi" },
+      { href: "/contact", label: "İletişim" }
     ]
   },
   {
@@ -14,23 +14,24 @@ const groups = [
     links: [
       { href: "/search", label: "Araç al" },
       { href: "/sell", label: "İlan ver" },
-      { href: "/favorites", label: "Favoriler" }
+      { href: "/listing-rules", label: "İlan Kuralları" }
+    ]
+  },
+  {
+    title: "Politikalar",
+    links: [
+      { href: "/terms", label: "Kullanım Şartları" },
+      { href: "/privacy", label: "Gizlilik Politikası" },
+      { href: "/cookies", label: "Çerez Politikası" },
+      { href: "/moderation-policy", label: "Moderasyon Politikası" }
     ]
   },
   {
     title: "İçerik",
     links: [
       { href: "/news", label: "Haberler" },
-      { href: "/settings", label: "Yardım" },
-      { href: "/notifications", label: "Bildirimler" }
-    ]
-  },
-  {
-    title: "Mobil uygulama",
-    links: [
-      { href: "/#app", label: "Android yakında" },
-      { href: "/#app", label: "iOS yakında" },
-      { href: "/#app", label: "PWA" }
+      { href: "/video", label: "Video" },
+      { href: "/#app", label: "Mobil uygulama" }
     ]
   }
 ];

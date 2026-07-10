@@ -23,7 +23,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/yedek-parca",
     "/sigorta",
     "/servisler",
-    "/ai-asistan"
+    "/ai-asistan",
+    "/terms",
+    "/privacy",
+    "/cookies",
+    "/listing-rules",
+    "/moderation-policy",
+    "/trust",
+    "/contact"
   ];
 
   const [makesResult, modelsResult, citiesResult, listingsResult] = await Promise.all([
