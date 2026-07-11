@@ -17,6 +17,31 @@ FlutterFlow remains a UI prototype/reference. This app is the real web product: 
 - Vercel-ready structure
 - PWA-ready manifest and icon placeholder
 
+## Developer Documentation
+
+Start here for handoff and maintenance:
+
+- [docs/README.md](./docs/README.md)
+- [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
+- [docs/LOCAL_DEVELOPMENT.md](./docs/LOCAL_DEVELOPMENT.md)
+- [docs/ENVIRONMENT.md](./docs/ENVIRONMENT.md)
+- [docs/SUPABASE.md](./docs/SUPABASE.md)
+- [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
+- [docs/AUTH_AND_ACCESS.md](./docs/AUTH_AND_ACCESS.md)
+- [docs/ADMIN_AND_MODERATION.md](./docs/ADMIN_AND_MODERATION.md)
+- [docs/SEO_AND_ROUTES.md](./docs/SEO_AND_ROUTES.md)
+- [docs/PERFORMANCE.md](./docs/PERFORMANCE.md)
+- [docs/MEDIA.md](./docs/MEDIA.md)
+- [docs/PRODUCT_ROADMAP.md](./docs/PRODUCT_ROADMAP.md)
+- [docs/DEVELOPER_WORKFLOW.md](./docs/DEVELOPER_WORKFLOW.md)
+- [docs/HANDOFF_CHECKLIST.md](./docs/HANDOFF_CHECKLIST.md)
+
+Current deployment note:
+
+- Current production remains `https://otoyali.vercel.app`.
+- DOMAIN-01 is paused because the final brand/domain may change.
+- GitHub may be temporarily flagged; prepare local commits, but do not push until the account is healthy.
+
 ## Brand Assets
 
 Production brand assets live in `public/brand`.
@@ -46,13 +71,13 @@ Do not commit real secrets.
 
 ```bash
 cd apps/web
-npm install
+npm.cmd install
 ```
 
 ## Local Development
 
 ```bash
-npm run dev
+npm.cmd run dev
 ```
 
 Open `http://localhost:3000`.
@@ -60,9 +85,9 @@ Open `http://localhost:3000`.
 ## Quality Checks
 
 ```bash
-npm run lint
-npm run typecheck
-npm run build
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd run build
 ```
 
 ## Performance Guardrails
