@@ -46,6 +46,22 @@ Backend is Supabase:
 
 No custom server is present in `apps/web`.
 
+## Seller Publishing Workflow
+
+The seller journey stays guest-first and progressive:
+
+- `/sell` is protected and uses `/login?next=/sell`.
+- Profile data is requested lazily inside the sell journey.
+- The publish wizard keeps non-file draft fields in local storage as best-effort recovery.
+- Vehicle specs are stored in `vehicle.vehicle_profiles`.
+- Ownership is stored in `vehicle.profile_ownership`.
+- Photos are stored in Supabase Storage and referenced by `vehicle.profile_media`.
+- Listings are stored in `marketplace.listings`.
+- Final seller submission creates a draft listing with `moderation_status = pending_review`.
+- Admin approval changes listings to public by setting `status = active` and `moderation_status = active`.
+
+Public browsing and public media visibility must require both active listing status and active moderation status. Owners can read their own listing/media rows through RLS for seller management.
+
 ## Product Domains
 
 - Marketplace listings: `marketplace.listings`

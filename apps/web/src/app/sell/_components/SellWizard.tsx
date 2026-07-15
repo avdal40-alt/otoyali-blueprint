@@ -1,10 +1,11 @@
 "use client";
 
 import { FormEvent, type ReactNode, useMemo, useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { City, HomeListing, Make, Model, Profile } from "@/lib/supabase/types";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { SafeImage } from "@/components/ui/SafeImage";
@@ -49,6 +50,13 @@ type SellerProfileState = {
   sellerType: string;
 };
 
+type PersistedWizardState = Omit<WizardState, "photos">;
+
+type QualityItem = {
+  label: string;
+  complete: boolean;
+};
+
 const maxPhotos = 20;
 const maxFileSize = 10 * 1024 * 1024;
 const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
@@ -77,7 +85,7 @@ const initialState: WizardState = {
   photos: []
 };
 
-const steps = ["Araç bilgileri", "Teknik özellikler", "Fotoğraflar", "Fiyat ve açıklama", "Önizleme ve yayınla"];
+const steps = ["Satıcı bilgileri", "Araç bilgileri", "Donanım ve açıklama", "Fotoğraflar", "Fiyat ve konum", "Önizleme"];
 
 const fuelOptions = ["gasoline", "diesel", "hybrid", "electric", "lpg", "other"];
 const transmissionOptions = ["automatic", "manual", "semi_automatic"];
@@ -125,6 +133,12 @@ export function SellWizard({
   const [profileSaving, setProfileSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [rulesAccepted, setRulesAccepted] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<string | null>(null);
+  const [publishedListingId, setPublishedListingId] = useState<string | null>(null);
+  const [modelsForMake, setModelsForMake] = useState<Model[]>(models);
+  const [modelsLoading, setModelsLoading] = useState(false);
+  const [modelsError, setModelsError] = useState<string | null>(null);
 
   useEffect(() => {
     async function checkAuth() {
@@ -145,20 +159,43 @@ export function SellWizard({
       const { data: profileRow } = await supabase.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
       const sellerProfile = toSellerProfile((profileRow as Profile | null) ?? null, data.user.phone ?? "");
       setProfile(sellerProfile);
+      const savedDraft = readStoredDraft(data.user.id);
       setState((current) => ({
         ...current,
-        city: sellerProfile.city || current.city,
-        sellerType: sellerProfile.sellerType || current.sellerType
+        ...(savedDraft ?? {}),
+        photos: [],
+        city: savedDraft?.city || sellerProfile.city || current.city,
+        sellerType: sellerProfile.sellerType || savedDraft?.sellerType || current.sellerType
       }));
+      if (savedDraft?.makeId) {
+        void loadModelsForMake(savedDraft.makeId);
+      }
       setCheckingAuth(false);
     }
 
     void checkAuth();
   }, [router]);
 
+  useEffect(() => {
+    if (!userId || publishedListingId) return;
+    saveStoredDraft(userId, state);
+  }, [publishedListingId, state, userId]);
+
+  useEffect(() => {
+    if (!userId || publishedListingId || submitting || !hasUnsavedDraft(state)) return;
+
+    function warnBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+
+    window.addEventListener("beforeunload", warnBeforeUnload);
+    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+  }, [publishedListingId, state, submitting, userId]);
+
   const selectedMake = makes.find((make) => make.make_id === state.makeId);
-  const selectedModel = models.find((item) => item.model_id === state.modelId);
-  const filteredModels = state.makeId ? models.filter((model) => model.make_id === state.makeId) : [];
+  const selectedModel = modelsForMake.find((item) => item.model_id === state.modelId);
+  const filteredModels = state.makeId ? modelsForMake : [];
   const cityOptions = useMemo(() => {
     const catalogCities = (cities ?? [])
       .map((city) => city.city_name?.trim())
@@ -168,7 +205,9 @@ export function SellWizard({
   }, [cities]);
   const generatedTitle = generateListingTitle(selectedMake, selectedModel, state.year);
   const qualityScore = calculateQualityScore(state);
-  const profileComplete = Boolean(profile?.fullName && profile.displayName && profile.phone && profile.city && profile.sellerType);
+  const profileValidation = profile ? validateSellerProfile(profile) : "Satıcı bilgilerinizi tamamlayın.";
+  const profileComplete = !profileValidation;
+  const qualityItems = getQualityItems(state, profileComplete);
   const usesFallbackCatalogOption = selectedMake?.make_name === "Diğer" || selectedModel?.model_name === "Diğer";
   const priceSuggestion = useMemo(() => {
     if (!selectedMake || !selectedModel || !state.year || !state.mileageKm) {
@@ -191,14 +230,50 @@ export function SellWizard({
 
   function updateMake(makeId: string) {
     setState((current) => ({ ...current, makeId, modelId: "" }));
+    setModelsForMake([]);
+    setModelsError(null);
+    if (makeId) {
+      void loadModelsForMake(makeId);
+    }
   }
 
   function updateProfile<K extends keyof SellerProfileState>(key: K, value: SellerProfileState[K]) {
     setProfile((current) => current ? { ...current, [key]: value } : current);
+    if (key === "city" || key === "sellerType") {
+      setState((current) => ({ ...current, [key === "city" ? "city" : "sellerType"]: value }));
+    }
   }
 
-  async function saveProfile() {
-    if (!profile || !userId) return;
+  async function loadModelsForMake(makeId: string) {
+    if (!hasSupabaseEnv()) return;
+
+    setModelsLoading(true);
+    const supabase = getSupabaseBrowserClient();
+    const { data, error: loadError } = await supabase
+      .from("ff_models")
+      .select("model_id,make_id,make_name,model_name,model_slug")
+      .eq("make_id", makeId)
+      .order("model_name", { ascending: true });
+
+    if (loadError) {
+      logClientError("sell.loadModels", loadError);
+      setModelsError("Modeller yüklenemedi. Lütfen tekrar deneyin.");
+      setModelsForMake([]);
+    } else {
+      setModelsForMake((data ?? []) as Model[]);
+    }
+
+    setModelsLoading(false);
+  }
+
+  async function persistProfile() {
+    if (!profile || !userId) return false;
+    const validation = validateSellerProfile(profile);
+    if (validation) {
+      setError(validation);
+      return false;
+    }
+
     setProfileSaving(true);
     setError(null);
     const supabase = getSupabaseBrowserClient();
@@ -222,11 +297,19 @@ export function SellWizard({
     );
 
     if (profileError) {
-      setError(profileError.message);
+      logClientError("sell.saveProfile", profileError);
+      setError("Satıcı bilgileriniz kaydedilemedi. Lütfen tekrar deneyin.");
+      setProfileSaving(false);
+      return false;
     } else {
-      setState((current) => ({ ...current, city: profile.city, sellerType: profile.sellerType }));
+      setState((current) => ({ ...current, city: current.city || profile.city, sellerType: profile.sellerType }));
     }
     setProfileSaving(false);
+    return true;
+  }
+
+  async function saveProfile() {
+    await persistProfile();
   }
 
   function handlePhotoSelect(files: FileList | null) {
@@ -276,6 +359,16 @@ export function SellWizard({
   }
 
   function goNext() {
+    if (step === 1) {
+      if (!profileComplete) {
+        setError(profileValidation);
+        return;
+      }
+      setError(null);
+      setStep((current) => Math.min(steps.length, current + 1));
+      return;
+    }
+
     const validation = validateStep(step, state);
     if (validation) {
       setError(validation);
@@ -299,6 +392,11 @@ export function SellWizard({
       return;
     }
 
+    if (!rulesAccepted) {
+      setError("Devam etmek için ilan yayınlama kurallarını kabul edin.");
+      return;
+    }
+
     const validation = validateForPublish(state);
     if (validation) {
       setError(validation);
@@ -306,7 +404,16 @@ export function SellWizard({
     }
 
     setSubmitting(true);
+    setPublishStatus("Satıcı bilgileriniz kontrol ediliyor.");
+    const profileSaved = await persistProfile();
+    if (!profileSaved) {
+      setSubmitting(false);
+      setPublishStatus(null);
+      return;
+    }
+
     const supabase = getSupabaseBrowserClient();
+    setPublishStatus("Araç profili oluşturuluyor.");
 
     const { data: vehicleProfile, error: profileError } = await supabase
       .schema("vehicle")
@@ -333,12 +440,15 @@ export function SellWizard({
       .single();
 
     if (profileError || !vehicleProfile) {
+      logClientError("sell.createVehicleProfile", profileError);
       setSubmitting(false);
-      setError(profileError?.message ?? "Araç profili oluşturulamadı.");
+      setPublishStatus(null);
+      setError("Araç bilgileri kaydedilemedi. Lütfen tekrar deneyin.");
       return;
     }
 
     const vehicleProfileId = vehicleProfile.id as string;
+    setPublishStatus("Araç sahipliği doğrulanıyor.");
     const { error: ownershipError } = await supabase.schema("vehicle").from("profile_ownership").insert({
       vehicle_profile_id: vehicleProfileId,
       owner_id: userId,
@@ -347,11 +457,14 @@ export function SellWizard({
     });
 
     if (ownershipError) {
+      logClientError("sell.createOwnership", ownershipError);
       setSubmitting(false);
-      setError(ownershipError.message);
+      setPublishStatus(null);
+      setError("Araç sahipliği kaydedilemedi. Lütfen tekrar deneyin.");
       return;
     }
 
+    setPublishStatus("İlan taslağı oluşturuluyor.");
     const { data: listing, error: listingError } = await supabase
       .schema("marketplace")
       .from("listings")
@@ -365,18 +478,20 @@ export function SellWizard({
         price_amount: Number(state.priceAmount),
         currency: state.currency,
         price_negotiable: state.priceNegotiable,
-        seller_type: state.sellerType,
+        seller_type: profile.sellerType,
         seller_display_name: profile.displayName,
         city: state.city,
         quality_score: qualityScore,
-        moderation_status: "active"
+        moderation_status: "pending_review"
       })
       .select("id")
       .single();
 
     if (listingError || !listing) {
+      logClientError("sell.createListing", listingError);
       setSubmitting(false);
-      setError(listingError?.message ?? "İlan oluşturulamadı.");
+      setPublishStatus(null);
+      setError("İlan taslağı oluşturulamadı. Lütfen tekrar deneyin.");
       return;
     }
 
@@ -387,6 +502,7 @@ export function SellWizard({
       const mediaRows = [];
       for (let index = 0; index < state.photos.length; index++) {
         const photo = state.photos[index];
+        setPublishStatus(`Fotoğraflar yükleniyor (${index + 1}/${state.photos.length}).`);
         const path = `${userId}/${listingId}/${safeFileName(index, photo.file)}`;
         const { error: uploadError } = await supabase.storage.from("listing-media").upload(path, photo.file, {
           cacheControl: "31536000",
@@ -395,7 +511,9 @@ export function SellWizard({
         });
 
         if (uploadError) {
+          logClientError("sell.uploadPhoto", uploadError);
           setSubmitting(false);
+          setPublishStatus(null);
           setError("Fotoğraf yüklenemedi. Lütfen tekrar deneyin.");
           return;
         }
@@ -418,45 +536,71 @@ export function SellWizard({
         .select("id,is_cover");
 
       if (mediaError) {
+        logClientError("sell.createMedia", mediaError);
         setSubmitting(false);
-        setError(mediaError.message);
+        setPublishStatus(null);
+        setError("Fotoğraflar kaydedilemedi. Lütfen tekrar deneyin.");
         return;
       }
 
       coverMediaId = ((insertedMedia ?? []) as Array<{ id: string; is_cover: boolean }>).find((item) => item.is_cover)?.id ?? null;
     }
 
+    setPublishStatus("İlanınız moderasyon kontrolüne gönderiliyor.");
     const { error: activateError } = await supabase
       .schema("marketplace")
       .from("listings")
       .update({
-        status: "active",
+        status: "draft",
+        moderation_status: "pending_review",
         quality_score: qualityScore,
         cover_media_id: coverMediaId
       })
       .eq("id", listingId);
 
     setSubmitting(false);
+    setPublishStatus(null);
 
     if (activateError) {
-      router.replace("/my-listings");
+      logClientError("sell.submitForReview", activateError);
+      setPublishedListingId(listingId);
+      clearStoredDraft(userId);
       return;
     }
 
-    router.replace(`/listing/${listingId}`);
+    clearStoredDraft(userId);
+    state.photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+    setPublishedListingId(listingId);
   }
 
   if (checkingAuth) return <LoadingState label="Oturum kontrol ediliyor" />;
+
+  if (publishedListingId) {
+    return (
+      <SuccessState
+        onCreateNew={() => {
+          setState({
+            ...initialState,
+            city: profile?.city || initialState.city,
+            sellerType: profile?.sellerType || initialState.sellerType
+          });
+          setRulesAccepted(false);
+          setPublishedListingId(null);
+          setStep(1);
+        }}
+      />
+    );
+  }
 
   if (profile && !profileComplete) {
     return (
       <div className="grid gap-5">
         <Panel title="Satıcı profilinizi tamamlayın">
-          <p className="text-sm leading-6 text-oto-muted">İlan yayınlamak için minimum satıcı bilgileri gerekir. Telefonunuz misafir kullanıcılara açık gösterilmez.</p>
+          <p className="text-sm leading-6 text-oto-muted">İlan yayınlamak için yalnızca gerekli satıcı bilgilerini tamamlayın. Telefonunuz misafir kullanıcılara açık gösterilmez.</p>
           <ProfileFields profile={profile} cities={cityOptions} onChange={updateProfile} />
           {error ? <ErrorState message={error} /> : null}
           <Button type="button" onClick={saveProfile} disabled={profileSaving}>
-            {profileSaving ? "Kaydediliyor" : "Profili kaydet"}
+            {profileSaving ? "Kaydediliyor" : "Devam et"}
           </Button>
         </Panel>
       </div>
@@ -473,7 +617,8 @@ export function SellWizard({
               key={item}
               type="button"
               onClick={() => setStep(item)}
-              className={step === item ? "shrink-0 rounded-full bg-oto-blue px-4 py-2 text-sm font-bold text-white" : "shrink-0 rounded-full bg-oto-surface px-4 py-2 text-sm font-bold text-oto-muted"}
+              disabled={item > step}
+              className={step === item ? "shrink-0 rounded-full bg-oto-blue px-4 py-2 text-sm font-bold text-white" : item < step ? "shrink-0 rounded-full bg-oto-surface px-4 py-2 text-sm font-bold text-oto-text" : "shrink-0 rounded-full bg-oto-surface px-4 py-2 text-sm font-bold text-oto-muted opacity-60"}
             >
               {item}. {label}
             </button>
@@ -481,7 +626,29 @@ export function SellWizard({
         })}
       </div>
 
-      {step === 1 ? (
+      {step === 1 && profile ? (
+        <Panel title="Satıcı bilgileri">
+          <div className="grid gap-3">
+            <p className="text-sm leading-6 text-oto-muted">
+              Bu bilgiler ilan yönetimi ve güvenli iletişim için kullanılır. Telefon numaranız ilan kartlarında açık gösterilmez.
+            </p>
+            <ProfileFields profile={profile} cities={cityOptions} onChange={updateProfile} />
+            {profile.sellerType === "dealer" ? (
+              <p className="rounded-md bg-oto-surface px-3 py-2 text-xs font-bold leading-5 text-oto-muted">
+                Galeri doğrulaması ileride eklenecek. MVP kapsamında yalnızca galeri adı ve yetkili kişi bilgisi alınır.
+              </p>
+            ) : null}
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" variant="secondary" onClick={saveProfile} disabled={profileSaving}>
+                {profileSaving ? "Kaydediliyor" : "Bilgileri kaydet"}
+              </Button>
+              <span className="self-center text-xs font-bold text-oto-muted">Son adımda bilgiler yeniden kontrol edilir.</span>
+            </div>
+          </div>
+        </Panel>
+      ) : null}
+
+      {step === 2 ? (
         <Panel title="Araç bilgileri">
           <div className="grid gap-3 md:grid-cols-2">
             <Field label="Marka">
@@ -492,29 +659,18 @@ export function SellWizard({
             </Field>
             <Field label="Model">
               <Select value={state.modelId} onChange={(event) => update("modelId", event.target.value)} disabled={!state.makeId}>
-                <option value="">Model seçin</option>
+                <option value="">{modelsLoading ? "Modeller yükleniyor" : "Model seçin"}</option>
                 {filteredModels.map((model) => <option key={model.model_id} value={model.model_id}>{model.model_name}</option>)}
               </Select>
+              {modelsError ? <span className="text-xs font-bold text-oto-danger">{modelsError}</span> : null}
             </Field>
             <Field label="Yıl">
               <Input value={state.year} onChange={(event) => update("year", event.target.value)} placeholder="2021" inputMode="numeric" />
-            </Field>
-            <Field label="Şehir">
-              <Select value={state.city} onChange={(event) => update("city", event.target.value)}>
-                <option value="">Şehir seçin</option>
-                {cityOptions.map((city) => <option key={city} value={city}>{cityLabel(city)}</option>)}
-              </Select>
             </Field>
             <Field label="Durum">
               <Select value={state.condition} onChange={(event) => update("condition", event.target.value)}>
                 <option value="used">İkinci el</option>
                 <option value="new">Sıfır km</option>
-              </Select>
-            </Field>
-            <Field label="Satıcı tipi">
-              <Select value={state.sellerType} onChange={(event) => update("sellerType", event.target.value)}>
-                <option value="private">Bireysel</option>
-                <option value="dealer">Galeri</option>
               </Select>
             </Field>
           </div>
@@ -526,8 +682,8 @@ export function SellWizard({
         </Panel>
       ) : null}
 
-      {step === 2 ? (
-        <Panel title="Teknik özellikler">
+      {step === 3 ? (
+        <Panel title="Donanım ve açıklama">
           <div className="grid gap-3 md:grid-cols-2">
             <Field label="Kilometre">
               <Input value={state.mileageKm} onChange={(event) => update("mileageKm", event.target.value)} placeholder="45000" inputMode="numeric" />
@@ -572,10 +728,29 @@ export function SellWizard({
             </Field>
           </div>
           <p className="text-xs font-semibold leading-5 text-oto-muted">Hasar bilgileri satıcı beyanıdır; OTOYALI doğrulama iddiasında bulunmaz.</p>
+          <div className="grid gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label className="text-xs font-bold text-oto-muted">Açıklama</label>
+              <span className="rounded-full bg-oto-surface px-3 py-1 text-xs font-black text-oto-muted">AI ile açıklama hazırla · Yakında</span>
+            </div>
+            <Textarea
+              value={state.description}
+              onChange={(event) => update("description", event.target.value)}
+              placeholder="Örnek: Aracım düzenli bakımlı, iç-dış kondisyonu iyi. Bilinen hasar ve değişen parçalar açıklamada belirtilmiştir. Ek donanımlar ve satış nedeni hakkında kısa bilgi paylaşabilirsiniz."
+            />
+            <div className="grid gap-1 text-xs font-semibold text-oto-muted sm:grid-cols-2">
+              <span>Aracın genel durumu</span>
+              <span>Bakım geçmişi</span>
+              <span>Bilinen hasar / değişen parçalar</span>
+              <span>Donanım ve aksesuarlar</span>
+              <span>Satış nedeni</span>
+              <span>Takas düşünceniz</span>
+            </div>
+          </div>
         </Panel>
       ) : null}
 
-      {step === 3 ? (
+      {step === 4 ? (
         <Panel title="Fotoğraflar">
           <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
             <h3 className="text-sm font-black text-oto-text">Fotoğraf rehberi</h3>
@@ -585,8 +760,14 @@ export function SellWizard({
               ))}
             </div>
           </div>
-          <Input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => handlePhotoSelect(event.target.files)} />
-          <p className="text-sm text-oto-muted">{state.photos.length}/{maxPhotos} fotoğraf seçildi.</p>
+          <label className="grid cursor-pointer gap-2 rounded-oto border border-dashed border-oto-border bg-white p-5 text-center">
+            <span className="text-base font-black text-oto-text">Fotoğraf ekle</span>
+            <span className="text-sm font-semibold leading-6 text-oto-muted">
+              JPEG, PNG veya WebP kullanın. Her fotoğraf en fazla 10 MB olabilir. İlk fotoğraf kapak görseli olarak kullanılır.
+            </span>
+            <Input className="mx-auto max-w-md" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => handlePhotoSelect(event.target.files)} />
+          </label>
+          <p className="text-sm text-oto-muted">{state.photos.length}/{maxPhotos} fotoğraf seçildi. Plaka ve kişisel bilgilerin görünür olmadığından emin olun.</p>
           {state.photos.length > 0 && state.photos.length < 3 ? (
             <p className="rounded-md bg-amber-50 p-3 text-sm font-semibold text-amber-700">En az 3 fotoğraf eklemeniz önerilir.</p>
           ) : null}
@@ -611,8 +792,8 @@ export function SellWizard({
         </Panel>
       ) : null}
 
-      {step === 4 ? (
-        <Panel title="Fiyat ve açıklama">
+      {step === 5 ? (
+        <Panel title="Fiyat ve konum">
           <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -631,31 +812,22 @@ export function SellWizard({
                 <option value="TRY">TRY</option>
               </Select>
             </Field>
+            <Field label="Şehir">
+              <Select value={state.city} onChange={(event) => update("city", event.target.value)}>
+                <option value="">Şehir seçin</option>
+                {cityOptions.map((city) => <option key={city} value={city}>{cityLabel(city)}</option>)}
+              </Select>
+            </Field>
           </div>
           <label className="flex items-center gap-2 text-sm font-semibold text-oto-muted">
             <input type="checkbox" checked={state.priceNegotiable} onChange={(event) => update("priceNegotiable", event.target.checked)} />
             Pazarlık var
           </label>
-          <div className="grid gap-2">
-            <label className="text-xs font-bold text-oto-muted">Açıklama</label>
-            <Textarea
-              value={state.description}
-              onChange={(event) => update("description", event.target.value)}
-              placeholder="Aracınızın durumunu, bakım geçmişini ve önemli detayları kısaca yazın."
-            />
-            <div className="grid gap-1 text-xs font-semibold text-oto-muted sm:grid-cols-2">
-              <span>Aracın durumu</span>
-              <span>Bakım geçmişi</span>
-              <span>Değişen / boya</span>
-              <span>Ek donanımlar</span>
-              <span>Satış nedeni</span>
-            </div>
-          </div>
           <PriceSuggestionCard suggestion={priceSuggestion} currency={state.currency} />
         </Panel>
       ) : null}
 
-      {step === 5 ? (
+      {step === 6 ? (
         <Panel title="Önizleme ve yayınla">
           <div className="overflow-hidden rounded-oto border border-oto-border bg-white">
             <div className="aspect-[4/3] bg-oto-surface">
@@ -664,19 +836,32 @@ export function SellWizard({
             <div className="grid gap-3 p-4">
               <h2 className="text-xl font-black text-oto-text">{generatedTitle || "İlan başlığı"}</h2>
               <p className="text-2xl font-black text-oto-text">{formatPrice(Number(state.priceAmount || 0), state.currency)}</p>
-              <p className="text-sm font-semibold text-oto-muted">{cityLabel(state.city)} · {formatMileage(Number(state.mileageKm || 0))} · {sellerTypeLabel(state.sellerType)}</p>
-              <QualityScore score={qualityScore} />
+              <p className="text-sm font-semibold text-oto-muted">
+                {cityLabel(state.city)} · {formatMileage(Number(state.mileageKm || 0))} · {fuelLabel(state.fuelType)} · {transmissionLabel(state.transmission)} · {sellerTypeLabel(profile?.sellerType ?? state.sellerType)}
+              </p>
+              <QualityScore score={qualityScore} items={qualityItems} />
               <p className="text-sm leading-6 text-oto-muted">{state.description || "Satıcı açıklama eklememiş."}</p>
             </div>
           </div>
+          <label className="flex items-start gap-3 rounded-oto border border-oto-border bg-oto-surface p-4 text-sm font-semibold leading-6 text-oto-muted">
+            <input className="mt-1" type="checkbox" checked={rulesAccepted} onChange={(event) => setRulesAccepted(event.target.checked)} />
+            <span>
+              İlanı yayınlayarak{" "}
+              <Link href="/terms" className="font-black text-oto-blue">Kullanım Şartları</Link>
+              {" "}ve{" "}
+              <Link href="/listing-rules" className="font-black text-oto-blue">İlan Yayınlama Kuralları</Link>
+              {" "}metinlerini kabul etmiş olursunuz.
+            </span>
+          </label>
           {error ? <ErrorState message={error} /> : null}
+          {publishStatus ? <p className="rounded-md bg-oto-surface p-3 text-sm font-bold text-oto-muted">{publishStatus}</p> : null}
           <Button type="submit" variant="orange" disabled={submitting}>
             {submitting ? "Yayınlanıyor" : "İlanı yayınla"}
           </Button>
         </Panel>
       ) : null}
 
-      {error && step !== 5 ? <ErrorState message={error} /> : null}
+      {error && step !== 6 ? <ErrorState message={error} /> : null}
 
       <div className="flex justify-between gap-3">
         <Button type="button" variant="secondary" onClick={() => setStep((current) => Math.max(1, current - 1))} disabled={step === 1 || submitting}>Geri</Button>
@@ -697,27 +882,29 @@ function ProfileFields({
   cities: string[];
   onChange: <K extends keyof SellerProfileState>(key: K, value: SellerProfileState[K]) => void;
 }) {
+  const isDealer = profile.sellerType === "dealer";
+
   return (
     <div className="grid gap-3 md:grid-cols-2">
-      <Field label="Ad soyad">
-        <Input value={profile.fullName} onChange={(event) => onChange("fullName", event.target.value)} placeholder="Ad soyad" />
-      </Field>
-      <Field label="Görünen ad">
-        <Input value={profile.displayName} onChange={(event) => onChange("displayName", event.target.value)} placeholder="Görünen ad" />
+      <Field label="Satıcı türü">
+        <Select value={profile.sellerType} onChange={(event) => onChange("sellerType", event.target.value)}>
+          <option value="private">Bireysel</option>
+          <option value="dealer">Galeri</option>
+        </Select>
       </Field>
       <Field label="Telefon">
         <Input value={profile.phone} onChange={(event) => onChange("phone", event.target.value)} placeholder="+905..." />
+      </Field>
+      <Field label={isDealer ? "Yetkili kişi adı" : "Adınız"}>
+        <Input value={profile.fullName} onChange={(event) => onChange("fullName", event.target.value)} placeholder={isDealer ? "Yetkili kişi adı" : "Adınız"} />
+      </Field>
+      <Field label={isDealer ? "Galeri adı" : "Görünen ad"}>
+        <Input value={profile.displayName} onChange={(event) => onChange("displayName", event.target.value)} placeholder={isDealer ? "Galeri adı" : "Görünen ad"} />
       </Field>
       <Field label="Şehir">
         <Select value={profile.city} onChange={(event) => onChange("city", event.target.value)}>
           <option value="">Şehir seçin</option>
           {cities.map((city) => <option key={city} value={city}>{cityLabel(city)}</option>)}
-        </Select>
-      </Field>
-      <Field label="Satıcı tipi">
-        <Select value={profile.sellerType} onChange={(event) => onChange("sellerType", event.target.value)}>
-          <option value="private">Bireysel</option>
-          <option value="dealer">Galeri</option>
         </Select>
       </Field>
     </div>
@@ -758,18 +945,25 @@ function PriceSuggestionCard({
   );
 }
 
-function QualityScore({ score }: { score: number }) {
+function QualityScore({ score, items }: { score: number; items: QualityItem[] }) {
   return (
     <div className="rounded-oto bg-oto-surface p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-black text-oto-text">İlan kalitesi: {score}%</p>
-        <span className="text-xs font-bold text-oto-muted">MVP kalite skoru</span>
+        <span className="text-xs font-bold text-oto-muted">{score >= 80 ? "Çok iyi" : score >= 55 ? "İyi" : "Eksik"}</span>
       </div>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
         <div className="h-full rounded-full bg-oto-blue" style={{ width: `${score}%` }} />
       </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {items.map((item) => (
+          <span key={item.label} className={item.complete ? "rounded-md bg-white px-3 py-2 text-xs font-bold text-oto-success" : "rounded-md bg-white px-3 py-2 text-xs font-bold text-oto-muted"}>
+            {item.complete ? "Tamamlandı" : "Eksik"} · {item.label}
+          </span>
+        ))}
+      </div>
       <p className="mt-3 text-sm leading-6 text-oto-muted">
-        Daha fazla fotoğraf ve detay ekleyerek ilanınızın görünürlüğünü artırın.
+        Bu skor ilan tamlığı içindir; araç doğrulaması veya güven raporu anlamına gelmez.
       </p>
     </div>
   );
@@ -781,6 +975,22 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
       <h2 className="text-xl font-black text-oto-text">{title}</h2>
       {children}
     </section>
+  );
+}
+
+function SuccessState({ onCreateNew }: { onCreateNew: () => void }) {
+  return (
+    <Panel title="İlanınız alındı">
+      <p className="text-sm leading-6 text-oto-muted">
+        İlanınız moderasyon kontrolüne gönderildi. Onaylandıktan sonra yayına alınacaktır.
+      </p>
+      <div className="grid gap-3 rounded-oto border border-oto-border bg-oto-surface p-4 sm:grid-cols-2">
+        <ButtonLink href="/my-listings">İlanımı görüntüle</ButtonLink>
+        <ButtonLink href="/my-listings" variant="secondary">İlanlarım</ButtonLink>
+        <ButtonLink href="/" variant="secondary">Ana sayfaya dön</ButtonLink>
+        <Button type="button" variant="orange" onClick={onCreateNew}>Yeni ilan oluştur</Button>
+      </div>
+    </Panel>
   );
 }
 
@@ -813,18 +1023,46 @@ function calculateQualityScore(state: WizardState) {
   return Math.min(score, 100);
 }
 
+function getQualityItems(state: WizardState, profileComplete: boolean): QualityItem[] {
+  return [
+    { label: "Satıcı bilgileri", complete: profileComplete },
+    { label: "Araç bilgileri", complete: Boolean(state.makeId && state.modelId && state.year && validYear(state.year)) },
+    { label: "Fiyat girildi", complete: Number(state.priceAmount) > 0 },
+    { label: "Şehir seçildi", complete: Boolean(state.city) },
+    { label: "Açıklama eklendi", complete: state.description.trim().length >= 60 },
+    { label: "En az 3 fotoğraf", complete: state.photos.length >= 3 },
+    { label: "Kapak fotoğrafı seçildi", complete: state.photos.some((photo) => photo.isCover) },
+    { label: "Hasar bilgisi açıklandı", complete: Boolean(state.damageState && state.damageState !== "unknown") }
+  ];
+}
+
+function validateSellerProfile(profile: SellerProfileState) {
+  if (!profile.sellerType) return "Satıcı türünü seçin.";
+  if (!profile.phone.trim()) return "Telefon bilginiz eksik. Lütfen tekrar giriş yapın.";
+  if (!profile.city) return "Şehir seçin.";
+  if (!profile.fullName.trim()) return profile.sellerType === "dealer" ? "Yetkili kişi adını girin." : "Adınızı girin.";
+  if (!profile.displayName.trim()) return profile.sellerType === "dealer" ? "Galeri adını girin." : "Görünen adınızı girin.";
+  return null;
+}
+
 function validateStep(step: number, state: WizardState) {
-  if (step === 1) {
-    if (!state.makeId || !state.modelId || !state.year || !state.city) return "Bu alan zorunlu";
+  if (step === 2) {
+    if (!state.makeId || !state.modelId || !state.year) return "Marka, model ve yıl alanlarını doldurun.";
     if (!validYear(state.year)) return "Geçerli bir yıl girin.";
   }
-  if (step === 2 && !state.mileageKm) return "Bu alan zorunlu";
-  if (step === 4 && Number(state.priceAmount) <= 0) return "Geçerli bir fiyat girin";
+  if (step === 3) {
+    if (state.condition === "used" && !state.mileageKm) return "İkinci el araçlar için kilometre girin.";
+    if (state.mileageKm && Number(state.mileageKm) < 0) return "Geçerli bir kilometre girin.";
+  }
+  if (step === 5) {
+    if (Number(state.priceAmount) <= 0) return "Geçerli bir fiyat girin.";
+    if (!state.city) return "Şehir seçin.";
+  }
   return null;
 }
 
 function validateForPublish(state: WizardState) {
-  return validateStep(1, state) || validateStep(2, state) || validateStep(4, state);
+  return validateStep(2, state) || validateStep(3, state) || validateStep(5, state);
 }
 
 function validYear(value: string) {
@@ -836,4 +1074,72 @@ function validYear(value: string) {
 function safeFileName(index: number, file: File) {
   const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
   return `${Date.now()}-${index}-${crypto.randomUUID()}.${extension}`;
+}
+
+function hasUnsavedDraft(state: WizardState) {
+  return Boolean(
+    state.makeId ||
+    state.modelId ||
+    state.year ||
+    state.mileageKm ||
+    state.priceAmount ||
+    state.description.trim() ||
+    state.photos.length > 0
+  );
+}
+
+function draftStorageKey(userId: string) {
+  return `otoyali:sell-draft:${userId}`;
+}
+
+function readStoredDraft(userId: string): PersistedWizardState | null {
+  try {
+    const raw = window.localStorage.getItem(draftStorageKey(userId));
+    return raw ? (JSON.parse(raw) as PersistedWizardState) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveStoredDraft(userId: string, state: WizardState) {
+  try {
+    const draft: PersistedWizardState = {
+      makeId: state.makeId,
+      modelId: state.modelId,
+      year: state.year,
+      city: state.city,
+      condition: state.condition,
+      sellerType: state.sellerType,
+      mileageKm: state.mileageKm,
+      fuelType: state.fuelType,
+      transmission: state.transmission,
+      bodyType: state.bodyType,
+      driveType: state.driveType,
+      color: state.color,
+      engineVolumeL: state.engineVolumeL,
+      damageState: state.damageState,
+      ownerCount: state.ownerCount,
+      priceAmount: state.priceAmount,
+      currency: state.currency,
+      priceNegotiable: state.priceNegotiable,
+      description: state.description
+    };
+    window.localStorage.setItem(draftStorageKey(userId), JSON.stringify(draft));
+  } catch {
+    // Draft persistence is best-effort and must not block publishing.
+  }
+}
+
+function clearStoredDraft(userId: string) {
+  try {
+    window.localStorage.removeItem(draftStorageKey(userId));
+  } catch {
+    // Best-effort cleanup only.
+  }
+}
+
+function logClientError(context: string, detail: unknown) {
+  if (process.env.NODE_ENV !== "production") {
+    console.error(`[${context}]`, detail);
+  }
 }

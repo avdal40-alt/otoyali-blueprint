@@ -10,6 +10,7 @@
 - WEB-10: admin and moderation foundation.
 - AUTH-01: phone auth UI, admin session handling, protected route behavior.
 - LEGAL-01: legal, trust, and policy pages.
+- SELL-02: seller profile and listing publishing polish.
 
 ## Paused
 
@@ -17,8 +18,8 @@
 
 ## Suggested Next Stages
 
-1. PROFILE-01 / SELL-02: seller profile and listing publishing polish.
-2. SMS-01 / AUTH-02: production phone SMS provider.
+1. SMS-01 / AUTH-02: production phone SMS provider.
+2. SELL-03: owner listing edit route and rejected-listing resubmission.
 3. ANALYTICS-01: product analytics.
 4. WEB-11: Turkish/English i18n.
 5. MEDIA-01: image compression and thumbnails.

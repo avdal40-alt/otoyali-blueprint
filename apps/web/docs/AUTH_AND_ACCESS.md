@@ -30,6 +30,17 @@
 - report listing
 - `/admin` plus active admin role
 
+## Seller Publish Flow
+
+- Guests who open `/sell` are sent to `/login?next=/sell`.
+- OTP/login must preserve `next=/sell`; users should return to the publish flow after auth.
+- Seller profile completion is lazy and happens inside `/sell` only when publishing requires it.
+- Required MVP seller profile fields are seller type, display/gallery name, city, and phone from auth when available.
+- MVP seller types are only `Bireysel` and `Galeri`; do not add a third seller type yet.
+- Published listings start hidden from public browsing as `status = draft` and `moderation_status = pending_review`.
+- Public listing visibility requires `status = active` and `moderation_status = active`.
+- Owners can view their own drafts/pending listings in `/my-listings`; guests cannot read private drafts.
+
 ## Auth Method
 
 Current product strategy:

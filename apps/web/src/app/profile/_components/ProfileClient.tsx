@@ -16,6 +16,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
+  const [listingCount, setListingCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -56,8 +57,18 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
 
       const { data, error: profileError } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
       if (profileError) {
-        setError(profileError.message);
+        logClientError("profile.load", profileError);
+        setError("Profil bilgileriniz yüklenemedi. Lütfen tekrar deneyin.");
       }
+      const { count, error: listingCountError } = await supabase
+        .schema("marketplace")
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("seller_id", user.id);
+      if (listingCountError) {
+        logClientError("profile.listingCount", listingCountError);
+      }
+      setListingCount(count ?? 0);
       setProfile((data as Profile | null) ?? fallbackProfile);
       setLoading(false);
     }
@@ -92,7 +103,8 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
       }, { onConflict: "id" });
 
     if (updateError) {
-      setError(updateError.message);
+      logClientError("profile.save", updateError);
+      setError("Profil kaydedilemedi. Lütfen tekrar deneyin.");
     } else {
       setSaved(true);
       setProfile((current) => current ? { ...current, full_name: fullName, display_name: displayName } : current);
@@ -118,26 +130,29 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
     );
   }
 
+  const isDealer = profile?.seller_type === "dealer";
+
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
       <section className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
         <h1 className="text-2xl font-black text-oto-text">Profil</h1>
         <p className="mt-1 text-sm text-oto-muted">Hesap ve satıcı bilgileriniz ilan yayınlama sırasında kullanılır.</p>
 
-        <div className="mt-4 grid gap-3 rounded-md bg-oto-surface p-4 text-sm font-bold text-oto-muted md:grid-cols-3">
+        <div className="mt-4 grid gap-3 rounded-md bg-oto-surface p-4 text-sm font-bold text-oto-muted md:grid-cols-4">
           <p>Hesap: <span className="text-oto-text">{userId.slice(0, 8)}...{userId.slice(-4)}</span></p>
-          <p>Telefon: <span className="text-oto-text">{profile?.phone || "Yok"}</span></p>
+          <p>Telefon: <span className="text-oto-text">{maskPhone(profile?.phone)}</span></p>
+          <p>İlan: <span className="text-oto-text">{listingCount ?? 0}</span></p>
           <p>Oluşturulma: <span className="text-oto-text">{createdAt ? new Intl.DateTimeFormat("tr-TR").format(new Date(createdAt)) : "Yok"}</span></p>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-2">
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">Ad soyad</span>
-            <Input value={profile?.full_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, full_name: event.target.value } : current)} placeholder="Ad soyad" />
+            <span className="text-xs font-bold text-oto-muted">{isDealer ? "Yetkili kişi adı" : "Ad soyad"}</span>
+            <Input value={profile?.full_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, full_name: event.target.value } : current)} placeholder={isDealer ? "Yetkili kişi adı" : "Ad soyad"} />
           </label>
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">Görünen ad</span>
-            <Input value={profile?.display_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, display_name: event.target.value } : current)} placeholder="Görünen ad" />
+            <span className="text-xs font-bold text-oto-muted">{isDealer ? "Galeri adı" : "Görünen ad"}</span>
+            <Input value={profile?.display_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, display_name: event.target.value } : current)} placeholder={isDealer ? "Galeri adı" : "Görünen ad"} />
           </label>
           <label className="grid gap-1">
             <span className="text-xs font-bold text-oto-muted">Telefon</span>
@@ -173,4 +188,17 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
       </aside>
     </div>
   );
+}
+
+function maskPhone(phone?: string | null) {
+  if (!phone) return "Yok";
+  const compact = phone.replace(/\s+/g, "");
+  if (compact.length <= 6) return compact;
+  return `${compact.slice(0, 4)} ${"*".repeat(Math.max(3, compact.length - 7))} ${compact.slice(-3)}`;
+}
+
+function logClientError(context: string, detail: unknown) {
+  if (process.env.NODE_ENV !== "production") {
+    console.error(`[${context}]`, detail);
+  }
 }

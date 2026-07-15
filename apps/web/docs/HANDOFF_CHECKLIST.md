@@ -26,6 +26,7 @@
 - [ ] Storage buckets visible.
 - [ ] RLS policies reviewed.
 - [ ] `npx.cmd supabase db push` tested on a safe environment.
+- [ ] SELL-02 migration applied: `20260715120000_sell02_publish_journey_rls.sql`.
 
 ## Vercel Access
 
@@ -85,6 +86,8 @@
 - [ ] No service role key in frontend.
 - [ ] RLS reviewed for owner/admin paths.
 - [ ] Storage policies reviewed.
+- [ ] Public listings require `status = active` and `moderation_status = active`.
+- [ ] Owner can read their own pending listing media.
 - [ ] Admin functions reviewed.
 - [ ] Report flow private.
 - [ ] Debug route disabled in production.
@@ -103,6 +106,9 @@
 - [ ] Report flow tested.
 - [ ] Listing moderation tested.
 - [ ] Seller publishing flow tested.
+- [ ] Guest `/sell` redirects to `/login?next=/sell`.
+- [ ] Publish creates hidden pending-review listing.
+- [ ] `/my-listings` shows pending/rejected/archived/live states correctly.
 - [ ] Contact seller flow tested.
 - [ ] Analytics installed.
 - [ ] Backup/export plan reviewed.

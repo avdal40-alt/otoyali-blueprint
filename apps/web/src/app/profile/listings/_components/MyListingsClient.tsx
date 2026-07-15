@@ -15,6 +15,9 @@ type MyListing = {
   vehicle_profile_id: string;
   title: string;
   status: string;
+  moderation_status?: string | null;
+  rejection_reason?: string | null;
+  moderation_note?: string | null;
   price_amount: number;
   currency: string;
   city: string;
@@ -61,12 +64,14 @@ export function MyListingsClient() {
       const { data, error: listingError } = await supabase
         .schema("marketplace")
         .from("listings")
-        .select("id,vehicle_profile_id,title,status,price_amount,currency,city,quality_score")
+        .select("id,vehicle_profile_id,title,status,moderation_status,rejection_reason,moderation_note,price_amount,currency,city,quality_score")
         .eq("seller_id", userData.user.id)
+        .limit(50)
         .order("created_at", { ascending: false });
 
       if (listingError) {
-        setError(listingError.message);
+        logClientError("myListings.load", listingError);
+        setError("İlanlarınız yüklenemedi. Lütfen tekrar deneyin.");
         setLoading(false);
         return;
       }
@@ -130,20 +135,24 @@ export function MyListingsClient() {
     void load();
   }, [router]);
 
-  async function setStatus(listingId: string, status: "active" | "paused") {
+  async function updateListingWorkflow(
+    listingId: string,
+    values: { status?: "active" | "paused" | "removed"; moderation_status?: "active" | "archived" }
+  ) {
     const supabase = getSupabaseBrowserClient();
     const { error: updateError } = await supabase
       .schema("marketplace")
       .from("listings")
-      .update({ status })
+      .update(values)
       .eq("id", listingId);
 
     if (updateError) {
-      setError(updateError.message);
+      logClientError("myListings.updateWorkflow", updateError);
+      setError("İlan durumu güncellenemedi. Lütfen tekrar deneyin.");
       return;
     }
 
-    setItems((current) => current.map((item) => item.id === listingId ? { ...item, status } : item));
+    setItems((current) => current.map((item) => item.id === listingId ? { ...item, ...values } : item));
   }
 
   function openVideoForm(item: MyListing) {
@@ -273,7 +282,11 @@ export function MyListingsClient() {
 
   return (
     <div className="grid gap-4">
-      {items.map((item) => (
+      {items.map((item) => {
+        const workflow = statusMeta(item);
+        const canViewPublic = item.status === "active" && item.moderation_status === "active";
+
+        return (
         <article key={item.id} className="overflow-hidden rounded-oto border border-oto-border bg-white shadow-soft">
           <div className="grid gap-4 p-3 sm:grid-cols-[180px_1fr]">
             <div className="aspect-[4/3] overflow-hidden rounded-md bg-oto-surface">
@@ -282,7 +295,7 @@ export function MyListingsClient() {
             <div className="min-w-0">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-wide text-oto-muted">{statusLabel(item.status)}</p>
+                  <p className={`inline-flex rounded-full px-3 py-1 text-xs font-black ${workflow.className}`}>{workflow.label}</p>
                   <h2 className="mt-1 text-lg font-black text-oto-text">{item.title}</h2>
                   <p className="mt-1 text-sm font-semibold text-oto-muted">
                     {[item.make_name, item.model_name, item.year].filter(Boolean).join(" ") || "Araç bilgileri"}
@@ -294,19 +307,25 @@ export function MyListingsClient() {
                 <span className="rounded-full bg-oto-surface px-3 py-1">{cityLabel(item.city)}</span>
                 <span className="rounded-full bg-oto-surface px-3 py-1">İlan kalitesi: {item.quality_score ?? 0}%</span>
               </div>
+              {workflow.body ? (
+                <p className="mt-3 rounded-md bg-oto-surface p-3 text-sm font-semibold leading-6 text-oto-muted">{workflow.body}</p>
+              ) : null}
               <div className="mt-4 flex flex-wrap gap-2">
-                {item.status === "active" ? (
+                {canViewPublic ? (
                   <ButtonLink href={`/listing/${item.id}`} variant="secondary">Görüntüle</ButtonLink>
                 ) : (
-                  <Button type="button" variant="secondary" disabled>Görüntüle</Button>
+                  <Button type="button" variant="secondary" disabled>Önizle · Yakında</Button>
                 )}
-                <Button type="button" variant="secondary" disabled>Düzenle · Yakında</Button>
-                {item.status === "active" ? (
-                  <Button type="button" variant="secondary" onClick={() => setStatus(item.id, "paused")}>Duraklat</Button>
+                <Button type="button" variant="secondary" disabled>{item.moderation_status === "rejected" ? "Tekrar düzenle · Yakında" : "Düzenle · Yakında"}</Button>
+                {canViewPublic ? (
+                  <Button type="button" variant="secondary" onClick={() => updateListingWorkflow(item.id, { status: "paused" })}>Duraklat</Button>
                 ) : item.status === "paused" ? (
-                  <Button type="button" variant="secondary" onClick={() => setStatus(item.id, "active")}>Yeniden yayınla</Button>
+                  <Button type="button" variant="secondary" onClick={() => updateListingWorkflow(item.id, { status: "active" })}>Yeniden yayınla</Button>
                 ) : null}
-                <Button type="button" variant="secondary" onClick={() => openVideoForm(item)}>Video ekle</Button>
+                {item.status !== "removed" ? (
+                  <Button type="button" variant="secondary" onClick={() => updateListingWorkflow(item.id, { status: "removed", moderation_status: "archived" })}>Arşivle</Button>
+                ) : null}
+                {canViewPublic ? <Button type="button" variant="secondary" onClick={() => openVideoForm(item)}>Video ekle</Button> : null}
               </div>
               {videoListingId === item.id ? (
                 <form className="mt-4 rounded-md border border-oto-border bg-oto-surface p-4" onSubmit={(event) => submitVideo(event, item)}>
@@ -373,7 +392,8 @@ export function MyListingsClient() {
             </div>
           </div>
         </article>
-      ))}
+        );
+      })}
       <div>
         <Link href="/sell" className="text-sm font-black text-oto-blue">Yeni ilan yayınla</Link>
       </div>
@@ -381,16 +401,66 @@ export function MyListingsClient() {
   );
 }
 
-function statusLabel(status: string) {
-  const labels: Record<string, string> = {
-    active: "Aktif",
-    draft: "Taslak",
-    paused: "Duraklatıldı",
-    sold: "Satıldı",
-    removed: "Kaldırıldı"
-  };
+function statusMeta(item: MyListing) {
+  if (item.moderation_status === "pending_review") {
+    return {
+      label: "Onay bekliyor",
+      className: "bg-amber-50 text-amber-700",
+      body: "İlanınız moderasyon kontrolünde. Onaylandıktan sonra yayına alınacaktır."
+    };
+  }
 
-  return labels[status] ?? status;
+  if (item.moderation_status === "rejected") {
+    return {
+      label: "Reddedildi",
+      className: "bg-red-50 text-oto-danger",
+      body: item.rejection_reason || item.moderation_note || "İlanınız yayın kurallarına uygun olmadığı için reddedildi."
+    };
+  }
+
+  if (item.moderation_status === "archived" || item.status === "removed") {
+    return {
+      label: "Arşivlendi",
+      className: "bg-oto-surface text-oto-muted",
+      body: "Bu ilan yayından kaldırıldı ve public sayfalarda görünmez."
+    };
+  }
+
+  if (item.status === "active" && item.moderation_status === "active") {
+    return {
+      label: "Yayında",
+      className: "bg-emerald-50 text-emerald-700",
+      body: null
+    };
+  }
+
+  if (item.status === "paused") {
+    return {
+      label: "Duraklatıldı",
+      className: "bg-oto-surface text-oto-muted",
+      body: "İlanınız geçici olarak yayında değil."
+    };
+  }
+
+  if (item.status === "sold") {
+    return {
+      label: "Satıldı",
+      className: "bg-oto-surface text-oto-muted",
+      body: "Bu ilan satıldı olarak işaretlenmiş."
+    };
+  }
+
+  return {
+    label: "Taslak",
+    className: "bg-oto-surface text-oto-muted",
+    body: "Taslak ilanlar public sayfalarda görünmez."
+  };
+}
+
+function logClientError(context: string, detail: unknown) {
+  if (process.env.NODE_ENV !== "production") {
+    console.error(`[${context}]`, detail);
+  }
 }
 
 function getVideoDuration(file: File) {
