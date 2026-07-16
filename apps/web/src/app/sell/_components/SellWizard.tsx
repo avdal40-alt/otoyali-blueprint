@@ -11,12 +11,18 @@ import { ErrorState, LoadingState } from "@/components/ui/States";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { bodyTypeLabel, cityLabel, damageStateLabel, driveTypeLabel, formatMileage, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
 import { getPriceSuggestion } from "@/lib/market-price/analysis";
+import { prepareImageVariants, type PreparedImageSet, type PreparedImageVariantName } from "@/lib/media/client-image-processing";
 
 type PhotoItem = {
   id: string;
   file: File;
   previewUrl: string;
   isCover: boolean;
+  processingStatus: "processing" | "ready" | "failed";
+  uploadStatus: "idle" | "uploading" | "ready" | "failed";
+  statusText: string;
+  error?: string | null;
+  prepared?: PreparedImageSet | null;
 };
 
 type WizardState = {
@@ -334,9 +340,53 @@ export function SellWizard({
       id: crypto.randomUUID(),
       file,
       previewUrl: URL.createObjectURL(file),
-      isCover: shouldSetCover && index === 0
+      isCover: shouldSetCover && index === 0,
+      processingStatus: "processing" as const,
+      uploadStatus: "idle" as const,
+      statusText: "Görseller optimize ediliyor",
+      error: null,
+      prepared: null
     }));
     setState((current) => ({ ...current, photos: [...current.photos, ...photoItems] }));
+    photoItems.forEach((photo) => {
+      void processPhoto(photo.id, photo.file);
+    });
+  }
+
+  async function processPhoto(photoId: string, file: File) {
+    updatePhoto(photoId, {
+      processingStatus: "processing",
+      statusText: "Görseller optimize ediliyor",
+      error: null
+    });
+
+    try {
+      const prepared = await prepareImageVariants(file);
+      updatePhoto(photoId, {
+        processingStatus: "ready",
+        statusText: "Fotoğraf hazır",
+        prepared
+      });
+    } catch (processingError) {
+      logClientError("sell.processPhoto", processingError);
+      updatePhoto(photoId, {
+        processingStatus: "failed",
+        statusText: "Fotoğraf işlenemedi",
+        error: "Görsel işlenemedi. Orijinal dosya güvenli yedek olarak kullanılacak.",
+        prepared: null
+      });
+    }
+  }
+
+  function retryPhotoProcessing(photo: PhotoItem) {
+    void processPhoto(photo.id, photo.file);
+  }
+
+  function updatePhoto(photoId: string, patch: Partial<PhotoItem>) {
+    setState((current) => ({
+      ...current,
+      photos: current.photos.map((photo) => (photo.id === photoId ? { ...photo, ...patch } : photo))
+    }));
   }
 
   function removePhoto(photoId: string) {
@@ -503,30 +553,27 @@ export function SellWizard({
       for (let index = 0; index < state.photos.length; index++) {
         const photo = state.photos[index];
         setPublishStatus(`Fotoğraflar yükleniyor (${index + 1}/${state.photos.length}).`);
-        const path = `${userId}/${listingId}/${safeFileName(index, photo.file)}`;
-        const { error: uploadError } = await supabase.storage.from("listing-media").upload(path, photo.file, {
-          cacheControl: "31536000",
-          upsert: false,
-          contentType: photo.file.type
-        });
+        updatePhoto(photo.id, { uploadStatus: "uploading", statusText: "Fotoğraflar yükleniyor" });
 
-        if (uploadError) {
+        try {
+          const mediaUpload = await uploadPhotoMedia({
+            supabase,
+            userId,
+            vehicleProfileId,
+            photo,
+            sortOrder: index,
+            onStatus: (statusText) => updatePhoto(photo.id, { uploadStatus: "uploading", statusText })
+          });
+          mediaRows.push(mediaUpload);
+          updatePhoto(photo.id, { uploadStatus: "ready", statusText: "Fotoğraf hazır" });
+        } catch (uploadError) {
           logClientError("sell.uploadPhoto", uploadError);
+          updatePhoto(photo.id, { uploadStatus: "failed", statusText: "Fotoğraf yüklenemedi", error: "Fotoğraf yüklenemedi. Lütfen tekrar deneyin." });
           setSubmitting(false);
           setPublishStatus(null);
           setError("Fotoğraf yüklenemedi. Lütfen tekrar deneyin.");
           return;
         }
-
-        const { data: publicUrl } = supabase.storage.from("listing-media").getPublicUrl(path);
-        mediaRows.push({
-          vehicle_profile_id: vehicleProfileId,
-          storage_path: path,
-          url: publicUrl.publicUrl,
-          media_type: "image",
-          sort_order: index,
-          is_cover: photo.isCover
-        });
       }
 
       const { data: insertedMedia, error: mediaError } = await supabase
@@ -763,7 +810,7 @@ export function SellWizard({
           <label className="grid cursor-pointer gap-2 rounded-oto border border-dashed border-oto-border bg-white p-5 text-center">
             <span className="text-base font-black text-oto-text">Fotoğraf ekle</span>
             <span className="text-sm font-semibold leading-6 text-oto-muted">
-              JPEG, PNG veya WebP kullanın. Her fotoğraf en fazla 10 MB olabilir. İlk fotoğraf kapak görseli olarak kullanılır.
+              JPEG, PNG veya WebP kullanın. Görseller large, card ve thumb boyutlarına optimize edilir. Her fotoğraf en fazla 10 MB olabilir.
             </span>
             <Input className="mx-auto max-w-md" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => handlePhotoSelect(event.target.files)} />
           </label>
@@ -780,9 +827,21 @@ export function SellWizard({
                   </div>
                   <div className="grid gap-2 p-3">
                     <span className="text-xs font-bold text-oto-muted">{photo.isCover ? "Kapak fotoğrafı" : photo.file.name}</span>
+                    <span className={photo.processingStatus === "failed" || photo.uploadStatus === "failed" ? "rounded-full bg-red-50 px-3 py-1 text-xs font-black text-oto-danger" : "rounded-full bg-oto-surface px-3 py-1 text-xs font-black text-oto-muted"}>
+                      {photo.statusText}
+                    </span>
+                    {photo.prepared ? (
+                      <span className="text-xs font-semibold text-oto-muted">
+                        Large {Math.round(photo.prepared.variants.large.sizeBytes / 1024)} KB · Card {Math.round(photo.prepared.variants.card.sizeBytes / 1024)} KB · Thumb {Math.round(photo.prepared.variants.thumb.sizeBytes / 1024)} KB
+                      </span>
+                    ) : null}
+                    {photo.error ? <span className="text-xs font-semibold leading-5 text-oto-danger">{photo.error}</span> : null}
                     <div className="grid grid-cols-2 gap-2">
                       <Button type="button" variant="secondary" onClick={() => setCover(photo.id)} disabled={photo.isCover}>Kapak yap</Button>
                       <Button type="button" variant="ghost" onClick={() => removePhoto(photo.id)}>Kaldır</Button>
+                      {photo.processingStatus === "failed" ? (
+                        <Button type="button" variant="secondary" onClick={() => retryPhotoProcessing(photo)}>Tekrar dene</Button>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -1071,9 +1130,122 @@ function validYear(value: string) {
   return Number.isInteger(year) && year >= 1900 && year <= maxYear;
 }
 
-function safeFileName(index: number, file: File) {
-  const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-  return `${Date.now()}-${index}-${crypto.randomUUID()}.${extension}`;
+async function uploadPhotoMedia({
+  supabase,
+  userId,
+  vehicleProfileId,
+  photo,
+  sortOrder,
+  onStatus
+}: {
+  supabase: ReturnType<typeof getSupabaseBrowserClient>;
+  userId: string;
+  vehicleProfileId: string;
+  photo: PhotoItem;
+  sortOrder: number;
+  onStatus: (statusText: string) => void;
+}) {
+  const mediaId = crypto.randomUUID();
+  const uploads: Partial<Record<PreparedImageVariantName, { path: string; url: string }>> = {};
+  const variants = getUploadVariants(photo);
+
+  for (const item of variants) {
+    onStatus(`${variantStatusLabel(item.name)} yükleniyor`);
+    const path = `${userId}/${vehicleProfileId}/${mediaId}/${item.name}/${item.name}.${item.extension}`;
+    const { error } = await supabase.storage.from("listing-media").upload(path, item.file, {
+      cacheControl: "31536000",
+      upsert: false,
+      contentType: item.mimeType
+    });
+
+    if (error) {
+      if (item.required) {
+        throw error;
+      }
+
+      logClientError(`sell.uploadPhoto.${item.name}`, error);
+      continue;
+    }
+
+    const { data: publicUrl } = supabase.storage.from("listing-media").getPublicUrl(path);
+    uploads[item.name] = { path, url: publicUrl.publicUrl };
+  }
+
+  const metadata = photo.prepared?.variants.original;
+  const legacyUrl = uploads.large?.url ?? uploads.card?.url ?? uploads.original?.url;
+  const legacyPath = uploads.large?.path ?? uploads.card?.path ?? uploads.original?.path;
+
+  if (!legacyUrl || !legacyPath) {
+    throw new Error("Photo upload did not produce a usable URL");
+  }
+
+  return {
+    id: mediaId,
+    vehicle_profile_id: vehicleProfileId,
+    storage_path: legacyPath,
+    url: legacyUrl,
+    original_path: uploads.original?.path ?? null,
+    large_path: uploads.large?.path ?? null,
+    card_path: uploads.card?.path ?? null,
+    thumb_path: uploads.thumb?.path ?? null,
+    original_url: uploads.original?.url ?? null,
+    large_url: uploads.large?.url ?? null,
+    card_url: uploads.card?.url ?? null,
+    thumb_url: uploads.thumb?.url ?? null,
+    media_type: "image",
+    sort_order: sortOrder,
+    is_cover: photo.isCover,
+    width: metadata?.width ?? null,
+    height: metadata?.height ?? null,
+    aspect_ratio: metadata ? Number((metadata.width / metadata.height).toFixed(4)) : null,
+    mime_type: metadata?.mimeType ?? photo.file.type,
+    size_bytes: metadata?.sizeBytes ?? photo.file.size,
+    processed_status: photo.prepared ? "processed" : "failed",
+    processing_error: photo.prepared ? null : "Browser image preprocessing was unavailable; legacy URL fallback stored.",
+    blur_status: "not_started",
+    has_detected_plate: null,
+    processed_at: new Date().toISOString()
+  };
+}
+
+function getUploadVariants(photo: PhotoItem) {
+  if (photo.prepared) {
+    return (["original", "large", "card", "thumb"] as PreparedImageVariantName[]).map((name) => ({
+      ...photo.prepared!.variants[name],
+      required: name === "original" || name === "large"
+    }));
+  }
+
+  return [
+    {
+      name: "original" as const,
+      file: photo.file,
+      mimeType: photo.file.type,
+      sizeBytes: photo.file.size,
+      extension: extensionFromMimeType(photo.file.type, photo.file.name),
+      width: 0,
+      height: 0,
+      required: true
+    }
+  ];
+}
+
+function variantStatusLabel(name: PreparedImageVariantName) {
+  const labels: Record<PreparedImageVariantName, string> = {
+    original: "Orijinal görsel",
+    large: "Detay görseli",
+    card: "Kart görseli",
+    thumb: "Küçük önizleme"
+  };
+
+  return labels[name];
+}
+
+function extensionFromMimeType(mimeType: string, fileName: string) {
+  if (mimeType === "image/webp") return "webp";
+  if (mimeType === "image/png") return "png";
+  if (mimeType === "image/jpeg") return "jpg";
+  return fileName.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
 }
 
 function hasUnsavedDraft(state: WizardState) {

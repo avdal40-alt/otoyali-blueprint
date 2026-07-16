@@ -34,9 +34,13 @@ Known exceptions/current code to improve later:
 
 - Prefer card-sized media for cards when variants are available.
 - Detail pages can use larger images.
+- Gallery/admin thumbnails should prefer `thumb_url`.
+- Home/Search/SEO should not use `original_url` under normal variant availability.
+- New `/sell` uploads generate browser-side `large`, `card`, and `thumb` variants before upload.
+- Legacy rows with only `url` must continue to render.
 - Use fixed aspect ratios to avoid layout shift.
 - Use lazy loading where appropriate.
-- Future variants: `thumb_url`, `card_url`, `large_url`.
+- Do not fetch full galleries for card/list pages.
 
 ## Verification
 
@@ -52,5 +56,7 @@ npm.cmd run build
 Manual smoke:
 
 - Home/Search/SEO: 0 real `<video>` tags.
+- Home/Search/SEO card images prefer optimized card variants when present.
+- Listing detail gallery prefers large variants and thumbnail rail prefers thumb/card variants.
 - `/video`: videos do not preload more than needed.
 - Sitemap stays bounded.

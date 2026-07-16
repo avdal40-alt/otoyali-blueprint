@@ -2,7 +2,26 @@ import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import type { ListingMedia } from "@/lib/supabase/types";
 import type { QueryResult } from "./listings";
 
-const LISTING_MEDIA_COLUMNS = "listing_id,vehicle_profile_id,media_id,url,storage_path,sort_order,is_cover";
+const LISTING_MEDIA_COLUMNS = [
+  "listing_id",
+  "vehicle_profile_id",
+  "media_id",
+  "url",
+  "storage_path",
+  "sort_order",
+  "is_cover",
+  "original_url",
+  "large_url",
+  "card_url",
+  "thumb_url",
+  "processed_status",
+  "blur_status",
+  "width",
+  "height",
+  "aspect_ratio",
+  "mime_type",
+  "size_bytes"
+].join(",");
 
 export async function getListingMedia(listingId: string): Promise<QueryResult<ListingMedia[]>> {
   const queryName = "ff_listing_media";
@@ -19,7 +38,7 @@ export async function getListingMedia(listingId: string): Promise<QueryResult<Li
     .order("sort_order", { ascending: true });
 
   return {
-    data: (data ?? []) as ListingMedia[],
+    data: (data ?? []) as unknown as ListingMedia[],
     error: error?.message ?? null,
     count: data?.length ?? 0,
     queryName
@@ -41,7 +60,7 @@ export async function getListingMediaByVehicleProfileId(vehicleProfileId: string
     .order("sort_order", { ascending: true });
 
   return {
-    data: (data ?? []) as ListingMedia[],
+    data: (data ?? []) as unknown as ListingMedia[],
     error: error?.message ?? null,
     count: data?.length ?? 0,
     queryName
@@ -70,7 +89,7 @@ export async function getListingMediaForListings(listingIds: string[]): Promise<
     .order("sort_order", { ascending: true });
 
   return {
-    data: (data ?? []) as ListingMedia[],
+    data: (data ?? []) as unknown as ListingMedia[],
     error: error?.message ?? null,
     count: data?.length ?? 0,
     queryName

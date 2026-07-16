@@ -6,6 +6,7 @@ import type { HomeListing, ListingMedia } from "@/lib/supabase/types";
 import { cn } from "@/lib/cn";
 import { cityLabel, conditionLabel, formatMileage, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
 import { priceBadgeClass, priceBadgeLabel, type PriceBadgeKind } from "@/lib/market-price/analysis";
+import { getBestImageUrl } from "@/lib/media/image-variants";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { SpecChip } from "./SpecChip";
 import { FavoriteButton } from "./FavoriteButton";
@@ -139,7 +140,7 @@ export function VehicleCard({
 
 function getPreviewImages(listing: HomeListing, media: ListingMedia[]) {
   const urls = media
-    .map((item) => (item.card_url || item.thumb_url || item.url)?.trim())
+    .map((item) => getBestImageUrl(item, "card"))
     .filter(Boolean) as string[];
 
   if (listing.cover_image_url) {

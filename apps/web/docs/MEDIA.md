@@ -1,74 +1,116 @@
 # Media
 
-## Current Media Architecture
+## Image Variant Strategy
 
-Photos:
+MEDIA-01 uses the existing `vehicle.profile_media` table and adds only missing metadata/path fields.
 
-- Listing photos exist through Supabase Storage.
-- Relevant tables/buckets include `vehicle.profile_media`, `vehicle-photos`, and `listing-media`.
-- Listing cards use cover/card data from public views.
+Image variants:
 
-Videos:
+- `original`: source-safe browser-optimized original, max dimension about 2400 px.
+- `large`: listing detail gallery image, max dimension about 1600 px.
+- `card`: Home/Search/listing card image, max dimension about 800 px.
+- `thumb`: gallery/admin thumbnail image, max dimension about 300 px.
 
-- `marketplace.listing_videos` exists.
-- `/video` is the OTOYALI Video route.
-- The public video view is named `ff_akis_videos` for historical reasons.
-- Home/Search/listing cards do not load actual video files; they may show lightweight video metadata or badges.
+Fallback order:
 
-Known current warning:
+- Listing card: `card_url` -> `large_url` -> `url` -> `thumb_url` -> `original_url`.
+- Listing detail main image: `large_url` -> `original_url` -> `url` -> `card_url` -> `thumb_url`.
+- Gallery/admin thumbnail: `thumb_url` -> `card_url` -> `large_url` -> `url` -> `original_url`.
 
-- `SafeImage` uses `<img>` and Next.js warns about image optimization. This is accepted for now.
+Legacy media rows with only `url` and `storage_path` continue to render.
 
-## Current Limits
+## Upload Flow
 
-- Video upload target: up to 60 seconds.
-- Max video size: 100 MB.
-- Recommended orientation: vertical.
-- Supported MIME types in UI: mp4, webm, quicktime where supported.
+`/sell` preprocesses images in the browser before upload:
 
-## Future MEDIA-01: Image Compression And Thumbnails
+- accepted formats: JPEG, PNG, WebP
+- max source file size: 10 MB
+- variants are generated through canvas APIs
+- EXIF orientation is handled where `createImageBitmap` supports it
+- object URLs are used for immediate preview and revoked after success/removal
 
-Planned variants:
+New storage path convention:
 
-- `original_url`
-- `large_url`
-- `card_url`
-- `thumb_url`
+```text
+listing-media/
+  {userId}/
+    {vehicleProfileId}/
+      {mediaId}/
+        original/original.webp
+        large/large.webp
+        card/card.webp
+        thumb/thumb.webp
+```
 
-Rules:
+If browser processing fails, publishing can still store the legacy fallback file and marks `processed_status = failed`.
 
-- Cards should not load original large images.
-- Detail pages can prefer large images.
-- Keep existing `url` fields backward-compatible.
+## Database Fields
 
-## Future MEDIA-02: Video Processing
+Current image fields:
 
-Planned outputs:
+- `url`, `storage_path`
+- `original_url`, `large_url`, `card_url`, `thumb_url`
+- `original_path`, `large_path`, `card_path`, `thumb_path`
+- `width`, `height`, `aspect_ratio`, `mime_type`, `size_bytes`
+- `processed_status`, `processing_error`, `processed_at`
+- `blur_status`, `has_detected_plate`
 
-- original
-- processed 480p/720p
-- poster
-- `processing_status`
+Current `processed_status` values come from WEB-07:
 
-Do not implement FFmpeg/transcoding inside the web app.
+- `pending`
+- `processing`
+- `processed`
+- `failed`
+- `skipped`
 
-## Future MEDIA-03: License Plate Blur For Photos
+Current `blur_status` values come from WEB-07:
 
-Future workflow:
+- `not_started`
+- `processing`
+- `blurred`
+- `failed`
+- `manual_required`
+- `skipped`
 
-- detect plate
-- create blurred processed image
-- keep manual fallback/moderation path
+MEDIA-01 does not perform plate blur or AI moderation.
 
-Do not claim plate blur is active today.
+## Public Views
 
-## Future MEDIA-04: License Plate Blur For Videos
+- `ff_home_listings.cover_image_url` prefers `card_url`.
+- `ff_listing_details.cover_image_url` prefers `large_url`.
+- `ff_listing_media` exposes variant URL and metadata columns appended after existing columns.
+- `ff_listing_media` is restricted to active, moderation-active listings.
 
-Future workflow:
+Do not reorder existing public view columns.
 
-- detection
-- tracking
-- re-encode
-- manual fallback
+## Security
 
-Do not claim video plate blur is active today.
+- Owners upload/delete through existing `listing-media/{userId}/...` storage path policies.
+- Owners can read their own pending media through RLS.
+- Admins can read `vehicle.profile_media` through `profile_media_select_admin` for moderation.
+- Public database views only expose media for active and moderation-approved listings.
+- The storage bucket is currently public for backward compatibility; do not rely on obscurity for private data.
+
+## Future Worker
+
+Future MEDIA-02 can add a server-side worker for:
+
+- legacy image backfill
+- server-side compression
+- duplicate hash
+- plate/person detection
+- automatic blur
+- watermarking
+- unsafe-content checks
+
+Future task: `MEDIA-01B - Backfill legacy image variants`.
+
+Do not implement FFmpeg, video transcoding, AI moderation, or automatic plate blur in the web app.
+
+## Video
+
+OTOYALI Video remains separate:
+
+- no video files on Home/Search/SEO
+- `/video` may load video elements with minimal preload
+- WEB-07 future processing fields remain placeholders

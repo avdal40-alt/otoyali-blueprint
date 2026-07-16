@@ -95,9 +95,20 @@ export type ListingMedia = {
   card_url?: string | null;
   thumb_url?: string | null;
   storage_path?: string | null;
+  original_path?: string | null;
+  large_path?: string | null;
+  card_path?: string | null;
+  thumb_path?: string | null;
   media_type?: string | null;
   sort_order?: number | null;
   is_cover?: boolean | null;
+  processed_status?: string | null;
+  blur_status?: string | null;
+  width?: number | null;
+  height?: number | null;
+  aspect_ratio?: number | null;
+  mime_type?: string | null;
+  size_bytes?: number | null;
 };
 
 export type Make = {

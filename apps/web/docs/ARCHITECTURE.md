@@ -62,6 +62,16 @@ The seller journey stays guest-first and progressive:
 
 Public browsing and public media visibility must require both active listing status and active moderation status. Owners can read their own listing/media rows through RLS for seller management.
 
+## Image Media Pipeline
+
+MEDIA-01 keeps image processing lightweight and browser-side:
+
+- `/sell` generates source-safe `original`, `large`, `card`, and `thumb` image variants before upload.
+- New paths use `listing-media/{userId}/{vehicleProfileId}/{mediaId}/{variant}/...`.
+- `vehicle.profile_media.url` remains the legacy fallback.
+- Public card views prefer `card_url`; listing detail/gallery prefers `large_url`; thumbnails/admin prefer `thumb_url`.
+- Future server workers can backfill legacy media and perform plate blur/moderation, but no worker exists in the web app today.
+
 ## Product Domains
 
 - Marketplace listings: `marketplace.listings`

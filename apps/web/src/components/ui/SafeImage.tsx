@@ -2,20 +2,31 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/cn";
+import { getBestImageUrl, type ImageSource, type ImageVariant } from "@/lib/media/image-variants";
 
 export function SafeImage({
   src,
+  media,
+  variant = "card",
   alt,
   className,
-  fallbackClassName
+  fallbackClassName,
+  priority = false,
+  width,
+  height
 }: {
   src?: string | null;
+  media?: ImageSource | null;
+  variant?: ImageVariant;
   alt: string;
   className?: string;
   fallbackClassName?: string;
+  priority?: boolean;
+  width?: number;
+  height?: number;
 }) {
   const [failed, setFailed] = useState(false);
-  const cleanSrc = src?.trim();
+  const cleanSrc = (src?.trim() || getBestImageUrl(media, variant))?.trim();
 
   if (!cleanSrc || failed) {
     return <ImagePlaceholder className={fallbackClassName} />;
@@ -27,7 +38,11 @@ export function SafeImage({
       alt={alt}
       className={cn("h-full w-full object-cover", className)}
       onError={() => setFailed(true)}
-      loading="lazy"
+      loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : undefined}
+      decoding="async"
+      width={width}
+      height={height}
     />
   );
 }

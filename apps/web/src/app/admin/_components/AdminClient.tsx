@@ -12,6 +12,7 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { isMissingAuthSessionError } from "@/lib/auth/auth-ui";
 import { formatPrice } from "@/lib/format";
+import { getBestImageUrl, isImageProcessingFailed } from "@/lib/media/image-variants";
 
 type AdminSection = "dashboard" | "listings" | "videos" | "reports" | "users" | "settings";
 
@@ -48,6 +49,15 @@ type VehicleProfileRow = {
 type CatalogRow = {
   id: string;
   name: string | null;
+};
+
+type MediaPreviewRow = {
+  vehicle_profile_id: string;
+  url: string | null;
+  thumb_url?: string | null;
+  card_url?: string | null;
+  large_url?: string | null;
+  processed_status?: string | null;
 };
 
 type VideoRow = {
@@ -265,6 +275,7 @@ function ListingsModeration({ userId }: { userId: string }) {
   const [profiles, setProfiles] = useState<Record<string, VehicleProfileRow>>({});
   const [makes, setMakes] = useState<Record<string, string>>({});
   const [models, setModels] = useState<Record<string, string>>({});
+  const [mediaPreviews, setMediaPreviews] = useState<Record<string, MediaPreviewRow>>({});
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -298,16 +309,32 @@ function ListingsModeration({ userId }: { userId: string }) {
     const profileRows = (profileResult.data ?? []) as VehicleProfileRow[];
     const makeIds = Array.from(new Set(profileRows.map((item) => item.make_id).filter(Boolean))) as string[];
     const modelIds = Array.from(new Set(profileRows.map((item) => item.model_id).filter(Boolean))) as string[];
-    const [makeResult, modelResult] = await Promise.all([
+    const [makeResult, modelResult, mediaResult] = await Promise.all([
       makeIds.length > 0 ? supabase.schema("vehicle").from("makes").select("id,name").in("id", makeIds) : Promise.resolve({ data: [], error: null }),
-      modelIds.length > 0 ? supabase.schema("vehicle").from("models").select("id,name").in("id", modelIds) : Promise.resolve({ data: [], error: null })
+      modelIds.length > 0 ? supabase.schema("vehicle").from("models").select("id,name").in("id", modelIds) : Promise.resolve({ data: [], error: null }),
+      profileIds.length > 0
+        ? supabase
+          .schema("vehicle")
+          .from("profile_media")
+          .select("vehicle_profile_id,url,thumb_url,card_url,large_url,processed_status,is_cover,sort_order")
+          .in("vehicle_profile_id", profileIds)
+          .order("is_cover", { ascending: false })
+          .order("sort_order", { ascending: true })
+        : Promise.resolve({ data: [], error: null })
     ]);
 
     setRows(listings);
     setProfiles(Object.fromEntries(profileRows.map((item) => [item.id, item])));
     setMakes(Object.fromEntries(((makeResult.data ?? []) as CatalogRow[]).map((item) => [item.id, item.name ?? ""])));
     setModels(Object.fromEntries(((modelResult.data ?? []) as CatalogRow[]).map((item) => [item.id, item.name ?? ""])));
-    setError(profileResult.error?.message ?? makeResult.error?.message ?? modelResult.error?.message ?? null);
+    const previews = new Map<string, MediaPreviewRow>();
+    for (const item of (mediaResult.data ?? []) as MediaPreviewRow[]) {
+      if (!previews.has(item.vehicle_profile_id)) {
+        previews.set(item.vehicle_profile_id, item);
+      }
+    }
+    setMediaPreviews(Object.fromEntries(previews));
+    setError(profileResult.error?.message ?? makeResult.error?.message ?? modelResult.error?.message ?? mediaResult.error?.message ?? null);
     setLoading(false);
   }, [filter]);
 
@@ -356,12 +383,21 @@ function ListingsModeration({ userId }: { userId: string }) {
     >
       {rows.map((row) => {
         const profile = row.vehicle_profile_id ? profiles[row.vehicle_profile_id] : null;
+        const mediaPreview = row.vehicle_profile_id ? mediaPreviews[row.vehicle_profile_id] : null;
         const makeModel = [profile?.make_id ? makes[profile.make_id] : null, profile?.model_id ? models[profile.model_id] : null, profile?.year].filter(Boolean).join(" ");
         return (
-          <div key={row.id} className="grid gap-3 border-b border-oto-border py-4 last:border-b-0 lg:grid-cols-[1.4fr_1fr_0.9fr_1.4fr] lg:items-center">
+          <div key={row.id} className="grid gap-3 border-b border-oto-border py-4 last:border-b-0 lg:grid-cols-[88px_1.3fr_1fr_0.9fr_1.4fr] lg:items-center">
+            <div className="aspect-[4/3] overflow-hidden rounded-md bg-oto-surface">
+              <SafeImage src={getBestImageUrl(mediaPreview, "thumb")} alt={row.title || "İlan"} />
+            </div>
             <div>
               <p className="font-black text-oto-text">{row.title || "İlan"}</p>
               <p className="mt-1 text-xs font-bold text-oto-muted">{makeModel || row.vehicle_profile_id || "Araç bilgisi yok"}</p>
+              {mediaPreview?.processed_status ? (
+                <p className={isImageProcessingFailed(mediaPreview) ? "mt-1 text-xs font-black text-oto-danger" : "mt-1 text-xs font-bold text-oto-muted"}>
+                  Görsel: {mediaPreview.processed_status}
+                </p>
+              ) : null}
             </div>
             <div className="text-sm font-bold text-oto-muted">
               <p>{row.city || "Şehir yok"} · {row.seller_type || "seller"}</p>

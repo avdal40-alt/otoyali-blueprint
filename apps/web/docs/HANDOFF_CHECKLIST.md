@@ -27,6 +27,7 @@
 - [ ] RLS policies reviewed.
 - [ ] `npx.cmd supabase db push` tested on a safe environment.
 - [ ] SELL-02 migration applied: `20260715120000_sell02_publish_journey_rls.sql`.
+- [ ] MEDIA-01 migration applied before deploying code that selects media variant columns.
 
 ## Vercel Access
 
@@ -77,6 +78,8 @@
 - [ ] Home renders 0 real `<video>` tags.
 - [ ] Search renders 0 real `<video>` tags.
 - [ ] SEO pages render 0 real `<video>` tags.
+- [ ] Home/Search cards use `card_url` when available.
+- [ ] Listing detail gallery uses `large_url` and thumbnails use `thumb_url`/`card_url`.
 - [ ] List/card pages use limited explicit selects.
 - [ ] `/video` keeps `preload="none"` or minimal loading.
 - [ ] Sitemap listing count remains limited.
@@ -88,6 +91,7 @@
 - [ ] Storage policies reviewed.
 - [ ] Public listings require `status = active` and `moderation_status = active`.
 - [ ] Owner can read their own pending listing media.
+- [ ] Admin can inspect pending listing media through `profile_media_select_admin`.
 - [ ] Admin functions reviewed.
 - [ ] Report flow private.
 - [ ] Debug route disabled in production.
@@ -106,6 +110,8 @@
 - [ ] Report flow tested.
 - [ ] Listing moderation tested.
 - [ ] Seller publishing flow tested.
+- [ ] New seller photo upload creates original/large/card/thumb variants.
+- [ ] Legacy photo rows with only `url` still render.
 - [ ] Guest `/sell` redirects to `/login?next=/sell`.
 - [ ] Publish creates hidden pending-review listing.
 - [ ] `/my-listings` shows pending/rejected/archived/live states correctly.

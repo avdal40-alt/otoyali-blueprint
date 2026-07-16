@@ -9,6 +9,7 @@ import { cityLabel, formatPrice } from "@/lib/format";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
+import { getBestImageUrl, isImageProcessingFailed } from "@/lib/media/image-variants";
 
 type MyListing = {
   id: string;
@@ -26,6 +27,7 @@ type MyListing = {
   model_name?: string | null;
   year?: number | null;
   cover_image_url?: string | null;
+  media_processed_status?: string | null;
 };
 
 const MAX_VIDEO_SIZE_BYTES = 100 * 1024 * 1024;
@@ -93,7 +95,7 @@ export function MyListingsClient() {
         supabase
           .schema("vehicle")
           .from("profile_media")
-          .select("vehicle_profile_id,url,is_cover,sort_order")
+          .select("vehicle_profile_id,url,thumb_url,card_url,large_url,processed_status,is_cover,sort_order")
           .in("vehicle_profile_id", profileIds)
           .order("is_cover", { ascending: false })
           .order("sort_order", { ascending: true })
@@ -110,10 +112,11 @@ export function MyListingsClient() {
       const profilesById = new Map(profileRows.map((profile) => [profile.id, profile]));
       const makesById = new Map(((makes ?? []) as Array<{ id: string; name: string }>).map((make) => [make.id, make.name]));
       const modelsById = new Map(((models ?? []) as Array<{ id: string; name: string }>).map((model) => [model.id, model.name]));
-      const mediaByProfile = new Map<string, string>();
-      for (const item of (media ?? []) as Array<{ vehicle_profile_id: string; url: string | null }>) {
-        if (item.url && !mediaByProfile.has(item.vehicle_profile_id)) {
-          mediaByProfile.set(item.vehicle_profile_id, item.url);
+      const mediaByProfile = new Map<string, { url: string; processed_status?: string | null }>();
+      for (const item of (media ?? []) as Array<{ vehicle_profile_id: string; url: string | null; thumb_url?: string | null; card_url?: string | null; large_url?: string | null; processed_status?: string | null }>) {
+        const bestUrl = getBestImageUrl(item, "thumb");
+        if (bestUrl && !mediaByProfile.has(item.vehicle_profile_id)) {
+          mediaByProfile.set(item.vehicle_profile_id, { url: bestUrl, processed_status: item.processed_status });
         }
       }
 
@@ -125,7 +128,8 @@ export function MyListingsClient() {
             make_name: profile?.make_id ? makesById.get(profile.make_id) : null,
             model_name: profile?.model_id ? modelsById.get(profile.model_id) : null,
             year: profile?.year ?? null,
-            cover_image_url: mediaByProfile.get(item.vehicle_profile_id) ?? null
+            cover_image_url: mediaByProfile.get(item.vehicle_profile_id)?.url ?? null,
+            media_processed_status: mediaByProfile.get(item.vehicle_profile_id)?.processed_status ?? null
           };
         })
       );
@@ -306,6 +310,11 @@ export function MyListingsClient() {
               <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold text-oto-muted">
                 <span className="rounded-full bg-oto-surface px-3 py-1">{cityLabel(item.city)}</span>
                 <span className="rounded-full bg-oto-surface px-3 py-1">İlan kalitesi: {item.quality_score ?? 0}%</span>
+                {item.media_processed_status ? (
+                  <span className="rounded-full bg-oto-surface px-3 py-1">
+                    Görsel: {isImageProcessingFailed({ processed_status: item.media_processed_status }) ? "Hata" : item.media_processed_status}
+                  </span>
+                ) : null}
               </div>
               {workflow.body ? (
                 <p className="mt-3 rounded-md bg-oto-surface p-3 text-sm font-semibold leading-6 text-oto-muted">{workflow.body}</p>
