@@ -23,6 +23,7 @@ Start here for handoff and maintenance:
 
 - [docs/README.md](./docs/README.md)
 - [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
+- [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md)
 - [docs/LOCAL_DEVELOPMENT.md](./docs/LOCAL_DEVELOPMENT.md)
 - [docs/ENVIRONMENT.md](./docs/ENVIRONMENT.md)
 - [docs/SUPABASE.md](./docs/SUPABASE.md)
@@ -55,6 +56,17 @@ Production brand assets live in `public/brand`.
 - `apple-touch-icon.png`, `android-chrome-192x192.png`, `android-chrome-512x512.png`, `app-icon-1024.png`: generated app icon exports
 
 All brand files use the lowercase `otoyali` wordmark, a shared wheel geometry in the first `o`, and a shared star/spark geometry. Orange remains reserved for CTAs and is not used in logo assets.
+
+## Design System
+
+The shared UI foundation lives in:
+
+- `src/lib/design-system/tokens.ts`
+- `src/components/ui`
+- `src/components/layout/PageContainer.tsx`
+- `src/app/globals.css`
+
+Read [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md) before adding new UI. Future modules should reuse the same tokens, typography, spacing, buttons, inputs, cards, badges, modal, drawer, loading, and empty-state primitives instead of creating a separate visual system.
 
 ## Environment Variables
 

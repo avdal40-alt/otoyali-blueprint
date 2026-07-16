@@ -34,6 +34,18 @@ Shared code is under:
 - `src/data`
 - `src/app/*/_components` for route-local client components.
 
+## Design System
+
+The web app has one UI foundation for marketplace, video, admin, legal pages, and future transport verticals.
+
+- Tokens live in `src/lib/design-system/tokens.ts`.
+- Tailwind maps those tokens through `tailwind.config.ts`.
+- Global CSS variables, focus states, reduced motion, and future dark mode variables live in `src/app/globals.css`.
+- Shared primitives live in `src/components/ui`.
+- Page width and section rhythm live in `src/components/layout/PageContainer.tsx`.
+
+New UI should use the shared Button, Input, Card, Badge, Modal, Drawer, loading, and empty-state primitives before adding route-local styling. FOUNDATION-01 is UI-only and does not change product logic, Supabase, auth, RLS, migrations, or routes.
+
 ## Backend
 
 Backend is Supabase:

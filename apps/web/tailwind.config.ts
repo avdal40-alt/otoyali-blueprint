@@ -1,29 +1,61 @@
 import type { Config } from "tailwindcss";
+import { designTokens } from "./src/lib/design-system/tokens";
+
+type ThemeExtend = NonNullable<NonNullable<Config["theme"]>["extend"]>;
+
+const fontSize = Object.fromEntries(
+  Object.entries(designTokens.typography.fontSize).map(([key, value]) => [key, [value[0], { ...value[1] }]])
+) as ThemeExtend["fontSize"];
 
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
+    screens: designTokens.breakpoints,
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: "1rem",
+        md: "1.5rem",
+        lg: "2rem"
+      },
+      screens: {
+        xl: designTokens.container.xl,
+        "2xl": designTokens.container["2xl"]
+      }
+    },
     extend: {
       colors: {
-        oto: {
-          bg: "#FFFFFF",
-          surface: "#F7F8FA",
-          text: "#111111",
-          muted: "#6B7280",
-          blue: "#2563EB",
-          cyan: "#22D3EE",
-          orange: "#F59E0B",
-          success: "#16A34A",
-          danger: "#DC2626",
-          border: "#E5E7EB"
+        oto: designTokens.colors
+      },
+      fontFamily: {
+        sans: [...designTokens.typography.fontFamily.sans]
+      },
+      fontSize,
+      spacing: designTokens.spacing,
+      borderRadius: designTokens.radius,
+      borderWidth: designTokens.borderWidth,
+      boxShadow: designTokens.shadow,
+      opacity: designTokens.opacity,
+      transitionDuration: designTokens.transition,
+      zIndex: designTokens.zIndex,
+      keyframes: {
+        "oto-fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" }
+        },
+        "oto-slide-up": {
+          from: { opacity: "0", transform: "translateY(8px)" },
+          to: { opacity: "1", transform: "translateY(0)" }
+        },
+        "oto-drawer-in": {
+          from: { transform: "translateX(100%)" },
+          to: { transform: "translateX(0)" }
         }
       },
-      boxShadow: {
-        oto: "0 16px 40px rgba(17, 17, 17, 0.08)",
-        soft: "0 8px 24px rgba(17, 17, 17, 0.06)"
-      },
-      borderRadius: {
-        oto: "8px"
+      animation: {
+        "oto-fade-in": "oto-fade-in 180ms ease-out",
+        "oto-slide-up": "oto-slide-up 180ms ease-out",
+        "oto-drawer-in": "oto-drawer-in 220ms ease-out"
       }
     }
   },

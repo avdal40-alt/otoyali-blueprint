@@ -26,6 +26,7 @@ OTOYALI is an AI-first transport marketplace for Turkey. The current web product
 ## Important Docs
 
 - [Architecture](./ARCHITECTURE.md)
+- [Design System](./DESIGN_SYSTEM.md)
 - [Local Development](./LOCAL_DEVELOPMENT.md)
 - [Environment](./ENVIRONMENT.md)
 - [Supabase](./SUPABASE.md)
@@ -43,3 +44,5 @@ OTOYALI is an AI-first transport marketplace for Turkey. The current web product
 ## Working Principle
 
 One stage should produce one focused commit. Do not mix docs, schema, auth, UI, and deployment changes in the same commit unless the task explicitly requires it.
+
+UI work should start from the shared design system in `src/lib/design-system/tokens.ts` and `src/components/ui`. Future product modules should reuse those primitives before adding route-local styles.

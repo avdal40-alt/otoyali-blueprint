@@ -64,6 +64,17 @@
 - [ ] Vercel deployment reaches `Ready`.
 - [ ] Smoke routes pass.
 
+## Design System
+
+- [ ] Read `docs/DESIGN_SYSTEM.md` before starting UI work.
+- [ ] Reuse tokens from `src/lib/design-system/tokens.ts`.
+- [ ] Reuse shared primitives from `src/components/ui` before creating route-local controls.
+- [ ] Buttons use shared variants and loading/disabled states.
+- [ ] Forms use shared input, select, textarea, checkbox, radio, or toggle primitives.
+- [ ] Status UI uses shared `Badge` variants.
+- [ ] Empty, loading, error, modal, and drawer states use shared components.
+- [ ] No new product module introduces an independent color, spacing, icon, or card system.
+
 ## SEO
 
 - [ ] `/sitemap.xml` loads.
