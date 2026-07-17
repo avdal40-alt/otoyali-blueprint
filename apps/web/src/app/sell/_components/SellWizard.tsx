@@ -12,6 +12,8 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import { bodyTypeLabel, cityLabel, damageStateLabel, driveTypeLabel, formatMileage, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
 import { getPriceSuggestion } from "@/lib/market-price/analysis";
 import { prepareImageVariants, type PreparedImageSet, type PreparedImageVariantName } from "@/lib/media/client-image-processing";
+import { localizePath } from "@/i18n/config";
+import { useI18n } from "@/i18n/client";
 
 type PhotoItem = {
   id: string;
@@ -130,6 +132,7 @@ export function SellWizard({
   cities?: City[];
   listings: HomeListing[];
 }) {
+  const { locale, dictionary } = useI18n();
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -149,7 +152,7 @@ export function SellWizard({
   useEffect(() => {
     async function checkAuth() {
       if (!hasSupabaseEnv()) {
-        setError("Supabase ortam değişkenleri eksik.");
+        setError(String(dictionary.errors.missingSupabaseEnv));
         setCheckingAuth(false);
         return;
       }
@@ -157,7 +160,7 @@ export function SellWizard({
       const supabase = getSupabaseBrowserClient();
       const { data } = await supabase.auth.getUser();
       if (!data.user) {
-        router.replace("/login?next=/sell");
+        router.replace(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/sell", locale))}`);
         return;
       }
 
@@ -180,7 +183,7 @@ export function SellWizard({
     }
 
     void checkAuth();
-  }, [router]);
+  }, [dictionary.errors.missingSupabaseEnv, locale, router]);
 
   useEffect(() => {
     if (!userId || publishedListingId) return;
@@ -433,7 +436,7 @@ export function SellWizard({
     setError(null);
 
     if (!userId) {
-      router.replace("/login?next=/sell");
+      router.replace(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/sell", locale))}`);
       return;
     }
 
@@ -644,7 +647,7 @@ export function SellWizard({
       <div className="grid gap-5">
         <Panel title="Satıcı profilinizi tamamlayın">
           <p className="text-sm leading-6 text-oto-muted">İlan yayınlamak için yalnızca gerekli satıcı bilgilerini tamamlayın. Telefonunuz misafir kullanıcılara açık gösterilmez.</p>
-          <ProfileFields profile={profile} cities={cityOptions} onChange={updateProfile} />
+          <ProfileFields profile={profile} cities={cityOptions} onChange={updateProfile} locale={locale} />
           {error ? <ErrorState message={error} /> : null}
           <Button type="button" onClick={saveProfile} disabled={profileSaving}>
             {profileSaving ? "Kaydediliyor" : "Devam et"}
@@ -679,7 +682,7 @@ export function SellWizard({
             <p className="text-sm leading-6 text-oto-muted">
               Bu bilgiler ilan yönetimi ve güvenli iletişim için kullanılır. Telefon numaranız ilan kartlarında açık gösterilmez.
             </p>
-            <ProfileFields profile={profile} cities={cityOptions} onChange={updateProfile} />
+            <ProfileFields profile={profile} cities={cityOptions} onChange={updateProfile} locale={locale} />
             {profile.sellerType === "dealer" ? (
               <p className="rounded-md bg-oto-surface px-3 py-2 text-xs font-bold leading-5 text-oto-muted">
                 Galeri doğrulaması ileride eklenecek. MVP kapsamında yalnızca galeri adı ve yetkili kişi bilgisi alınır.
@@ -737,12 +740,12 @@ export function SellWizard({
             </Field>
             <Field label="Yakıt tipi">
               <Select value={state.fuelType} onChange={(event) => update("fuelType", event.target.value)}>
-                {fuelOptions.map((option) => <option key={option} value={option}>{fuelLabel(option)}</option>)}
+                {fuelOptions.map((option) => <option key={option} value={option}>{fuelLabel(option, locale)}</option>)}
               </Select>
             </Field>
             <Field label="Vites">
               <Select value={state.transmission} onChange={(event) => update("transmission", event.target.value)}>
-                {transmissionOptions.map((option) => <option key={option} value={option}>{transmissionLabel(option)}</option>)}
+                {transmissionOptions.map((option) => <option key={option} value={option}>{transmissionLabel(option, locale)}</option>)}
               </Select>
             </Field>
             <Field label="Kasa tipi">
@@ -874,7 +877,7 @@ export function SellWizard({
             <Field label="Şehir">
               <Select value={state.city} onChange={(event) => update("city", event.target.value)}>
                 <option value="">Şehir seçin</option>
-                {cityOptions.map((city) => <option key={city} value={city}>{cityLabel(city)}</option>)}
+                {cityOptions.map((city) => <option key={city} value={city}>{cityLabel(city, locale)}</option>)}
               </Select>
             </Field>
           </div>
@@ -882,7 +885,7 @@ export function SellWizard({
             <input type="checkbox" checked={state.priceNegotiable} onChange={(event) => update("priceNegotiable", event.target.checked)} />
             Pazarlık var
           </label>
-          <PriceSuggestionCard suggestion={priceSuggestion} currency={state.currency} />
+          <PriceSuggestionCard suggestion={priceSuggestion} currency={state.currency} locale={locale} />
         </Panel>
       ) : null}
 
@@ -894,9 +897,9 @@ export function SellWizard({
             </div>
             <div className="grid gap-3 p-4">
               <h2 className="text-xl font-black text-oto-text">{generatedTitle || "İlan başlığı"}</h2>
-              <p className="text-2xl font-black text-oto-text">{formatPrice(Number(state.priceAmount || 0), state.currency)}</p>
+              <p className="text-2xl font-black text-oto-text">{formatPrice(Number(state.priceAmount || 0), state.currency, locale)}</p>
               <p className="text-sm font-semibold text-oto-muted">
-                {cityLabel(state.city)} · {formatMileage(Number(state.mileageKm || 0))} · {fuelLabel(state.fuelType)} · {transmissionLabel(state.transmission)} · {sellerTypeLabel(profile?.sellerType ?? state.sellerType)}
+                {cityLabel(state.city, locale)} · {formatMileage(Number(state.mileageKm || 0), locale)} · {fuelLabel(state.fuelType, locale)} · {transmissionLabel(state.transmission, locale)} · {sellerTypeLabel(profile?.sellerType ?? state.sellerType, locale)}
               </p>
               <QualityScore score={qualityScore} items={qualityItems} />
               <p className="text-sm leading-6 text-oto-muted">{state.description || "Satıcı açıklama eklememiş."}</p>
@@ -935,11 +938,13 @@ export function SellWizard({
 function ProfileFields({
   profile,
   cities,
-  onChange
+  onChange,
+  locale
 }: {
   profile: SellerProfileState;
   cities: string[];
   onChange: <K extends keyof SellerProfileState>(key: K, value: SellerProfileState[K]) => void;
+  locale: "tr" | "en";
 }) {
   const isDealer = profile.sellerType === "dealer";
 
@@ -963,7 +968,7 @@ function ProfileFields({
       <Field label="Şehir">
         <Select value={profile.city} onChange={(event) => onChange("city", event.target.value)}>
           <option value="">Şehir seçin</option>
-          {cities.map((city) => <option key={city} value={city}>{cityLabel(city)}</option>)}
+          {cities.map((city) => <option key={city} value={city}>{cityLabel(city, locale)}</option>)}
         </Select>
       </Field>
     </div>
@@ -981,18 +986,20 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 
 function PriceSuggestionCard({
   suggestion,
-  currency
+  currency,
+  locale
 }: {
   suggestion: ReturnType<typeof getPriceSuggestion>;
   currency: string;
+  locale: "tr" | "en";
 }) {
   return (
     <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
       <h3 className="text-base font-black text-oto-text">Tahmini piyasa fiyatı</h3>
       {suggestion ? (
         <div className="mt-3 grid gap-2 text-sm font-semibold text-oto-muted">
-          <p>Benzer ilan aralığı: {formatPrice(suggestion.minPrice, currency)} - {formatPrice(suggestion.maxPrice, currency)}</p>
-          <p>Daha hızlı satış için önerilen fiyat: {formatPrice(suggestion.averagePrice, currency)}</p>
+          <p>{locale === "en" ? "Similar listing range" : "Benzer ilan aralığı"}: {formatPrice(suggestion.minPrice, currency, locale)} - {formatPrice(suggestion.maxPrice, currency, locale)}</p>
+          <p>{locale === "en" ? "Suggested price for a faster sale" : "Daha hızlı satış için önerilen fiyat"}: {formatPrice(suggestion.averagePrice, currency, locale)}</p>
           <p className="text-xs">{suggestion.comparableCount} benzer ilan üzerinden hesaplandı. Garanti edilen satış fiyatı değildir.</p>
         </div>
       ) : (

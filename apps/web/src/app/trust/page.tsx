@@ -1,5 +1,6 @@
 import { LegalPage, type LegalSection } from "@/components/legal/LegalPage";
 import { buildSeoMetadata } from "@/lib/seo/metadata";
+import { getRequestLocale } from "@/i18n/server";
 
 export const metadata = buildSeoMetadata({
   title: "OTOYALI Güven Merkezi",
@@ -46,17 +47,59 @@ const sections: LegalSection[] = [
   }
 ];
 
+const enSections: LegalSection[] = [
+  {
+    title: "Safer vehicle shopping",
+    body: "OTOYALI helps users make more informed decisions. Buyers should still check official documents, payment steps, inspection reports, and seller information before a transaction."
+  },
+  {
+    title: "Listing quality",
+    body: "Listing fields, media upload, price analysis, and moderation foundations are designed to make listings easier to understand and compare."
+  },
+  {
+    title: "Seller profiles",
+    body: "Seller profiles provide context. OTOYALI does not automatically guarantee each seller's history or official representative status."
+  },
+  {
+    title: "Reports and complaints",
+    body: "Users can report suspicious listings. Reports may be reviewed by the team, but OTOYALI does not claim that every risk can be detected in advance."
+  },
+  {
+    title: "Vehicle history note",
+    body: "TRAMER/SBM, insurance records, inspection records, or official history checks are not currently offered as active integrations."
+  },
+  {
+    title: "OTOYALI Trust Report",
+    body: "The trust report is planned for a future phase. Damage, insurance payment, mileage consistency, and restriction checks are not shown as active checks today."
+  },
+  {
+    title: "Price analysis",
+    body: "Current price analysis uses limited listing data and is not a guaranteed valuation. If comparable data is insufficient, a safe empty state is shown."
+  }
+];
+
 export default function TrustPage() {
+  const locale = getRequestLocale();
+  const isEnglish = locale === "en";
+
   return (
     <LegalPage
-      title="OTOYALI Güven Merkezi"
-      description="OTOYALI’nin güven yaklaşımını, mevcut sınırlarını ve gelecekte planlanan doğrulama alanlarını şeffaf biçimde açıklar."
-      sections={sections}
+      title={isEnglish ? "OTOYALI Trust Center" : "OTOYALI Güven Merkezi"}
+      description={
+        isEnglish
+          ? "A transparent overview of OTOYALI's trust approach, current limitations, and future verification areas."
+          : "OTOYALI’nin güven yaklaşımını, mevcut sınırlarını ve gelecekte planlanan doğrulama alanlarını şeffaf biçimde açıklar."
+      }
+      sections={isEnglish ? enSections : sections}
       actions={[
-        { href: "/listing-rules", label: "İlan Kuralları" },
-        { href: "/moderation-policy", label: "Moderasyon Politikası" }
+        { href: "/listing-rules", label: isEnglish ? "Listing Rules" : "İlan Kuralları" },
+        { href: "/moderation-policy", label: isEnglish ? "Moderation Policy" : "Moderasyon Politikası" }
       ]}
-      disclaimer="OTOYALI, gelecek aşamalarda ek doğrulama ve veri entegrasyonları sunmayı hedefler. Bir araç satın almadan önce resmi belgeleri, ekspertiz raporlarını ve satıcı bilgilerini ayrıca kontrol etmeniz önerilir."
+      disclaimer={
+        isEnglish
+          ? "OTOYALI may add verification and data integrations in future stages. Before buying a vehicle, users should independently check official documents, inspection reports, and seller information."
+          : "OTOYALI, gelecek aşamalarda ek doğrulama ve veri entegrasyonları sunmayı hedefler. Bir araç satın almadan önce resmi belgeleri, ekspertiz raporlarını ve satıcı bilgilerini ayrıca kontrol etmeniz önerilir."
+      }
     />
   );
 }

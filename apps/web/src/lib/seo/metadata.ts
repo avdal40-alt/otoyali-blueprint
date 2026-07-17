@@ -10,12 +10,14 @@ export function buildSeoMetadata({
   title,
   description,
   path,
-  noIndex = false
+  noIndex = false,
+  alternates
 }: {
   title: string;
   description: string;
   path: string;
   noIndex?: boolean;
+  alternates?: Record<string, string>;
 }): Metadata {
   const url = absoluteUrl(path);
 
@@ -23,7 +25,10 @@ export function buildSeoMetadata({
     title,
     description,
     alternates: {
-      canonical: url
+      canonical: url,
+      languages: alternates
+        ? Object.fromEntries(Object.entries(alternates).map(([locale, alternatePath]) => [locale, absoluteUrl(alternatePath)]))
+        : undefined
     },
     openGraph: {
       title: `${title} | OTOYALI`,

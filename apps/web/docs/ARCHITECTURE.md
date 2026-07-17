@@ -34,6 +34,20 @@ Shared code is under:
 - `src/data`
 - `src/app/*/_components` for route-local client components.
 
+## Internationalization
+
+The web app uses a lightweight internal i18n layer instead of an external translation framework.
+
+- Turkish is the default canonical locale and keeps unprefixed routes.
+- English routes live under `/en`.
+- Middleware resolves locale from route prefix, cookie, `Accept-Language`, then Turkish fallback.
+- Middleware rewrites `/en/*` to existing internal routes so the app does not duplicate route trees.
+- Dictionaries live in `src/i18n/dictionaries`.
+- Link and redirect helpers live in `src/i18n/config.ts`.
+- Locale-aware display formatting lives in `src/lib/format.ts`.
+
+This is frontend-only. It does not change Supabase schema, RLS, stored listing data, or catalog values. Listing titles and descriptions remain user-generated and are not translated.
+
 ## Design System
 
 The web app has one UI foundation for marketplace, video, admin, legal pages, and future transport verticals.

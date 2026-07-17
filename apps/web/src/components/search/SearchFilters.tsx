@@ -6,7 +6,8 @@ import type { ListingSearchFilters } from "@/lib/search/search-params";
 import { selectedValues, toggleSelectedValue } from "@/lib/search/search-params";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
-import { bodyTypeLabel, cityLabel, damageStateLabel, driveTypeLabel, fuelLabel, transmissionLabel } from "@/lib/format";
+import { bodyTypeLabel, cityLabel, colorLabel, conditionLabel, damageStateLabel, driveTypeLabel, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
+import { useI18n } from "@/i18n/client";
 
 export const fuelOptions = [
   { value: "gasoline", label: fuelLabel("gasoline") },
@@ -98,6 +99,7 @@ export function SearchFilters({
   onSubmit?: () => void;
   onReset?: () => void;
 }) {
+  const { locale, dictionary } = useI18n();
   const selectedMakes = selectedValues(filters.make);
   const filteredModels = selectedMakes.length > 0
     ? models.filter((model) => selectedMakes.includes(model.make_name ?? ""))
@@ -114,121 +116,143 @@ export function SearchFilters({
   function toggleValue(key: "make" | "model" | "city" | "fuelType" | "transmission" | "bodyType", value: string) {
     setValue(key, toggleSelectedValue(filters[key], value));
   }
+  const localizedFuelOptions = fuelOptions.map((option) => ({ ...option, label: fuelLabel(option.value, locale) }));
+  const localizedTransmissionOptions = transmissionOptions.map((option) => ({ ...option, label: transmissionLabel(option.value, locale) }));
+  const localizedBodyTypeOptions = bodyTypeOptions.map((option) => ({ ...option, label: bodyTypeLabel(option.value, locale) }));
+  const localizedDriveTypeOptions = [
+    { value: "", label: String(dictionary.search.allDriveTypes) },
+    { value: "front", label: driveTypeLabel("front", locale) },
+    { value: "rear", label: driveTypeLabel("rear", locale) },
+    { value: "4x4", label: driveTypeLabel("4x4", locale) },
+    { value: "awd", label: driveTypeLabel("awd", locale) }
+  ];
+  const localizedColorOptions = [
+    { value: "", label: String(dictionary.search.allColors) },
+    { value: "white", label: colorLabel("white", locale) },
+    { value: "black", label: colorLabel("black", locale) },
+    { value: "gray", label: colorLabel("gray", locale) },
+    { value: "blue", label: colorLabel("blue", locale) },
+    { value: "red", label: colorLabel("red", locale) }
+  ];
+  const localizedDamageOptions = damageOptions.map((option) => ({
+    ...option,
+    label: option.value ? damageStateLabel(option.value, locale) : locale === "en" ? "All damage statuses" : "Tüm hasar durumları"
+  }));
 
   return (
     <div className="rounded-oto border border-oto-border bg-white p-4 shadow-soft">
       <div className="grid gap-4">
-        <Input value={filters.q} onChange={(event) => setValue("q", event.target.value)} placeholder="Arama" />
+        <Input value={filters.q} onChange={(event) => setValue("q", event.target.value)} placeholder={String(dictionary.common.search)} />
 
         <MultiSelectGroup
-          label="Marka"
+          label={String(dictionary.search.brand)}
           values={selectedValues(filters.make)}
-          options={makes.map((make) => ({ value: make.make_name ?? "", label: make.make_name ?? "Bilgi yok" }))}
+          options={makes.map((make) => ({ value: make.make_name ?? "", label: make.make_name ?? String(dictionary.common.noInfo) }))}
           onToggle={(value) => toggleValue("make", value)}
-          emptyLabel="Tüm markalar"
+          emptyLabel={String(dictionary.search.allBrands)}
           searchable
         />
 
         <MultiSelectGroup
-          label="Model"
+          label={String(dictionary.search.model)}
           values={selectedValues(filters.model)}
-          options={filteredModels.map((model) => ({ value: model.model_name ?? "", label: model.model_name ?? "Bilgi yok" }))}
+          options={filteredModels.map((model) => ({ value: model.model_name ?? "", label: model.model_name ?? String(dictionary.common.noInfo) }))}
           onToggle={(value) => toggleValue("model", value)}
-          emptyLabel="Tüm modeller"
+          emptyLabel={String(dictionary.search.allModels)}
           searchable
         />
 
         <MultiSelectGroup
-          label="Şehir"
+          label={String(dictionary.search.city)}
           values={selectedValues(filters.city)}
-          options={cities.map((city) => ({ value: city, label: cityLabel(city) }))}
+          options={cities.map((city) => ({ value: city, label: cityLabel(city, locale) }))}
           onToggle={(value) => toggleValue("city", value)}
-          emptyLabel="Tüm şehirler"
+          emptyLabel={String(dictionary.search.allCities)}
           searchable
         />
 
         <div className="grid grid-cols-2 gap-2">
-          <Input value={filters.priceMin} onChange={(event) => setValue("priceMin", event.target.value)} placeholder="Fiyat min" inputMode="numeric" />
-          <Input value={filters.priceMax} onChange={(event) => setValue("priceMax", event.target.value)} placeholder="Fiyat max" inputMode="numeric" />
+          <Input value={filters.priceMin} onChange={(event) => setValue("priceMin", event.target.value)} placeholder={String(dictionary.search.priceMin)} inputMode="numeric" />
+          <Input value={filters.priceMax} onChange={(event) => setValue("priceMax", event.target.value)} placeholder={String(dictionary.search.priceMax)} inputMode="numeric" />
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder="Yıl min" inputMode="numeric" />
-          <Input value={filters.yearMax} onChange={(event) => setValue("yearMax", event.target.value)} placeholder="Yıl max" inputMode="numeric" />
+          <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder={String(dictionary.search.yearMin)} inputMode="numeric" />
+          <Input value={filters.yearMax} onChange={(event) => setValue("yearMax", event.target.value)} placeholder={String(dictionary.search.yearMax)} inputMode="numeric" />
         </div>
-        <Input value={filters.mileageMax} onChange={(event) => setValue("mileageMax", event.target.value)} placeholder="Kilometre max" inputMode="numeric" />
+        <Input value={filters.mileageMax} onChange={(event) => setValue("mileageMax", event.target.value)} placeholder={String(dictionary.search.mileageMax)} inputMode="numeric" />
 
         {showAdvanced ? (
           <div className="grid gap-4 border-t border-oto-border pt-4">
             <MultiSelectGroup
-              label="Yakıt tipi"
+              label={String(dictionary.search.fuelType)}
               values={selectedValues(filters.fuelType)}
-              options={fuelOptions}
+              options={localizedFuelOptions}
               onToggle={(value) => toggleValue("fuelType", value)}
-              emptyLabel="Tüm yakıt tipleri"
+              emptyLabel={String(dictionary.search.allFuelTypes)}
             />
 
             <MultiSelectGroup
-              label="Vites"
+              label={String(dictionary.search.transmission)}
               values={selectedValues(filters.transmission)}
-              options={transmissionOptions}
+              options={localizedTransmissionOptions}
               onToggle={(value) => toggleValue("transmission", value)}
-              emptyLabel="Tüm vitesler"
+              emptyLabel={String(dictionary.search.allTransmissions)}
             />
 
             <MultiSelectGroup
-              label="Kasa tipi"
+              label={String(dictionary.search.bodyType)}
               values={selectedValues(filters.bodyType)}
-              options={bodyTypeOptions}
+              options={localizedBodyTypeOptions}
               onToggle={(value) => toggleValue("bodyType", value)}
-              emptyLabel="Tüm kasa tipleri"
+              emptyLabel={String(dictionary.search.allBodyTypes)}
               disabled={!support.bodyType}
             />
 
             <Select value={filters.driveType} onChange={(event) => setValue("driveType", event.target.value)} disabled={!support.driveType}>
-              {driveTypeOptions.map((option) => <option key={option.label} value={option.value}>{option.label}</option>)}
+              {localizedDriveTypeOptions.map((option) => <option key={option.label} value={option.value}>{option.label}</option>)}
             </Select>
 
             <Select value={filters.color} onChange={(event) => setValue("color", event.target.value)} disabled={!support.color}>
-              {colorOptions.map((option) => <option key={option.label} value={option.value}>{option.label}</option>)}
+              {localizedColorOptions.map((option) => <option key={option.label} value={option.value}>{option.label}</option>)}
             </Select>
 
             <Select value={filters.condition} onChange={(event) => setValue("condition", event.target.value)} disabled={!support.condition}>
-              <option value="">Tüm ilanlar</option>
-              <option value="used">İkinci el</option>
-              <option value="new">Sıfır km</option>
+              <option value="">{String(dictionary.home.allListings)}</option>
+              <option value="used">{conditionLabel("used", locale)}</option>
+              <option value="new">{conditionLabel("new", locale)}</option>
             </Select>
 
             <Select value={filters.sellerType} onChange={(event) => setValue("sellerType", event.target.value)} disabled={!support.sellerType}>
-              <option value="">Tümü</option>
-              <option value="private">Bireysel</option>
-              <option value="dealer">Galeri</option>
+              <option value="">{String(dictionary.search.allSellerTypes)}</option>
+              <option value="private">{sellerTypeLabel("private", locale)}</option>
+              <option value="dealer">{sellerTypeLabel("dealer", locale)}</option>
             </Select>
 
             <div className="grid grid-cols-2 gap-2">
-              <Input value={filters.engineVolume} onChange={(event) => setValue("engineVolume", event.target.value)} placeholder="Motor hacmi" inputMode="decimal" disabled={!support.engineVolume} />
-              <Input value={filters.ownerCount} onChange={(event) => setValue("ownerCount", event.target.value)} placeholder="Sahip sayısı" inputMode="numeric" disabled={!support.ownerCount} />
+              <Input value={filters.engineVolume} onChange={(event) => setValue("engineVolume", event.target.value)} placeholder={locale === "en" ? "Engine volume" : "Motor hacmi"} inputMode="decimal" disabled={!support.engineVolume} />
+              <Input value={filters.ownerCount} onChange={(event) => setValue("ownerCount", event.target.value)} placeholder={locale === "en" ? "Owner count" : "Sahip sayısı"} inputMode="numeric" disabled={!support.ownerCount} />
             </div>
 
             <Select value={filters.damageState} onChange={(event) => setValue("damageState", event.target.value)} disabled={!support.damageState}>
-              {damageOptions.map((option) => <option key={option.label} value={option.value}>{option.label}</option>)}
+              {localizedDamageOptions.map((option) => <option key={option.label} value={option.value}>{option.label}</option>)}
             </Select>
 
             {support.photos ? (
               <label className="flex items-center gap-2 text-sm font-semibold text-oto-muted">
                 <input type="checkbox" checked={filters.onlyWithPhotos} onChange={(event) => setValue("onlyWithPhotos", event.target.checked)} />
-                Fotoğraflı ilanlar
+                {String(dictionary.search.withPhotos)}
               </label>
             ) : null}
             {support.priceNegotiable ? (
               <label className="flex items-center gap-2 text-sm font-semibold text-oto-muted">
                 <input type="checkbox" checked={filters.negotiableOnly} onChange={(event) => setValue("negotiableOnly", event.target.checked)} />
-                Pazarlık var
+                {locale === "en" ? "Negotiable" : "Pazarlık var"}
               </label>
             ) : null}
             {support.promoted ? (
               <label className="flex items-center gap-2 text-sm font-semibold text-oto-muted">
                 <input type="checkbox" checked={filters.promotedOnly} onChange={(event) => setValue("promotedOnly", event.target.checked)} />
-                Öne çıkan ilanlar
+                {String(dictionary.home.hotTitle)}
               </label>
             ) : null}
           </div>
@@ -237,11 +261,11 @@ export function SearchFilters({
         <div className="grid grid-cols-2 gap-2 pt-1">
           {onReset ? (
             <Button type="button" variant="secondary" onClick={onReset}>
-              Temizle
+              {String(dictionary.common.clear)}
             </Button>
           ) : null}
           <Button type="button" variant="orange" onClick={onSubmit} className={onReset ? "" : "col-span-2"}>
-            Ara
+            {String(dictionary.common.search)}
           </Button>
         </div>
       </div>
@@ -266,6 +290,7 @@ function MultiSelectGroup({
   disabled?: boolean;
   searchable?: boolean;
 }) {
+  const { locale } = useI18n();
   const cleanOptions = useMemo(() => options.filter((option) => option.value), [options]);
   const [query, setQuery] = useState("");
   const normalizedQuery = normalizeOption(query);
@@ -288,13 +313,13 @@ function MultiSelectGroup({
     <div className="grid gap-2">
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-bold text-oto-muted">{label}</span>
-        <span className="text-[11px] font-bold text-oto-muted">{values.length > 0 ? `${values.length} seçili` : emptyLabel}</span>
+        <span className="text-[11px] font-bold text-oto-muted">{values.length > 0 ? (locale === "en" ? `${values.length} selected` : `${values.length} seçili`) : emptyLabel}</span>
       </div>
       {searchable ? (
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder={`${label} ara`}
+          placeholder={locale === "en" ? `Search ${label.toLowerCase()}` : `${label} ara`}
           disabled={disabled || cleanOptions.length === 0}
           className="h-10"
         />
@@ -318,7 +343,7 @@ function MultiSelectGroup({
             </button>
           );
         })}
-        {visibleOptions.length === 0 ? <p className="text-xs font-semibold text-oto-muted">Sonuç bulunamadı.</p> : null}
+        {visibleOptions.length === 0 ? <p className="text-xs font-semibold text-oto-muted">{locale === "en" ? "No results found." : "Sonuç bulunamadı."}</p> : null}
       </div>
     </div>
   );

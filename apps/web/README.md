@@ -31,6 +31,7 @@ Start here for handoff and maintenance:
 - [docs/AUTH_AND_ACCESS.md](./docs/AUTH_AND_ACCESS.md)
 - [docs/ADMIN_AND_MODERATION.md](./docs/ADMIN_AND_MODERATION.md)
 - [docs/SEO_AND_ROUTES.md](./docs/SEO_AND_ROUTES.md)
+- [docs/I18N.md](./docs/I18N.md)
 - [docs/PERFORMANCE.md](./docs/PERFORMANCE.md)
 - [docs/MEDIA.md](./docs/MEDIA.md)
 - [docs/PRODUCT_ROADMAP.md](./docs/PRODUCT_ROADMAP.md)
@@ -67,6 +68,12 @@ The shared UI foundation lives in:
 - `src/app/globals.css`
 
 Read [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md) before adding new UI. Future modules should reuse the same tokens, typography, spacing, buttons, inputs, cards, badges, modal, drawer, loading, and empty-state primitives instead of creating a separate visual system.
+
+## Internationalization
+
+Turkish is the canonical default locale and keeps unprefixed URLs. English runs under `/en` through a lightweight internal dictionary and middleware rewrite layer. No external i18n dependency is used.
+
+Read [docs/I18N.md](./docs/I18N.md) before adding routes, links, metadata, or new user-facing UI copy. Use `localizePath()` for internal links and keep user-generated listing titles/descriptions untranslated.
 
 ## Environment Variables
 

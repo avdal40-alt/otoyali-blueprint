@@ -6,6 +6,8 @@ import type { HomeListing } from "@/lib/supabase/types";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { VehicleGrid } from "@/components/vehicle/VehicleGrid";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
+import { localizePath } from "@/i18n/config";
+import { useI18n } from "@/i18n/client";
 
 const FAVORITE_LISTING_COLUMNS = [
   "listing_id",
@@ -38,6 +40,7 @@ const FAVORITE_LISTING_COLUMNS = [
 ].join(",");
 
 export function FavoritesClient() {
+  const { locale, dictionary } = useI18n();
   const router = useRouter();
   const [listings, setListings] = useState<HomeListing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +49,7 @@ export function FavoritesClient() {
   useEffect(() => {
     async function load() {
       if (!hasSupabaseEnv()) {
-        setError("Supabase ortam değişkenleri eksik.");
+        setError(String(dictionary.errors.missingSupabaseEnv));
         setLoading(false);
         return;
       }
@@ -54,7 +57,7 @@ export function FavoritesClient() {
       const supabase = getSupabaseBrowserClient();
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) {
-        router.replace("/login?next=/favorites");
+        router.replace(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/favorites", locale))}`);
         return;
       }
 
@@ -86,11 +89,20 @@ export function FavoritesClient() {
     }
 
     void load();
-  }, [router]);
+  }, [dictionary.errors.missingSupabaseEnv, locale, router]);
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;
-  if (listings.length === 0) return <EmptyState title="Favori yok" body="Beğendiğiniz ilanları kaydederek daha sonra hızlıca geri dönebilirsiniz." href="/search" action="İlan ara" />;
+  if (listings.length === 0) {
+    return (
+      <EmptyState
+        title={String(dictionary.favorites.emptyTitle)}
+        body={String(dictionary.favorites.emptyBody)}
+        href={localizePath("/search", locale)}
+        action={locale === "en" ? "Search listings" : "İlan ara"}
+      />
+    );
+  }
 
-  return <VehicleGrid listings={listings} />;
+  return <VehicleGrid listings={listings} locale={locale} />;
 }

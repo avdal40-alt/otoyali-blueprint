@@ -9,6 +9,10 @@ import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import { getVideoFeed } from "@/lib/queries/videos";
 import type { OtoyaliVideo } from "@/lib/supabase/types";
 import { cityLabel, formatMileage, formatPrice, fuelLabel, sellerTypeLabel } from "@/lib/format";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { getRequestLocale } from "@/i18n/server";
+import { localizePath } from "@/i18n/config";
+import type { Locale } from "@/i18n/types";
 import { VideoShareButton } from "./_components/VideoShareButton";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +23,8 @@ export default async function VideoPage({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
+  const locale = getRequestLocale();
+  const dictionary = getDictionary(locale);
   const listingId = singleValue(searchParams.listing);
   const videosResult = await getVideoFeed({ listingId, limit: 6 });
   const videos = videosResult.data.filter((video) => Boolean(video.video_url));
@@ -31,18 +37,18 @@ export default async function VideoPage({
           <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
               <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-100">
-                Video İlanlar
+                {String(dictionary.video.label)}
               </span>
-              <h1 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">OTOYALI Video</h1>
+              <h1 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">{String(dictionary.video.title)}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-50 md:text-base">
-                Araç videoları, galeri fırsatları ve kısa tanıtımlar.
+                {String(dictionary.video.subtitle)}
               </p>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-blue-100">
-                Satıcılar araçlarını 60 saniyeye kadar kısa videolarla tanıtabilecek.
+                {String(dictionary.video.body)}
               </p>
             </div>
-            <ButtonLink href="/sell" variant="orange" className="w-full md:w-auto">
-              İlan yayınla
+            <ButtonLink href={localizePath("/sell", locale)} variant="orange" className="w-full md:w-auto">
+              {String(dictionary.common.publishListing)}
             </ButtonLink>
           </div>
         </section>
@@ -54,25 +60,25 @@ export default async function VideoPage({
           <section className="mx-auto mt-8 grid max-w-5xl gap-6 lg:grid-cols-[minmax(320px,460px)_1fr]">
             <div className="grid gap-6 lg:col-start-1">
               {videos.map((video) => (
-                <VideoCard key={video.video_id} video={video} />
+                <VideoCard key={video.video_id} video={video} locale={locale} />
               ))}
             </div>
             <aside className="hidden h-fit rounded-oto border border-oto-border bg-white p-5 shadow-soft lg:sticky lg:top-24 lg:block">
-              <h2 className="text-lg font-black text-oto-text">Video İlanlar</h2>
+              <h2 className="text-lg font-black text-oto-text">{String(dictionary.video.label)}</h2>
               <div className="mt-4 grid gap-3 text-sm leading-6 text-oto-muted">
-                <p>Onaylanan kısa videolar burada gösterilir.</p>
-                <p>Satıcı videoları yayınlanmadan önce incelemeye alınır.</p>
-                <p>Ana sayfa ve arama kartları video dosyası yüklemez; yalnızca Video rozeti gösterir.</p>
+                <p>{String(dictionary.video.approvedVideos)}</p>
+                <p>{String(dictionary.video.moderationCopy)}</p>
+                <p>{String(dictionary.video.performanceCopy)}</p>
               </div>
             </aside>
           </section>
         ) : (
           <div className="mt-8">
             <EmptyState
-              title="Henüz video yok."
-              body="Yakında satıcıların kısa araç videoları burada yer alacak."
-              href="/sell"
-              action="İlan yayınla"
+              title={String(dictionary.video.emptyTitle)}
+              body={String(dictionary.video.emptyBody)}
+              href={localizePath("/sell", locale)}
+              action={String(dictionary.common.publishListing)}
             />
           </div>
         )}
@@ -83,14 +89,15 @@ export default async function VideoPage({
   );
 }
 
-function VideoCard({ video }: { video: OtoyaliVideo }) {
-  const title = video.title?.trim() || video.listing_title?.trim() || "Araç videosu";
+function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
+  const dictionary = getDictionary(locale);
+  const title = video.title?.trim() || video.listing_title?.trim() || String(dictionary.video.vehicleVideo);
   const poster = video.poster_url || video.thumbnail_url || video.cover_image_url || undefined;
   const details = [
     video.year ? String(video.year) : null,
-    video.mileage_km !== null && video.mileage_km !== undefined ? formatMileage(video.mileage_km) : null,
-    video.fuel_type ? fuelLabel(video.fuel_type) : null,
-    video.city ? cityLabel(video.city) : null
+    video.mileage_km !== null && video.mileage_km !== undefined ? formatMileage(video.mileage_km, locale) : null,
+    video.fuel_type ? fuelLabel(video.fuel_type, locale) : null,
+    video.city ? cityLabel(video.city, locale) : null
   ].filter(Boolean);
 
   return (
@@ -107,7 +114,7 @@ function VideoCard({ video }: { video: OtoyaliVideo }) {
         />
         {video.seller_type === "dealer" ? (
           <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-oto-blue shadow-soft">
-            Galeri
+            {String(dictionary.status.dealer)}
           </span>
         ) : null}
       </div>
@@ -116,7 +123,7 @@ function VideoCard({ video }: { video: OtoyaliVideo }) {
           <div className="min-w-0">
             <h2 className="line-clamp-2 text-lg font-black text-oto-text">{title}</h2>
             <p className="mt-1 text-sm font-bold text-oto-muted">
-              {video.seller_display_name || sellerTypeLabel(video.seller_type)}
+              {video.seller_display_name || sellerTypeLabel(video.seller_type, locale)}
             </p>
           </div>
           {video.listing_id ? <FavoriteButton listingId={video.listing_id} /> : null}
@@ -130,34 +137,34 @@ function VideoCard({ video }: { video: OtoyaliVideo }) {
           {video.listing_title ? (
             <p className="line-clamp-1 text-sm font-black text-oto-text">{video.listing_title}</p>
           ) : null}
-          <p className="text-base font-black text-oto-text">{formatPrice(video.price_amount, video.currency)}</p>
-          <p className="mt-1 text-xs font-bold text-oto-muted">{details.join(" · ") || "Araç bilgileri yakında"}</p>
+          <p className="text-base font-black text-oto-text">{formatPrice(video.price_amount, video.currency, locale)}</p>
+          <p className="mt-1 text-xs font-bold text-oto-muted">{details.join(" · ") || (locale === "en" ? "Vehicle details coming soon" : "Araç bilgileri yakında")}</p>
         </div>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_1.45fr_1fr]">
           {video.listing_id ? (
-            <ButtonLink href={`/listing/${video.listing_id}`} className="h-10 px-3 text-xs">
-              İlanı gör
+            <ButtonLink href={localizePath(`/listing/${video.listing_id}`, locale)} className="h-10 px-3 text-xs">
+              {String(dictionary.video.seeListing)}
             </ButtonLink>
           ) : (
-            <ButtonLink href="/search" className="h-10 px-3 text-xs">
-              İlanlara bak
+            <ButtonLink href={localizePath("/search", locale)} className="h-10 px-3 text-xs">
+              {String(dictionary.video.browseListings)}
             </ButtonLink>
           )}
           {video.listing_id ? (
-            <ButtonLink href={`/listing/${video.listing_id}`} variant="secondary" className="h-10 px-3 text-xs">
-              Satıcı ile iletişime geç
+            <ButtonLink href={localizePath(`/listing/${video.listing_id}`, locale)} variant="secondary" className="h-10 px-3 text-xs">
+              {String(dictionary.listing.contactSeller)}
             </ButtonLink>
           ) : (
-            <ButtonLink href="/login?next=/video" variant="secondary" className="h-10 px-3 text-xs">
-              Giriş yap
+            <ButtonLink href={`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/video", locale))}`} variant="secondary" className="h-10 px-3 text-xs">
+              {String(dictionary.video.login)}
             </ButtonLink>
           )}
           <VideoShareButton title={title} listingId={video.listing_id} />
         </div>
 
         <p className="mt-4 text-xs font-semibold leading-5 text-oto-muted">
-          Video içeriği satıcı tarafından sağlanmıştır.
+          {String(dictionary.video.contentProvided)}
         </p>
       </div>
     </article>

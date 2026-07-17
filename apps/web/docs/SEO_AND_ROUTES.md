@@ -15,6 +15,30 @@
 
 Some of these are public routes that show login-required states for protected actions.
 
+## Locale Routes
+
+Turkish is the default canonical locale and uses the same unprefixed URLs above. Do not link to `/tr` in production UI.
+
+English routes use `/en`:
+
+- `/en`
+- `/en/search`
+- `/en/video`
+- `/en/listing/[id]`
+- `/en/sell`
+- `/en/login`
+- `/en/profile`
+- `/en/my-listings`
+- `/en/favorites`
+- `/en/settings`
+- `/en/used-cars`
+- `/en/new-cars`
+- `/en/electric-vehicles`
+- `/en/make/[makeSlug]`
+- `/en/city/[citySlug]`
+
+Middleware rewrites English route aliases back to the existing internal routes. Query parameter keys remain ASCII and stable across locales.
+
 ## SEO Routes
 
 - `/ikinci-el-araba`
@@ -62,7 +86,7 @@ Sitemap is generated in `src/app/sitemap.ts`.
 
 Rules:
 
-- Include public routes only.
+- Include public Turkish canonical routes and safe English `/en` routes.
 - Include limited dynamic listing URLs.
 - Do not include private routes.
 - Do not include admin routes.
@@ -73,4 +97,4 @@ Rules:
 
 Robots config is in `src/app/robots.ts`.
 
-Keep public pages crawlable. Keep private/admin/auth/API/debug routes blocked.
+Keep public Turkish and English pages crawlable. Keep private/admin/auth/API/debug routes blocked.

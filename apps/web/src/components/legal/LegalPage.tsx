@@ -3,6 +3,9 @@ import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ButtonLink } from "@/components/ui/Button";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { getRequestLocale } from "@/i18n/server";
+import { localizePath } from "@/i18n/config";
 
 export type LegalSection = {
   title: string;
@@ -34,6 +37,10 @@ export function LegalPage({
   actions?: LegalAction[];
   disclaimer?: string;
 }) {
+  const locale = getRequestLocale();
+  const dictionary = getDictionary(locale);
+  const resolvedDisclaimer = disclaimer === DEFAULT_DISCLAIMER ? String(dictionary.legal.disclaimer) : disclaimer;
+
   return (
     <>
       <AppHeader />
@@ -45,7 +52,7 @@ export function LegalPage({
           {actions.length > 0 ? (
             <div className="mt-6 flex flex-wrap gap-3">
               {actions.map((action) => (
-                <ButtonLink key={action.href} href={action.href} variant={action.variant ?? "secondary"}>
+                <ButtonLink key={action.href} href={localizePath(action.href, locale)} variant={action.variant ?? "secondary"}>
                   {action.label}
                 </ButtonLink>
               ))}
@@ -73,8 +80,8 @@ export function LegalPage({
         </div>
 
         <section className="mt-6 rounded-oto border border-oto-border bg-oto-surface p-5">
-          <h2 className="text-sm font-black uppercase tracking-wide text-oto-text">Not</h2>
-          <p className="mt-2 text-sm leading-7 text-oto-muted">{disclaimer}</p>
+          <h2 className="text-sm font-black uppercase tracking-wide text-oto-text">{String(dictionary.legal.note)}</h2>
+          <p className="mt-2 text-sm leading-7 text-oto-muted">{resolvedDisclaimer}</p>
         </section>
       </PageContainer>
       <MarketplaceFooter />

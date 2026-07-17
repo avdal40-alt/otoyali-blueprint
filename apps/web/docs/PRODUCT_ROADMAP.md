@@ -12,6 +12,7 @@
 - LEGAL-01: legal, trust, and policy pages.
 - SELL-02: seller profile and listing publishing polish.
 - MEDIA-01: browser-side image variants, thumbnails, and optimized media fallback.
+- WEB-11: Turkish/English i18n foundation with Turkish canonical URLs and English `/en` routes.
 
 ## Paused
 
@@ -23,17 +24,16 @@
 2. SELL-03: owner listing edit route and rejected-listing resubmission.
 3. ANALYTICS-01: product analytics.
 4. MEDIA-01B: legacy image variant backfill.
-5. WEB-11: Turkish/English i18n.
-6. MEDIA-02: server-side image worker, blur readiness, and moderation automation.
-7. WEB-12: vertical architecture.
-8. WEB-13: commercial vehicles.
-9. WEB-14: water vehicles.
-10. WEB-15: spare parts marketplace.
-11. WEB-16: insurance and services.
-12. AI-01: AI assistant entry points.
-13. MOBILE-01: PWA/mobile foundation.
-14. PAY-01: paid listing products.
-15. DEV-02: code audit / team handoff.
+5. MEDIA-02: server-side image worker, blur readiness, and moderation automation.
+6. WEB-12: vertical architecture.
+7. WEB-13: commercial vehicles.
+8. WEB-14: water vehicles.
+9. WEB-15: spare parts marketplace.
+10. WEB-16: insurance and services.
+11. AI-01: AI assistant entry points.
+12. MOBILE-01: PWA/mobile foundation.
+13. PAY-01: paid listing products.
+14. DEV-02: code audit / team handoff.
 
 ## Long-Term Product Areas
 

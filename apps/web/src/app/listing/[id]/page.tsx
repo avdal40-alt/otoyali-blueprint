@@ -33,6 +33,9 @@ import {
 } from "@/lib/format";
 import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { getRequestLocale } from "@/i18n/server";
+import { localizePath } from "@/i18n/config";
 import { ContactSellerButton } from "./_components/ContactSellerButton";
 import { ShareListingButton } from "./_components/ShareListingButton";
 import { ReportListingButton } from "./_components/ReportListingButton";
@@ -41,6 +44,8 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function ListingDetailsPage({ params }: { params: { id: string } }) {
+  const locale = getRequestLocale();
+  const dictionary = getDictionary(locale);
   const [detailsResult, mediaResult, fallbackListingResult, similarResult] = await Promise.all([
     getListingDetails(params.id),
     getListingMedia(params.id),
@@ -54,8 +59,8 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
   }
 
   const listing = detailsResult.data;
-  const title = listing?.title?.trim() || "Bilgi yok";
-  const city = cityLabel(listing?.city);
+  const title = listing?.title?.trim() || String(dictionary.common.noInfo);
+  const city = cityLabel(listing?.city, locale);
   const fallbackCoverImage = fallbackListingResult.data?.cover_image_url;
   const fallbackMediaResult =
     mediaResult.data.length === 0 && listing?.vehicle_profile_id
@@ -79,39 +84,39 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                   <div>
                     <div className="flex flex-wrap gap-2">
                       <Badge>{city}</Badge>
-                      {listing.condition ? <Badge>{conditionLabel(listing.condition)}</Badge> : null}
-                      {listing.seller_type ? <Badge>{sellerTypeLabel(listing.seller_type)}</Badge> : null}
+                      {listing.condition ? <Badge>{conditionLabel(listing.condition, locale)}</Badge> : null}
+                      {listing.seller_type ? <Badge>{sellerTypeLabel(listing.seller_type, locale)}</Badge> : null}
                     </div>
                     <h1 className="mt-3 text-3xl font-black tracking-tight text-oto-text">{title}</h1>
-                    <p className="mt-3 text-3xl font-black text-oto-text">{formatPrice(listing.price_amount, listing.currency)}</p>
+                    <p className="mt-3 text-3xl font-black text-oto-text">{formatPrice(listing.price_amount, listing.currency, locale)}</p>
                   </div>
                   <FavoriteButton listingId={listing.listing_id} />
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <SpecChip>{listing.year ?? "Bilgi yok"}</SpecChip>
-                  <SpecChip>{formatMileage(listing.mileage_km)}</SpecChip>
-                  <SpecChip>{fuelLabel(listing.fuel_type)}</SpecChip>
-                  <SpecChip>{transmissionLabel(listing.transmission)}</SpecChip>
-                  {listing.price_negotiable ? <SpecChip>Pazarlık var</SpecChip> : null}
+                  <SpecChip>{listing.year ?? String(dictionary.common.noInfo)}</SpecChip>
+                  <SpecChip>{formatMileage(listing.mileage_km, locale)}</SpecChip>
+                  <SpecChip>{fuelLabel(listing.fuel_type, locale)}</SpecChip>
+                  <SpecChip>{transmissionLabel(listing.transmission, locale)}</SpecChip>
+                  {listing.price_negotiable ? <SpecChip>{String(dictionary.listing.negotiable)}</SpecChip> : null}
                 </div>
                 <section className="mt-6 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-                  <h2 className="text-lg font-bold text-oto-text">Araç özellikleri</h2>
+                  <h2 className="text-lg font-bold text-oto-text">{String(dictionary.listing.vehicleSpecs)}</h2>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {[
-                      ["Marka", listing.make_name || "Bilgi yok"],
-                      ["Model", listing.model_name || "Bilgi yok"],
-                      ["Yıl", listing.year ?? "Bilgi yok"],
-                      ["Kilometre", formatMileage(listing.mileage_km)],
-                      ["Yakıt", fuelLabel(listing.fuel_type)],
-                      ["Vites", transmissionLabel(listing.transmission)],
-                      ["Kasa tipi", listing.body_type ? bodyTypeLabel(listing.body_type) : "Bilgi yok"],
-                      ["Çekiş", listing.drive_type ? driveTypeLabel(listing.drive_type) : "Bilgi yok"],
-                      ["Renk", listing.color ? colorLabel(listing.color) : "Bilgi yok"],
-                      ["Motor hacmi", listing.engine_volume_l ? `${listing.engine_volume_l} L` : "Bilgi yok"],
-                      ["Hasar durumu", listing.damage_state ? damageStateLabel(listing.damage_state) : "Bilgi yok"],
-                      ["Sahip sayısı", listing.owner_count ?? "Bilgi yok"],
-                      ["Şehir", city],
-                      ["Yayın tarihi", formatDate(listing.published_at) || "Bilgi yok"]
+                      [String(dictionary.listing.make), listing.make_name || String(dictionary.common.noInfo)],
+                      [String(dictionary.listing.model), listing.model_name || String(dictionary.common.noInfo)],
+                      [String(dictionary.listing.year), listing.year ?? String(dictionary.common.noInfo)],
+                      [String(dictionary.listing.mileage), formatMileage(listing.mileage_km, locale)],
+                      [String(dictionary.listing.fuel), fuelLabel(listing.fuel_type, locale)],
+                      [String(dictionary.listing.transmission), transmissionLabel(listing.transmission, locale)],
+                      [String(dictionary.listing.bodyType), listing.body_type ? bodyTypeLabel(listing.body_type, locale) : String(dictionary.common.noInfo)],
+                      [String(dictionary.listing.driveType), listing.drive_type ? driveTypeLabel(listing.drive_type, locale) : String(dictionary.common.noInfo)],
+                      [String(dictionary.listing.color), listing.color ? colorLabel(listing.color, locale) : String(dictionary.common.noInfo)],
+                      [String(dictionary.listing.engineVolume), listing.engine_volume_l ? `${listing.engine_volume_l} L` : String(dictionary.common.noInfo)],
+                      [String(dictionary.listing.damageState), listing.damage_state ? damageStateLabel(listing.damage_state, locale) : String(dictionary.common.noInfo)],
+                      [String(dictionary.listing.ownerCount), listing.owner_count ?? String(dictionary.common.noInfo)],
+                      [String(dictionary.listing.city), city],
+                      [String(dictionary.listing.publishedAt), formatDate(listing.published_at, locale) || String(dictionary.common.noInfo)]
                     ].map(([label, value]) => (
                       <div key={String(label)} className="rounded-md bg-oto-surface p-3">
                         <p className="text-xs font-bold uppercase tracking-wide text-oto-muted">{label}</p>
@@ -128,26 +133,26 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                   <section className="mt-6 rounded-oto border border-oto-border bg-white p-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-lg font-bold text-oto-text">Araç videoları</h2>
-                        <p className="mt-1 text-sm leading-6 text-oto-muted">Satıcının kısa araç tanıtımlarını OTOYALI Video içinde izleyin.</p>
+                        <h2 className="text-lg font-bold text-oto-text">{String(dictionary.listing.videos)}</h2>
+                        <p className="mt-1 text-sm leading-6 text-oto-muted">{String(dictionary.listing.videoDescription)}</p>
                       </div>
-                      <ButtonLink href={`/video?listing=${listing.listing_id}`} variant="secondary">
-                        Videoda izle
+                      <ButtonLink href={localizePath(`/video?listing=${listing.listing_id}`, locale)} variant="secondary">
+                        {String(dictionary.listing.watchVideo)}
                       </ButtonLink>
                     </div>
                     <div className="mt-4 grid gap-3 sm:grid-cols-3">
                       {videosResult.data.map((video) => (
                         <Link
                           key={video.video_id}
-                          href={`/video?listing=${listing.listing_id}`}
+                          href={localizePath(`/video?listing=${listing.listing_id}`, locale)}
                           className="group overflow-hidden rounded-md border border-oto-border bg-oto-surface transition hover:border-oto-blue"
                         >
                           <div className="aspect-[9/16] bg-black">
                             <SafeImage src={video.poster_url || video.thumbnail_url || video.cover_image_url} alt={video.title || title} />
                           </div>
                           <div className="p-3">
-                            <p className="line-clamp-2 text-sm font-black text-oto-text">{video.title || "Araç videosu"}</p>
-                            <p className="mt-1 text-xs font-bold text-oto-blue">Videoyu aç</p>
+                            <p className="line-clamp-2 text-sm font-black text-oto-text">{video.title || String(dictionary.video.vehicleVideo)}</p>
+                            <p className="mt-1 text-xs font-bold text-oto-blue">{String(dictionary.listing.openVideo)}</p>
                           </div>
                         </Link>
                       ))}
@@ -155,45 +160,45 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
                   </section>
                 ) : null}
                 <section className="mt-8 rounded-oto border border-oto-border bg-white p-5">
-                  <h2 className="text-lg font-bold text-oto-text">Açıklama</h2>
-                  <p className="mt-3 whitespace-pre-line text-sm leading-7 text-oto-muted">{listing.description || "Satıcı açıklama eklememiş."}</p>
+                  <h2 className="text-lg font-bold text-oto-text">{String(dictionary.listing.description)}</h2>
+                  <p className="mt-3 whitespace-pre-line text-sm leading-7 text-oto-muted">{listing.description || String(dictionary.listing.noDescription)}</p>
                 </section>
                 <section className="mt-6 rounded-oto border border-oto-border bg-white p-5">
-                  <h2 className="text-lg font-bold text-oto-text">Benzer ilanlar</h2>
+                  <h2 className="text-lg font-bold text-oto-text">{String(dictionary.listing.similarListings)}</h2>
                   {similarListings.length > 0 ? (
                     <div className="mt-4 grid gap-4 md:grid-cols-3">
                       {similarListings.map((item) => (
-                        <VehicleCard key={item.listing_id} listing={item} compact priceBadge={getPriceBadgeForListing(item, similarResult.data)} />
+                        <VehicleCard key={item.listing_id} listing={item} compact priceBadge={getPriceBadgeForListing(item, similarResult.data)} locale={locale} />
                       ))}
                     </div>
                   ) : (
-                    <p className="mt-2 text-sm leading-6 text-oto-muted">Benzer ilanlar aktif veri arttıkça burada görünecek.</p>
+                    <p className="mt-2 text-sm leading-6 text-oto-muted">{String(dictionary.listing.similarEmpty)}</p>
                   )}
                 </section>
               </div>
             </div>
             <aside className="h-fit rounded-oto border border-oto-border bg-white p-5 shadow-soft lg:sticky lg:top-24">
-              <h2 className="text-lg font-bold text-oto-text">Satıcı</h2>
+              <h2 className="text-lg font-bold text-oto-text">{String(dictionary.listing.seller)}</h2>
               <div className="mt-3 rounded-md bg-oto-surface p-3">
-                <p className="text-sm font-black text-oto-text">{listing.seller_display_name || "OTOYALI satıcısı"}</p>
-                <p className="mt-1 text-xs font-bold text-oto-muted">{sellerTypeLabel(listing.seller_type)}</p>
+                <p className="text-sm font-black text-oto-text">{listing.seller_display_name || String(dictionary.listing.defaultSeller)}</p>
+                <p className="mt-1 text-xs font-bold text-oto-muted">{sellerTypeLabel(listing.seller_type, locale)}</p>
               </div>
-              <p className="mt-2 text-sm leading-6 text-oto-muted">Satıcıyla güvenli şekilde iletişime geçmek için giriş yapın.</p>
+              <p className="mt-2 text-sm leading-6 text-oto-muted">{String(dictionary.listing.sellerLoginCopy)}</p>
               <div className="mt-4 grid gap-3">
                 <ContactSellerButton />
-                <Button type="button" variant="secondary" disabled>Mesaj yaz · Yakında</Button>
+                <Button type="button" variant="secondary" disabled>{String(dictionary.listing.messageSoon)}</Button>
                 <ShareListingButton title={title} />
               </div>
               <p className="mt-5 rounded-md bg-oto-surface p-3 text-sm font-semibold leading-6 text-oto-muted">
-                OTOYALI, araç alım satımını daha güvenli ve kolay hale getirir.
+                {String(dictionary.listing.safetyCopy)}
               </p>
               <ReportListingButton listingId={listing.listing_id} />
               <div className="mt-3 grid gap-2 rounded-md border border-oto-border bg-white p-3 text-sm font-bold">
-                <Link href="/listing-rules" className="text-oto-blue hover:underline">
-                  İlan kurallarını incele
+                <Link href={localizePath("/listing-rules", locale)} className="text-oto-blue hover:underline">
+                  {String(dictionary.listing.listingRules)}
                 </Link>
-                <Link href="/trust" className="text-oto-muted hover:text-oto-blue">
-                  Güvenli alışveriş önerileri
+                <Link href={localizePath("/trust", locale)} className="text-oto-muted hover:text-oto-blue">
+                  {String(dictionary.listing.safeShopping)}
                 </Link>
               </div>
             </aside>
@@ -204,7 +209,7 @@ export default async function ListingDetailsPage({ params }: { params: { id: str
         <div className="fixed inset-x-0 bottom-16 z-40 border-t border-oto-border bg-white/95 p-3 shadow-oto backdrop-blur md:hidden">
           <div className="grid grid-cols-[1fr_auto] gap-2">
             <ContactSellerButton />
-            <Button type="button" variant="secondary" disabled>Mesaj yaz</Button>
+            <Button type="button" variant="secondary" disabled>{String(dictionary.listing.message)}</Button>
           </div>
         </div>
       ) : null}

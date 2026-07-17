@@ -1,34 +1,38 @@
 import { ButtonLink } from "@/components/ui/Button";
+import { getDictionary } from "@/i18n/get-dictionary";
+import { localizePath } from "@/i18n/config";
+import type { Locale } from "@/i18n/types";
 
-const previews = [
-  {
-    title: "Araç videosu",
-    body: "İlanı görmeden önce kısa tanıtım detaylarını keşfedin."
-  },
-  {
-    title: "Galeri fırsatları",
-    body: "Galerilerden öne çıkan araçları hızlıca inceleyin."
-  },
-  {
-    title: "Kısa tanıtımlar",
-    body: "Satıcıların 60 saniyeye kadar hazırladığı araç videoları."
-  }
-];
+export function VideoTeaserSection({ locale = "tr" }: { locale?: Locale }) {
+  const dictionary = getDictionary(locale);
+  const previews = [
+    {
+      title: String(dictionary.video.vehicleVideo),
+      body: String(dictionary.video.vehicleVideoBody)
+    },
+    {
+      title: String(dictionary.video.dealerDeals),
+      body: String(dictionary.video.dealerDealsBody)
+    },
+    {
+      title: String(dictionary.video.shortPromos),
+      body: String(dictionary.video.shortPromosBody)
+    }
+  ];
 
-export function VideoTeaserSection() {
   return (
     <section className="mt-10 overflow-hidden rounded-oto border border-oto-border bg-[#061A40] text-white shadow-oto">
       <div className="grid gap-6 p-5 md:grid-cols-[0.9fr_1.1fr] md:p-7">
         <div>
           <span className="rounded-full bg-cyan-400 px-3 py-1 text-xs font-black text-[#061A40]">
-            Video İlanlar
+            {String(dictionary.video.label)}
           </span>
-          <h2 className="mt-4 text-2xl font-black tracking-tight md:text-3xl">OTOYALI Video</h2>
+          <h2 className="mt-4 text-2xl font-black tracking-tight md:text-3xl">{String(dictionary.video.title)}</h2>
           <p className="mt-3 text-sm leading-6 text-blue-50">
-            Araç videoları, galeri fırsatları ve kısa tanıtımlar.
+            {String(dictionary.video.subtitle)}
           </p>
-          <ButtonLink href="/video" variant="orange" className="mt-5 w-full md:w-auto">
-            Videoları keşfet
+          <ButtonLink href={localizePath("/video", locale)} variant="orange" className="mt-5 w-full md:w-auto">
+            {String(dictionary.video.discover)}
           </ButtonLink>
         </div>
         <div className="grid gap-3 sm:grid-cols-3 md:items-stretch">

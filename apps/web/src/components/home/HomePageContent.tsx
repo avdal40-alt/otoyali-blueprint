@@ -15,6 +15,9 @@ import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import type { QueryResult } from "@/lib/queries/listings";
 import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 import { getListingCountByMake, sortListings } from "@/lib/search/filter-listings";
+import { localizePath } from "@/i18n/config";
+import { getDictionary } from "@/i18n/get-dictionary";
+import type { Locale } from "@/i18n/types";
 import { HomeVehicleSearchPanel } from "./HomeVehicleSearchPanel";
 import { PrimaryCategoryStrip } from "./PrimaryCategoryStrip";
 import { HotListingsSection } from "./HotListingsSection";
@@ -32,7 +35,8 @@ export function HomePageContent({
   models,
   cities = [],
   error,
-  debugItems = []
+  debugItems = [],
+  locale = "tr"
 }: {
   listings: HomeListing[];
   listingMedia?: ListingMedia[];
@@ -41,8 +45,9 @@ export function HomePageContent({
   cities?: City[];
   error?: string | null;
   debugItems?: Array<Pick<QueryResult<unknown>, "queryName" | "count" | "error">>;
-  locale?: "tr" | "en";
+  locale?: Locale;
 }) {
+  const dictionary = getDictionary(locale);
   const orderedListings = sortListings(listings, "newest");
   const featured = orderedListings.slice(4, 7).length > 0 ? orderedListings.slice(4, 7) : orderedListings.slice(0, 3);
   const latest = orderedListings.slice(0, 6);
@@ -57,37 +62,45 @@ export function HomePageContent({
           <div className="grid gap-5 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
             <div>
               <p className="text-xs font-bold uppercase tracking-wide text-oto-blue">OTOYALI</p>
-              <h1 className="mt-2 text-3xl font-black tracking-tight text-oto-text md:text-4xl">Türkiye&apos;nin akıllı araç pazarı</h1>
+              <h1 className="mt-2 text-3xl font-black tracking-tight text-oto-text md:text-4xl">{String(dictionary.home.title)}</h1>
               <p className="mt-3 max-w-xl text-sm leading-6 text-oto-muted md:text-base">
-                Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.
+                {String(dictionary.home.subtitle)}
               </p>
             </div>
             <HomeVehicleSearchPanel makes={makes} models={models} cities={cities} listings={listings} />
           </div>
         </section>
 
-        <PrimaryCategoryStrip />
+        <PrimaryCategoryStrip locale={locale} />
 
         {error ? <div className="mt-6"><ErrorState message={error} /></div> : null}
         <DevQueryDebug items={debugItems} />
 
-        <HotListingsSection listings={orderedListings} mediaByListing={mediaByListing} />
+        <HotListingsSection listings={orderedListings} mediaByListing={mediaByListing} locale={locale} />
 
-        <VideoTeaserSection />
+        <VideoTeaserSection locale={locale} />
 
-        <MarketplaceVerticalsSection />
+        <MarketplaceVerticalsSection locale={locale} />
 
         <section className="mt-8">
-          <SectionHeader title="Popüler markalar" eyebrow="Keşfet" action={<Link href="/search" className="text-sm font-bold text-oto-blue">Tümünü gör</Link>} />
+          <SectionHeader
+            title={String(dictionary.home.popularBrands)}
+            eyebrow={String(dictionary.home.explore)}
+            action={<Link href={localizePath("/search", locale)} className="text-sm font-bold text-oto-blue">{String(dictionary.common.showAll)}</Link>}
+          />
           <BrandCarousel makes={makes} countsByMake={countsByMake} />
         </section>
 
-        <PopularCitiesSection cities={cities} />
+        <PopularCitiesSection cities={cities} locale={locale} />
 
-        <SeoEntryLinks />
+        <SeoEntryLinks locale={locale} />
 
         <section className="mt-10">
-          <SectionHeader title="Vitrin ilanları" eyebrow="Öneriler" action={<ButtonLink href="/sell" variant="orange">İlan yayınla</ButtonLink>} />
+          <SectionHeader
+            title={String(dictionary.home.featuredListings)}
+            eyebrow={String(dictionary.home.recommendations)}
+            action={<ButtonLink href={localizePath("/sell", locale)} variant="orange">{String(dictionary.common.publishListing)}</ButtonLink>}
+          />
           {featured.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-3">
               {featured.map((listing) => (
@@ -95,24 +108,28 @@ export function HomePageContent({
               ))}
             </div>
           ) : (
-            <VehicleGrid listings={[]} title="Aktif ilan bulunamadı" body="Yeni ilanlar eklendiğinde burada görünecek." />
+            <VehicleGrid listings={[]} title={String(dictionary.home.noActiveListingsTitle)} body={String(dictionary.home.noActiveListingsBody)} locale={locale} />
           )}
         </section>
 
         <section className="mt-10">
-          <SectionHeader title="En yeni ilanlar" eyebrow="Pazar" />
-          <VehicleGrid listings={latest} listingMedia={listingMedia} />
+          <SectionHeader title={String(dictionary.home.latestListings)} eyebrow={String(dictionary.home.marketplace)} />
+          <VehicleGrid listings={latest} listingMedia={listingMedia} locale={locale} />
         </section>
 
-        <HomeTrustSection />
+        <HomeTrustSection locale={locale} />
 
         <section className="mt-10">
-          <SectionHeader title="Otomotiv haberleri" eyebrow="Gündem" action={<Link href="/news" className="text-sm font-bold text-oto-blue">Haberler</Link>} />
+          <SectionHeader
+            title={String(dictionary.home.newsTitle)}
+            eyebrow={String(dictionary.home.newsEyebrow)}
+            action={<Link href={localizePath("/news", locale)} className="text-sm font-bold text-oto-blue">{String(dictionary.footer.news)}</Link>}
+          />
           <NewsGrid articles={newsArticles.slice(0, 3)} />
         </section>
 
         <div id="app">
-          <AppPromoSection />
+          <AppPromoSection locale={locale} />
         </div>
       </PageContainer>
       <MarketplaceFooter />

@@ -8,6 +8,9 @@ import { cityLabel, conditionLabel, formatMileage, formatPrice, fuelLabel, selle
 import { priceBadgeClass, priceBadgeLabel, type PriceBadgeKind } from "@/lib/market-price/analysis";
 import { getBestImageUrl } from "@/lib/media/image-variants";
 import { SafeImage } from "@/components/ui/SafeImage";
+import { localizePath } from "@/i18n/config";
+import { useI18n } from "@/i18n/client";
+import type { Locale } from "@/i18n/types";
 import { SpecChip } from "./SpecChip";
 import { FavoriteButton } from "./FavoriteButton";
 
@@ -15,18 +18,22 @@ export function VehicleCard({
   listing,
   media = [],
   promoted = false,
-  priceBadge
+  priceBadge,
+  locale
 }: {
   listing: HomeListing;
   media?: ListingMedia[];
   compact?: boolean;
   promoted?: boolean;
   priceBadge?: PriceBadgeKind | null;
+  locale?: Locale;
 }) {
+  const { locale: contextLocale, dictionary } = useI18n();
+  const activeLocale = locale ?? contextLocale;
   const [previewIndex, setPreviewIndex] = useState(0);
-  const title = listing.title?.trim() || "Bilgi yok";
-  const city = cityLabel(listing.city);
-  const makeModel = [listing.make_name, listing.model_name].filter(Boolean).join(" ") || "Bilgi yok";
+  const title = listing.title?.trim() || String(dictionary.common.noInfo);
+  const city = cityLabel(listing.city, activeLocale);
+  const makeModel = [listing.make_name, listing.model_name].filter(Boolean).join(" ") || String(dictionary.common.noInfo);
   const images = getPreviewImages(listing, media);
   const imageCount = images.length;
   const currentImage = images[previewIndex] ?? images[0] ?? listing.cover_image_url;
@@ -45,7 +52,7 @@ export function VehicleCard({
       )}
     >
       <div className="relative aspect-[4/3] bg-oto-surface">
-        <Link href={`/listing/${listing.listing_id}`} className="block h-full">
+        <Link href={localizePath(`/listing/${listing.listing_id}`, activeLocale)} className="block h-full">
           <SafeImage src={currentImage} alt={title} className="transition duration-300 group-hover:scale-[1.02]" />
         </Link>
 
@@ -56,17 +63,17 @@ export function VehicleCard({
         <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-2">
           {promoted ? (
             <span className="rounded-full bg-oto-orange px-3 py-1 text-xs font-black text-white shadow-soft">
-              Öne çıkan
+              {String(dictionary.status.featured)}
             </span>
           ) : null}
           {listing.condition ? (
             <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-oto-text shadow-soft backdrop-blur">
-              {conditionLabel(listing.condition)}
+              {conditionLabel(listing.condition, activeLocale)}
             </span>
           ) : null}
           {(listing.video_count ?? 0) > 0 ? (
             <Link
-              href={`/video?listing=${listing.listing_id}`}
+              href={localizePath(`/video?listing=${listing.listing_id}`, activeLocale)}
               className="rounded-full bg-oto-blue px-3 py-1 text-xs font-black text-white shadow-soft"
             >
               Video
@@ -78,7 +85,7 @@ export function VehicleCard({
           <>
             <button
               type="button"
-              aria-label="Önceki fotoğraf"
+              aria-label={activeLocale === "en" ? "Previous photo" : "Önceki fotoğraf"}
               onClick={(event) => shiftImage(event, -1)}
               className="absolute left-3 top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-lg font-black text-oto-text shadow-soft transition hover:bg-white group-hover:flex"
             >
@@ -86,7 +93,7 @@ export function VehicleCard({
             </button>
             <button
               type="button"
-              aria-label="Sonraki fotoğraf"
+              aria-label={activeLocale === "en" ? "Next photo" : "Sonraki fotoğraf"}
               onClick={(event) => shiftImage(event, 1)}
               className="absolute right-3 top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-lg font-black text-oto-text shadow-soft transition hover:bg-white group-hover:flex"
             >
@@ -105,10 +112,10 @@ export function VehicleCard({
       </div>
 
       <div className="flex flex-1 flex-col p-3">
-        <Link href={`/listing/${listing.listing_id}`} className="min-w-0">
+        <Link href={localizePath(`/listing/${listing.listing_id}`, activeLocale)} className="min-w-0">
           <h3 className="line-clamp-2 text-base font-bold leading-snug text-oto-text">{title}</h3>
         </Link>
-        <p className="mt-2 text-xl font-black text-oto-text">{formatPrice(listing.price_amount, listing.currency)}</p>
+        <p className="mt-2 text-xl font-black text-oto-text">{formatPrice(listing.price_amount, listing.currency, activeLocale)}</p>
 
         <div className="mt-2 flex flex-wrap gap-2">
           {priceBadge ? (
@@ -118,16 +125,16 @@ export function VehicleCard({
           ) : null}
           {listing.seller_type ? (
             <span className="rounded-full border border-oto-border bg-oto-surface px-2.5 py-1 text-[11px] font-black text-oto-muted">
-              {sellerTypeLabel(listing.seller_type)}
+              {sellerTypeLabel(listing.seller_type, activeLocale)}
             </span>
           ) : null}
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          <SpecChip>{listing.year ?? "Bilgi yok"}</SpecChip>
-          <SpecChip>{formatMileage(listing.mileage_km)}</SpecChip>
-          <SpecChip>{transmissionLabel(listing.transmission)}</SpecChip>
-          <SpecChip>{fuelLabel(listing.fuel_type)}</SpecChip>
+          <SpecChip>{listing.year ?? String(dictionary.common.noInfo)}</SpecChip>
+          <SpecChip>{formatMileage(listing.mileage_km, activeLocale)}</SpecChip>
+          <SpecChip>{transmissionLabel(listing.transmission, activeLocale)}</SpecChip>
+          <SpecChip>{fuelLabel(listing.fuel_type, activeLocale)}</SpecChip>
         </div>
         <div className="mt-auto flex items-center justify-between gap-3 pt-3 text-sm font-semibold text-oto-muted">
           <span className="truncate">{city}</span>

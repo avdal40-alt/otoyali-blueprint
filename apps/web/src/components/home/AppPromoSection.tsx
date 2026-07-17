@@ -1,16 +1,21 @@
-export function AppPromoSection() {
+import { getDictionary } from "@/i18n/get-dictionary";
+import type { Locale } from "@/i18n/types";
+
+export function AppPromoSection({ locale = "tr" }: { locale?: Locale }) {
+  const dictionary = getDictionary(locale);
+
   return (
     <section className="mt-10 overflow-hidden rounded-oto border border-oto-border bg-oto-text p-5 text-white shadow-oto md:p-8">
       <div className="grid gap-6 md:grid-cols-[1fr_260px] md:items-center">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-oto-cyan">Mobil uygulama</p>
-          <h2 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">OTOYALI uygulamasını yakında indirin</h2>
+          <p className="text-xs font-bold uppercase tracking-wide text-oto-cyan">{String(dictionary.home.appEyebrow)}</p>
+          <h2 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">{String(dictionary.home.appTitle)}</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75">
-            İlanları takip edin, favorilerinizi kaydedin ve aracınızı mobilde kolayca yönetin.
+            {String(dictionary.home.appBody)}
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <span className="inline-flex h-11 items-center rounded-md border border-white/20 px-4 text-sm font-bold text-white/55">App Store - Yakında</span>
-            <span className="inline-flex h-11 items-center rounded-md border border-white/20 px-4 text-sm font-bold text-white/55">Google Play - Yakında</span>
+            <span className="inline-flex h-11 items-center rounded-md border border-white/20 px-4 text-sm font-bold text-white/55">{String(dictionary.home.appStoreSoon)}</span>
+            <span className="inline-flex h-11 items-center rounded-md border border-white/20 px-4 text-sm font-bold text-white/55">{String(dictionary.home.googlePlaySoon)}</span>
           </div>
         </div>
         <div className="mx-auto w-full max-w-48 rounded-[28px] border border-white/20 bg-white/10 p-3">

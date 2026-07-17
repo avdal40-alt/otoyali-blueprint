@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { useI18n } from "@/i18n/client";
 
 export function ShareListingButton({ title }: { title: string }) {
+  const { locale, dictionary } = useI18n();
   const [copied, setCopied] = useState(false);
 
   async function share() {
@@ -24,7 +26,7 @@ export function ShareListingButton({ title }: { title: string }) {
 
   return (
     <Button type="button" variant="secondary" onClick={() => void share()} className="w-full">
-      {copied ? "Link kopyalandı" : "Paylaş"}
+      {copied ? (locale === "en" ? "Link copied" : "Link kopyalandı") : String(dictionary.listing.share)}
     </Button>
   );
 }

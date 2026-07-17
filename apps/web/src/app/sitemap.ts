@@ -4,6 +4,7 @@ import { getHomeListings } from "@/lib/queries/listings";
 import { getMakes, getModels } from "@/lib/queries/makes";
 import { SITE_URL } from "@/lib/seo/metadata";
 import { citySeoSlug, makeSeoSlug, modelSeoSlug } from "@/lib/seo/slugs";
+import { localizePath } from "@/i18n/config";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/trust",
     "/contact"
   ];
+  const englishStaticPaths = [
+    "/en",
+    "/en/search",
+    "/en/video",
+    "/en/used-cars",
+    "/en/new-cars",
+    "/en/electric-vehicles",
+    "/en/automatic-cars",
+    "/en/suv",
+    "/en/commercial-vehicles",
+    "/en/marine-vehicles",
+    "/en/spare-parts",
+    "/en/insurance",
+    "/en/services",
+    "/en/ai-assistant",
+    "/en/terms",
+    "/en/privacy",
+    "/en/cookies",
+    "/en/listing-rules",
+    "/en/moderation-policy",
+    "/en/trust",
+    "/en/contact"
+  ];
 
   const [makesResult, modelsResult, citiesResult, listingsResult] = await Promise.all([
     getMakes(),
@@ -54,9 +78,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     add(path, path === "/" ? 1 : 0.8);
   }
 
+  for (const path of englishStaticPaths) {
+    add(path, path === "/en" ? 0.9 : 0.65);
+  }
+
   for (const make of makesResult.data) {
     const makeSlug = makeSeoSlug(make.make_name, make.make_slug);
-    if (makeSlug) add(`/marka/${makeSlug}`, 0.7);
+    if (makeSlug) {
+      add(`/marka/${makeSlug}`, 0.7);
+      add(localizePath(`/marka/${makeSlug}`, "en"), 0.55);
+    }
   }
 
   const makesById = new Map(makesResult.data.map((make) => [make.make_id, make]));
@@ -65,16 +96,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const make = model.make_id ? makesById.get(model.make_id) : makesByName.get(model.make_name);
     const makeSlug = makeSeoSlug(make?.make_name ?? model.make_name, make?.make_slug);
     const modelSlug = modelSeoSlug(model.model_name, model.model_slug);
-    if (makeSlug && modelSlug) add(`/marka/${makeSlug}/${modelSlug}`, 0.65);
+    if (makeSlug && modelSlug) {
+      add(`/marka/${makeSlug}/${modelSlug}`, 0.65);
+      add(localizePath(`/marka/${makeSlug}/${modelSlug}`, "en"), 0.5);
+    }
   }
 
   for (const city of citiesResult.data) {
     const citySlug = citySeoSlug(city.city_name, city.city_slug);
-    if (citySlug) add(`/sehir/${citySlug}`, 0.7);
+    if (citySlug) {
+      add(`/sehir/${citySlug}`, 0.7);
+      add(localizePath(`/sehir/${citySlug}`, "en"), 0.55);
+    }
   }
 
   for (const listing of listingsResult.data) {
-    if (listing.listing_id) add(`/listing/${listing.listing_id}`, 0.75);
+    if (listing.listing_id) {
+      add(`/listing/${listing.listing_id}`, 0.75);
+      add(localizePath(`/listing/${listing.listing_id}`, "en"), 0.55);
+    }
   }
 
   return Array.from(entries.values());

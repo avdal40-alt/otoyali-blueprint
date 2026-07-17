@@ -7,9 +7,12 @@ import type { Profile } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
+import { useI18n } from "@/i18n/client";
+import { localizePath } from "@/i18n/config";
 
 export function SettingsClient() {
   const router = useRouter();
+  const { locale, dictionary } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,10 +53,10 @@ export function SettingsClient() {
   if (!profile) {
     return (
       <EmptyState
-        title="Devam etmek için giriş yapın"
-        body="Bu işlemi yapmak için telefon numaranızla giriş yapmanız gerekiyor."
-        href="/login?next=/settings"
-        action="Giriş yap"
+        title={String(dictionary.profile.loginRequiredTitle)}
+        body={String(dictionary.profile.loginRequiredBody)}
+        href={`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/settings", locale))}`}
+        action={String(dictionary.auth.verifyCode)}
       />
     );
   }
@@ -61,15 +64,15 @@ export function SettingsClient() {
   return (
     <div className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
       <div className="grid gap-3 md:grid-cols-2">
-        <Input value={profile.first_name ?? ""} onChange={(event) => setProfile({ ...profile, first_name: event.target.value })} placeholder="Ad" />
-        <Input value={profile.last_name ?? ""} onChange={(event) => setProfile({ ...profile, last_name: event.target.value })} placeholder="Soyad" />
-        <Input value={profile.city ?? ""} onChange={(event) => setProfile({ ...profile, city: event.target.value })} placeholder="Şehir" />
+        <Input value={profile.first_name ?? ""} onChange={(event) => setProfile({ ...profile, first_name: event.target.value })} placeholder={locale === "en" ? "First name" : "Ad"} />
+        <Input value={profile.last_name ?? ""} onChange={(event) => setProfile({ ...profile, last_name: event.target.value })} placeholder={locale === "en" ? "Last name" : "Soyad"} />
+        <Input value={profile.city ?? ""} onChange={(event) => setProfile({ ...profile, city: event.target.value })} placeholder={locale === "en" ? "City" : "Şehir"} />
         <Select value={profile.language} onChange={(event) => setProfile({ ...profile, language: event.target.value })}>
           <option value="tr">Türkçe</option>
           <option value="en">English</option>
         </Select>
       </div>
-      <Button onClick={save} className="mt-5">Ayarları kaydet</Button>
+      <Button onClick={save} className="mt-5">{locale === "en" ? "Save settings" : "Ayarları kaydet"}</Button>
     </div>
   );
 }

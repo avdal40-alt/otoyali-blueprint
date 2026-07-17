@@ -1,3 +1,6 @@
+import type { Locale } from "@/i18n/types";
+import { t } from "@/i18n/get-dictionary";
+
 export function safeNextPath(value?: string | null, fallback = "/profile") {
   if (!value) return fallback;
 
@@ -11,7 +14,7 @@ export function safeNextPath(value?: string | null, fallback = "/profile") {
   }
 }
 
-export function friendlyAuthError(message?: string | null) {
+export function friendlyAuthError(message?: string | null, locale: Locale = "tr") {
   const text = (message ?? "").toLowerCase();
 
   if (
@@ -20,18 +23,18 @@ export function friendlyAuthError(message?: string | null) {
     (text.includes("phone") && text.includes("disabled")) ||
     text.includes("unsupported")
   ) {
-    return "SMS girişi şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.";
+    return t(locale, "errors.smsUnavailable");
   }
 
   if (text.includes("invalid") || text.includes("token") || text.includes("otp") || text.includes("expired")) {
-    return "Kod doğrulanamadı. Lütfen tekrar deneyin.";
+    return t(locale, "errors.invalidOtp");
   }
 
   if (text.includes("session") || text.includes("auth session missing")) {
-    return "Oturum bulunamadı. Lütfen tekrar giriş yapın.";
+    return t(locale, "errors.missingSession");
   }
 
-  return "İşlem tamamlanamadı. Lütfen tekrar deneyin.";
+  return t(locale, "errors.generic");
 }
 
 export function isMissingAuthSessionError(message?: string | null) {

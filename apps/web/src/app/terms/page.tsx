@@ -1,5 +1,6 @@
 import { LegalPage, type LegalSection } from "@/components/legal/LegalPage";
 import { buildSeoMetadata } from "@/lib/seo/metadata";
+import { getRequestLocale } from "@/i18n/server";
 
 export const metadata = buildSeoMetadata({
   title: "Kullanım Şartları",
@@ -54,15 +55,53 @@ const sections: LegalSection[] = [
   }
 ];
 
+const enSections: LegalSection[] = [
+  {
+    title: "What is OTOYALI?",
+    body: "OTOYALI is a digital platform designed to help users solve transport and vehicle-related tasks in one place. The MVP focuses on browsing, searching, viewing, and publishing vehicle listings."
+  },
+  {
+    title: "User accounts",
+    body: "Browsing and searching vehicles does not require an account. Login may be required for publishing a listing, contacting a seller, saving favorites, or managing a profile."
+  },
+  {
+    title: "Publishing listings",
+    body: "The seller is responsible for making sure the listing title, description, price, location, mileage, photos, videos, and vehicle details are accurate, current, and not misleading."
+  },
+  {
+    title: "Prohibited content",
+    items: [
+      "Fake, misleading, unauthorized, or third-party images must not be used.",
+      "Illegal products, irrelevant products, offensive content, and fraudulent redirections are not allowed.",
+      "Content that manipulates mileage, year, damage status, price, or seller information may be removed."
+    ]
+  },
+  {
+    title: "Platform responsibility",
+    body: "OTOYALI displays listings based on user-provided information. The platform does not automatically guarantee each vehicle's history, technical condition, or sale eligibility."
+  },
+  {
+    title: "Moderation",
+    body: "OTOYALI may reject, archive, or remove listings that appear suspicious, misleading, prohibited, or risky for user safety."
+  }
+];
+
 export default function TermsPage() {
+  const locale = getRequestLocale();
+  const isEnglish = locale === "en";
+
   return (
     <LegalPage
-      title="Kullanım Şartları"
-      description="OTOYALI kullanım şartları; platformun nasıl kullanılacağını, kullanıcı sorumluluklarını ve MVP aşamasındaki güvenlik sınırlarını açıklar."
-      sections={sections}
+      title={isEnglish ? "Terms of Use" : "Kullanım Şartları"}
+      description={
+        isEnglish
+          ? "OTOYALI Terms of Use explain platform usage, user responsibilities, and MVP-stage safety boundaries."
+          : "OTOYALI kullanım şartları; platformun nasıl kullanılacağını, kullanıcı sorumluluklarını ve MVP aşamasındaki güvenlik sınırlarını açıklar."
+      }
+      sections={isEnglish ? enSections : sections}
       actions={[
-        { href: "/listing-rules", label: "İlan kurallarını incele" },
-        { href: "/contact", label: "İletişim" }
+        { href: "/listing-rules", label: isEnglish ? "Review listing rules" : "İlan kurallarını incele" },
+        { href: "/contact", label: isEnglish ? "Contact" : "İletişim" }
       ]}
     />
   );

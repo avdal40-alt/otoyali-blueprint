@@ -79,10 +79,23 @@
 
 - [ ] `/sitemap.xml` loads.
 - [ ] `/robots.txt` loads.
+- [ ] Turkish canonical routes load without `/tr`.
+- [ ] `/en`, `/en/search`, `/en/video`, and an English listing route load.
+- [ ] `/tr/*` redirects to the unprefixed Turkish canonical route.
+- [ ] Language switcher preserves the current route when safe.
 - [ ] Admin/private/auth routes excluded from sitemap.
 - [ ] `/akis` excluded from sitemap.
 - [ ] `/akis` redirects to `/video`.
 - [ ] Legal pages are crawlable.
+
+## Internationalization
+
+- [ ] Read `docs/I18N.md` before adding new route or UI copy.
+- [ ] New links use `localizePath()` instead of hardcoded internal URLs.
+- [ ] New visible copy is added to both `src/i18n/dictionaries/tr.ts` and `src/i18n/dictionaries/en.ts`.
+- [ ] New dates, prices, numbers, mileage, cities, and enum labels use `src/lib/format.ts`.
+- [ ] User-generated listing titles/descriptions remain untranslated.
+- [ ] Query parameter names remain stable and ASCII.
 
 ## Performance
 

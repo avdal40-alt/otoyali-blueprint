@@ -9,6 +9,8 @@ import { cityLabel, formatPrice } from "@/lib/format";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
+import { useI18n } from "@/i18n/client";
+import { localizePath } from "@/i18n/config";
 import { getBestImageUrl, isImageProcessingFailed } from "@/lib/media/image-variants";
 
 type MyListing = {
@@ -35,6 +37,7 @@ const ALLOWED_VIDEO_TYPES = new Set(["video/mp4", "video/webm", "video/quicktime
 
 export function MyListingsClient() {
   const router = useRouter();
+  const { locale, dictionary } = useI18n();
   const [items, setItems] = useState<MyListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +61,7 @@ export function MyListingsClient() {
       const supabase = getSupabaseBrowserClient();
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) {
-        router.replace("/login?next=/my-listings");
+        router.replace(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/my-listings", locale))}`);
         return;
       }
       setUserId(userData.user.id);
@@ -137,7 +140,7 @@ export function MyListingsClient() {
     }
 
     void load();
-  }, [router]);
+  }, [router, locale]);
 
   async function updateListingWorkflow(
     listingId: string,
@@ -282,7 +285,16 @@ export function MyListingsClient() {
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;
-  if (items.length === 0) return <EmptyState title="Henüz ilanınız yok." body="İlk ilanınızı yayınlayın." href="/sell" action="İlan yayınla" />;
+  if (items.length === 0) {
+    return (
+      <EmptyState
+        title={String(dictionary.myListings.emptyTitle)}
+        body={String(dictionary.myListings.emptyBody)}
+        href={localizePath("/sell", locale)}
+        action={String(dictionary.common.publishListing)}
+      />
+    );
+  }
 
   return (
     <div className="grid gap-4">
@@ -305,10 +317,10 @@ export function MyListingsClient() {
                     {[item.make_name, item.model_name, item.year].filter(Boolean).join(" ") || "Araç bilgileri"}
                   </p>
                 </div>
-                <p className="text-lg font-black text-oto-text">{formatPrice(item.price_amount, item.currency)}</p>
+                <p className="text-lg font-black text-oto-text">{formatPrice(item.price_amount, item.currency, locale)}</p>
               </div>
               <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold text-oto-muted">
-                <span className="rounded-full bg-oto-surface px-3 py-1">{cityLabel(item.city)}</span>
+                <span className="rounded-full bg-oto-surface px-3 py-1">{cityLabel(item.city, locale)}</span>
                 <span className="rounded-full bg-oto-surface px-3 py-1">İlan kalitesi: {item.quality_score ?? 0}%</span>
                 {item.media_processed_status ? (
                   <span className="rounded-full bg-oto-surface px-3 py-1">
@@ -321,7 +333,7 @@ export function MyListingsClient() {
               ) : null}
               <div className="mt-4 flex flex-wrap gap-2">
                 {canViewPublic ? (
-                  <ButtonLink href={`/listing/${item.id}`} variant="secondary">Görüntüle</ButtonLink>
+                  <ButtonLink href={localizePath(`/listing/${item.id}`, locale)} variant="secondary">{locale === "en" ? "View" : "Görüntüle"}</ButtonLink>
                 ) : (
                   <Button type="button" variant="secondary" disabled>Önizle · Yakında</Button>
                 )}
@@ -404,7 +416,7 @@ export function MyListingsClient() {
         );
       })}
       <div>
-        <Link href="/sell" className="text-sm font-black text-oto-blue">Yeni ilan yayınla</Link>
+        <Link href={localizePath("/sell", locale)} className="text-sm font-black text-oto-blue">{String(dictionary.common.publishListing)}</Link>
       </div>
     </div>
   );

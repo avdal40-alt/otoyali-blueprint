@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
+import { localizePath } from "@/i18n/config";
+import { useI18n } from "@/i18n/client";
 
 export function FavoriteButton({ listingId }: { listingId: string }) {
+  const { locale, dictionary } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
   const [active, setActive] = useState(false);
@@ -35,12 +38,12 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
 
   async function toggleFavorite() {
     if (!hasSupabaseEnv()) {
-      alert("Supabase ortam değişkenleri eksik.");
+      alert(String(dictionary.errors.missingSupabaseEnv));
       return;
     }
 
     if (!userId) {
-      router.push(`/login?next=${encodeURIComponent(pathname)}`);
+      router.push(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath(pathname, locale))}`);
       return;
     }
 
@@ -73,7 +76,7 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
         void toggleFavorite();
       }}
       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-oto-border bg-white text-oto-text transition hover:bg-oto-surface disabled:opacity-50"
-      aria-label="Favori"
+      aria-label={String(dictionary.navigation.favorites)}
     >
       <svg width="19" height="19" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} aria-hidden="true">
         <path

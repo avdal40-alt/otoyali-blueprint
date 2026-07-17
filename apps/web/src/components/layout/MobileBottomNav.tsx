@@ -1,21 +1,26 @@
-import Link from "next/link";
+"use client";
 
-const tabs = [
-  { href: "/search", label: "Ara", icon: SearchIcon },
-  { href: "/video", label: "Video", icon: PlayIcon },
-  { href: "/sell", label: "İlan yayınla", icon: PlusIcon, cta: true },
-  { href: "/favorites", label: "Favoriler", icon: HeartIcon },
-  { href: "/profile", label: "Profil", icon: UserIcon }
-];
+import Link from "next/link";
+import { localizePath } from "@/i18n/config";
+import { useI18n } from "@/i18n/client";
 
 export function MobileBottomNav() {
+  const { locale, dictionary } = useI18n();
+  const tabs = [
+    { href: "/search", label: String(dictionary.common.search), icon: SearchIcon },
+    { href: "/video", label: String(dictionary.navigation.video), icon: PlayIcon },
+    { href: "/sell", label: String(dictionary.common.publishListing), icon: PlusIcon, cta: true },
+    { href: "/favorites", label: String(dictionary.navigation.favorites), icon: HeartIcon },
+    { href: "/profile", label: String(dictionary.navigation.profile), icon: UserIcon }
+  ];
+
   return (
     <nav className="safe-bottom fixed inset-x-0 bottom-0 z-50 border-t border-oto-border bg-white md:hidden">
       <div className="grid h-16 grid-cols-5">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
-            <Link key={tab.href} href={tab.href} className="flex flex-col items-center justify-center gap-1 text-[11px] font-bold text-oto-muted">
+            <Link key={tab.href} href={localizePath(tab.href, locale)} className="flex flex-col items-center justify-center gap-1 text-[11px] font-bold text-oto-muted">
               <span className={tab.cta ? "text-oto-orange" : "text-oto-blue"}>
                 <Icon />
               </span>

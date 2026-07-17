@@ -1,12 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/cn";
-
-const options = [
-  { value: "", label: "Tüm ilanlar" },
-  { value: "used", label: "İkinci el" },
-  { value: "new", label: "Sıfır km" }
-];
+import { useI18n } from "@/i18n/client";
 
 export function ConditionTabs({
   value,
@@ -17,6 +12,13 @@ export function ConditionTabs({
   onChange: (value: string) => void;
   compact?: boolean;
 }) {
+  const { dictionary } = useI18n();
+  const options = [
+    { value: "", label: String(dictionary.home.allListings) },
+    { value: "used", label: String(dictionary.status.used) },
+    { value: "new", label: String(dictionary.status.new) }
+  ];
+
   return (
     <div className={cn("grid grid-cols-3 rounded-md bg-oto-surface p-1", compact ? "gap-1" : "gap-1.5")}>
       {options.map((option) => {

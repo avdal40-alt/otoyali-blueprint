@@ -3,11 +3,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { ButtonLink } from "@/components/ui/Button";
+import { localizePath } from "@/i18n/config";
+import { useI18n } from "@/i18n/client";
 
 export function AppHeader() {
+  const { locale, dictionary } = useI18n();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isAuthed, setIsAuthed] = useState(false);
+  const query = searchParams.toString();
+  const currentHref = `${pathname}${query ? `?${query}` : ""}`;
+  const profilePath = localizePath("/profile", locale);
+  const loginProfilePath = `${localizePath("/login", locale)}?next=${encodeURIComponent(profilePath)}`;
 
   useEffect(() => {
     if (!hasSupabaseEnv()) {
@@ -24,40 +34,48 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-oto-border bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6 lg:px-8">
-        <Link href="/" className="flex items-center" aria-label="otoyali home">
+        <Link href={localizePath("/", locale)} className="flex items-center" aria-label="otoyali home">
           <Image src="/brand/otoyali-logo-header.svg" alt="otoyali" width={146} height={35} priority className="h-8 w-auto" />
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-semibold text-oto-muted md:flex">
-          <Link href="/search" className="hover:text-oto-text">
-            Araç al
+          <Link href={localizePath("/search", locale)} className="hover:text-oto-text">
+            {String(dictionary.navigation.buyVehicle)}
           </Link>
-          <Link href="/video" className="hover:text-oto-text">
-            Video
+          <Link href={localizePath("/video", locale)} className="hover:text-oto-text">
+            {String(dictionary.navigation.video)}
           </Link>
-          <Link href="/#kategoriler" className="hover:text-oto-text">
-            Kategoriler
+          <Link href={localizePath("/#kategoriler", locale)} className="hover:text-oto-text">
+            {String(dictionary.navigation.categories)}
           </Link>
-          <Link href="/favorites" className="hover:text-oto-text">
-            Favoriler
+          <Link href={localizePath("/favorites", locale)} className="hover:text-oto-text">
+            {String(dictionary.navigation.favorites)}
           </Link>
         </nav>
         <div className="flex items-center gap-2">
-          <div className="hidden rounded-full border border-oto-border p-1 text-xs font-bold md:flex">
-            <Link href="/tr" className="rounded-full bg-oto-text px-2 py-1 text-white">
-              TR
+          <div className="hidden rounded-full border border-oto-border p-1 text-xs font-bold md:flex" aria-label={String(dictionary.common.language)}>
+            <Link
+              href={localizePath(currentHref, "tr", { forceDefaultLocalePrefix: true })}
+              className={locale === "tr" ? "rounded-full bg-oto-text px-2 py-1 text-white" : "px-2 py-1 text-oto-muted"}
+              hrefLang="tr"
+            >
+              Türkçe
             </Link>
-            <Link href="/en" className="px-2 py-1 text-oto-muted">
-              EN
+            <Link
+              href={localizePath(currentHref, "en")}
+              className={locale === "en" ? "rounded-full bg-oto-text px-2 py-1 text-white" : "px-2 py-1 text-oto-muted"}
+              hrefLang="en"
+            >
+              English
             </Link>
           </div>
-          <Link href="/notifications" className="rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label="Bildirimler">
+          <Link href={localizePath("/notifications", locale)} className="rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={String(dictionary.navigation.notifications)}>
             <BellIcon />
           </Link>
-          <Link href={isAuthed ? "/profile" : "/login?next=/profile"} className="rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label="Profil">
+          <Link href={isAuthed ? profilePath : loginProfilePath} className="rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={String(dictionary.navigation.profile)}>
             <UserIcon />
           </Link>
-          <ButtonLink href="/sell" variant="orange" className="hidden md:inline-flex">
-            İlan yayınla
+          <ButtonLink href={localizePath("/sell", locale)} variant="orange" className="hidden md:inline-flex">
+            {String(dictionary.common.publishListing)}
           </ButtonLink>
         </div>
       </div>

@@ -1,4 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import { I18nProvider } from "@/i18n/client";
+import { getLocaleDirection } from "@/i18n/config";
+import { getClientDictionary } from "@/i18n/get-dictionary";
+import { getRequestLocale } from "@/i18n/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -46,9 +50,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = getRequestLocale();
+  const dictionary = getClientDictionary(locale);
+
   return (
-    <html lang="tr">
-      <body>{children}</body>
+    <html lang={locale} dir={getLocaleDirection(locale)}>
+      <body>
+        <I18nProvider locale={locale} dictionary={dictionary}>{children}</I18nProvider>
+      </body>
     </html>
   );
 }

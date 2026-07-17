@@ -1,25 +1,51 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { useI18n } from "@/i18n/client";
+import { localizePath } from "@/i18n/config";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 
-const reasons = [
-  { value: "wrong_information", label: "Yanlış bilgi" },
-  { value: "fraud", label: "Dolandırıcılık şüphesi" },
-  { value: "duplicate", label: "Tekrarlanan ilan" },
-  { value: "inappropriate_content", label: "Uygunsuz içerik" },
-  { value: "suspicious_seller", label: "Şüpheli satıcı" },
-  { value: "other", label: "Diğer" }
-];
+const reasonValues = [
+  "wrong_information",
+  "fraud",
+  "duplicate",
+  "inappropriate_content",
+  "suspicious_seller",
+  "other"
+] as const;
+
+const reasonLabels = {
+  tr: {
+    wrong_information: "Yanlış bilgi",
+    fraud: "Dolandırıcılık şüphesi",
+    duplicate: "Tekrarlanan ilan",
+    inappropriate_content: "Uygunsuz içerik",
+    suspicious_seller: "Şüpheli satıcı",
+    other: "Diğer"
+  },
+  en: {
+    wrong_information: "Incorrect information",
+    fraud: "Suspected fraud",
+    duplicate: "Duplicate listing",
+    inappropriate_content: "Inappropriate content",
+    suspicious_seller: "Suspicious seller",
+    other: "Other"
+  }
+};
 
 export function ReportListingButton({ listingId }: { listingId: string }) {
+  const { locale, dictionary } = useI18n();
   const [open, setOpen] = useState(false);
-  const [reason, setReason] = useState(reasons[0].value);
+  const [reason, setReason] = useState<(typeof reasonValues)[number]>(reasonValues[0]);
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<"idle" | "checking" | "login" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const loginHref = useMemo(() => {
+    const next = localizePath(`/listing/${listingId}`, locale);
+    return `${localizePath("/login", locale)}?next=${encodeURIComponent(next)}`;
+  }, [listingId, locale]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -27,7 +53,7 @@ export function ReportListingButton({ listingId }: { listingId: string }) {
 
     if (!hasSupabaseEnv()) {
       setStatus("error");
-      setMessage("Supabase ortam değişkenleri eksik.");
+      setMessage(String(dictionary.errors.missingSupabaseEnv));
       return;
     }
 
@@ -55,38 +81,42 @@ export function ReportListingButton({ listingId }: { listingId: string }) {
 
     setStatus("success");
     setDescription("");
-    setMessage("Bildiriminiz alındı. OTOYALI ekibi inceleyecek.");
+    setMessage(locale === "en" ? "Your report has been received. The OTOYALI team will review it." : "Bildiriminiz alındı. OTOYALI ekibi inceleyecek.");
   }
 
   return (
     <div className="mt-5 rounded-md border border-oto-border bg-oto-surface p-4">
       <button type="button" onClick={() => setOpen((current) => !current)} className="text-sm font-black text-oto-blue">
-        İlanı bildir
+        {String(dictionary.listing.reportListing)}
       </button>
       <p className="mt-2 text-sm leading-6 text-oto-muted">
-        Bu ilanda hatalı bilgi, şüpheli durum veya uygunsuz içerik olduğunu düşünüyorsanız bize bildirin.
+        {locale === "en"
+          ? "Tell us if you think this listing contains incorrect information, suspicious behavior, or inappropriate content."
+          : "Bu ilanda hatalı bilgi, şüpheli durum veya uygunsuz içerik olduğunu düşünüyorsanız bize bildirin."}
       </p>
 
       {open ? (
         <form onSubmit={submit} className="mt-4 grid gap-3">
           <label className="grid gap-1 text-sm font-bold text-oto-text">
-            Sebep
-            <select value={reason} onChange={(event) => setReason(event.target.value)} className="h-11 rounded-md border border-oto-border bg-white px-3">
-              {reasons.map((item) => (
-                <option key={item.value} value={item.value}>{item.label}</option>
+            {locale === "en" ? "Reason" : "Sebep"}
+            <select value={reason} onChange={(event) => setReason(event.target.value as (typeof reasonValues)[number])} className="h-11 rounded-md border border-oto-border bg-white px-3">
+              {reasonValues.map((item) => (
+                <option key={item} value={item}>{reasonLabels[locale][item]}</option>
               ))}
             </select>
           </label>
           <label className="grid gap-1 text-sm font-bold text-oto-text">
-            Açıklama
+            {locale === "en" ? "Description" : "Açıklama"}
             <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={3} className="rounded-md border border-oto-border bg-white p-3" />
           </label>
           {status === "login" ? (
-            <Link href={`/login?next=/listing/${listingId}`} className="text-sm font-black text-oto-blue">Bildirim göndermek için giriş yapın.</Link>
+            <Link href={loginHref} className="text-sm font-black text-oto-blue">
+              {locale === "en" ? "Log in to send a report." : "Bildirim göndermek için giriş yapın."}
+            </Link>
           ) : null}
           {message ? <p className={status === "success" ? "text-sm font-bold text-emerald-700" : "text-sm font-bold text-oto-danger"}>{message}</p> : null}
           <Button type="submit" disabled={status === "checking" || status === "submitting"}>
-            {status === "submitting" ? "Gönderiliyor" : "Bildir"}
+            {status === "submitting" ? (locale === "en" ? "Sending" : "Gönderiliyor") : (locale === "en" ? "Report" : "Bildir")}
           </Button>
         </form>
       ) : null}

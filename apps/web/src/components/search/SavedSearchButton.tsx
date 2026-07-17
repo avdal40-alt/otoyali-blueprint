@@ -4,8 +4,11 @@ import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
+import { localizePath } from "@/i18n/config";
+import { useI18n } from "@/i18n/client";
 
 export function SavedSearchButton() {
+  const { locale, dictionary } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -18,14 +21,14 @@ export function SavedSearchButton() {
 
     if (!hasSupabaseEnv()) {
       setStatus("error");
-      setMessage("Supabase ortam değişkenleri eksik.");
+      setMessage(String(dictionary.errors.missingSupabaseEnv));
       return;
     }
 
     const supabase = getSupabaseBrowserClient();
     const { data } = await supabase.auth.getSession();
     if (!data.session?.user) {
-      router.push(`/login?next=${encodeURIComponent(nextUrl)}`);
+      router.push(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath(nextUrl, locale))}`);
       return;
     }
 
@@ -46,7 +49,7 @@ export function SavedSearchButton() {
 
     const { error } = await supabase.schema("marketplace").from("saved_searches").insert({
       user_id: data.session.user.id,
-      title: "OTOYALI araması",
+      title: locale === "en" ? "OTOYALI search" : "OTOYALI araması",
       query_params: queryParams
     });
 
@@ -57,13 +60,13 @@ export function SavedSearchButton() {
     }
 
     setStatus("saved");
-    setMessage("Aramanız kaydedildi. Yeni ilan bildirimleri yakında.");
+    setMessage(locale === "en" ? "Your search was saved. New listing notifications are coming soon." : "Aramanız kaydedildi. Yeni ilan bildirimleri yakında.");
   }
 
   return (
     <div className="grid gap-2">
       <Button type="button" variant="secondary" onClick={saveSearch} disabled={status === "saving"} className="h-10">
-        {status === "saving" ? "Kaydediliyor" : "Aramayı kaydet"}
+        {status === "saving" ? (locale === "en" ? "Saving" : "Kaydediliyor") : String(dictionary.search.saveSearch)}
       </Button>
       {message ? (
         <p className={status === "error" ? "text-xs font-semibold text-oto-danger" : "text-xs font-semibold text-oto-blue"}>

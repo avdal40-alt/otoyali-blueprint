@@ -8,6 +8,9 @@ import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/Button";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
+import { useI18n } from "@/i18n/client";
+import { localizePath } from "@/i18n/config";
+import type { ClientDictionary, Locale } from "@/i18n/types";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { isMissingAuthSessionError } from "@/lib/auth/auth-ui";
@@ -116,6 +119,7 @@ const navItems: Array<{ section: AdminSection; href: string; label: string }> = 
 ];
 
 export function AdminClient({ section }: { section: AdminSection }) {
+  const { locale, dictionary } = useI18n();
   const [admin, setAdmin] = useState<AdminState>({ status: "loading", userId: null, role: null, error: null });
 
   useEffect(() => {
@@ -161,7 +165,7 @@ export function AdminClient({ section }: { section: AdminSection }) {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs font-black uppercase tracking-wide text-oto-blue">OTOYALI Admin</p>
-              <h1 className="mt-1 text-2xl font-black text-oto-text">{navItems.find((item) => item.section === section)?.label}</h1>
+              <h1 className="mt-1 text-2xl font-black text-oto-text">{adminNavLabel(section, dictionary)}</h1>
             </div>
             {admin.role ? <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-black text-oto-blue">{admin.role}</span> : null}
           </div>
@@ -169,10 +173,10 @@ export function AdminClient({ section }: { section: AdminSection }) {
             {navItems.map((item) => (
               <Link
                 key={item.href}
-                href={item.href}
+                href={localizePath(item.href, locale)}
                 className={item.section === section ? "rounded-full bg-oto-text px-3 py-2 text-xs font-black text-white" : "rounded-full bg-oto-surface px-3 py-2 text-xs font-black text-oto-muted"}
               >
-                {item.label}
+                {adminNavLabel(item.section, dictionary)}
               </Link>
             ))}
           </nav>
@@ -180,13 +184,18 @@ export function AdminClient({ section }: { section: AdminSection }) {
 
         {admin.status === "loading" ? <LoadingState /> : null}
         {admin.status === "login" ? (
-          <EmptyState title="Admin paneline erişmek için giriş yapın." body="Bu alan yalnızca yetkili OTOYALI ekip üyeleri içindir." href="/login?next=/admin" action="Giriş yap" />
+          <EmptyState
+            title={String(dictionary.admin.accessRequiredTitle)}
+            body={String(dictionary.admin.accessRequiredBody)}
+            href={`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/admin", locale))}`}
+            action={String(dictionary.admin.login)}
+          />
         ) : null}
         {admin.status === "denied" ? (
           <ErrorState message="Bu alana erişim yetkiniz yok." />
         ) : null}
         {admin.status === "error" ? <ErrorState message={admin.error ?? "Admin kontrolü tamamlanamadı."} /> : null}
-        {admin.status === "ready" && admin.userId ? <AdminSectionContent section={section} userId={admin.userId} role={admin.role ?? "moderator"} /> : null}
+        {admin.status === "ready" && admin.userId ? <AdminSectionContent section={section} userId={admin.userId} role={admin.role ?? "moderator"} locale={locale} /> : null}
       </PageContainer>
       <MarketplaceFooter />
       <MobileBottomNav />
@@ -194,9 +203,9 @@ export function AdminClient({ section }: { section: AdminSection }) {
   );
 }
 
-function AdminSectionContent({ section, userId, role }: { section: AdminSection; userId: string; role: string }) {
+function AdminSectionContent({ section, userId, role, locale }: { section: AdminSection; userId: string; role: string; locale: Locale }) {
   if (section === "dashboard") return <Dashboard userId={userId} />;
-  if (section === "listings") return <ListingsModeration userId={userId} />;
+  if (section === "listings") return <ListingsModeration userId={userId} locale={locale} />;
   if (section === "videos") return <VideosModeration userId={userId} />;
   if (section === "reports") return <ReportsModeration userId={userId} />;
   if (section === "users") return <UsersOverview />;
@@ -270,7 +279,7 @@ function Dashboard({ userId }: { userId: string }) {
   );
 }
 
-function ListingsModeration({ userId }: { userId: string }) {
+function ListingsModeration({ userId, locale }: { userId: string; locale: Locale }) {
   const [rows, setRows] = useState<ListingRow[]>([]);
   const [profiles, setProfiles] = useState<Record<string, VehicleProfileRow>>({});
   const [makes, setMakes] = useState<Record<string, string>>({});
@@ -401,7 +410,7 @@ function ListingsModeration({ userId }: { userId: string }) {
             </div>
             <div className="text-sm font-bold text-oto-muted">
               <p>{row.city || "Şehir yok"} · {row.seller_type || "seller"}</p>
-              <p>{formatPrice(row.price_amount, row.currency)} · Kalite {row.quality_score ?? 0}</p>
+              <p>{formatPrice(row.price_amount, row.currency, locale)} · Kalite {row.quality_score ?? 0}</p>
             </div>
             <div className="text-xs font-black text-oto-muted">
               <p>Status: {row.status}</p>
@@ -411,7 +420,7 @@ function ListingsModeration({ userId }: { userId: string }) {
               <SmallButton onClick={() => moderate(row, "approve")}>Onayla</SmallButton>
               <SmallButton onClick={() => moderate(row, "reject")} variant="secondary">Reddet</SmallButton>
               <SmallButton onClick={() => moderate(row, "archive")} variant="secondary">Arşivle</SmallButton>
-              <Link href={`/listing/${row.id}`} className="rounded-md border border-oto-border px-3 py-2 text-xs font-black text-oto-text">Aç</Link>
+              <Link href={localizePath(`/listing/${row.id}`, locale)} className="rounded-md border border-oto-border px-3 py-2 text-xs font-black text-oto-text">Aç</Link>
             </div>
           </div>
         );
@@ -729,6 +738,11 @@ function SmallButton({ children, onClick, variant = "primary" }: { children: Rea
       {children}
     </Button>
   );
+}
+
+function adminNavLabel(section: AdminSection, dictionary: ClientDictionary) {
+  if (section === "dashboard") return "Dashboard";
+  return String(dictionary.admin?.[section] ?? section);
 }
 
 async function countRows(query: PromiseLike<{ count: number | null; error: { message: string } | null }>) {

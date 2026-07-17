@@ -20,6 +20,9 @@ import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import type { QueryResult } from "@/lib/queries/listings";
 import { buildSearchUrl, defaultSearchFilters, type ListingSearchFilters } from "@/lib/search/search-params";
 import { filterListings, getAvailableFilterFields, getUniqueCities } from "@/lib/search/filter-listings";
+import { localizePath } from "@/i18n/config";
+import { useI18n } from "@/i18n/client";
+import { interpolate } from "@/i18n/get-dictionary";
 
 export function SearchClient({
   listings,
@@ -40,6 +43,7 @@ export function SearchClient({
   error?: string | null;
   debugItems?: Array<Pick<QueryResult<unknown>, "queryName" | "count" | "error">>;
 }) {
+  const { locale, dictionary } = useI18n();
   const router = useRouter();
   const [filters, setFilters] = useState<ListingSearchFilters>(initialFilters);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -71,32 +75,32 @@ export function SearchClient({
     );
 
   function submit(nextFilters = filters) {
-    router.push(buildSearchUrl(nextFilters));
+    router.push(localizePath(buildSearchUrl(nextFilters), locale));
     setMobileFiltersOpen(false);
   }
 
   function reset() {
     setFilters(defaultSearchFilters);
-    router.push("/search");
+    router.push(localizePath("/search", locale));
     setMobileFiltersOpen(false);
   }
 
   function removeFilter(key: keyof ListingSearchFilters) {
     const nextFilters = { ...filters, [key]: defaultSearchFilters[key] };
     setFilters(nextFilters);
-    router.push(buildSearchUrl(nextFilters));
+    router.push(localizePath(buildSearchUrl(nextFilters), locale));
   }
 
   function setSort(sort: ListingSearchFilters["sort"]) {
     const nextFilters = { ...filters, sort };
     setFilters(nextFilters);
-    router.push(buildSearchUrl(nextFilters));
+    router.push(localizePath(buildSearchUrl(nextFilters), locale));
   }
 
   function setCondition(condition: string) {
     const nextFilters = { ...filters, condition };
     setFilters(nextFilters);
-    router.push(buildSearchUrl(nextFilters));
+    router.push(localizePath(buildSearchUrl(nextFilters), locale));
   }
 
   function renderFilterPanel() {
@@ -119,7 +123,7 @@ export function SearchClient({
     <>
       <AppHeader />
       <PageContainer>
-        <SectionHeader title="Araç ara" eyebrow="Pazar" />
+        <SectionHeader title={String(dictionary.search.title)} eyebrow={String(dictionary.search.eyebrow)} />
         {error ? <ErrorState message={error} /> : null}
         <DevQueryDebug items={debugItems} />
 
@@ -135,7 +139,7 @@ export function SearchClient({
             </MobileFilterDrawer>
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <p className="text-sm font-semibold text-oto-muted">
-                <span className="font-black text-oto-text">{filtered.length}</span> ilan bulundu
+                {interpolate(String(dictionary.search.resultsCount), { count: filtered.length })}
               </p>
               <div className="flex flex-wrap items-start gap-2">
                 <SavedSearchButton />
@@ -145,17 +149,17 @@ export function SearchClient({
                   onClick={() => {
                     const nextFilters = { ...filters, advanced: !filters.advanced };
                     setFilters(nextFilters);
-                    router.push(buildSearchUrl(nextFilters));
+                    router.push(localizePath(buildSearchUrl(nextFilters), locale));
                   }}
                   className="h-10"
                 >
-                  Gelişmiş
+                  {String(dictionary.search.advanced)}
                 </Button>
                 <SortSelect value={filters.sort} onChange={setSort} />
               </div>
             </div>
             <ActiveFilterChips filters={filters} onRemove={removeFilter} onReset={reset} />
-            <VehicleGrid listings={filtered} listingMedia={listingMedia} />
+            <VehicleGrid listings={filtered} listingMedia={listingMedia} locale={locale} title={String(dictionary.search.noResultsTitle)} body={String(dictionary.search.noResultsBody)} />
           </div>
         </div>
       </PageContainer>

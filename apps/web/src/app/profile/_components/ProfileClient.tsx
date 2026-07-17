@@ -7,12 +7,15 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
+import { useI18n } from "@/i18n/client";
+import { localizePath } from "@/i18n/config";
 import { cityLabel } from "@/lib/format";
 
 const fallbackCities = ["İstanbul", "Ankara", "İzmir", "Antalya"];
 
 export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   const router = useRouter();
+  const { locale, dictionary } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
@@ -49,7 +52,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
         full_name: null,
         display_name: null,
         seller_type: "private",
-        language: "tr",
+        language: locale,
         country: "TR",
         city: null,
         timezone: "Europe/Istanbul"
@@ -74,7 +77,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
     }
 
     void load();
-  }, []);
+  }, [locale]);
 
   async function save() {
     if (!profile || !userId) return;
@@ -115,17 +118,17 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   async function logout() {
     const supabase = getSupabaseBrowserClient();
     await supabase.auth.signOut();
-    router.replace("/");
+    router.replace(localizePath("/", locale));
   }
 
   if (loading) return <LoadingState />;
   if (!userId) {
     return (
       <EmptyState
-        title="Devam etmek için giriş yapın"
-        body="Bu işlemi yapmak için telefon numaranızla giriş yapmanız gerekiyor."
-        href="/login?next=/profile"
-        action="Giriş yap"
+        title={String(dictionary.profile.loginRequiredTitle)}
+        body={String(dictionary.profile.loginRequiredBody)}
+        href={`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/profile", locale))}`}
+        action={String(dictionary.auth.verifyCode)}
       />
     );
   }
@@ -135,14 +138,16 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
       <section className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-        <h1 className="text-2xl font-black text-oto-text">Profil</h1>
-        <p className="mt-1 text-sm text-oto-muted">Hesap ve satıcı bilgileriniz ilan yayınlama sırasında kullanılır.</p>
+        <h1 className="text-2xl font-black text-oto-text">{String(dictionary.profile.title)}</h1>
+        <p className="mt-1 text-sm text-oto-muted">
+          {locale === "en" ? "Account and seller details are used while publishing listings." : "Hesap ve satıcı bilgileriniz ilan yayınlama sırasında kullanılır."}
+        </p>
 
         <div className="mt-4 grid gap-3 rounded-md bg-oto-surface p-4 text-sm font-bold text-oto-muted md:grid-cols-4">
           <p>Hesap: <span className="text-oto-text">{userId.slice(0, 8)}...{userId.slice(-4)}</span></p>
           <p>Telefon: <span className="text-oto-text">{maskPhone(profile?.phone)}</span></p>
           <p>İlan: <span className="text-oto-text">{listingCount ?? 0}</span></p>
-          <p>Oluşturulma: <span className="text-oto-text">{createdAt ? new Intl.DateTimeFormat("tr-TR").format(new Date(createdAt)) : "Yok"}</span></p>
+          <p>{locale === "en" ? "Created" : "Oluşturulma"}: <span className="text-oto-text">{createdAt ? new Intl.DateTimeFormat(locale === "en" ? "en-US" : "tr-TR").format(new Date(createdAt)) : String(dictionary.common.noInfo)}</span></p>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-2">
@@ -162,7 +167,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
             <span className="text-xs font-bold text-oto-muted">Şehir</span>
             <Select value={profile?.city ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, city: event.target.value } : current)}>
               <option value="">Şehir seçin</option>
-              {profileCities.map((city) => <option key={city} value={city}>{cityLabel(city)}</option>)}
+              {profileCities.map((city) => <option key={city} value={city}>{cityLabel(city, locale)}</option>)}
             </Select>
           </label>
           <label className="grid gap-1 md:col-span-2">
@@ -176,15 +181,15 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
         {error ? <div className="mt-4"><ErrorState message={error} /></div> : null}
         {saved ? <p className="mt-4 rounded-md bg-green-50 p-3 text-sm font-semibold text-oto-success">Profil kaydedildi.</p> : null}
         <div className="mt-5 flex flex-wrap gap-3">
-          <Button onClick={save} disabled={saving}>{saving ? "Kaydediliyor" : "Kaydet"}</Button>
-          <Button onClick={logout} variant="secondary">Çıkış yap</Button>
+          <Button onClick={save} disabled={saving}>{saving ? (locale === "en" ? "Saving" : "Kaydediliyor") : String(dictionary.common.save)}</Button>
+          <Button onClick={logout} variant="secondary">{locale === "en" ? "Log out" : "Çıkış yap"}</Button>
         </div>
       </section>
       <aside className="grid h-fit gap-3 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-        <ButtonLink href="/my-listings" variant="secondary">İlanlarım</ButtonLink>
-        <ButtonLink href="/favorites" variant="secondary">Favorilerim</ButtonLink>
-        <ButtonLink href="/settings" variant="secondary">Ayarlar</ButtonLink>
-        <ButtonLink href="/sell" variant="orange">İlan yayınla</ButtonLink>
+        <ButtonLink href={localizePath("/my-listings", locale)} variant="secondary">{String(dictionary.navigation.myListings)}</ButtonLink>
+        <ButtonLink href={localizePath("/favorites", locale)} variant="secondary">{String(dictionary.navigation.favorites)}</ButtonLink>
+        <ButtonLink href={localizePath("/settings", locale)} variant="secondary">{String(dictionary.navigation.settings)}</ButtonLink>
+        <ButtonLink href={localizePath("/sell", locale)} variant="orange">{String(dictionary.common.publishListing)}</ButtonLink>
       </aside>
     </div>
   );

@@ -10,6 +10,7 @@
 - If a Supabase migration exists, run `npx.cmd supabase db push` before push.
 - If GitHub/Vercel is broken or the GitHub account is flagged, do not push.
 - Do not restore stashes unless explicitly planned and approved.
+- For user-facing web copy/routes, check `docs/I18N.md` and update both Turkish and English dictionaries where safe.
 
 ## Current Known Stashes
 
@@ -27,6 +28,7 @@ Do not pop or apply these stashes without explicit approval.
 Commit:
 Implemented:
 Supabase migrations:
+Dependencies:
 Verification:
 Working tree:
 ```
