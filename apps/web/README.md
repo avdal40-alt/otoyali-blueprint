@@ -32,6 +32,7 @@ Start here for handoff and maintenance:
 - [docs/ADMIN_AND_MODERATION.md](./docs/ADMIN_AND_MODERATION.md)
 - [docs/SEO_AND_ROUTES.md](./docs/SEO_AND_ROUTES.md)
 - [docs/I18N.md](./docs/I18N.md)
+- [docs/VERTICAL_ARCHITECTURE.md](./docs/VERTICAL_ARCHITECTURE.md)
 - [docs/PERFORMANCE.md](./docs/PERFORMANCE.md)
 - [docs/MEDIA.md](./docs/MEDIA.md)
 - [docs/PRODUCT_ROADMAP.md](./docs/PRODUCT_ROADMAP.md)

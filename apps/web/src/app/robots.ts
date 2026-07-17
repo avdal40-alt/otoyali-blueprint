@@ -1,7 +1,10 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo/metadata";
+import { getSitemapVerticals } from "@/lib/marketplace/verticals";
 
 export default function robots(): MetadataRoute.Robots {
+  const verticalRoutes = getSitemapVerticals().flatMap((vertical) => [vertical.routes.tr, vertical.routes.en]);
+
   return {
     rules: {
       userAgent: "*",
@@ -18,6 +21,7 @@ export default function robots(): MetadataRoute.Robots {
         "/en/electric-vehicles",
         "/en/automatic-cars",
         "/en/suv",
+        ...verticalRoutes,
         "/en/make/",
         "/en/make/*",
         "/en/city/",
@@ -42,11 +46,6 @@ export default function robots(): MetadataRoute.Robots {
         "/elektrikli-araclar",
         "/otomatik-vites-araclar",
         "/suv-araclar",
-        "/ticari-araclar",
-        "/deniz-araclari",
-        "/yedek-parca",
-        "/sigorta",
-        "/servisler",
         "/ai-asistan",
         "/terms",
         "/privacy",

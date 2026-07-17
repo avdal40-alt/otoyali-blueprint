@@ -31,6 +31,7 @@ export function getClientDictionary(locale?: string | null): ClientDictionary {
     errors: dictionary.errors,
     validation: dictionary.validation,
     status: dictionary.status,
+    verticals: dictionary.verticals,
     format: dictionary.format
   };
 }

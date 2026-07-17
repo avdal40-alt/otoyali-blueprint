@@ -5,6 +5,7 @@ import { getMakes, getModels } from "@/lib/queries/makes";
 import { SITE_URL } from "@/lib/seo/metadata";
 import { citySeoSlug, makeSeoSlug, modelSeoSlug } from "@/lib/seo/slugs";
 import { localizePath } from "@/i18n/config";
+import { getSitemapVerticals } from "@/lib/marketplace/verticals";
 
 export const dynamic = "force-dynamic";
 
@@ -19,11 +20,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/elektrikli-araclar",
     "/otomatik-vites-araclar",
     "/suv-araclar",
-    "/ticari-araclar",
-    "/deniz-araclari",
-    "/yedek-parca",
-    "/sigorta",
-    "/servisler",
     "/ai-asistan",
     "/terms",
     "/privacy",
@@ -42,11 +38,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/en/electric-vehicles",
     "/en/automatic-cars",
     "/en/suv",
-    "/en/commercial-vehicles",
-    "/en/marine-vehicles",
-    "/en/spare-parts",
-    "/en/insurance",
-    "/en/services",
     "/en/ai-assistant",
     "/en/terms",
     "/en/privacy",
@@ -80,6 +71,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   for (const path of englishStaticPaths) {
     add(path, path === "/en" ? 0.9 : 0.65);
+  }
+
+  for (const vertical of getSitemapVerticals()) {
+    add(vertical.routes.tr, vertical.id === "cars" ? 0.8 : 0.65);
+    add(vertical.routes.en, vertical.id === "cars" ? 0.65 : 0.5);
   }
 
   for (const make of makesResult.data) {

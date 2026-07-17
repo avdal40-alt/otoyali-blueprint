@@ -1,19 +1,10 @@
 import { FutureVerticalPage } from "@/components/verticals/FutureVerticalPage";
-import { buildSeoMetadata } from "@/lib/seo/metadata";
+import { buildVerticalSeoMetadata } from "@/lib/marketplace/vertical-seo";
 
-export const metadata = buildSeoMetadata({
-  title: "Ticari Araçlar | OTOYALI",
-  description: "Kamyonet, kamyon, minibüs, otobüs, çekici ve iş makineleri için OTOYALI yakında yeni bir pazar alanı sunacak.",
-  path: "/ticari-araclar"
-});
+export function generateMetadata() {
+  return buildVerticalSeoMetadata("commercial");
+}
 
 export default function CommercialVehiclesPage() {
-  return (
-    <FutureVerticalPage
-      title="Ticari araçlar"
-      description="Kamyonet, kamyon, minibüs, otobüs, çekici ve iş makineleri için OTOYALI yakında yeni bir pazar alanı sunacak."
-      ctaLabel="Otomobil ilanlarını incele"
-      sections={["Hafif ticari", "Kamyon", "Kamyonet", "Minibüs", "Otobüs", "Çekici", "Dorse", "İş makineleri", "Tarım makineleri"]}
-    />
-  );
+  return <FutureVerticalPage verticalId="commercial" />;
 }

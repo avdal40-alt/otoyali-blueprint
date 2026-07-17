@@ -52,6 +52,12 @@ Report statuses:
 - `resolved`
 - `dismissed`
 
+## Vertical Awareness
+
+Admin remains one shared moderation surface. WEB-12 prepares vertical labels and future filtering, but current `marketplace.listings` rows are still car-backed because `vehicle_profile_id` is mandatory.
+
+Future verticals should add vertical-aware filters and checklist config inside the shared admin panel rather than creating separate admin panels per category.
+
 ## Admin Bootstrap
 
 1. Login once on the website with the intended owner account.

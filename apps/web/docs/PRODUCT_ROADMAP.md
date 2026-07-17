@@ -13,6 +13,7 @@
 - SELL-02: seller profile and listing publishing polish.
 - MEDIA-01: browser-side image variants, thumbnails, and optimized media fallback.
 - WEB-11: Turkish/English i18n foundation with Turkish canonical URLs and English `/en` routes.
+- WEB-12: scalable marketplace vertical registry, capability model, and future vertical landing architecture.
 
 ## Paused
 
@@ -25,15 +26,14 @@
 3. ANALYTICS-01: product analytics.
 4. MEDIA-01B: legacy image variant backfill.
 5. MEDIA-02: server-side image worker, blur readiness, and moderation automation.
-6. WEB-12: vertical architecture.
-7. WEB-13: commercial vehicles.
-8. WEB-14: water vehicles.
-9. WEB-15: spare parts marketplace.
-10. WEB-16: insurance and services.
-11. AI-01: AI assistant entry points.
-12. MOBILE-01: PWA/mobile foundation.
-13. PAY-01: paid listing products.
-14. DEV-02: code audit / team handoff.
+6. WEB-13: commercial vehicles persistence and publishing.
+7. WEB-14: water vehicles persistence and publishing.
+8. WEB-15: spare parts marketplace.
+9. WEB-16: insurance and services.
+10. AI-01: AI assistant entry points.
+11. MOBILE-01: PWA/mobile foundation.
+12. PAY-01: paid listing products.
+13. DEV-02: code audit / team handoff.
 
 ## Long-Term Product Areas
 

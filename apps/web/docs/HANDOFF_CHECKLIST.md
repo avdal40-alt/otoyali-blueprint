@@ -75,12 +75,23 @@
 - [ ] Empty, loading, error, modal, and drawer states use shared components.
 - [ ] No new product module introduces an independent color, spacing, icon, or card system.
 
+## Marketplace Verticals
+
+- [ ] Read `docs/VERTICAL_ARCHITECTURE.md` before adding a marketplace category.
+- [ ] New vertical labels/routes/capabilities are added to `src/lib/marketplace/verticals.ts`.
+- [ ] New vertical attributes are typed in `src/lib/marketplace/attributes.ts`.
+- [ ] Turkish and English `verticals.*` dictionary keys are added.
+- [ ] Coming-soon verticals do not show fake inventory or active publish/search forms.
+- [ ] `/sell` still defaults to cars.
+- [ ] Existing car `/search`, `/sell`, and `/listing/[id]` flows still work.
+
 ## SEO
 
 - [ ] `/sitemap.xml` loads.
 - [ ] `/robots.txt` loads.
 - [ ] Turkish canonical routes load without `/tr`.
 - [ ] `/en`, `/en/search`, `/en/video`, and an English listing route load.
+- [ ] `/en/commercial-vehicles`, `/en/marine-vehicles`, `/en/spare-parts`, `/en/services`, and `/en/insurance` load.
 - [ ] `/tr/*` redirects to the unprefixed Turkish canonical route.
 - [ ] Language switcher preserves the current route when safe.
 - [ ] Admin/private/auth routes excluded from sitemap.

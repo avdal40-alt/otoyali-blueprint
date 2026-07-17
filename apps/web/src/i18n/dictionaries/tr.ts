@@ -307,6 +307,171 @@ export const tr = {
     videoTitle: "OTOYALI Video",
     videoDescription: "Araç videoları, galeri fırsatları ve kısa tanıtımlar."
   },
+  verticals: {
+    status: {
+      active: "Aktif",
+      preview: "Önizleme",
+      coming_soon: "Yakında",
+      disabled: "Kapalı"
+    },
+    capabilities: {
+      available: "Kullanılabilir",
+      comingSoon: "Yakında",
+      browse: "İlanları incele",
+      search: "Arama",
+      publish: "İlan yayınlama",
+      learnMore: "Detayları gör",
+      uploadVideo: "Video yükleme",
+      supportsAttributes: "Alan modeli"
+    },
+    landing: {
+      browseCars: "Otomobil ilanlarını incele",
+      publishCars: "Otomobil ilanı yayınla",
+      publishUnavailable: "Bu kategori için ilan yayınlama henüz açık değil. OTOYALI bu alanı ayrı veri modeli ve moderasyon kurallarıyla hazırlıyor.",
+      activeDisclaimer: "Bu kategori mevcut marketplace altyapısıyla çalışır. Public görünürlük için aktif ilan ve aktif moderasyon gerekir.",
+      availableFeatures: "Hazırlanan kapsam",
+      attributeModel: "Gelecek alan modeli",
+      filterReady: "Arama filtresi olarak kullanılabilir.",
+      publishOnly: "Yayınlama akışında doğrulanacak alan.",
+      related: "İlgili kategoriler"
+    },
+    cars: {
+      label: "Otomobiller",
+      shortLabel: "Otomobil",
+      description: "İkinci el ve sıfır km otomobil ilanlarını arayın, karşılaştırın ve güvenli şekilde satıcıyla iletişime geçin.",
+      shortDescription: "İkinci el ve sıfır km araç ilanları.",
+      seoTitle: "Otomobil İlanları",
+      seoDescription: "OTOYALI'de otomobil ilanlarını marka, model, şehir, fiyat ve teknik özelliklere göre arayın.",
+      highlights: {
+        search: "Gelişmiş arama",
+        publish: "İlan yayınlama",
+        video: "Araç videosu"
+      }
+    },
+    commercial: {
+      label: "Ticari araçlar",
+      shortLabel: "Ticari",
+      description: "Kamyonet, kamyon, minibüs, otobüs, çekici ve iş makineleri için ayrı veri modeliyle hazırlanacak pazar alanı.",
+      shortDescription: "Kamyonet, kamyon, minibüs ve iş makineleri.",
+      seoTitle: "Ticari Araçlar",
+      seoDescription: "OTOYALI ticari araçlar alanı kamyonet, kamyon, minibüs, otobüs ve iş makineleri için hazırlanıyor.",
+      highlights: {
+        lightCommercial: "Hafif ticari",
+        trucks: "Kamyon ve çekici",
+        machinery: "İş makineleri"
+      }
+    },
+    marine: {
+      label: "Deniz araçları",
+      shortLabel: "Deniz",
+      description: "Tekne, yat, bot, jet ski ve deniz motorları için denizcilik odaklı alanlar ve medya yapısıyla hazırlanacak pazar alanı.",
+      shortDescription: "Tekne, yat, bot ve deniz motorları.",
+      seoTitle: "Deniz Araçları",
+      seoDescription: "OTOYALI Deniz araçları alanı tekne, yat, bot, jet ski ve deniz motorları için hazırlanıyor.",
+      highlights: {
+        boats: "Tekne ve bot",
+        yachts: "Yat",
+        engines: "Deniz motoru"
+      }
+    },
+    parts: {
+      label: "Yedek parça",
+      shortLabel: "Parça",
+      description: "Lastik, jant, aksesuar, bakım ürünü ve araç parçaları için uyumluluk odaklı ayrı pazar alanı.",
+      shortDescription: "Parça, aksesuar, lastik ve jant.",
+      seoTitle: "Yedek Parça",
+      seoDescription: "OTOYALI yedek parça alanı lastik, jant, aksesuar, bakım ürünü ve araç parçaları için hazırlanıyor.",
+      highlights: {
+        tires: "Lastik ve jant",
+        body: "Kaporta",
+        electronics: "Elektronik"
+      }
+    },
+    services: {
+      label: "Servisler",
+      shortLabel: "Servis",
+      description: "Ekspertiz, bakım, onarım, lastik değişimi ve elektrikli araç servisleri için sağlayıcı odaklı kategori.",
+      shortDescription: "Ekspertiz, bakım ve araç hizmetleri.",
+      seoTitle: "Servisler",
+      seoDescription: "OTOYALI servisler alanı ekspertiz, bakım, onarım ve araç hizmetleri için hazırlanıyor.",
+      highlights: {
+        inspection: "Ekspertiz",
+        maintenance: "Periyodik bakım",
+        evService: "Elektrikli araç servisi"
+      }
+    },
+    insurance: {
+      label: "Sigorta",
+      shortLabel: "Sigorta",
+      description: "Trafik sigortası, kasko ve hasar geçmişi odaklı güvenli karşılaştırma deneyimi için hazırlanacak alan.",
+      shortDescription: "Trafik sigortası ve kasko çözümleri.",
+      seoTitle: "Sigorta",
+      seoDescription: "OTOYALI sigorta alanı trafik sigortası, kasko ve hasar geçmişi odaklı çözümler için hazırlanıyor.",
+      highlights: {
+        traffic: "Trafik sigortası",
+        casco: "Kasko",
+        claims: "Hasar geçmişi"
+      }
+    },
+    motorcycles: {
+      label: "Motosikletler",
+      shortLabel: "Motosiklet",
+      description: "Gelecek motosiklet marketplace alanı.",
+      shortDescription: "Motosiklet ilanları için gelecek alan.",
+      seoTitle: "Motosikletler",
+      seoDescription: "OTOYALI motosiklet alanı gelecek aşamalar için ayrılmıştır."
+    },
+    machinery: {
+      label: "İş ve tarım makineleri",
+      shortLabel: "Makine",
+      description: "Gelecek iş ve tarım makineleri marketplace alanı.",
+      shortDescription: "Makine ilanları için gelecek alan.",
+      seoTitle: "İş ve Tarım Makineleri",
+      seoDescription: "OTOYALI iş ve tarım makineleri alanı gelecek aşamalar için ayrılmıştır."
+    },
+    mobility: {
+      label: "Mobilite ürünleri",
+      shortLabel: "Mobilite",
+      description: "Gelecek mobilite ürünleri marketplace alanı.",
+      shortDescription: "Mobilite ürünleri için gelecek alan.",
+      seoTitle: "Mobilite Ürünleri",
+      seoDescription: "OTOYALI mobilite ürünleri alanı gelecek aşamalar için ayrılmıştır."
+    },
+    attributes: {
+      make: "Marka",
+      model: "Model",
+      year: "Yıl",
+      mileage: "Kilometre",
+      fuel: "Yakıt",
+      transmission: "Vites",
+      vehicleSubtype: "Araç alt tipi",
+      payloadCapacity: "Taşıma kapasitesi",
+      axleCount: "Aks sayısı",
+      grossWeight: "Azami ağırlık",
+      cabinType: "Kabin tipi",
+      vesselType: "Deniz aracı tipi",
+      length: "Uzunluk",
+      engineType: "Motor tipi",
+      hullMaterial: "Gövde malzemesi",
+      category: "Kategori",
+      condition: "Durum",
+      brand: "Marka",
+      partOrigin: "OEM / muadil",
+      compatibleVehicles: "Uyumlu araçlar",
+      partNumber: "Parça numarası",
+      serviceCategory: "Servis kategorisi",
+      city: "Şehir",
+      mobileService: "Mobil servis",
+      appointmentSupport: "Randevu desteği",
+      insuranceType: "Sigorta tipi",
+      coverageScope: "Teminat kapsamı",
+      engineVolume: "Motor hacmi",
+      machineType: "Makine tipi",
+      workingHours: "Çalışma saati",
+      productType: "Ürün tipi",
+      range: "Menzil"
+    }
+  },
   futureVerticals: {
     comingSoon: "Yakında",
     backHome: "Ana sayfaya dön",

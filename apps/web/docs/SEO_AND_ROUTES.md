@@ -34,6 +34,11 @@ English routes use `/en`:
 - `/en/used-cars`
 - `/en/new-cars`
 - `/en/electric-vehicles`
+- `/en/commercial-vehicles`
+- `/en/marine-vehicles`
+- `/en/spare-parts`
+- `/en/services`
+- `/en/insurance`
 - `/en/make/[makeSlug]`
 - `/en/city/[citySlug]`
 
@@ -58,6 +63,8 @@ Middleware rewrites English route aliases back to the existing internal routes. 
 - `/sigorta`
 - `/servisler`
 - `/ai-asistan`
+
+Marketplace vertical routes are generated from `src/lib/marketplace/verticals.ts` where possible. `ai-asistan` is a future feature placeholder, not a marketplace vertical.
 
 ## Legal And Trust Pages
 
@@ -87,6 +94,7 @@ Sitemap is generated in `src/app/sitemap.ts`.
 Rules:
 
 - Include public Turkish canonical routes and safe English `/en` routes.
+- Include registry-backed vertical landing routes only when they are real public pages.
 - Include limited dynamic listing URLs.
 - Do not include private routes.
 - Do not include admin routes.

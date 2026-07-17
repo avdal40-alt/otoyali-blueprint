@@ -307,6 +307,171 @@ export const en = {
     videoTitle: "OTOYALI Video",
     videoDescription: "Vehicle videos, dealer opportunities, and short showcases."
   },
+  verticals: {
+    status: {
+      active: "Active",
+      preview: "Preview",
+      coming_soon: "Coming soon",
+      disabled: "Disabled"
+    },
+    capabilities: {
+      available: "Available",
+      comingSoon: "Coming soon",
+      browse: "Browse listings",
+      search: "Search",
+      publish: "Publishing",
+      learnMore: "Learn more",
+      uploadVideo: "Video upload",
+      supportsAttributes: "Attribute model"
+    },
+    landing: {
+      browseCars: "Browse car listings",
+      publishCars: "Publish a car listing",
+      publishUnavailable: "Publishing is not open for this category yet. OTOYALI is preparing it with a separate data model and moderation rules.",
+      activeDisclaimer: "This category runs on the current marketplace infrastructure. Public visibility requires an active listing and active moderation.",
+      availableFeatures: "Prepared scope",
+      attributeModel: "Future attribute model",
+      filterReady: "Can become a search filter.",
+      publishOnly: "Validated in the publishing flow.",
+      related: "Related categories"
+    },
+    cars: {
+      label: "Cars",
+      shortLabel: "Cars",
+      description: "Search used and new car listings, compare options, and contact sellers securely.",
+      shortDescription: "Used and new vehicle listings.",
+      seoTitle: "Car Listings",
+      seoDescription: "Search car listings on OTOYALI by make, model, city, price, and specifications.",
+      highlights: {
+        search: "Advanced search",
+        publish: "Listing publishing",
+        video: "Vehicle video"
+      }
+    },
+    commercial: {
+      label: "Commercial vehicles",
+      shortLabel: "Commercial",
+      description: "A future marketplace area for vans, trucks, minibuses, buses, tractors, and work machines with a dedicated data model.",
+      shortDescription: "Vans, trucks, minibuses, and work machines.",
+      seoTitle: "Commercial Vehicles",
+      seoDescription: "OTOYALI is preparing a commercial vehicles area for vans, trucks, minibuses, buses, and work machines.",
+      highlights: {
+        lightCommercial: "Light commercial",
+        trucks: "Trucks and tractors",
+        machinery: "Work machines"
+      }
+    },
+    marine: {
+      label: "Marine vehicles",
+      shortLabel: "Marine",
+      description: "A marine-focused marketplace area for boats, yachts, jet skis, and marine engines with dedicated fields and media.",
+      shortDescription: "Boats, yachts, jet skis, and marine engines.",
+      seoTitle: "Marine Vehicles",
+      seoDescription: "OTOYALI is preparing a marine vehicles area for boats, yachts, jet skis, and marine engines.",
+      highlights: {
+        boats: "Boats",
+        yachts: "Yachts",
+        engines: "Marine engines"
+      }
+    },
+    parts: {
+      label: "Spare parts",
+      shortLabel: "Parts",
+      description: "A compatibility-focused marketplace area for tires, wheels, accessories, care products, and vehicle parts.",
+      shortDescription: "Parts, accessories, tires, and wheels.",
+      seoTitle: "Spare Parts",
+      seoDescription: "OTOYALI is preparing a spare parts area for tires, wheels, accessories, care products, and vehicle parts.",
+      highlights: {
+        tires: "Tires and wheels",
+        body: "Body parts",
+        electronics: "Electronics"
+      }
+    },
+    services: {
+      label: "Services",
+      shortLabel: "Services",
+      description: "A provider-focused category for inspection, maintenance, repair, tire changes, and EV service options.",
+      shortDescription: "Inspection, maintenance, and vehicle services.",
+      seoTitle: "Services",
+      seoDescription: "OTOYALI is preparing a services area for inspection, maintenance, repair, and vehicle services.",
+      highlights: {
+        inspection: "Inspection",
+        maintenance: "Scheduled maintenance",
+        evService: "EV service"
+      }
+    },
+    insurance: {
+      label: "Insurance",
+      shortLabel: "Insurance",
+      description: "A future safe comparison experience for traffic insurance, casco, and claim-history related decisions.",
+      shortDescription: "Traffic insurance and casco solutions.",
+      seoTitle: "Insurance",
+      seoDescription: "OTOYALI is preparing an insurance area for traffic insurance, casco, and claim-history related solutions.",
+      highlights: {
+        traffic: "Traffic insurance",
+        casco: "Casco",
+        claims: "Claim history"
+      }
+    },
+    motorcycles: {
+      label: "Motorcycles",
+      shortLabel: "Motorcycles",
+      description: "Reserved future motorcycle marketplace area.",
+      shortDescription: "Reserved future area for motorcycle listings.",
+      seoTitle: "Motorcycles",
+      seoDescription: "OTOYALI motorcycle marketplace is reserved for a future stage."
+    },
+    machinery: {
+      label: "Construction and agricultural machinery",
+      shortLabel: "Machinery",
+      description: "Reserved future machinery marketplace area.",
+      shortDescription: "Reserved future area for machinery listings.",
+      seoTitle: "Construction and Agricultural Machinery",
+      seoDescription: "OTOYALI machinery marketplace is reserved for a future stage."
+    },
+    mobility: {
+      label: "Mobility products",
+      shortLabel: "Mobility",
+      description: "Reserved future mobility products marketplace area.",
+      shortDescription: "Reserved future area for mobility products.",
+      seoTitle: "Mobility Products",
+      seoDescription: "OTOYALI mobility products marketplace is reserved for a future stage."
+    },
+    attributes: {
+      make: "Make",
+      model: "Model",
+      year: "Year",
+      mileage: "Mileage",
+      fuel: "Fuel",
+      transmission: "Transmission",
+      vehicleSubtype: "Vehicle subtype",
+      payloadCapacity: "Payload capacity",
+      axleCount: "Axle count",
+      grossWeight: "Gross weight",
+      cabinType: "Cabin type",
+      vesselType: "Vessel type",
+      length: "Length",
+      engineType: "Engine type",
+      hullMaterial: "Hull material",
+      category: "Category",
+      condition: "Condition",
+      brand: "Brand",
+      partOrigin: "OEM / aftermarket",
+      compatibleVehicles: "Compatible vehicles",
+      partNumber: "Part number",
+      serviceCategory: "Service category",
+      city: "City",
+      mobileService: "Mobile service",
+      appointmentSupport: "Appointment support",
+      insuranceType: "Insurance type",
+      coverageScope: "Coverage scope",
+      engineVolume: "Engine volume",
+      machineType: "Machine type",
+      workingHours: "Working hours",
+      productType: "Product type",
+      range: "Range"
+    }
+  },
   futureVerticals: {
     comingSoon: "Coming soon",
     backHome: "Back to home",

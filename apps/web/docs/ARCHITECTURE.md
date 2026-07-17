@@ -14,6 +14,7 @@ Architecture principles:
 - Lightweight public previews: Home/Search/SEO use explicit columns and limited public views.
 - Detail-only depth: full listing detail and gallery data are loaded on listing detail.
 - No video files on Home/Search/SEO pages: video counts/badges are allowed, video bytes are not.
+- One platform, multiple verticals: future marketplace categories use a central vertical registry instead of scattered route checks.
 
 ## Frontend
 
@@ -47,6 +48,20 @@ The web app uses a lightweight internal i18n layer instead of an external transl
 - Locale-aware display formatting lives in `src/lib/format.ts`.
 
 This is frontend-only. It does not change Supabase schema, RLS, stored listing data, or catalog values. Listing titles and descriptions remain user-generated and are not translated.
+
+## Marketplace Verticals
+
+Vertical architecture is documented in [VERTICAL_ARCHITECTURE.md](./VERTICAL_ARCHITECTURE.md).
+
+Current implementation:
+
+- Cars are the only active listing vertical.
+- Commercial vehicles, marine vehicles, spare parts, services, and insurance are truthful coming-soon landing pages.
+- `src/lib/marketplace/verticals.ts` is the central registry for IDs, routes, labels, capabilities, statuses, SEO inclusion, and supported seller/media types.
+- `src/lib/marketplace/attributes.ts` prepares typed attribute configs for future vertical stages.
+- `src/lib/marketplace/types.ts` defines shared cross-vertical listing/search/media/seller contracts.
+
+No WEB-12 migration was created. Current `marketplace.listings` still requires `vehicle_profile_id`, so non-car persistence needs a future additive data-model task before real non-car listings can exist.
 
 ## Design System
 

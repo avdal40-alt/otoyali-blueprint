@@ -29,6 +29,7 @@ export type Dictionary = {
   validation: DictionarySection;
   status: DictionarySection;
   seo: DictionarySection;
+  verticals: DictionarySection;
   futureVerticals: DictionarySection;
   format: DictionarySection;
 };
@@ -49,6 +50,7 @@ export type ClientDictionary = Pick<
   | "errors"
   | "validation"
   | "status"
+  | "verticals"
   | "format"
   | "search"
 >;

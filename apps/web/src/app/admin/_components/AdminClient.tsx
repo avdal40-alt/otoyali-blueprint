@@ -6,10 +6,12 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { useI18n } from "@/i18n/client";
 import { localizePath } from "@/i18n/config";
+import { t } from "@/i18n/get-dictionary";
 import type { ClientDictionary, Locale } from "@/i18n/types";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
@@ -401,6 +403,9 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
             </div>
             <div>
               <p className="font-black text-oto-text">{row.title || "İlan"}</p>
+              <div className="mt-1">
+                <Badge variant="primary">{t(locale, "verticals.cars.shortLabel")}</Badge>
+              </div>
               <p className="mt-1 text-xs font-bold text-oto-muted">{makeModel || row.vehicle_profile_id || "Araç bilgisi yok"}</p>
               {mediaPreview?.processed_status ? (
                 <p className={isImageProcessingFailed(mediaPreview) ? "mt-1 text-xs font-black text-oto-danger" : "mt-1 text-xs font-bold text-oto-muted"}>

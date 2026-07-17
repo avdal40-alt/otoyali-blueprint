@@ -11,6 +11,7 @@
 - If GitHub/Vercel is broken or the GitHub account is flagged, do not push.
 - Do not restore stashes unless explicitly planned and approved.
 - For user-facing web copy/routes, check `docs/I18N.md` and update both Turkish and English dictionaries where safe.
+- For marketplace categories, check `docs/VERTICAL_ARCHITECTURE.md` and update the central registry instead of scattering route checks.
 
 ## Current Known Stashes
 
