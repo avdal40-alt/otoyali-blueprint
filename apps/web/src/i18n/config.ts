@@ -32,6 +32,7 @@ const EN_TO_TR_STATIC_PATHS: Record<string, string> = {
   "/spare-parts": "/yedek-parca",
   "/insurance": "/sigorta",
   "/services": "/servisler",
+  "/services/apply": "/servisler/basvuru",
   "/ai-assistant": "/ai-asistan",
   "/listing-rules": "/listing-rules",
   "/moderation-policy": "/moderation-policy",
@@ -127,6 +128,8 @@ export function turkishPathToEnglishPath(pathname: string) {
 
   if (normalized.startsWith("/listing/")) return normalized;
   if (normalized.startsWith("/news/")) return normalized;
+  if (normalized === "/servisler/basvuru") return "/services/apply";
+  if (normalized.startsWith("/servisler/")) return normalized.replace(/^\/servisler\//, "/services/");
   if (normalized.startsWith("/marka/")) return normalized.replace(/^\/marka\//, "/make/");
   if (normalized.startsWith("/sehir/")) return normalized.replace(/^\/sehir\//, "/city/");
 
@@ -138,6 +141,8 @@ export function englishPathToTurkishPath(pathname: string) {
 
   if (normalized.startsWith("/listing/")) return normalized;
   if (normalized.startsWith("/news/")) return normalized;
+  if (normalized === "/services/apply") return "/servisler/basvuru";
+  if (normalized.startsWith("/services/")) return normalized.replace(/^\/services\//, "/servisler/");
   if (normalized.startsWith("/make/")) return normalized.replace(/^\/make\//, "/marka/");
   if (normalized.startsWith("/city/")) return normalized.replace(/^\/city\//, "/sehir/");
 

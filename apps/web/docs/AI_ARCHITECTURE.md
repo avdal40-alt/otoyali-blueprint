@@ -79,6 +79,7 @@ Future providers such as OpenAI, Gemini, Anthropic, local models, or provider ro
 - Listing review guidance without inventing facts.
 - Publishing checklist guidance.
 - Trust and safety checklist guidance.
+- Service marketplace guidance without inventing providers, availability, bookings, or prices.
 
 It must not claim access to TRAMER, VIN databases, market-wide pricing data, accident history, seller verification, or mechanical/legal certainty.
 
@@ -183,6 +184,7 @@ Context is built from safe route state only:
 - listing id on listing pages
 - safe search query keys on search pages
 - publishing vertical on sell pages
+- service category, provider slug, city, and district on service pages
 
 Do not include:
 
@@ -196,6 +198,10 @@ Do not include:
 - service-role credentials
 - full media galleries
 - private seller identifiers
+- provider applications
+- service provider phone/contact details unless explicitly public
+- service moderation notes
+- unpublished service offerings
 - draft or unpublished data
 
 AI-01 does not fetch listing details for the assistant. This is intentional data minimization.
@@ -211,6 +217,8 @@ Allowed actions are internal route actions such as:
 - open trust center
 - view listing
 - login
+- open service marketplace
+- open service application page
 
 Every action href must be:
 
@@ -224,6 +232,15 @@ Every action href must be:
 - locale-aware through `localizePath`
 
 Providers must never directly control arbitrary links.
+
+## Service Marketplace Context
+
+SERVICE-01 adds service assistant surfaces:
+
+- `service_marketplace`
+- `service_provider`
+
+The deterministic provider may explain service categories and current limitations. It must not book appointments, invent provider availability, invent prices, diagnose repairs with certainty, or claim a provider is verified beyond public fields.
 
 ## Server Boundary
 

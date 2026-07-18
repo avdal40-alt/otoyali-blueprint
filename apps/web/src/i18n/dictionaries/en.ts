@@ -234,6 +234,194 @@ export const en = {
     login: "Log in",
     contentProvided: "Video content is provided by the seller."
   },
+  services: {
+    seo: {
+      title: "Services",
+      description: "The OTOYALI service network is being prepared for inspection, maintenance, repair, and vehicle services."
+    },
+    hero: {
+      badge: "Service marketplace",
+      title: "OTOYALI service network",
+      subtitle: "A trusted discovery layer is being prepared for inspection, maintenance, repair, tires, EV service, towing, and other vehicle services."
+    },
+    discoveryEyebrow: "Discovery",
+    categoriesTitle: "Service categories",
+    specializationsEyebrow: "Vehicle and need type",
+    specializationsTitle: "Prepared specializations",
+    filters: {
+      clearCategory: "All services"
+    },
+    providers: {
+      eyebrow: "Approved providers",
+      title: "Service providers",
+      summaryFallback: "This provider has not added a public summary yet.",
+      branchCount: "{count} branch"
+    },
+    empty: {
+      title: "The OTOYALI service network is being prepared.",
+      body: "Approved providers will appear here as they are added. For now, you can review the category structure or apply to join the network."
+    },
+    currentAvailability: {
+      badge: "Current state",
+      title: "No booking or price guarantee",
+      body: "SERVICE-01 prepares only the service marketplace foundation. Real bookings, availability, work orders, payments, guaranteed prices, and reviews are not enabled at this stage."
+    },
+    joinNetwork: {
+      cta: "Join the service network"
+    },
+    trust: {
+      cta: "Trust Center"
+    },
+    rif: {
+      badge: "Rif ready",
+      title: "Rif can provide general service guidance",
+      body: "Rif can explain maintenance, inspection, and safer service decisions. It does not create bookings, invent prices, or recommend providers that do not exist.",
+      cta: "Ask Rif"
+    },
+    contact: {
+      requestSoon: "Service request coming soon"
+    },
+    provider: {
+      notFoundTitle: "Service provider not found",
+      notFoundDescription: "This service provider is not published or does not exist.",
+      seoDescriptionFallback: "Approved service provider profile on OTOYALI.",
+      publicProfile: "Service profile",
+      platformReviewed: "Platform reviewed",
+      branchesTitle: "Branches and services",
+      trustDisclaimer: "This profile shows only published public provider information. OTOYALI does not guarantee bookings, prices, working hours, or service outcomes at this stage."
+    },
+    offerings: {
+      empty: "No active public service offerings have been added for this branch yet."
+    },
+    status: {
+      activeProvider: "Active provider",
+      activeBranch: "Active branch",
+      pendingReview: "Pending review",
+      temporarilyClosed: "Temporarily closed",
+      unavailable: "Unavailable",
+      suspended: "Suspended",
+      rejected: "Rejected",
+      archived: "Archived"
+    },
+    pricing: {
+      quoteRequired: "Price by quote",
+      startingFrom: "Starting from {price}",
+      unavailable: "No price information"
+    },
+    duration: {
+      notProvided: "No duration provided",
+      minutes: "{minutes} min",
+      rangeMinutes: "{min}-{max} min"
+    },
+    booking: {
+      requestOnly: "Ready for request model",
+      instantFuture: "Instant booking is a future stage",
+      contactProvider: "Contact provider",
+      unavailable: "No booking"
+    },
+    apply: {
+      seoTitle: "Service network application",
+      seoDescription: "Apply to join the OTOYALI service marketplace network.",
+      badge: "Provider application",
+      title: "Join our service network",
+      subtitle: "Submitting an application does not publish a provider profile automatically. OTOYALI will review the information before future approved providers go live.",
+      truthfulTitle: "No automatic publishing",
+      truthfulBody: "The application only enters a review queue; no public profile is created without admin approval.",
+      reviewTitle: "Moderation ready",
+      reviewBody: "Provider, branch, and offering states are designed to be managed through admin review.",
+      noBookingTitle: "No bookings",
+      noBookingBody: "This stage does not create calendars, availability, work orders, or payments.",
+      progressiveAuthBadge: "Phone login required",
+      loginTitle: "Log in to submit an application.",
+      loginBody: "Service applications contain contact details, so they are accepted after secure phone login.",
+      loginCta: "Log in with phone",
+      backToServices: "Back to services",
+      pendingBadge: "Pending review",
+      successTitle: "Your application entered the review queue.",
+      successBody: "This does not mean the provider is published. The OTOYALI team will review the information and proceed with suitable candidates.",
+      submit: "Submit application",
+      reviewNote: "Submissions are stored as pending-review applications.",
+      categoryHelper: "Select the main service types you currently provide.",
+      verticalHelper: "Select the vehicle types you support.",
+      notesHelper: "Briefly describe your specializations, equipment, or city coverage.",
+      fields: {
+        businessName: "Business name",
+        contactPersonName: "Contact person",
+        contactPhone: "Phone",
+        city: "City",
+        district: "District",
+        websiteUrl: "Website",
+        categories: "Service categories",
+        supportedVerticals: "Supported vehicle types",
+        notes: "Notes",
+        consentAccuracy: "I confirm the submitted information is accurate."
+      },
+      verticals: {
+        cars: "Cars",
+        commercial: "Commercial vehicles",
+        motorcycles: "Motorcycles",
+        marine: "Marine vehicles"
+      }
+    },
+    validation: {
+      businessNameRequired: "Enter the business name.",
+      contactNameRequired: "Enter the contact person name.",
+      phoneInvalid: "Check the phone number.",
+      cityRequired: "Enter the city.",
+      categoryRequired: "Select at least one service category.",
+      verticalRequired: "Select at least one vehicle type.",
+      websiteInvalid: "Enter a valid secure website.",
+      consentRequired: "Accuracy confirmation is required.",
+      tooLong: "This field is too long."
+    },
+    categories: {
+      periodic_maintenance: { label: "Scheduled maintenance", description: "Oil, filter, and regular maintenance checks." },
+      diagnostics: { label: "Diagnostics", description: "Electronic and mechanical fault diagnosis." },
+      engine_repair: { label: "Engine repair", description: "Engine performance, mechanical repair, and overhaul needs." },
+      transmission: { label: "Transmission", description: "Automatic and manual transmission services." },
+      brakes: { label: "Brakes", description: "Brake pads, discs, and safety checks." },
+      suspension: { label: "Suspension", description: "Shock absorbers, alignment, balance, and running gear." },
+      electrical: { label: "Electrical", description: "Vehicle electronics, lighting, and electrical faults." },
+      air_conditioning: { label: "Air conditioning", description: "AC maintenance, gas filling, and fault checks." },
+      tires: { label: "Tires", description: "Tire replacement, balancing, and seasonal tire services." },
+      battery: { label: "Battery", description: "Battery checks, replacement, and charging systems." },
+      oil_change: { label: "Oil change", description: "Engine oil and filter replacement." },
+      body_repair: { label: "Body repair", description: "Body repair and panel correction." },
+      paint: { label: "Paint", description: "Paint, touch-up, and surface renewal services." },
+      glass: { label: "Glass", description: "Glass repair and replacement services." },
+      detailing: { label: "Detailing", description: "Interior/exterior detailing, paint protection, and care." },
+      car_wash: { label: "Car wash", description: "Basic wash and cleaning services." },
+      inspection: { label: "Inspection", description: "Pre-purchase vehicle checks and reporting." },
+      towing: { label: "Towing", description: "Roadside assistance and towing services." },
+      ev_service: { label: "EV service", description: "Electric vehicle maintenance and electrical-system expertise." },
+      marine_service: { label: "Marine service", description: "Boat and marine-engine service needs." },
+      commercial_vehicle_service: { label: "Commercial vehicle service", description: "Van, truck, and fleet-oriented service needs." },
+      motorcycle_service: { label: "Motorcycle service", description: "Motorcycle maintenance and repair services." },
+      other: { label: "Other services", description: "Other specialized vehicle services." }
+    },
+    specializations: {
+      passenger_cars: { label: "Cars", description: "Passenger-car focused maintenance and service." },
+      commercial_vehicles: { label: "Commercial", description: "Commercial vehicle and fleet needs." },
+      motorcycles: { label: "Motorcycles", description: "Motorcycle maintenance and repair." },
+      marine: { label: "Marine", description: "Service preparation for marine vehicles." },
+      electric_vehicles: { label: "Electric", description: "Electric vehicle service expertise." },
+      hybrid_vehicles: { label: "Hybrid", description: "Service for hybrid systems." },
+      body_repair: { label: "Body/paint", description: "Body, paint, and glass work." },
+      tires: { label: "Tires", description: "Tire and road-grip services." },
+      detailing: { label: "Detailing", description: "Protection and cleaning-focused services." },
+      roadside_towing: { label: "Roadside", description: "Towing and emergency coverage." }
+    },
+    admin: {
+      nav: "Services",
+      title: "Service applications",
+      empty: "No pending service applications.",
+      approve: "Approve",
+      review: "Reviewing",
+      reject: "Reject",
+      archive: "Archive",
+      approvedNote: "Application approved; a public provider profile must be created through a separate admin step."
+    }
+  },
   admin: {
     title: "Admin",
     accessRequiredTitle: "Log in to access the admin panel.",
@@ -241,6 +429,7 @@ export const en = {
     login: "Log in",
     listings: "Listings",
     videos: "Videos",
+    services: "Services",
     reports: "Reports",
     users: "Users",
     settings: "Settings"
@@ -496,7 +685,9 @@ export const en = {
       openSearch: "Search listings",
       openCars: "Open car listings",
       openSell: "Publish a listing",
-      openTrustCenter: "Open Trust Center"
+      openTrustCenter: "Open Trust Center",
+      openServices: "Open services",
+      joinServiceNetwork: "Join service network"
     },
     responses: {
       intro: "Rif currently runs as a safe local preview inside OTOYALI. I can provide general guidance for search filters, listing preparation, and safer marketplace behavior. Advanced AI, real valuation, accident-history lookup, TRAMER/VIN checks, and seller verification are not connected yet.",
@@ -507,6 +698,7 @@ export const en = {
       listingGuidanceWithContext: "For this listing page, only the public information shown on screen should be considered. Rif cannot fill missing fields, know accident history, or guarantee that the price is fair.",
       publishingGuidance: "A stronger listing usually includes clear photos, accurate technical details, a plain description, realistic price, and honest damage/history disclosure. This is not automatic publication or a moderation decision.",
       trustGuidance: "For safer transactions, verify documents, seller details and vehicle information through independent sources. Do not send deposits to unknown people and consider an inspection or independent review.",
+      serviceGuidance: "When choosing a service, first clarify the need: inspection, scheduled maintenance, diagnostics, tires, body repair, or EV service. OTOYALI does not create bookings, guarantee prices, or produce provider verification outcomes yet; I can only guide you to public service areas.",
       ownershipPlanned: "Ownership reminders and personalized maintenance guidance are planned, but they are not enabled in AI-01."
     },
     errors: {
@@ -538,6 +730,10 @@ export const en = {
       },
       trust: {
         safety: "What should I check for a safer transaction?"
+      },
+      services: {
+        category: "Which service category should I look at?",
+        booking: "Can I book a service appointment?"
       }
     },
     capabilities: {

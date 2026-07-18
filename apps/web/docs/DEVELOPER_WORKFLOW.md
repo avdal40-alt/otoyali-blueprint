@@ -12,9 +12,12 @@
 - Do not restore stashes unless explicitly planned and approved.
 - For user-facing web copy/routes, check `docs/I18N.md` and update both Turkish and English dictionaries where safe.
 - For marketplace categories, check `docs/VERTICAL_ARCHITECTURE.md` and update the central registry instead of scattering route checks.
+- For service marketplace work, check `docs/SERVICE_MARKETPLACE_ARCHITECTURE.md`; do not add bookings, fake providers, ratings, CRM, work orders, or service history without a dedicated task.
 - For assistant work, check `docs/AI_ARCHITECTURE.md`; do not add external AI providers, prompt persistence, secrets, or fake AI claims without a dedicated approved task.
 
 AI-01 has no Supabase migration. If a future AI task needs persistence, stop and document the data model before creating tables.
+
+SERVICE-01 has a Supabase migration. Do not apply it remotely unless the current task explicitly asks for `supabase db push`.
 
 ## Current Known Stashes
 

@@ -36,6 +36,7 @@ OTOYALI is an AI-first transport marketplace for Turkey. The current web product
 - [SEO And Routes](./SEO_AND_ROUTES.md)
 - [Internationalization](./I18N.md)
 - [Vertical Architecture](./VERTICAL_ARCHITECTURE.md)
+- [Service Marketplace Architecture](./SERVICE_MARKETPLACE_ARCHITECTURE.md)
 - [AI Architecture](./AI_ARCHITECTURE.md)
 - [Performance](./PERFORMANCE.md)
 - [Media](./MEDIA.md)

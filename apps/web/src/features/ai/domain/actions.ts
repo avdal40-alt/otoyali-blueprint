@@ -34,11 +34,13 @@ const allowedExactPaths = [
   "/en/spare-parts",
   "/servisler",
   "/en/services",
+  "/servisler/basvuru",
+  "/en/services/apply",
   "/sigorta",
   "/en/insurance"
 ];
 
-const allowedPathPrefixes = ["/listing/", "/en/listing/"];
+const allowedPathPrefixes = ["/listing/", "/en/listing/", "/servisler/", "/en/services/"];
 
 const allowedQueryKeys = [
   "q",
@@ -60,6 +62,8 @@ const allowedQueryKeys = [
   "sort",
   "advanced",
   "vertical",
+  "category",
+  "district",
   "next"
 ];
 

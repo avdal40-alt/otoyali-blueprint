@@ -133,6 +133,93 @@ export type City = {
   sort_order?: number | null;
 };
 
+export type ServicePublicCategory = {
+  category_id: string;
+  category_key: string;
+  seo_slug?: string | null;
+  icon_name?: string | null;
+  supported_verticals?: string[] | null;
+  availability_status?: string | null;
+  booking_readiness?: string | null;
+  emergency_relevant?: boolean | null;
+  sort_order?: number | null;
+};
+
+export type ServicePublicProvider = {
+  provider_id: string;
+  provider_slug: string;
+  business_name: string;
+  public_summary?: string | null;
+  website_url?: string | null;
+  verification_status?: string | null;
+  primary_city?: string | null;
+  primary_district?: string | null;
+  branch_count?: number | null;
+  service_category_keys?: string[] | null;
+  supported_verticals?: string[] | null;
+  published_at?: string | null;
+};
+
+export type ServicePublicProviderDetails = {
+  provider_id: string;
+  provider_slug: string;
+  business_name: string;
+  public_summary?: string | null;
+  website_url?: string | null;
+  verification_status?: string | null;
+  provider_published_at?: string | null;
+  branch_id: string;
+  branch_slug: string;
+  branch_name: string;
+  branch_description?: string | null;
+  city?: string | null;
+  district?: string | null;
+  public_address?: string | null;
+  branch_status?: string | null;
+  branch_published_at?: string | null;
+};
+
+export type ServicePublicOffering = {
+  offering_id: string;
+  provider_id: string;
+  provider_slug: string;
+  branch_id: string;
+  branch_slug: string;
+  category_id: string;
+  category_key: string;
+  display_name: string;
+  description?: string | null;
+  pricing_mode?: string | null;
+  price_min_amount?: number | null;
+  price_max_amount?: number | null;
+  currency?: string | null;
+  duration_min_minutes?: number | null;
+  duration_max_minutes?: number | null;
+  booking_mode?: string | null;
+  supported_verticals?: string[] | null;
+};
+
+export type ServiceProviderApplicationAdminRow = {
+  application_id: string;
+  submitter_id?: string | null;
+  status?: string | null;
+  business_name?: string | null;
+  contact_person_name?: string | null;
+  contact_phone?: string | null;
+  city?: string | null;
+  district?: string | null;
+  category_keys?: string[] | null;
+  supported_verticals?: string[] | null;
+  website_url?: string | null;
+  notes?: string | null;
+  consent_accuracy?: boolean | null;
+  moderation_note?: string | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
 export type Profile = {
   id: string;
   phone: string | null;

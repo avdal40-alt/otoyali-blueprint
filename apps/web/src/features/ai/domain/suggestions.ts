@@ -14,7 +14,9 @@ export const AI_SUGGESTIONS: AiSuggestionDefinition[] = [
   suggestion("search_filters_tr", "ai.suggestions.search.filters", "search_vehicles", ["search"]),
   suggestion("listing_review", "ai.suggestions.listing.review", "explain_listing", ["listing_detail"]),
   suggestion("sell_better_listing", "ai.suggestions.sell.betterListing", "publishing_help", ["sell"]),
-  suggestion("trust_safety", "ai.suggestions.trust.safety", "trust_and_safety", ["trust", "listing_detail", "sell"])
+  suggestion("trust_safety", "ai.suggestions.trust.safety", "trust_and_safety", ["trust", "listing_detail", "sell"]),
+  suggestion("services_category", "ai.suggestions.services.category", "trust_and_safety", ["service_marketplace", "service_provider"]),
+  suggestion("services_booking", "ai.suggestions.services.booking", "general_help", ["service_marketplace", "service_provider"])
 ];
 
 export function getSuggestionsForSurface(surface: AiSurface) {

@@ -6,6 +6,7 @@ import { SITE_URL } from "@/lib/seo/metadata";
 import { citySeoSlug, makeSeoSlug, modelSeoSlug } from "@/lib/seo/slugs";
 import { localizePath } from "@/i18n/config";
 import { getSitemapVerticals } from "@/lib/marketplace/verticals";
+import { getServiceProviders } from "@/lib/queries/services";
 
 export const dynamic = "force-dynamic";
 
@@ -48,11 +49,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/en/contact"
   ];
 
-  const [makesResult, modelsResult, citiesResult, listingsResult] = await Promise.all([
+  const [makesResult, modelsResult, citiesResult, listingsResult, serviceProvidersResult] = await Promise.all([
     getMakes(),
     getModels(),
     getCities(),
-    getHomeListings(300)
+    getHomeListings(300),
+    getServiceProviders({ limit: 300 })
   ]);
 
   const entries = new Map<string, MetadataRoute.Sitemap[number]>();
@@ -110,6 +112,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (listing.listing_id) {
       add(`/listing/${listing.listing_id}`, 0.75);
       add(localizePath(`/listing/${listing.listing_id}`, "en"), 0.55);
+    }
+  }
+
+  for (const provider of serviceProvidersResult.data) {
+    if (provider.provider_slug) {
+      add(`/servisler/${provider.provider_slug}`, 0.65);
+      add(localizePath(`/servisler/${provider.provider_slug}`, "en"), 0.5);
     }
   }
 

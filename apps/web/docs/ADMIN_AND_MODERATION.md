@@ -5,6 +5,7 @@
 - `/admin`
 - `/admin/listings`
 - `/admin/videos`
+- `/admin/services`
 - `/admin/reports`
 - `/admin/users`
 - `/admin/settings`
@@ -16,6 +17,8 @@ Admin routes are not public product pages. They should require an authenticated 
 - `public.admin_users`
 - `public.admin_audit_logs`
 - `marketplace.reports`
+- `service_marketplace.provider_applications`
+- `public.service_admin_provider_applications`
 - `public.is_admin(uid uuid)`
 - `public.admin_role(uid uuid)`
 
@@ -52,6 +55,16 @@ Report statuses:
 - `resolved`
 - `dismissed`
 
+Service provider application statuses:
+
+- `pending_review`
+- `reviewing`
+- `approved`
+- `rejected`
+- `archived`
+
+Approving a service provider application does not create an active public provider. A future admin flow must create or update `service_marketplace.providers`, `branches`, and `offerings` explicitly.
+
 ## Vertical Awareness
 
 Admin remains one shared moderation surface. WEB-12 prepares vertical labels and future filtering, but current `marketplace.listings` rows are still car-backed because `vehicle_profile_id` is mandatory.
@@ -81,5 +94,6 @@ set role = excluded.role,
 
 - Admin pages should never be linked as public content.
 - Reports are private.
+- Service provider applications are private and must not appear in public service pages or Rif context.
 - Admin actions should write audit records to `public.admin_audit_logs`.
 - Admin routes are excluded from sitemap and disallowed in robots.

@@ -15,6 +15,7 @@
 - WEB-11: Turkish/English i18n foundation with Turkish canonical URLs and English `/en` routes.
 - WEB-12: scalable marketplace vertical registry, capability model, and future vertical landing architecture.
 - AI-01: provider-independent Rif assistant foundation with local deterministic guidance and disabled provider fallback.
+- SERVICE-01: service marketplace foundation with service categories, providers, branches, offerings, private provider applications, public discovery, and admin/Rif readiness.
 
 ## Paused
 
@@ -27,20 +28,22 @@
 3. ANALYTICS-01: product analytics.
 4. MEDIA-01B: legacy image variant backfill.
 5. MEDIA-02: server-side image worker, blur readiness, and moderation automation.
-6. WEB-13: commercial vehicles persistence and publishing.
-7. WEB-14: water vehicles persistence and publishing.
-8. WEB-15: spare parts marketplace.
-9. WEB-16: insurance and services.
-10. AI-02: external AI provider activation after legal/privacy/rate-limit review.
-11. MOBILE-01: PWA/mobile foundation.
-12. PAY-01: paid listing products.
-13. DEV-02: code audit / team handoff.
+6. BOOKING-01: service request and appointment architecture after provider operations are approved.
+7. WEB-13: commercial vehicles persistence and publishing.
+8. WEB-14: water vehicles persistence and publishing.
+9. WEB-15: spare parts marketplace.
+10. WEB-16: insurance foundation.
+11. AI-02: external AI provider activation after legal/privacy/rate-limit review.
+12. MOBILE-01: PWA/mobile foundation.
+13. PAY-01: paid listing products.
+14. DEV-02: code audit / team handoff.
 
 ## Long-Term Product Areas
 
 - TRAMER/SBM integrations.
 - Insurance records.
 - Expert inspection workflows.
+- Service-provider bookings, work orders, and verified service history.
 - More robust price analysis.
 - AI listing help through a real provider only after AI-02 activation.
 - Seller verification.

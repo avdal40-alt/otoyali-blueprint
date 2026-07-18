@@ -23,6 +23,14 @@ export function buildAssistantPromptMessages(request: AiRequest): AiPromptMessag
         locale: request.locale,
         vertical: request.vertical,
         surface: request.surface,
+        service: request.context.service
+          ? {
+              category: request.context.service.category,
+              providerSlug: request.context.service.providerSlug,
+              city: request.context.service.city,
+              district: request.context.service.district
+            }
+          : undefined,
         intent: request.intent,
         responseFormat: "AiResponse JSON"
       })

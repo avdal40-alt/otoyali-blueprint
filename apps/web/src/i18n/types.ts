@@ -22,6 +22,7 @@ export type Dictionary = {
   myListings: DictionarySection;
   auth: DictionarySection;
   video: DictionarySection;
+  services: DictionarySection;
   admin: DictionarySection;
   legal: DictionarySection;
   trust: DictionarySection;
@@ -46,6 +47,7 @@ export type ClientDictionary = Pick<
   | "profile"
   | "favorites"
   | "myListings"
+  | "services"
   | "admin"
   | "auth"
   | "errors"

@@ -234,6 +234,194 @@ export const tr = {
     login: "Giriş yap",
     contentProvided: "Video içeriği satıcı tarafından sağlanmıştır."
   },
+  services: {
+    seo: {
+      title: "Servisler",
+      description: "OTOYALI servis ağı; ekspertiz, bakım, onarım ve araç hizmetleri için güvenli keşif alanı olarak hazırlanıyor."
+    },
+    hero: {
+      badge: "Servis marketplace",
+      title: "OTOYALI servis ağı",
+      subtitle: "Ekspertiz, bakım, onarım, lastik, elektrikli araç ve çekici hizmetleri için onaylı servis sağlayıcıları tek yerde keşfetmeniz için hazırlanıyor."
+    },
+    discoveryEyebrow: "Keşif",
+    categoriesTitle: "Servis kategorileri",
+    specializationsEyebrow: "Araç ve ihtiyaç türü",
+    specializationsTitle: "Hazırlanan uzmanlık alanları",
+    filters: {
+      clearCategory: "Tüm servisler"
+    },
+    providers: {
+      eyebrow: "Onaylı sağlayıcılar",
+      title: "Servis sağlayıcıları",
+      summaryFallback: "Bu sağlayıcının herkese açık açıklaması henüz eklenmedi.",
+      branchCount: "{count} şube"
+    },
+    empty: {
+      title: "OTOYALI servis ağı hazırlanıyor.",
+      body: "Onaylı servisler eklendikçe burada görünecek. Şimdilik kategori yapısını inceleyebilir veya servis ağımıza başvurabilirsiniz."
+    },
+    currentAvailability: {
+      badge: "Mevcut durum",
+      title: "Randevu ve fiyat garantisi yok",
+      body: "SERVICE-01 yalnızca servis marketplace temelini hazırlar. Gerçek randevu, müsaitlik, iş emri, ödeme, fiyat garantisi veya yorum sistemi bu aşamada yoktur."
+    },
+    joinNetwork: {
+      cta: "Servis ağına katıl"
+    },
+    trust: {
+      cta: "Güven Merkezi"
+    },
+    rif: {
+      badge: "Rif hazır",
+      title: "Rif servis kararlarında genel rehberlik verebilir",
+      body: "Rif bakım, ekspertiz ve güvenli işlem konularında genel bilgi sunar. Randevu oluşturmaz, fiyat uydurmaz ve olmayan servis sağlayıcı önermemelidir.",
+      cta: "Rif'e sor"
+    },
+    contact: {
+      requestSoon: "Servis talebi yakında"
+    },
+    provider: {
+      notFoundTitle: "Servis sağlayıcı bulunamadı",
+      notFoundDescription: "Bu servis sağlayıcı yayında değil veya mevcut değil.",
+      seoDescriptionFallback: "OTOYALI üzerinde onaylı servis sağlayıcı profili.",
+      publicProfile: "Servis profili",
+      platformReviewed: "Platform incelemesinden geçti",
+      branchesTitle: "Şubeler ve hizmetler",
+      trustDisclaimer: "Bu profil yalnızca sağlayıcının yayınlanmış public bilgilerini gösterir. OTOYALI bu aşamada randevu, fiyat, çalışma saati veya işlem sonucu garantisi vermez."
+    },
+    offerings: {
+      empty: "Bu şube için aktif public hizmet listesi henüz eklenmedi."
+    },
+    status: {
+      activeProvider: "Aktif sağlayıcı",
+      activeBranch: "Aktif şube",
+      pendingReview: "Onay bekliyor",
+      temporarilyClosed: "Geçici kapalı",
+      unavailable: "Uygun değil",
+      suspended: "Askıya alındı",
+      rejected: "Reddedildi",
+      archived: "Arşivlendi"
+    },
+    pricing: {
+      quoteRequired: "Fiyat teklif ile netleşir",
+      startingFrom: "{price} başlangıç",
+      unavailable: "Fiyat bilgisi yok"
+    },
+    duration: {
+      notProvided: "Süre bilgisi yok",
+      minutes: "{minutes} dk",
+      rangeMinutes: "{min}-{max} dk"
+    },
+    booking: {
+      requestOnly: "Talep modeli için hazır",
+      instantFuture: "Anlık randevu gelecek aşama",
+      contactProvider: "Sağlayıcı ile iletişim",
+      unavailable: "Randevu yok"
+    },
+    apply: {
+      seoTitle: "Servis ağı başvurusu",
+      seoDescription: "OTOYALI servis marketplace ağına katılım başvurusu.",
+      badge: "Sağlayıcı başvurusu",
+      title: "Servis ağımıza katılın",
+      subtitle: "Başvuru gönderimi otomatik yayın anlamına gelmez. Bilgileriniz OTOYALI ekibi tarafından incelendikten sonra uygun sağlayıcılar gelecekte yayına alınır.",
+      truthfulTitle: "Otomatik yayın yok",
+      truthfulBody: "Başvuru yalnızca inceleme kuyruğuna alınır; public profil admin onayı olmadan oluşmaz.",
+      reviewTitle: "Moderasyon hazır",
+      reviewBody: "Servis sağlayıcı, şube ve hizmet durumları admin incelemesiyle yönetilecek şekilde tasarlandı.",
+      noBookingTitle: "Randevu yok",
+      noBookingBody: "Bu aşama takvim, müsaitlik, iş emri veya ödeme akışı oluşturmaz.",
+      progressiveAuthBadge: "Telefonla giriş gerekli",
+      loginTitle: "Başvuru göndermek için giriş yapın.",
+      loginBody: "Servis başvurusu kişisel iletişim bilgisi içerdiği için telefonla güvenli girişten sonra alınır.",
+      loginCta: "Telefonla giriş yap",
+      backToServices: "Servislere dön",
+      pendingBadge: "Onay bekliyor",
+      successTitle: "Başvurunuz inceleme kuyruğuna alındı.",
+      successBody: "Bu işlem sağlayıcının yayına alındığı anlamına gelmez. OTOYALI ekibi bilgileri inceledikten sonra uygun adaylarla ilerleyecek.",
+      submit: "Başvuruyu gönder",
+      reviewNote: "Gönderimler onay bekleyen başvuru olarak saklanır.",
+      categoryHelper: "Şu anda sunduğunuz ana hizmet türlerini seçin.",
+      verticalHelper: "Hizmet verdiğiniz araç türlerini seçin.",
+      notesHelper: "Uzmanlıklarınızı, ekipmanınızı veya şehir kapsamınızı kısa yazabilirsiniz.",
+      fields: {
+        businessName: "İşletme adı",
+        contactPersonName: "Yetkili kişi",
+        contactPhone: "Telefon",
+        city: "Şehir",
+        district: "İlçe",
+        websiteUrl: "Web sitesi",
+        categories: "Servis kategorileri",
+        supportedVerticals: "Desteklenen araç türleri",
+        notes: "Notlar",
+        consentAccuracy: "Gönderdiğim bilgilerin doğru olduğunu onaylıyorum."
+      },
+      verticals: {
+        cars: "Otomobiller",
+        commercial: "Ticari araçlar",
+        motorcycles: "Motosikletler",
+        marine: "Deniz araçları"
+      }
+    },
+    validation: {
+      businessNameRequired: "İşletme adını girin.",
+      contactNameRequired: "Yetkili kişi adını girin.",
+      phoneInvalid: "Telefon numarasını kontrol edin.",
+      cityRequired: "Şehir bilgisini girin.",
+      categoryRequired: "En az bir servis kategorisi seçin.",
+      verticalRequired: "En az bir araç türü seçin.",
+      websiteInvalid: "Geçerli ve güvenli bir web sitesi girin.",
+      consentRequired: "Bilgi doğruluğu onayı gerekir.",
+      tooLong: "Bu alan çok uzun."
+    },
+    categories: {
+      periodic_maintenance: { label: "Periyodik bakım", description: "Yağ, filtre ve düzenli bakım kontrolleri." },
+      diagnostics: { label: "Arıza tespit", description: "Elektronik ve mekanik arıza tanılama." },
+      engine_repair: { label: "Motor onarımı", description: "Motor performansı, mekanik onarım ve revizyon ihtiyaçları." },
+      transmission: { label: "Şanzıman", description: "Otomatik ve manuel şanzıman servisleri." },
+      brakes: { label: "Fren", description: "Fren balatası, disk ve güvenlik kontrolleri." },
+      suspension: { label: "Süspansiyon", description: "Amortisör, rot, balans ve yürüyen aksam hizmetleri." },
+      electrical: { label: "Elektrik", description: "Araç elektroniği, aydınlatma ve elektrik arızaları." },
+      air_conditioning: { label: "Klima", description: "Klima bakım, gaz dolumu ve arıza kontrolleri." },
+      tires: { label: "Lastik", description: "Lastik değişimi, balans ve mevsimsel lastik hizmetleri." },
+      battery: { label: "Akü", description: "Akü kontrol, değişim ve şarj sistemleri." },
+      oil_change: { label: "Yağ değişimi", description: "Motor yağı ve filtre değişimi." },
+      body_repair: { label: "Kaporta", description: "Kaporta onarım ve gövde düzeltme işlemleri." },
+      paint: { label: "Boya", description: "Boya, rötuş ve yüzey yenileme hizmetleri." },
+      glass: { label: "Cam", description: "Cam onarım ve değişim hizmetleri." },
+      detailing: { label: "Detaylı temizlik", description: "İç-dış detailing, boya koruma ve bakım." },
+      car_wash: { label: "Oto yıkama", description: "Temel yıkama ve temizlik hizmetleri." },
+      inspection: { label: "Ekspertiz", description: "Araç alım-satım öncesi kontrol ve raporlama." },
+      towing: { label: "Çekici", description: "Yol yardım ve çekici hizmetleri." },
+      ev_service: { label: "Elektrikli araç servisi", description: "Elektrikli araç bakım ve elektrik sistemi uzmanlığı." },
+      marine_service: { label: "Deniz aracı servisi", description: "Tekne, bot ve deniz motoru servis ihtiyaçları." },
+      commercial_vehicle_service: { label: "Ticari araç servisi", description: "Kamyonet, kamyon ve filo odaklı servis ihtiyaçları." },
+      motorcycle_service: { label: "Motosiklet servisi", description: "Motosiklet bakım ve onarım hizmetleri." },
+      other: { label: "Diğer servisler", description: "Diğer özel araç hizmetleri." }
+    },
+    specializations: {
+      passenger_cars: { label: "Otomobil", description: "Binek araç odaklı bakım ve servis." },
+      commercial_vehicles: { label: "Ticari", description: "Ticari araç ve filo ihtiyaçları." },
+      motorcycles: { label: "Motosiklet", description: "Motosiklet bakım ve onarım." },
+      marine: { label: "Deniz", description: "Deniz araçları için servis hazırlığı." },
+      electric_vehicles: { label: "Elektrikli", description: "Elektrikli araç bakım uzmanlığı." },
+      hybrid_vehicles: { label: "Hibrit", description: "Hibrit sistemlere yönelik servis." },
+      body_repair: { label: "Kaporta/boya", description: "Gövde, boya ve cam işlemleri." },
+      tires: { label: "Lastik", description: "Lastik ve yol tutuş hizmetleri." },
+      detailing: { label: "Detailing", description: "Koruma ve temizlik odaklı hizmetler." },
+      roadside_towing: { label: "Yol yardım", description: "Çekici ve acil durum kapsamı." }
+    },
+    admin: {
+      nav: "Servisler",
+      title: "Servis başvuruları",
+      empty: "Onay bekleyen servis başvurusu yok.",
+      approve: "Onayla",
+      review: "İncelemede",
+      reject: "Reddet",
+      archive: "Arşivle",
+      approvedNote: "Başvuru onaylandı; public sağlayıcı profili ayrı admin adımıyla oluşturulmalıdır."
+    }
+  },
   admin: {
     title: "Admin",
     accessRequiredTitle: "Admin paneline erişmek için giriş yapın.",
@@ -241,6 +429,7 @@ export const tr = {
     login: "Giriş yap",
     listings: "İlanlar",
     videos: "Videolar",
+    services: "Servisler",
     reports: "Bildirimler",
     users: "Kullanıcılar",
     settings: "Ayarlar"
@@ -496,7 +685,9 @@ export const tr = {
       openSearch: "İlanları ara",
       openCars: "Otomobil ilanlarına git",
       openSell: "İlan yayınla",
-      openTrustCenter: "Güven Merkezi'ni aç"
+      openTrustCenter: "Güven Merkezi'ni aç",
+      openServices: "Servisleri aç",
+      joinServiceNetwork: "Servis ağına katıl"
     },
     responses: {
       intro: "Rif şu anda OTOYALI içinde güvenli bir yerel önizleme olarak çalışıyor. Araç arama filtreleri, ilan hazırlama kontrol listesi ve güvenli alışveriş için genel rehberlik sunabilirim. Gelişmiş yapay zeka, gerçek fiyat tahmini, hasar geçmişi, TRAMER/VIN sorgusu veya satıcı doğrulaması henüz bağlı değil.",
@@ -507,6 +698,7 @@ export const tr = {
       listingGuidanceWithContext: "Bu sayfadaki ilan için yalnızca ekranda görünen public bilgileri dikkate alabilirsiniz. Rif eksik alanları tamamlayamaz, hasar geçmişi bilemez ve fiyatın adil olduğunu garanti edemez.",
       publishingGuidance: "Daha iyi bir ilan için net fotoğraflar, doğru teknik bilgiler, açık açıklama, gerçekçi fiyat ve dürüst hasar/geçmiş beyanı kullanın. Bu metin otomatik yayınlama veya moderasyon kararı değildir.",
       trustGuidance: "Güvenli alışveriş için belge, satıcı ve araç bilgilerini bağımsız kaynaklardan kontrol edin. Bilinmeyen kişilere kapora göndermeyin ve mümkünse ekspertiz veya bağımsız inceleme kullanın.",
+      serviceGuidance: "Servis seçiminde önce ihtiyacın türünü netleştirin: ekspertiz, periyodik bakım, arıza tespit, lastik, kaporta veya elektrikli araç servisi gibi. OTOYALI henüz randevu, fiyat garantisi veya sağlayıcı doğrulama sonucu üretmez; yalnızca public servis alanına yönlendirebilirim.",
       ownershipPlanned: "Araç sahipliği hatırlatmaları ve kişisel bakım önerileri planlanıyor, ancak AI-01 aşamasında etkin değil."
     },
     errors: {
@@ -538,6 +730,10 @@ export const tr = {
       },
       trust: {
         safety: "Güvenli alışveriş için nelere dikkat etmeliyim?"
+      },
+      services: {
+        category: "Hangi servis kategorisine bakmalıyım?",
+        booking: "Servis randevusu var mı?"
       }
     },
     capabilities: {

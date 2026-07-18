@@ -23,10 +23,10 @@ The Next.js app lives in `apps/web`.
 
 Page groups:
 
-- Public pages: `/`, `/search`, `/listing/[id]`, `/video`, news, legal/trust, and future vertical placeholders.
+- Public pages: `/`, `/search`, `/listing/[id]`, `/video`, `/servisler`, service provider pages, news, legal/trust, and future vertical placeholders.
 - Protected user pages: `/sell`, `/profile`, `/my-listings`, `/favorites`, `/settings`.
 - Auth pages: `/login`, `/otp`, `/auth/callback`.
-- Admin pages: `/admin`, `/admin/listings`, `/admin/videos`, `/admin/reports`, `/admin/users`, `/admin/settings`.
+- Admin pages: `/admin`, `/admin/listings`, `/admin/videos`, `/admin/services`, `/admin/reports`, `/admin/users`, `/admin/settings`.
 - SEO pages: make, model, city, condition/fuel/body-style landing pages.
 
 Shared code is under:
@@ -57,12 +57,28 @@ Vertical architecture is documented in [VERTICAL_ARCHITECTURE.md](./VERTICAL_ARC
 Current implementation:
 
 - Cars are the only active listing vertical.
-- Commercial vehicles, marine vehicles, spare parts, services, and insurance are truthful coming-soon landing pages.
+- Commercial vehicles, marine vehicles, spare parts, and insurance are truthful coming-soon landing pages.
+- Services have a dedicated SERVICE-01 foundation for category discovery, active provider pages, private provider applications, and admin review readiness.
 - `src/lib/marketplace/verticals.ts` is the central registry for IDs, routes, labels, capabilities, statuses, SEO inclusion, and supported seller/media types.
 - `src/lib/marketplace/attributes.ts` prepares typed attribute configs for future vertical stages.
 - `src/lib/marketplace/types.ts` defines shared cross-vertical listing/search/media/seller contracts.
 
-No WEB-12 migration was created. Current `marketplace.listings` still requires `vehicle_profile_id`, so non-car persistence needs a future additive data-model task before real non-car listings can exist.
+No WEB-12 migration was created. Current `marketplace.listings` still requires `vehicle_profile_id`, so non-car listings need a future additive data-model task before real non-car listings can exist. Service providers are intentionally not vehicle listings and use `service_marketplace`.
+
+## Service Marketplace
+
+SERVICE-01 is documented in [SERVICE_MARKETPLACE_ARCHITECTURE.md](./SERVICE_MARKETPLACE_ARCHITECTURE.md).
+
+Current implementation:
+
+- Schema: `service_marketplace`.
+- Public routes: `/servisler`, `/en/services`, `/servisler/[slug]`, `/en/services/[slug]`.
+- Provider application routes: `/servisler/basvuru`, `/en/services/apply`.
+- Admin readiness route: `/admin/services`.
+- Public Supabase projections expose only active providers, active branches, active offerings, and active standardized categories.
+- Provider applications are private, phone-authenticated, and never self-activate public provider profiles.
+
+SERVICE-01 does not implement bookings, appointment slots, prices, ratings, CRM, work orders, payments, or service history.
 
 ## AI Assistant Foundation
 
@@ -77,6 +93,7 @@ Current implementation:
 - No AI SDK, external model call, embedding store, conversation persistence, or Supabase migration exists.
 - The assistant is mounted once from the root layout and hidden from admin/auth/debug/profile/favorites/internal pages.
 - AI context uses the WEB-12 vertical type and keeps inactive verticals to general guidance only.
+- Service pages add safe service context: category, provider slug, city, and district only.
 
 The assistant must not invent missing listing facts, claim access to TRAMER/VIN databases, guarantee price fairness, guarantee seller trust, or expose private seller/admin data.
 
@@ -143,7 +160,9 @@ MEDIA-01 keeps image processing lightweight and browser-side:
 - Cities: `marketplace.cities`
 - Reports: `marketplace.reports`
 - Admin users/audit: `public.admin_users`, `public.admin_audit_logs`
+- Services: `service_marketplace.providers`, `service_marketplace.branches`, `service_marketplace.categories`, `service_marketplace.offerings`, `service_marketplace.provider_applications`
 - Public compatibility views: `public.ff_*`
+- Service public views: `public.service_public_*`
 
 ## Runtime Diagram
 

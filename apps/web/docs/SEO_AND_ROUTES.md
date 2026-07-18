@@ -5,6 +5,8 @@
 - `/`
 - `/search`
 - `/video`
+- `/servisler`
+- `/servisler/[slug]`
 - `/listing/[id]`
 - `/sell`
 - `/login`
@@ -38,6 +40,8 @@ English routes use `/en`:
 - `/en/marine-vehicles`
 - `/en/spare-parts`
 - `/en/services`
+- `/en/services/[slug]`
+- `/en/services/apply`
 - `/en/insurance`
 - `/en/make/[makeSlug]`
 - `/en/city/[citySlug]`
@@ -61,10 +65,20 @@ Middleware rewrites English route aliases back to the existing internal routes. 
 - `/deniz-araclari`
 - `/yedek-parca`
 - `/sigorta`
-- `/servisler`
 - `/ai-asistan`
 
 Marketplace vertical routes are generated from `src/lib/marketplace/verticals.ts` where possible. `ai-asistan` is a future feature placeholder, not a marketplace vertical.
+
+## Service Routes
+
+- `/servisler`
+- `/servisler/[slug]`
+- `/servisler/basvuru`
+- `/en/services`
+- `/en/services/[slug]`
+- `/en/services/apply`
+
+The service landing and active public provider pages are crawlable. Provider application pages are public to view but use `noindex` and are not included in sitemap. They require phone authentication for submission.
 
 ## Legal And Trust Pages
 
@@ -96,7 +110,9 @@ Rules:
 - Include public Turkish canonical routes and safe English `/en` routes.
 - Include registry-backed vertical landing routes only when they are real public pages.
 - Include limited dynamic listing URLs.
+- Include active service provider URLs only from `public.service_public_providers`.
 - Do not include private routes.
+- Do not include service provider application routes.
 - Do not include admin routes.
 - Do not include auth callback routes.
 - Do not include `/akis`.

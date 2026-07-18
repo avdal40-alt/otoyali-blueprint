@@ -53,6 +53,8 @@ export type AiSurface =
   | "profile"
   | "favorites"
   | "video"
+  | "service_marketplace"
+  | "service_provider"
   | "vertical_landing"
   | "trust"
   | "admin";
@@ -101,6 +103,13 @@ export type AiPublishingContext = {
   hasPhotos?: boolean | null;
 };
 
+export type AiServiceContext = {
+  category?: string | null;
+  providerSlug?: string | null;
+  city?: string | null;
+  district?: string | null;
+};
+
 export type AiContext = {
   surface: AiSurface;
   locale: Locale;
@@ -109,6 +118,7 @@ export type AiContext = {
   listing?: AiPublicListingContext;
   search?: AiSearchContext;
   publishing?: AiPublishingContext;
+  service?: AiServiceContext;
   userState?: AiUserState;
   sellerType?: string | null;
 };
@@ -179,6 +189,11 @@ export type AiStructuredData =
   | {
       type: "trust_checklist";
       items: AiChecklistItem[];
+    }
+  | {
+      type: "service_guidance";
+      categories: string[];
+      unavailableFeatures: string[];
     };
 
 export type AiResponse = {

@@ -27,6 +27,8 @@ const allowedSurfaces: AiSurface[] = [
   "profile",
   "favorites",
   "video",
+  "service_marketplace",
+  "service_provider",
   "vertical_landing",
   "trust",
   "admin"
@@ -202,6 +204,15 @@ function readContext(value: unknown, locale: Locale) {
       vertical: rawVertical,
       step: cleanOptionalText(value.publishing.step, 80),
       hasPhotos: typeof value.publishing.hasPhotos === "boolean" ? value.publishing.hasPhotos : null
+    };
+  }
+
+  if (isObject(value.service)) {
+    context.service = {
+      category: cleanOptionalText(value.service.category, 80),
+      providerSlug: cleanOptionalText(value.service.providerSlug, 100),
+      city: cleanOptionalText(value.service.city, 80),
+      district: cleanOptionalText(value.service.district, 80)
     };
   }
 

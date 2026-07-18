@@ -28,6 +28,7 @@
 - [ ] `npx.cmd supabase db push` tested on a safe environment.
 - [ ] SELL-02 migration applied: `20260715120000_sell02_publish_journey_rls.sql`.
 - [ ] MEDIA-01 migration applied before deploying code that selects media variant columns.
+- [ ] SERVICE-01 migration applied before deploying service marketplace discovery/application code.
 
 ## Vercel Access
 
@@ -85,6 +86,16 @@
 - [ ] `/sell` still defaults to cars.
 - [ ] Existing car `/search`, `/sell`, and `/listing/[id]` flows still work.
 
+## Service Marketplace
+
+- [ ] Read `docs/SERVICE_MARKETPLACE_ARCHITECTURE.md` before changing service pages or schema.
+- [ ] `/servisler` and `/en/services` render without fake providers.
+- [ ] `/servisler/basvuru` and `/en/services/apply` preserve phone-first progressive auth.
+- [ ] Provider applications remain private and require authenticated submission.
+- [ ] `/admin/services` loads only for active admins.
+- [ ] Public provider pages resolve only active providers from `public.service_public_providers`.
+- [ ] No bookings, fake slots, fake ratings, fake prices, CRM, work orders, payments, or service history are added in SERVICE-01.
+
 ## AI Assistant
 
 - [ ] Read `docs/AI_ARCHITECTURE.md` before changing assistant behavior.
@@ -99,6 +110,7 @@
 - [ ] No secrets are committed or exposed as `NEXT_PUBLIC_*`.
 - [ ] Assistant responses do not claim TRAMER/VIN access, accident history, seller verification, mechanical certainty, legal certainty, or guaranteed price fairness.
 - [ ] Provider output actions are internal and allowlisted.
+- [ ] Service-page Rif guidance does not invent providers, bookings, availability, prices, or repair certainty.
 - [ ] Future provider activation follows the checklist in `docs/AI_ARCHITECTURE.md`.
 
 ## SEO
@@ -114,6 +126,7 @@
 - [ ] `/akis` excluded from sitemap.
 - [ ] `/akis` redirects to `/video`.
 - [ ] Legal pages are crawlable.
+- [ ] Active service provider pages are sitemap-ready; service applications are not in sitemap.
 
 ## Internationalization
 
@@ -147,6 +160,7 @@
 - [ ] Report flow private.
 - [ ] Debug route disabled in production.
 - [ ] AI endpoint does not expose stack traces, provider config, environment values, user tokens, phone numbers, hidden moderation notes, or private profile data.
+- [ ] Service public views do not expose provider owner IDs, application content, private contact-person data, or moderation notes.
 
 ## Pre-Soft-Launch
 

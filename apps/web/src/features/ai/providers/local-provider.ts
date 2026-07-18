@@ -41,6 +41,10 @@ function buildDeterministicResponse(request: AiRequest): LocalResponseShape {
   const normalizedText = request.userMessage.toLocaleLowerCase(request.locale === "tr" ? "tr-TR" : "en-US");
   const inferredIntent = request.intent === "unsupported" ? inferIntentFromMessage(normalizedText) : request.intent;
 
+  if (request.surface === "service_marketplace" || request.surface === "service_provider") {
+    return serviceGuidance(request);
+  }
+
   if (request.vertical !== "cars" && inferredIntent !== "general_help" && inferredIntent !== "trust_and_safety") {
     return {
       status: "unsupported",
@@ -72,6 +76,35 @@ function buildDeterministicResponse(request: AiRequest): LocalResponseShape {
     default:
       return introResponse(request);
   }
+}
+
+function serviceGuidance(request: AiRequest): LocalResponseShape {
+  const categories =
+    request.locale === "tr"
+      ? ["Ekspertiz", "Periyodik bakım", "Arıza tespit", "Lastik", "Kaporta/boya", "Elektrikli araç servisi"]
+      : ["Inspection", "Scheduled maintenance", "Diagnostics", "Tires", "Body/paint", "EV service"];
+  const unavailableFeatures =
+    request.locale === "tr"
+      ? ["Randevu oluşturma", "Müsaitlik kontrolü", "Fiyat garantisi", "Servis sonucu doğrulaması"]
+      : ["Booking creation", "Availability checks", "Price guarantees", "Service-outcome verification"];
+
+  return {
+    status: "success",
+    message: t(request.locale, "ai.responses.serviceGuidance"),
+    structuredData: [
+      {
+        type: "service_guidance",
+        categories,
+        unavailableFeatures
+      }
+    ],
+    actions: compactActions([
+      createAssistantAction("navigate", t(request.locale, "ai.actions.openServices"), "/servisler", request.locale),
+      createAssistantAction("navigate", t(request.locale, "ai.actions.joinServiceNetwork"), "/servisler/basvuru", request.locale),
+      createAssistantAction("open_trust_center", t(request.locale, "ai.actions.openTrustCenter"), "/trust", request.locale)
+    ]),
+    warnings: ["informational_only", "feature_not_connected", "verify_independently"]
+  };
 }
 
 function introResponse(request: AiRequest): LocalResponseShape {

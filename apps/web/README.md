@@ -33,6 +33,7 @@ Start here for handoff and maintenance:
 - [docs/SEO_AND_ROUTES.md](./docs/SEO_AND_ROUTES.md)
 - [docs/I18N.md](./docs/I18N.md)
 - [docs/VERTICAL_ARCHITECTURE.md](./docs/VERTICAL_ARCHITECTURE.md)
+- [docs/SERVICE_MARKETPLACE_ARCHITECTURE.md](./docs/SERVICE_MARKETPLACE_ARCHITECTURE.md)
 - [docs/AI_ARCHITECTURE.md](./docs/AI_ARCHITECTURE.md)
 - [docs/PERFORMANCE.md](./docs/PERFORMANCE.md)
 - [docs/MEDIA.md](./docs/MEDIA.md)
@@ -91,6 +92,22 @@ Current behavior:
 - no valuation, TRAMER/VIN lookup, accident-history lookup, seller verification, or insurance quote claims
 
 Read [docs/AI_ARCHITECTURE.md](./docs/AI_ARCHITECTURE.md) before changing assistant behavior or activating a real provider.
+
+## Service Marketplace Foundation
+
+SERVICE-01 adds the service marketplace foundation in `service_marketplace` plus public routes:
+
+- `/servisler`
+- `/en/services`
+- `/servisler/basvuru`
+- `/en/services/apply`
+- `/servisler/[slug]`
+- `/en/services/[slug]`
+- `/admin/services`
+
+It supports service categories, providers, branches, offerings, private provider applications, public discovery projections, admin review readiness, and safe Rif service context. It does not implement bookings, fake providers, fake slots, ratings, CRM, work orders, payments, or service history.
+
+Read [docs/SERVICE_MARKETPLACE_ARCHITECTURE.md](./docs/SERVICE_MARKETPLACE_ARCHITECTURE.md) before extending services.
 
 ## Environment Variables
 
@@ -163,6 +180,10 @@ Public browsing uses existing public views:
 - `public.ff_listing_media`
 - public video feed read view
 - `public.ff_listing_video_counts`
+- `public.service_public_categories`
+- `public.service_public_providers`
+- `public.service_public_provider_details`
+- `public.service_public_offerings`
 - `public.ff_makes`
 - `public.ff_models`
 - `public.profiles`
@@ -180,6 +201,7 @@ Authenticated mutations use existing domain tables:
 - `vehicle.profile_media`
 - `marketplace.listings`
 - `marketplace.listing_videos`
+- `service_marketplace.provider_applications`
 
 WEB-01 adds one minimal migration for:
 
@@ -198,6 +220,16 @@ Apply migrations before testing OTOYALI Video:
 ```bash
 npx supabase db push
 ```
+
+SERVICE-01 adds:
+
+- `service_marketplace.categories`
+- `service_marketplace.providers`
+- `service_marketplace.branches`
+- `service_marketplace.offerings`
+- `service_marketplace.provider_applications`
+- public service read views
+- admin provider-application review view
 
 ## OTOYALI Video
 

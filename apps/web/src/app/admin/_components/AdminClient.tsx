@@ -18,8 +18,9 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { isMissingAuthSessionError } from "@/lib/auth/auth-ui";
 import { formatPrice } from "@/lib/format";
 import { getBestImageUrl, isImageProcessingFailed } from "@/lib/media/image-variants";
+import type { ServiceProviderApplicationAdminRow } from "@/lib/supabase/types";
 
-type AdminSection = "dashboard" | "listings" | "videos" | "reports" | "users" | "settings";
+type AdminSection = "dashboard" | "listings" | "videos" | "services" | "reports" | "users" | "settings";
 
 type AdminState = {
   status: "loading" | "login" | "denied" | "ready" | "error";
@@ -115,6 +116,7 @@ const navItems: Array<{ section: AdminSection; href: string; label: string }> = 
   { section: "dashboard", href: "/admin", label: "Dashboard" },
   { section: "listings", href: "/admin/listings", label: "İlanlar" },
   { section: "videos", href: "/admin/videos", label: "Videolar" },
+  { section: "services", href: "/admin/services", label: "Servisler" },
   { section: "reports", href: "/admin/reports", label: "Şikayetler" },
   { section: "users", href: "/admin/users", label: "Kullanıcılar" },
   { section: "settings", href: "/admin/settings", label: "Ayarlar" }
@@ -209,6 +211,7 @@ function AdminSectionContent({ section, userId, role, locale }: { section: Admin
   if (section === "dashboard") return <Dashboard userId={userId} />;
   if (section === "listings") return <ListingsModeration userId={userId} locale={locale} />;
   if (section === "videos") return <VideosModeration userId={userId} />;
+  if (section === "services") return <ServiceApplicationsModeration userId={userId} locale={locale} />;
   if (section === "reports") return <ReportsModeration userId={userId} />;
   if (section === "users") return <UsersOverview />;
   return <AdminSettings role={role} />;
@@ -516,6 +519,98 @@ function VideosModeration({ userId }: { userId: string }) {
             <SmallButton onClick={() => moderate(row, "archive")} variant="secondary">Arşivle</SmallButton>
             {row.listing_id ? <Link href={`/listing/${row.listing_id}`} className="rounded-md border border-oto-border px-3 py-2 text-xs font-black text-oto-text">İlan</Link> : null}
             <Link href={row.listing_id ? `/video?listing=${row.listing_id}` : "/video"} className="rounded-md border border-oto-border px-3 py-2 text-xs font-black text-oto-text">Önizle</Link>
+          </div>
+        </div>
+      ))}
+    </AdminTableShell>
+  );
+}
+
+function ServiceApplicationsModeration({ userId, locale }: { userId: string; locale: Locale }) {
+  const [rows, setRows] = useState<ServiceProviderApplicationAdminRow[]>([]);
+  const [filter, setFilter] = useState("pending_review");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async function load() {
+    setLoading(true);
+    const supabase = getSupabaseBrowserClient();
+    let query = supabase
+      .from("service_admin_provider_applications")
+      .select("application_id,submitter_id,status,business_name,contact_person_name,contact_phone,city,district,category_keys,supported_verticals,website_url,notes,consent_accuracy,moderation_note,reviewed_by,reviewed_at,created_at,updated_at")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (filter !== "all") query = query.eq("status", filter);
+    const { data, error: applicationError } = await query;
+    setRows((data ?? []) as ServiceProviderApplicationAdminRow[]);
+    setError(applicationError?.message ?? null);
+    setLoading(false);
+  }, [filter]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function updateApplication(application: ServiceProviderApplicationAdminRow, status: "reviewing" | "approved" | "rejected" | "archived") {
+    const defaultNote = status === "approved" ? t(locale, "services.admin.approvedNote") : "";
+    const note = window.prompt("Kısa not", defaultNote)?.trim() ?? null;
+    if ((status === "rejected" || status === "archived") && !note) return;
+    const supabase = getSupabaseBrowserClient();
+    const patch = {
+      status,
+      moderation_note: note,
+      reviewed_by: userId,
+      reviewed_at: new Date().toISOString()
+    };
+    const { error: updateError } = await supabase.schema("service_marketplace").from("provider_applications").update(patch).eq("id", application.application_id);
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+    await logAdminAction(userId, `${status}_service_application`, "service_provider_application", application.application_id, {
+      note,
+      previous_status: application.status
+    });
+    await load();
+  }
+
+  return (
+    <AdminTableShell
+      title={t(locale, "services.admin.title")}
+      filter={
+        <select value={filter} onChange={(event) => setFilter(event.target.value)} className="h-10 rounded-md border border-oto-border bg-white px-3 text-sm font-bold">
+          <option value="all">Tümü</option>
+          <option value="pending_review">Onay bekleyen</option>
+          <option value="reviewing">İnceleniyor</option>
+          <option value="approved">Onaylandı</option>
+          <option value="rejected">Reddedildi</option>
+          <option value="archived">Arşivlendi</option>
+        </select>
+      }
+      loading={loading}
+      error={error}
+      empty={rows.length === 0}
+    >
+      {rows.map((row) => (
+        <div key={row.application_id} className="grid gap-3 border-b border-oto-border py-4 last:border-b-0 lg:grid-cols-[1.2fr_1fr_1fr_1.3fr] lg:items-center">
+          <div>
+            <p className="font-black text-oto-text">{row.business_name || "Servis başvurusu"}</p>
+            <p className="mt-1 text-xs font-bold text-oto-muted">{row.contact_person_name || "-"} · {row.contact_phone || "-"}</p>
+            {row.website_url ? <p className="mt-1 break-all text-xs font-bold text-oto-blue">{row.website_url}</p> : null}
+          </div>
+          <div className="text-xs font-bold text-oto-muted">
+            <p>{[row.city, row.district].filter(Boolean).join(" / ") || "Konum yok"}</p>
+            <p>{(row.supported_verticals ?? []).join(", ") || "Araç türü yok"}</p>
+          </div>
+          <div className="text-xs font-bold text-oto-muted">
+            <p>{(row.category_keys ?? []).join(", ") || "Kategori yok"}</p>
+            <p className="mt-1 font-black text-oto-text">{row.status || "pending_review"}</p>
+          </div>
+          <div className="flex flex-wrap gap-2 lg:justify-end">
+            <SmallButton onClick={() => updateApplication(row, "reviewing")}>{t(locale, "services.admin.review")}</SmallButton>
+            <SmallButton onClick={() => updateApplication(row, "approved")} variant="secondary">{t(locale, "services.admin.approve")}</SmallButton>
+            <SmallButton onClick={() => updateApplication(row, "rejected")} variant="secondary">{t(locale, "services.admin.reject")}</SmallButton>
+            <SmallButton onClick={() => updateApplication(row, "archived")} variant="secondary">{t(locale, "services.admin.archive")}</SmallButton>
           </div>
         </div>
       ))}

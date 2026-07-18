@@ -59,6 +59,14 @@ export function sanitizeAssistantContext(context: AiContext): AiContext {
           hasPhotos: typeof context.publishing.hasPhotos === "boolean" ? context.publishing.hasPhotos : null
         }
       : undefined,
+    service: context.service
+      ? {
+          category: cleanOptionalText(context.service.category, 80),
+          providerSlug: cleanOptionalText(context.service.providerSlug, 100),
+          city: cleanOptionalText(context.service.city, 80),
+          district: cleanOptionalText(context.service.district, 80)
+        }
+      : undefined,
     userState: context.userState
       ? {
           authenticated: Boolean(context.userState.authenticated),

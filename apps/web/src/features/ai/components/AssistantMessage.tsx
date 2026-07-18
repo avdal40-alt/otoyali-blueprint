@@ -46,6 +46,25 @@ export function AssistantMessage({ message }: { message: AssistantChatMessage })
               );
             }
 
+            if (item.type === "service_guidance") {
+              return (
+                <div key={item.type} className="grid gap-3">
+                  <div className="flex flex-wrap gap-2">
+                    {item.categories.map((category) => (
+                      <Badge key={category} variant="ai">
+                        {category}
+                      </Badge>
+                    ))}
+                  </div>
+                  <ul className="grid gap-1 font-semibold text-oto-muted">
+                    {item.unavailableFeatures.map((feature) => (
+                      <li key={feature}>• {feature}</li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            }
+
             return (
               <ul key={item.type} className="grid gap-2">
                 {item.items.map((checklistItem) => (

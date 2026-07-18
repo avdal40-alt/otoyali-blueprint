@@ -44,7 +44,8 @@ Supported vertical IDs:
 Current lifecycle states:
 
 - `cars`: `active`
-- `commercial`, `marine`, `parts`, `services`, `insurance`: `coming_soon`
+- `commercial`, `marine`, `parts`, `insurance`: `coming_soon`
+- `services`: registry status remains `coming_soon` for listing/publishing capability, but SERVICE-01 adds a real provider-category foundation under `service_marketplace`.
 - `motorcycles`, `machinery`, `mobility`: `disabled`
 
 The registry is the source of truth for route paths, labels, descriptions, icons, status, SEO inclusion, home featuring, supported seller/media types, and capability defaults.
@@ -120,6 +121,8 @@ The shared listing summary intentionally includes only universal fields:
 
 Car-specific fields such as make, model, year, mileage, fuel, and transmission stay in car-specific types/components. They must not become required for spare parts, services, insurance, or marine listings.
 
+Services are not vehicle listings. Provider, branch, category, offering, and application persistence lives in `service_marketplace`; see [SERVICE_MARKETPLACE_ARCHITECTURE.md](./SERVICE_MARKETPLACE_ARCHITECTURE.md).
+
 Prepared shared UI shells live in:
 
 - `src/components/marketplace/MarketplaceListingShell.tsx`
@@ -152,7 +155,7 @@ Recommended future model:
   - `commercial.commercial_profiles`
   - `marine.vessel_profiles`
   - `parts.part_items`
-  - `services.service_offers`
+  - `service_marketplace.providers`, `branches`, `categories`, `offerings`, `provider_applications`
   - insurance offer/request tables when insurance is actually built
 - Link a listing to exactly one valid domain entity with real integrity.
 
@@ -245,7 +248,8 @@ WEB-12 does not implement:
 - commercial vehicle publishing
 - marine publishing
 - parts marketplace
-- services provider onboarding
+- BOOKING-01 service booking
+- WORKORDER-01 service work orders
 - insurance quotes
 - payments
 - shipping

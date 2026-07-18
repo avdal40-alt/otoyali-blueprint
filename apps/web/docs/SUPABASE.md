@@ -59,6 +59,11 @@ Important tables/views/functions:
 - `public.ff_models`
 - `public.ff_akis_videos` (legacy view name, powers `/video`)
 - `public.ff_listing_video_counts`
+- `public.service_public_categories`
+- `public.service_public_providers`
+- `public.service_public_provider_details`
+- `public.service_public_offerings`
+- `public.service_admin_provider_applications`
 - `vehicle.makes`
 - `vehicle.models`
 - `vehicle.vehicle_profiles`
@@ -70,6 +75,11 @@ Important tables/views/functions:
 - `marketplace.listing_favorites`
 - `marketplace.listing_videos`
 - `marketplace.reports`
+- `service_marketplace.categories`
+- `service_marketplace.providers`
+- `service_marketplace.branches`
+- `service_marketplace.offerings`
+- `service_marketplace.provider_applications`
 
 Storage buckets confirmed in migrations:
 
@@ -91,3 +101,5 @@ Storage buckets confirmed in migrations:
 ## FlutterFlow/Public View Note
 
 Some `public.ff_*` views exist as compatibility/public-read surfaces. Keep them stable because they are used by the web app and were also created for FlutterFlow compatibility.
+
+SERVICE-01 adds `public.service_public_*` views for public service discovery and `public.service_admin_provider_applications` for admin-only application review. Public service views must not expose provider owner IDs, private application fields, or moderation notes.

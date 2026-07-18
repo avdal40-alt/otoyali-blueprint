@@ -36,6 +36,8 @@ export function resolveAiSurface(pathname: string): AiSurface {
   if (internalPath.startsWith("/profile")) return "profile";
   if (internalPath.startsWith("/favorites")) return "favorites";
   if (internalPath.startsWith("/video")) return "video";
+  if (internalPath === "/servisler" || internalPath === "/servisler/basvuru") return "service_marketplace";
+  if (internalPath.startsWith("/servisler/")) return "service_provider";
   if (internalPath.startsWith("/trust")) return "trust";
   if (internalPath.startsWith("/admin")) return "admin";
   if (getVerticalByTurkishPath(internalPath)) return "vertical_landing";
@@ -97,12 +99,21 @@ export function buildAssistantContext({
     };
   }
 
+  if (surface === "service_marketplace" || surface === "service_provider") {
+    context.service = {
+      category: searchParams?.get("category"),
+      providerSlug: surface === "service_provider" ? getServiceProviderSlugFromPath(pathname) : null,
+      city: searchParams?.get("city"),
+      district: searchParams?.get("district")
+    };
+  }
+
   return context;
 }
 
 function buildSafeCurrentRoute(pathname: string, searchParams?: URLSearchParams) {
   const query = new URLSearchParams();
-  const allowedKeys = ["q", "make", "model", "city", "condition", "vertical"];
+  const allowedKeys = ["q", "make", "model", "city", "condition", "vertical", "category", "district"];
 
   for (const key of allowedKeys) {
     const values = searchParams?.getAll(key) ?? [];
@@ -119,6 +130,12 @@ function getListingIdFromPath(pathname: string) {
   const internalPath = toInternalTurkishPath(pathname);
   const [, , id] = internalPath.split("/");
   return id?.trim() || null;
+}
+
+function getServiceProviderSlugFromPath(pathname: string) {
+  const internalPath = toInternalTurkishPath(pathname);
+  const [, , slug] = internalPath.split("/");
+  return slug?.trim() || null;
 }
 
 function toInternalTurkishPath(pathname: string) {

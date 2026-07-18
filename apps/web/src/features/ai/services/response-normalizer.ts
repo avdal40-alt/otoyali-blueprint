@@ -46,6 +46,14 @@ function normalizeStructuredData(data?: AiStructuredData[]) {
       };
     }
 
+    if (item.type === "service_guidance") {
+      return {
+        type: item.type,
+        categories: normalizeStringList(item.categories, 8, 60),
+        unavailableFeatures: normalizeStringList(item.unavailableFeatures, 8, 80)
+      };
+    }
+
     return {
       type: item.type,
       items: item.items.slice(0, 8).map((checklistItem) => ({
