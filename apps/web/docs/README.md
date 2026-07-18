@@ -36,6 +36,7 @@ OTOYALI is an AI-first transport marketplace for Turkey. The current web product
 - [SEO And Routes](./SEO_AND_ROUTES.md)
 - [Internationalization](./I18N.md)
 - [Vertical Architecture](./VERTICAL_ARCHITECTURE.md)
+- [AI Architecture](./AI_ARCHITECTURE.md)
 - [Performance](./PERFORMANCE.md)
 - [Media](./MEDIA.md)
 - [Product Roadmap](./PRODUCT_ROADMAP.md)
@@ -48,3 +49,5 @@ OTOYALI is an AI-first transport marketplace for Turkey. The current web product
 One stage should produce one focused commit. Do not mix docs, schema, auth, UI, and deployment changes in the same commit unless the task explicitly requires it.
 
 UI work should start from the shared design system in `src/lib/design-system/tokens.ts` and `src/components/ui`. Future product modules should reuse those primitives before adding route-local styles.
+
+AI work should start from `docs/AI_ARCHITECTURE.md` and `src/features/ai`. The current assistant is a local deterministic preview only; do not add external providers, secrets, persistence, or valuation claims without an explicit AI activation task and privacy review.

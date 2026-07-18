@@ -85,6 +85,22 @@
 - [ ] `/sell` still defaults to cars.
 - [ ] Existing car `/search`, `/sell`, and `/listing/[id]` flows still work.
 
+## AI Assistant
+
+- [ ] Read `docs/AI_ARCHITECTURE.md` before changing assistant behavior.
+- [ ] `/api/ai/assistant` accepts valid Turkish and English requests.
+- [ ] Malformed JSON, unsupported locale, invalid intent, invalid vertical, oversized message, and oversized conversation return safe JSON errors.
+- [ ] Assistant launcher appears on Home, Search, Listing Detail, Sell, and safe public vertical pages.
+- [ ] Assistant launcher does not appear on admin, auth callback, debug, login, OTP, profile, favorites, my-listings, settings, or notifications.
+- [ ] Guest users can receive local deterministic guidance without login.
+- [ ] No conversation is stored in Supabase or localStorage.
+- [ ] No AI SDK dependency is installed.
+- [ ] No external AI request occurs.
+- [ ] No secrets are committed or exposed as `NEXT_PUBLIC_*`.
+- [ ] Assistant responses do not claim TRAMER/VIN access, accident history, seller verification, mechanical certainty, legal certainty, or guaranteed price fairness.
+- [ ] Provider output actions are internal and allowlisted.
+- [ ] Future provider activation follows the checklist in `docs/AI_ARCHITECTURE.md`.
+
 ## SEO
 
 - [ ] `/sitemap.xml` loads.
@@ -130,6 +146,7 @@
 - [ ] Admin functions reviewed.
 - [ ] Report flow private.
 - [ ] Debug route disabled in production.
+- [ ] AI endpoint does not expose stack traces, provider config, environment values, user tokens, phone numbers, hidden moderation notes, or private profile data.
 
 ## Pre-Soft-Launch
 

@@ -472,6 +472,125 @@ export const en = {
       range: "Range"
     }
   },
+  ai: {
+    title: "Rif",
+    subtitle: "OTOYALI AI preview",
+    launcher: "Rif",
+    open: "Open Rif assistant",
+    close: "Close",
+    clear: "Clear conversation",
+    send: "Send",
+    loading: "Rif is preparing a response...",
+    placeholder: "Ask Rif...",
+    inputLabel: "Message to Rif",
+    introMessage: "Rif is a safe preview for OTOYALI's future AI assistant. It currently provides only general deterministic guidance; it does not perform real valuation, accident-history checks, or seller verification.",
+    disclaimer: "Rif provides guidance. Independently verify the vehicle, price, seller and documents.",
+    openTrustCenter: "Trust Center",
+    featureNotConnected: "Advanced AI features are not connected yet.",
+    status: {
+      localPreview: "Local preview",
+      planned: "Planned",
+      unavailable: "Unavailable"
+    },
+    actions: {
+      openSearch: "Search listings",
+      openCars: "Open car listings",
+      openSell: "Publish a listing",
+      openTrustCenter: "Open Trust Center"
+    },
+    responses: {
+      intro: "Rif currently runs as a safe local preview inside OTOYALI. I can provide general guidance for search filters, listing preparation, and safer marketplace behavior. Advanced AI, real valuation, accident-history lookup, TRAMER/VIN checks, and seller verification are not connected yet.",
+      disabled: "Rif's advanced AI features are not enabled yet.",
+      verticalComingSoon: "AI support for this vertical is still being prepared. For now I can help with active car listings and general safety guidance.",
+      searchGuidance: "For better search results, start with make/model, city, budget, year and mileage range. Then narrow with fuel type, transmission and body type. This is guidance for using existing filters, not an automatic AI search result.",
+      listingGuidance: "When reviewing a listing, look at photos, description, mileage, price, city and seller type together. Do not treat missing fields as verified.",
+      listingGuidanceWithContext: "For this listing page, only the public information shown on screen should be considered. Rif cannot fill missing fields, know accident history, or guarantee that the price is fair.",
+      publishingGuidance: "A stronger listing usually includes clear photos, accurate technical details, a plain description, realistic price, and honest damage/history disclosure. This is not automatic publication or a moderation decision.",
+      trustGuidance: "For safer transactions, verify documents, seller details and vehicle information through independent sources. Do not send deposits to unknown people and consider an inspection or independent review.",
+      ownershipPlanned: "Ownership reminders and personalized maintenance guidance are planned, but they are not enabled in AI-01."
+    },
+    errors: {
+      invalidRequest: "The request format is invalid.",
+      malformedJson: "The request could not be read. Please try again.",
+      payloadTooLarge: "The request is too large. Please send a shorter message.",
+      emptyMessage: "Please write a short message.",
+      messageTooLong: "Message is too long. Please shorten it.",
+      conversationTooLong: "The conversation is too long. Please clear it and try again.",
+      contextTooLarge: "The page context is too large. Please try again.",
+      unsupportedLocale: "This language is not supported yet.",
+      unsupportedIntent: "This request type is not supported yet.",
+      invalidVertical: "This marketplace vertical is not supported yet."
+    },
+    suggestions: {
+      home: {
+        findVehicle: "How can I find the right vehicle?",
+        usedCarChecks: "What should I check when buying a used car?",
+        whatCanRifDo: "What can Rif help with?"
+      },
+      search: {
+        filters: "Which filters should I use?"
+      },
+      listing: {
+        review: "What should I review in this listing?"
+      },
+      sell: {
+        betterListing: "How can I create a better listing?"
+      },
+      trust: {
+        safety: "What should I check for a safer transaction?"
+      }
+    },
+    capabilities: {
+      assistant_chat: {
+        label: "General guidance",
+        description: "Local preview chat."
+      },
+      natural_language_search: {
+        label: "Natural-language search",
+        description: "Requires a future real AI provider."
+      },
+      listing_explanation: {
+        label: "Listing explanation",
+        description: "Future public listing guidance."
+      },
+      vehicle_comparison: {
+        label: "Vehicle comparison",
+        description: "Future comparison support."
+      },
+      price_interpretation: {
+        label: "Price interpretation",
+        description: "Future safe price interpretation."
+      },
+      listing_copy_improvement: {
+        label: "Listing copy improvement",
+        description: "Future seller writing support."
+      },
+      publishing_assistance: {
+        label: "Listing checklist",
+        description: "Deterministic publishing guidance."
+      },
+      trust_guidance: {
+        label: "Trust guidance",
+        description: "Static safer-marketplace guidance."
+      },
+      ownership_assistance: {
+        label: "Ownership reminders",
+        description: "Future maintenance and ownership support."
+      }
+    },
+    intents: {
+      general_help: { label: "General help", description: "Explains Rif's current scope." },
+      search_vehicles: { label: "Vehicle search", description: "Guidance for using search filters." },
+      compare_vehicles: { label: "Compare vehicles", description: "Future comparison intent." },
+      explain_listing: { label: "Explain listing", description: "Safe listing review guidance." },
+      interpret_price: { label: "Interpret price", description: "Future price interpretation intent." },
+      improve_listing: { label: "Improve listing", description: "Future listing copy intent." },
+      publishing_help: { label: "Publishing help", description: "Listing preparation checklist." },
+      trust_and_safety: { label: "Trust and safety", description: "Safer transaction guidance." },
+      ownership_guidance: { label: "Ownership", description: "Future ownership guidance." },
+      unsupported: { label: "Unsupported", description: "This request is not supported yet." }
+    }
+  },
   futureVerticals: {
     comingSoon: "Coming soon",
     backHome: "Back to home",

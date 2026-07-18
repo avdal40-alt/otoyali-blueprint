@@ -32,6 +32,7 @@ export function getClientDictionary(locale?: string | null): ClientDictionary {
     validation: dictionary.validation,
     status: dictionary.status,
     verticals: dictionary.verticals,
+    ai: dictionary.ai,
     format: dictionary.format
   };
 }

@@ -14,6 +14,7 @@
 - MEDIA-01: browser-side image variants, thumbnails, and optimized media fallback.
 - WEB-11: Turkish/English i18n foundation with Turkish canonical URLs and English `/en` routes.
 - WEB-12: scalable marketplace vertical registry, capability model, and future vertical landing architecture.
+- AI-01: provider-independent Rif assistant foundation with local deterministic guidance and disabled provider fallback.
 
 ## Paused
 
@@ -30,7 +31,7 @@
 7. WEB-14: water vehicles persistence and publishing.
 8. WEB-15: spare parts marketplace.
 9. WEB-16: insurance and services.
-10. AI-01: AI assistant entry points.
+10. AI-02: external AI provider activation after legal/privacy/rate-limit review.
 11. MOBILE-01: PWA/mobile foundation.
 12. PAY-01: paid listing products.
 13. DEV-02: code audit / team handoff.
@@ -41,7 +42,7 @@
 - Insurance records.
 - Expert inspection workflows.
 - More robust price analysis.
-- AI listing help.
+- AI listing help through a real provider only after AI-02 activation.
 - Seller verification.
 - Dealer packages.
 - Payments.

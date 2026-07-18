@@ -12,6 +12,9 @@
 - Do not restore stashes unless explicitly planned and approved.
 - For user-facing web copy/routes, check `docs/I18N.md` and update both Turkish and English dictionaries where safe.
 - For marketplace categories, check `docs/VERTICAL_ARCHITECTURE.md` and update the central registry instead of scattering route checks.
+- For assistant work, check `docs/AI_ARCHITECTURE.md`; do not add external AI providers, prompt persistence, secrets, or fake AI claims without a dedicated approved task.
+
+AI-01 has no Supabase migration. If a future AI task needs persistence, stop and document the data model before creating tables.
 
 ## Current Known Stashes
 

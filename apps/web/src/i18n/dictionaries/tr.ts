@@ -472,6 +472,125 @@ export const tr = {
       range: "Menzil"
     }
   },
+  ai: {
+    title: "Rif",
+    subtitle: "OTOYALI yapay zeka önizlemesi",
+    launcher: "Rif",
+    open: "Rif asistanı aç",
+    close: "Kapat",
+    clear: "Konuşmayı temizle",
+    send: "Gönder",
+    loading: "Rif yanıt hazırlıyor...",
+    placeholder: "Rif'e sorun...",
+    inputLabel: "Rif'e mesaj",
+    introMessage: "Rif, OTOYALI'nin gelecekteki yapay zeka asistanı için güvenli bir önizlemedir. Şu anda yalnızca genel, deterministik rehberlik sunar; gerçek piyasa değeri, hasar geçmişi veya satıcı doğrulaması yapmaz.",
+    disclaimer: "Rif yardımcı bilgiler sunar. Araç, fiyat, satıcı ve belgeleri bağımsız olarak doğrulayın.",
+    openTrustCenter: "Güven Merkezi",
+    featureNotConnected: "Gelişmiş yapay zeka özellikleri henüz bağlı değil.",
+    status: {
+      localPreview: "Yerel önizleme",
+      planned: "Planlandı",
+      unavailable: "Etkin değil"
+    },
+    actions: {
+      openSearch: "İlanları ara",
+      openCars: "Otomobil ilanlarına git",
+      openSell: "İlan yayınla",
+      openTrustCenter: "Güven Merkezi'ni aç"
+    },
+    responses: {
+      intro: "Rif şu anda OTOYALI içinde güvenli bir yerel önizleme olarak çalışıyor. Araç arama filtreleri, ilan hazırlama kontrol listesi ve güvenli alışveriş için genel rehberlik sunabilirim. Gelişmiş yapay zeka, gerçek fiyat tahmini, hasar geçmişi, TRAMER/VIN sorgusu veya satıcı doğrulaması henüz bağlı değil.",
+      disabled: "Rif'in gelişmiş yapay zeka özellikleri henüz etkin değil.",
+      verticalComingSoon: "Bu dikey için yapay zeka desteği henüz hazırlanıyor. Şimdilik aktif otomobil ilanları ve genel güvenlik rehberliği üzerinden yardımcı olabilirim.",
+      searchGuidance: "Doğru arama için önce marka/model, şehir, bütçe, yıl ve kilometre aralığını netleştirin. Gelişmiş filtreleri yakıt tipi, vites ve kasa tipiyle daraltmak daha temiz sonuç verir. Bu bir otomatik arama sonucu değil; mevcut filtreleri daha iyi kullanmanız için rehberliktir.",
+      listingGuidance: "İlanı değerlendirirken fotoğrafları, açıklamayı, kilometreyi, fiyatı, şehir bilgisini ve satıcı tipini birlikte inceleyin. Eksik alanlar varsa bunları doğrulanmış kabul etmeyin.",
+      listingGuidanceWithContext: "Bu sayfadaki ilan için yalnızca ekranda görünen public bilgileri dikkate alabilirsiniz. Rif eksik alanları tamamlayamaz, hasar geçmişi bilemez ve fiyatın adil olduğunu garanti edemez.",
+      publishingGuidance: "Daha iyi bir ilan için net fotoğraflar, doğru teknik bilgiler, açık açıklama, gerçekçi fiyat ve dürüst hasar/geçmiş beyanı kullanın. Bu metin otomatik yayınlama veya moderasyon kararı değildir.",
+      trustGuidance: "Güvenli alışveriş için belge, satıcı ve araç bilgilerini bağımsız kaynaklardan kontrol edin. Bilinmeyen kişilere kapora göndermeyin ve mümkünse ekspertiz veya bağımsız inceleme kullanın.",
+      ownershipPlanned: "Araç sahipliği hatırlatmaları ve kişisel bakım önerileri planlanıyor, ancak AI-01 aşamasında etkin değil."
+    },
+    errors: {
+      invalidRequest: "İstek formatı geçerli değil.",
+      malformedJson: "İstek okunamadı. Lütfen tekrar deneyin.",
+      payloadTooLarge: "İstek çok büyük. Lütfen daha kısa bir mesaj gönderin.",
+      emptyMessage: "Lütfen kısa bir mesaj yazın.",
+      messageTooLong: "Mesaj çok uzun. Lütfen daha kısa yazın.",
+      conversationTooLong: "Konuşma çok uzun. Lütfen konuşmayı temizleyip tekrar deneyin.",
+      contextTooLarge: "Sayfa bağlamı çok büyük. Lütfen tekrar deneyin.",
+      unsupportedLocale: "Bu dil henüz desteklenmiyor.",
+      unsupportedIntent: "Bu istek türü henüz desteklenmiyor.",
+      invalidVertical: "Bu pazar dikeyi henüz desteklenmiyor."
+    },
+    suggestions: {
+      home: {
+        findVehicle: "Bana uygun araçları nasıl bulabilirim?",
+        usedCarChecks: "İkinci el araç alırken nelere dikkat etmeliyim?",
+        whatCanRifDo: "Rif neler yapabilir?"
+      },
+      search: {
+        filters: "Arama filtrelerini nasıl kullanmalıyım?"
+      },
+      listing: {
+        review: "Bu ilandaki bilgileri nasıl değerlendirmeliyim?"
+      },
+      sell: {
+        betterListing: "Daha iyi bir ilan nasıl hazırlayabilirim?"
+      },
+      trust: {
+        safety: "Güvenli alışveriş için nelere dikkat etmeliyim?"
+      }
+    },
+    capabilities: {
+      assistant_chat: {
+        label: "Genel rehberlik",
+        description: "Yerel önizleme sohbeti."
+      },
+      natural_language_search: {
+        label: "Doğal dille arama",
+        description: "Gelecekte gerçek AI sağlayıcısı gerektirir."
+      },
+      listing_explanation: {
+        label: "İlan açıklama",
+        description: "Gelecekte public ilan bağlamını yorumlar."
+      },
+      vehicle_comparison: {
+        label: "Araç karşılaştırma",
+        description: "Gelecekte karşılaştırma desteği."
+      },
+      price_interpretation: {
+        label: "Fiyat yorumu",
+        description: "Gelecekte güvenli fiyat yorumu."
+      },
+      listing_copy_improvement: {
+        label: "İlan metni iyileştirme",
+        description: "Gelecekte satıcı metin desteği."
+      },
+      publishing_assistance: {
+        label: "İlan kontrol listesi",
+        description: "Deterministik yayınlama rehberliği."
+      },
+      trust_guidance: {
+        label: "Güven rehberi",
+        description: "Statik güvenli alışveriş rehberliği."
+      },
+      ownership_assistance: {
+        label: "Sahiplik hatırlatmaları",
+        description: "Gelecek bakım ve sahiplik desteği."
+      }
+    },
+    intents: {
+      general_help: { label: "Genel yardım", description: "Rif'in kapsamını açıklar." },
+      search_vehicles: { label: "Araç arama", description: "Arama filtreleri için rehberlik." },
+      compare_vehicles: { label: "Karşılaştırma", description: "Gelecek karşılaştırma niyeti." },
+      explain_listing: { label: "İlanı açıkla", description: "İlanı güvenli şekilde değerlendirme rehberi." },
+      interpret_price: { label: "Fiyatı yorumla", description: "Gelecek fiyat yorumu niyeti." },
+      improve_listing: { label: "İlanı iyileştir", description: "Gelecek metin iyileştirme niyeti." },
+      publishing_help: { label: "Yayınlama yardımı", description: "İlan hazırlama kontrol listesi." },
+      trust_and_safety: { label: "Güvenlik", description: "Güvenli alışveriş rehberliği." },
+      ownership_guidance: { label: "Sahiplik", description: "Gelecek sahiplik desteği." },
+      unsupported: { label: "Desteklenmiyor", description: "Bu istek henüz desteklenmiyor." }
+    }
+  },
   futureVerticals: {
     comingSoon: "Yakında",
     backHome: "Ana sayfaya dön",

@@ -15,6 +15,7 @@ Architecture principles:
 - Detail-only depth: full listing detail and gallery data are loaded on listing detail.
 - No video files on Home/Search/SEO pages: video counts/badges are allowed, video bytes are not.
 - One platform, multiple verticals: future marketplace categories use a central vertical registry instead of scattered route checks.
+- AI-first without false claims: the current Rif assistant foundation is local deterministic guidance only, with no external AI provider and no verified valuation/history claims.
 
 ## Frontend
 
@@ -63,6 +64,22 @@ Current implementation:
 
 No WEB-12 migration was created. Current `marketplace.listings` still requires `vehicle_profile_id`, so non-car persistence needs a future additive data-model task before real non-car listings can exist.
 
+## AI Assistant Foundation
+
+AI architecture is documented in [AI_ARCHITECTURE.md](./AI_ARCHITECTURE.md).
+
+Current implementation:
+
+- `src/features/ai` owns assistant domain types, intents, capabilities, context minimization, action allowlists, providers, service boundary, UI shell, and hooks.
+- `POST /api/ai/assistant` is the server boundary.
+- The active default provider is a deterministic local preview provider.
+- A disabled provider returns graceful localized unavailable responses.
+- No AI SDK, external model call, embedding store, conversation persistence, or Supabase migration exists.
+- The assistant is mounted once from the root layout and hidden from admin/auth/debug/profile/favorites/internal pages.
+- AI context uses the WEB-12 vertical type and keeps inactive verticals to general guidance only.
+
+The assistant must not invent missing listing facts, claim access to TRAMER/VIN databases, guarantee price fairness, guarantee seller trust, or expose private seller/admin data.
+
 ## Design System
 
 The web app has one UI foundation for marketplace, video, admin, legal pages, and future transport verticals.
@@ -85,7 +102,7 @@ Backend is Supabase:
 - RLS on user-owned and admin-private tables.
 - SQL migrations in `supabase/migrations`.
 
-No custom server is present in `apps/web`.
+The only current app-owned route handler is `POST /api/ai/assistant`, which is a JSON boundary for local deterministic assistant responses. It does not call external providers or write to Supabase.
 
 ## Seller Publishing Workflow
 

@@ -33,6 +33,7 @@ Start here for handoff and maintenance:
 - [docs/SEO_AND_ROUTES.md](./docs/SEO_AND_ROUTES.md)
 - [docs/I18N.md](./docs/I18N.md)
 - [docs/VERTICAL_ARCHITECTURE.md](./docs/VERTICAL_ARCHITECTURE.md)
+- [docs/AI_ARCHITECTURE.md](./docs/AI_ARCHITECTURE.md)
 - [docs/PERFORMANCE.md](./docs/PERFORMANCE.md)
 - [docs/MEDIA.md](./docs/MEDIA.md)
 - [docs/PRODUCT_ROADMAP.md](./docs/PRODUCT_ROADMAP.md)
@@ -75,6 +76,21 @@ Read [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md) before adding new UI. Futu
 Turkish is the canonical default locale and keeps unprefixed URLs. English runs under `/en` through a lightweight internal dictionary and middleware rewrite layer. No external i18n dependency is used.
 
 Read [docs/I18N.md](./docs/I18N.md) before adding routes, links, metadata, or new user-facing UI copy. Use `localizePath()` for internal links and keep user-generated listing titles/descriptions untranslated.
+
+## AI Assistant Foundation
+
+AI-01 adds the provider-independent Rif assistant foundation in `src/features/ai` plus `POST /api/ai/assistant`.
+
+Current behavior:
+
+- local deterministic preview only
+- no external AI SDK
+- no external model request
+- no conversation persistence
+- no Supabase migration
+- no valuation, TRAMER/VIN lookup, accident-history lookup, seller verification, or insurance quote claims
+
+Read [docs/AI_ARCHITECTURE.md](./docs/AI_ARCHITECTURE.md) before changing assistant behavior or activating a real provider.
 
 ## Environment Variables
 
@@ -384,7 +400,7 @@ Do not start iOS native work before the web MVP validates retention-focused flow
 - Trust report is a clearly marked `Yakinda` placeholder.
 - Native app download buttons are placeholders.
 - SMS OTP depends on Supabase phone auth and SMS provider configuration.
-- No AI assistant.
+- Rif assistant is local deterministic preview only; no external AI provider is connected.
 - No VIN reports.
 - No payments.
 - No chat.
