@@ -9,8 +9,37 @@ type ReviewPayload = {
   reviewNote?: unknown;
 };
 
+type ReviewRpcError = {
+  code?: string | null;
+  message?: string | null;
+  details?: string | null;
+  hint?: string | null;
+};
+
+type PublicReviewError = {
+  status: number;
+  message: string;
+};
+
 const allowedDecisions = new Set(["reviewing", "approved", "rejected", "archived"]);
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const reviewRpcErrorResponses: Record<string, PublicReviewError> = {
+  OT401: { status: 401, message: "Admin oturumu doğrulanamadı." },
+  OT403: { status: 403, message: "Bu işlem için admin yetkisi gerekir." },
+  OT404: { status: 404, message: "Servis başvurusu bulunamadı." },
+  OT409: { status: 409, message: "Bu başvuru için seçilen durum değişikliği artık geçerli değil." },
+  OT422: { status: 400, message: "Geçersiz servis başvurusu kararı." },
+  "22023": { status: 400, message: "Geçersiz servis başvurusu kararı." },
+  "23514": { status: 400, message: "Geçersiz servis başvurusu kararı." },
+  "42501": { status: 403, message: "Bu işlem için admin yetkisi gerekir." },
+  P0002: { status: 404, message: "Servis başvurusu bulunamadı." }
+};
+
+const genericReviewError: PublicReviewError = {
+  status: 500,
+  message: "Servis başvurusu incelenemedi."
+};
 
 export async function POST(request: NextRequest) {
   const authorization = request.headers.get("authorization");
@@ -30,12 +59,20 @@ export async function POST(request: NextRequest) {
 
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) {
-    return NextResponse.json({ error: userError?.message ?? "Admin oturumu doğrulanamadı." }, { status: 401 });
+    if (userError) {
+      console.warn("Service application review auth failed", { message: userError.message });
+    }
+    return NextResponse.json({ error: "Admin oturumu doğrulanamadı." }, { status: 401 });
   }
 
   const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin", { uid: userData.user.id });
   if (adminError) {
-    return NextResponse.json({ error: adminError.message }, { status: 500 });
+    console.error("Service application review admin check failed", {
+      code: adminError.code,
+      message: adminError.message,
+      userId: userData.user.id
+    });
+    return NextResponse.json({ error: "Admin yetkisi doğrulanamadı." }, { status: 500 });
   }
   if (!isAdmin) {
     return NextResponse.json({ error: "Bu işlem için admin yetkisi gerekir." }, { status: 403 });
@@ -48,9 +85,13 @@ export async function POST(request: NextRequest) {
   });
 
   if (error) {
-    const message = error.message.toLowerCase();
-    const status = message.includes("admin") || message.includes("authorization") ? 403 : 400;
-    return NextResponse.json({ error: error.message }, { status });
+    const publicError = mapReviewRpcError(error);
+    logReviewRpcError(error, publicError, {
+      applicationId: payload.data.applicationId,
+      decision: payload.data.decision,
+      userId: userData.user.id
+    });
+    return NextResponse.json({ error: publicError.message }, { status: publicError.status });
   }
 
   return NextResponse.json({ data: Array.isArray(data) ? data[0] ?? null : data ?? null });
@@ -82,6 +123,37 @@ async function readPayload(request: NextRequest): Promise<
   }
 
   return { ok: true, data: { applicationId, decision, reviewNote } };
+}
+
+function mapReviewRpcError(error: ReviewRpcError): PublicReviewError {
+  if (error.code && reviewRpcErrorResponses[error.code]) {
+    return reviewRpcErrorResponses[error.code];
+  }
+  return genericReviewError;
+}
+
+function logReviewRpcError(
+  error: ReviewRpcError,
+  publicError: PublicReviewError,
+  context: { applicationId: string; decision: string; userId: string }
+) {
+  const payload = {
+    code: error.code ?? null,
+    message: error.message ?? null,
+    details: error.details ?? null,
+    hint: error.hint ?? null,
+    publicStatus: publicError.status,
+    applicationId: context.applicationId,
+    decision: context.decision,
+    userId: context.userId
+  };
+
+  if (publicError.status >= 500) {
+    console.error("Service application review RPC failed", payload);
+    return;
+  }
+
+  console.warn("Service application review RPC rejected request", payload);
 }
 
 function createRequestSupabaseClient(authorization: string) {
