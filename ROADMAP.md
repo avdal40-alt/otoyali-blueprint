@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0  
 **Classification:** Internal — Strategic  
-**Last Updated:** 2026-06-29  
+**Last Updated:** 2026-07-19
 **Owner:** Product & Engineering Leadership  
 **Planning Horizon:** 2026 Q3 — 2028 Q4
 
@@ -222,7 +222,8 @@
 | Task | Priority | Deliverable |
 |------|----------|-------------|
 | Service provider listings | P0 | Maintenance, detailing, etc. |
-| Service booking calendar | P0 | Date/time selection |
+| BOOKING-01A universal booking foundation | P0 | Reusable booking schema, availability RPCs, lifecycle controls |
+| BOOKING-01B customer/provider booking flow | P0 | Date/time selection and provider confirmation UI |
 | Service reviews + ratings | P0 | Post-service review |
 | Service provider dashboard | P1 | Booking management |
 

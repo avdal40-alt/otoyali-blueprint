@@ -220,6 +220,51 @@ export type ServiceProviderApplicationAdminRow = {
   updated_at?: string | null;
 };
 
+export type BookingAvailabilitySlotRow = {
+  offering_id: string;
+  branch_id: string;
+  slot_start_at: string;
+  slot_end_at: string;
+  timezone: string;
+  booking_mode: string;
+  available_resource_count: number;
+};
+
+export type BookingConfigurationRow = {
+  offering_id: string;
+  booking_enabled: boolean;
+  booking_mode: string;
+  duration_minutes: number;
+  preparation_minutes: number;
+  cleanup_minutes: number;
+  slot_interval_minutes: number;
+  minimum_notice_minutes: number;
+  maximum_advance_days: number;
+  cancellation_cutoff_minutes?: number | null;
+  reschedule_cutoff_minutes?: number | null;
+  requires_vehicle: boolean;
+};
+
+export type BookingRow = {
+  id: string;
+  public_reference: string;
+  provider_id: string;
+  branch_id: string;
+  offering_id: string;
+  customer_user_id?: string | null;
+  booking_mode: string;
+  status: string;
+  requested_start_at: string;
+  requested_end_at: string;
+  confirmed_start_at?: string | null;
+  confirmed_end_at?: string | null;
+  timezone: string;
+  created_by_type: string;
+  created_by_user_id?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Profile = {
   id: string;
   phone: string | null;

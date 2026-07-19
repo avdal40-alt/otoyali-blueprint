@@ -1,6 +1,6 @@
 # Service Marketplace Architecture
 
-SERVICE-01 adds the foundation for the OTOYALI service marketplace. It is a real domain model, but it does not implement bookings, calendars, work orders, payments, reviews, ratings, CRM, or service history.
+SERVICE-01 adds the foundation for the OTOYALI service marketplace. It is a real domain model, but it does not implement bookings, calendars, work orders, payments, reviews, ratings, CRM, or service history. BOOKING-01A later adds a backend-only booking foundation in the separate `booking` schema; it still does not expose customer booking UI or provider calendar UI.
 
 ## Purpose
 
@@ -144,22 +144,20 @@ Safe context includes category, provider slug, city, and district only. It must 
 
 Current Rif behavior is deterministic guidance only. It may explain service categories and limitations. It must not book appointments, invent providers, invent prices, diagnose with certainty, or claim verification beyond public data.
 
-## Future BOOKING-01
+## BOOKING-01A Foundation
 
-Future booking work may add:
+BOOKING-01A is documented in [BOOKING_ARCHITECTURE.md](./BOOKING_ARCHITECTURE.md). It reuses the canonical SERVICE-01 provider, branch, and offering tables. It adds:
 
-- `ServiceResource`
-- `StaffMember`
-- `WorkingHours`
-- `AvailabilityRule`
-- `AvailabilityException`
-- `AppointmentSlot`
-- `Booking`
-- `BookingStatusEvent`
-- `CustomerVehicle`
-- `ServiceRequest`
+- `booking.bookable_resources`
+- `booking.offering_resources`
+- `booking.offering_booking_configurations`
+- `booking.recurring_working_hours`
+- `booking.availability_exceptions`
+- `booking.bookings`
+- `booking.resource_reservations`
+- `booking.booking_timeline`
 
-Booking must support request approval, instant booking, proposed alternative times, cancellation, rescheduling, holidays, branch capacity, staff capacity, bay/equipment capacity, and variable service duration.
+It derives availability dynamically and does not pre-generate permanent future slot rows. Capacity greater than 1, public booking pages, provider calendar UI, booking inboxes, rescheduling UI, cancellation UI, notifications, and Rif booking actions remain future stages.
 
 ## Future WORKORDER-01
 

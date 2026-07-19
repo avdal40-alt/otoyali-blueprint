@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0  
 **Classification:** Internal — Engineering  
-**Last Updated:** 2026-06-29  
+**Last Updated:** 2026-07-19
 **Owner:** Data Architecture Team  
 **Database:** PostgreSQL 15+ (Supabase)
 
@@ -502,6 +502,13 @@ CREATE TABLE marketplace.services (
 ```
 
 ### 6.11 `marketplace.service_bookings`
+
+Status note: this early conceptual table is superseded in the codebase by the
+additive BOOKING-01A `booking` schema, which reuses SERVICE-01
+`service_marketplace.providers`, `service_marketplace.branches`, and
+`service_marketplace.offerings`. The active foundation is documented in
+`apps/web/docs/BOOKING_ARCHITECTURE.md`; future booking UI belongs to
+BOOKING-01B.
 
 ```sql
 CREATE TABLE marketplace.service_bookings (

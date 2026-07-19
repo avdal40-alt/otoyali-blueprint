@@ -34,6 +34,7 @@ Start here for handoff and maintenance:
 - [docs/I18N.md](./docs/I18N.md)
 - [docs/VERTICAL_ARCHITECTURE.md](./docs/VERTICAL_ARCHITECTURE.md)
 - [docs/SERVICE_MARKETPLACE_ARCHITECTURE.md](./docs/SERVICE_MARKETPLACE_ARCHITECTURE.md)
+- [docs/BOOKING_ARCHITECTURE.md](./docs/BOOKING_ARCHITECTURE.md)
 - [docs/AI_ARCHITECTURE.md](./docs/AI_ARCHITECTURE.md)
 - [docs/PERFORMANCE.md](./docs/PERFORMANCE.md)
 - [docs/MEDIA.md](./docs/MEDIA.md)
@@ -108,6 +109,14 @@ SERVICE-01 adds the service marketplace foundation in `service_marketplace` plus
 It supports service categories, providers, branches, offerings, private provider applications, public discovery projections, admin review readiness, and safe Rif service context. It does not implement bookings, fake providers, fake slots, ratings, CRM, work orders, payments, or service history.
 
 Read [docs/SERVICE_MARKETPLACE_ARCHITECTURE.md](./docs/SERVICE_MARKETPLACE_ARCHITECTURE.md) before extending services.
+
+## Booking Foundation
+
+BOOKING-01A adds the backend-only universal booking foundation in the `booking` schema. It reuses SERVICE-01 providers, branches, and offerings, and prepares bookable resources, offering eligibility, booking configuration, recurring working hours, availability exceptions, bookings, capacity-1 reservations, immutable timeline, safe availability RPC, and server-only TypeScript wrappers.
+
+It does not expose customer booking pages, provider calendar UI, booking inboxes, notifications, payments, work orders, service history, fake slots, or Rif booking actions.
+
+Read [docs/BOOKING_ARCHITECTURE.md](./docs/BOOKING_ARCHITECTURE.md) before changing booking data or server modules.
 
 ## Environment Variables
 

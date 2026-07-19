@@ -29,6 +29,8 @@
 - [ ] SELL-02 migration applied: `20260715120000_sell02_publish_journey_rls.sql`.
 - [ ] MEDIA-01 migration applied before deploying code that selects media variant columns.
 - [ ] SERVICE-01 migration applied before deploying service marketplace discovery/application code.
+- [ ] BOOKING-01A migration reviewed and applied only in a later approved migration step.
+- [ ] `supabase/verification/booking01a_verification.sql` reviewed or run in a safe local/staging database after applying BOOKING-01A.
 
 ## Vercel Access
 
@@ -95,6 +97,17 @@
 - [ ] `/admin/services` loads only for active admins.
 - [ ] Public provider pages resolve only active providers from `public.service_public_providers`.
 - [ ] No bookings, fake slots, fake ratings, fake prices, CRM, work orders, payments, or service history are added in SERVICE-01.
+
+## Booking Foundation
+
+- [ ] Read `docs/BOOKING_ARCHITECTURE.md` before changing booking schema or server modules.
+- [ ] BOOKING-01A uses SERVICE-01 `providers`, `branches`, and `offerings`; no parallel provider/branch/service tables.
+- [ ] No customer booking pages, provider calendar UI, booking inbox, confirmation screen, rescheduling UI, cancellation UI, notifications, payments, work orders, or Rif booking actions are exposed.
+- [ ] Guest access is limited to safe availability projection; raw resources, schedules, exceptions, bookings, reservations, and timeline are private.
+- [ ] Capacity-1 overlap prevention is enforced by database exclusion constraint.
+- [ ] Capacity greater than 1 is treated as a future limitation, not a completed feature.
+- [ ] Timeline rows remain append-only and status changes use `booking.transition_booking_status`.
+- [ ] BOOKING-01B and BOOKING-01C remain not implemented unless an explicit task says otherwise.
 
 ## AI Assistant
 

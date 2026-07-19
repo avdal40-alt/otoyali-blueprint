@@ -80,6 +80,22 @@ Current implementation:
 
 SERVICE-01 does not implement bookings, appointment slots, prices, ratings, CRM, work orders, payments, or service history.
 
+## Booking Foundation
+
+BOOKING-01A is documented in [BOOKING_ARCHITECTURE.md](./BOOKING_ARCHITECTURE.md).
+
+Current implementation:
+
+- Schema: `booking`.
+- Additive branch timezone field: `service_marketplace.branches.timezone`.
+- Reuses SERVICE-01 providers, branches, offerings, provider ownership, and admin authorization.
+- Adds bookable resources, offering-resource eligibility, offering booking configuration, recurring working hours, availability exceptions, bookings, resource reservations, and immutable booking timeline.
+- Adds `booking.get_public_availability` as the only guest-safe booking projection.
+- Adds `booking.create_booking` and `booking.transition_booking_status` as database-controlled primitives for future server flows.
+- Guarantees database-level overlap prevention for active capacity-1 reservations.
+
+BOOKING-01A does not expose customer booking pages, provider calendar UI, booking inboxes, rescheduling/cancellation UI, notifications, payments, work orders, service history, or Rif booking actions.
+
 ## AI Assistant Foundation
 
 AI architecture is documented in [AI_ARCHITECTURE.md](./AI_ARCHITECTURE.md).
@@ -161,6 +177,7 @@ MEDIA-01 keeps image processing lightweight and browser-side:
 - Reports: `marketplace.reports`
 - Admin users/audit: `public.admin_users`, `public.admin_audit_logs`
 - Services: `service_marketplace.providers`, `service_marketplace.branches`, `service_marketplace.categories`, `service_marketplace.offerings`, `service_marketplace.provider_applications`
+- Booking: `booking.bookable_resources`, `booking.offering_resources`, `booking.offering_booking_configurations`, `booking.recurring_working_hours`, `booking.availability_exceptions`, `booking.bookings`, `booking.resource_reservations`, `booking.booking_timeline`
 - Public compatibility views: `public.ff_*`
 - Service public views: `public.service_public_*`
 

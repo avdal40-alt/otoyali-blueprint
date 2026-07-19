@@ -16,6 +16,8 @@ API-exposed schemas in local config:
 - `graphql_public`
 - `vehicle`
 - `marketplace`
+- `service_marketplace`
+- `booking`
 
 The `identity` schema exists in migrations but is not listed in the local API schemas.
 
@@ -44,6 +46,8 @@ Important schemas:
 - `vehicle`
 - `marketplace`
 - `identity`
+- `service_marketplace`
+- `booking`
 
 Important tables/views/functions:
 
@@ -80,6 +84,17 @@ Important tables/views/functions:
 - `service_marketplace.branches`
 - `service_marketplace.offerings`
 - `service_marketplace.provider_applications`
+- `booking.bookable_resources`
+- `booking.offering_resources`
+- `booking.offering_booking_configurations`
+- `booking.recurring_working_hours`
+- `booking.availability_exceptions`
+- `booking.bookings`
+- `booking.resource_reservations`
+- `booking.booking_timeline`
+- `booking.get_public_availability(offering_id uuid, range_start timestamptz, range_end timestamptz, slot_limit integer)`
+- `booking.create_booking(...)`
+- `booking.transition_booking_status(...)`
 
 Storage buckets confirmed in migrations:
 
@@ -103,3 +118,5 @@ Storage buckets confirmed in migrations:
 Some `public.ff_*` views exist as compatibility/public-read surfaces. Keep them stable because they are used by the web app and were also created for FlutterFlow compatibility.
 
 SERVICE-01 adds `public.service_public_*` views for public service discovery and `public.service_admin_provider_applications` for admin-only application review. Public service views must not expose provider owner IDs, private application fields, or moderation notes.
+
+BOOKING-01A adds the `booking` schema. The only guest-callable booking surface is `booking.get_public_availability`, which returns safe slot projections for active public service offerings. Raw booking resources, schedules, exceptions, bookings, reservations, timeline rows, customer contact data, provider notes, and exception reasons are private and protected by grants plus RLS. Do not run `npx.cmd supabase db push` for BOOKING-01A unless a later task explicitly asks for remote migration application.

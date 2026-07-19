@@ -80,6 +80,7 @@ Future providers such as OpenAI, Gemini, Anthropic, local models, or provider ro
 - Publishing checklist guidance.
 - Trust and safety checklist guidance.
 - Service marketplace guidance without inventing providers, availability, bookings, or prices.
+- BOOKING-01A explanations without creating, confirming, cancelling, rescheduling, or inventing bookings.
 
 It must not claim access to TRAMER, VIN databases, market-wide pricing data, accident history, seller verification, or mechanical/legal certainty.
 
@@ -363,6 +364,12 @@ No external analytics provider is connected. Raw user messages, listing descript
 5. Do not claim inventory search or publishing support until the vertical has real persistence and UI.
 
 ## Intentionally Not Implemented
+
+Future booking-enabled Rif work must follow:
+
+understand -> propose -> preview -> explicit user confirmation -> execute -> receipt
+
+BOOKING-01A does not add Rif booking tools. Rif may not create bookings, confirm bookings, cancel bookings, reschedule bookings, select hidden resources, or invent availability.
 
 - OpenAI SDK
 - Gemini SDK
