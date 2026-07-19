@@ -29,11 +29,7 @@ const reviewRpcErrorResponses: Record<string, PublicReviewError> = {
   OT403: { status: 403, message: "Bu işlem için admin yetkisi gerekir." },
   OT404: { status: 404, message: "Servis başvurusu bulunamadı." },
   OT409: { status: 409, message: "Bu başvuru için seçilen durum değişikliği artık geçerli değil." },
-  OT422: { status: 400, message: "Geçersiz servis başvurusu kararı." },
-  "22023": { status: 400, message: "Geçersiz servis başvurusu kararı." },
-  "23514": { status: 400, message: "Geçersiz servis başvurusu kararı." },
-  "42501": { status: 403, message: "Bu işlem için admin yetkisi gerekir." },
-  P0002: { status: 404, message: "Servis başvurusu bulunamadı." }
+  OT422: { status: 400, message: "Geçersiz servis başvurusu kararı." }
 };
 
 const genericReviewError: PublicReviewError = {
@@ -139,9 +135,6 @@ function logReviewRpcError(
 ) {
   const payload = {
     code: error.code ?? null,
-    message: error.message ?? null,
-    details: error.details ?? null,
-    hint: error.hint ?? null,
     publicStatus: publicError.status,
     applicationId: context.applicationId,
     decision: context.decision,
