@@ -90,7 +90,7 @@ Current implementation:
 - Additive branch timezone field: `service_marketplace.branches.timezone`.
 - Reuses SERVICE-01 providers, branches, offerings, provider ownership, and admin authorization.
 - Adds bookable resources, offering-resource eligibility, offering booking configuration, recurring working hours, availability exceptions, bookings, resource reservations, and immutable booking timeline.
-- Adds `booking.get_public_availability` as the only guest-safe booking projection.
+- Adds `booking.get_public_availability` as the internal guest-safe booking projection and `public.get_booking_availability` as the PostgREST facade.
 - Adds `booking.create_booking` and `booking.transition_booking_status` as database-controlled primitives for future server flows.
 - Guarantees database-level overlap prevention for active capacity-1 reservations.
 

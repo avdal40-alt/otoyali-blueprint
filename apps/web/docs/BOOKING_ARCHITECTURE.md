@@ -23,7 +23,7 @@ Public service discovery remains provider `active`, branch `active`, and offerin
 
 Migration: `supabase/migrations/20260719120000_booking01a_universal_booking_foundation.sql`
 
-Config: `supabase/config.toml` exposes `service_marketplace` and `booking` schemas to PostgREST. Raw booking access is still controlled by grants and RLS.
+Config: `supabase/config.toml` exposes `service_marketplace` to PostgREST, but keeps `booking` private. Public Data API clients use narrow `public` facades instead of exposing the full booking schema.
 
 Schema: `booking`
 
@@ -116,7 +116,9 @@ For BOOKING-01A, effective capacity must still be `1` to appear in availability 
 
 ## Dynamic Availability
 
-Function: `booking.get_public_availability(offering_id, range_start, range_end, slot_limit)`
+Internal function: `booking.get_public_availability(offering_id, range_start, range_end, slot_limit)`
+
+Public Data API facade: `public.get_booking_availability(offering_id, range_start, range_end, slot_limit)`
 
 The function:
 

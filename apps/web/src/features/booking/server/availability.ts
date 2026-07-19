@@ -24,7 +24,7 @@ export async function getBookingAvailability(query: BookingAvailabilityQuery, cl
   assertIsoDate(query.range.endAt, "range.endAt");
 
   const supabase = resolveBookingSupabaseClient(client);
-  const { data, error } = await supabase.schema("booking").rpc("get_public_availability", {
+  const { data, error } = await supabase.rpc("get_booking_availability", {
     p_offering_id: query.offeringId,
     p_range_start: query.range.startAt,
     p_range_end: query.range.endAt,
