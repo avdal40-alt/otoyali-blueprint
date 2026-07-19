@@ -1445,20 +1445,45 @@ GRANT SELECT ON booking.bookings TO authenticated;
 GRANT SELECT ON booking.resource_reservations TO authenticated;
 GRANT SELECT ON booking.booking_timeline TO authenticated;
 GRANT ALL ON ALL TABLES IN SCHEMA booking TO service_role;
-GRANT ALL ON ALL ROUTINES IN SCHEMA booking TO service_role;
 
+-- PostgreSQL grants EXECUTE on new functions to PUBLIC by default. Revoke every
+-- BOOKING-01A function explicitly, then grant only the direct-call surfaces that
+-- the architecture needs. Trigger and validator functions are executed by
+-- PostgreSQL internally and receive no direct client grants.
+REVOKE ALL ON FUNCTION booking.is_known_timezone(TEXT) FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.is_provider_owner(UUID, UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.can_manage_provider(UUID, UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.can_manage_resource(UUID, UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.can_manage_offering(UUID, UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.can_manage_booking(UUID, UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.generate_public_reference() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.validate_service_branch_timezone() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.validate_bookable_resource() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.validate_offering_resource_scope() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.validate_offering_booking_configuration() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.validate_recurring_working_hour() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.validate_availability_exception() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.prepare_booking_reference() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.validate_booking_row() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.validate_resource_reservation() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.block_timeline_mutation() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.append_booking_created_event() FROM PUBLIC;
+REVOKE ALL ON FUNCTION booking.is_valid_status_transition(TEXT, TEXT) FROM PUBLIC;
 REVOKE ALL ON FUNCTION booking.get_public_availability(UUID, TIMESTAMPTZ, TIMESTAMPTZ, INTEGER) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION booking.get_public_availability(UUID, TIMESTAMPTZ, TIMESTAMPTZ, INTEGER) TO anon, authenticated, service_role;
+REVOKE ALL ON FUNCTION booking.find_available_capacity1_resource(UUID, TIMESTAMPTZ, TIMESTAMPTZ) FROM PUBLIC;
 REVOKE ALL ON FUNCTION booking.create_booking(UUID, TIMESTAMPTZ, TEXT, TEXT, TEXT, TEXT, UUID, TEXT, TEXT) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION booking.create_booking(UUID, TIMESTAMPTZ, TEXT, TEXT, TEXT, TEXT, UUID, TEXT, TEXT) TO authenticated, service_role;
 REVOKE ALL ON FUNCTION booking.transition_booking_status(UUID, TEXT, TEXT, JSONB) FROM PUBLIC;
+
+GRANT EXECUTE ON FUNCTION booking.get_public_availability(UUID, TIMESTAMPTZ, TIMESTAMPTZ, INTEGER) TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION booking.create_booking(UUID, TIMESTAMPTZ, TEXT, TEXT, TEXT, TEXT, UUID, TEXT, TEXT) TO authenticated, service_role;
 GRANT EXECUTE ON FUNCTION booking.transition_booking_status(UUID, TEXT, TEXT, JSONB) TO authenticated, service_role;
-GRANT EXECUTE ON FUNCTION booking.is_provider_owner(UUID, UUID) TO authenticated, service_role;
-GRANT EXECUTE ON FUNCTION booking.can_manage_provider(UUID, UUID) TO authenticated, service_role;
-GRANT EXECUTE ON FUNCTION booking.can_manage_resource(UUID, UUID) TO authenticated, service_role;
-GRANT EXECUTE ON FUNCTION booking.can_manage_offering(UUID, UUID) TO authenticated, service_role;
-GRANT EXECUTE ON FUNCTION booking.can_manage_booking(UUID, UUID) TO authenticated, service_role;
-GRANT EXECUTE ON FUNCTION booking.is_valid_status_transition(TEXT, TEXT) TO authenticated, service_role;
+
+-- These scope helpers are callable by authenticated only because the RLS
+-- policies on provider-managed booking tables evaluate them for row access.
+GRANT EXECUTE ON FUNCTION booking.can_manage_provider(UUID, UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION booking.can_manage_resource(UUID, UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION booking.can_manage_offering(UUID, UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION booking.can_manage_booking(UUID, UUID) TO authenticated;
 
 COMMENT ON SCHEMA booking IS 'Universal booking foundation for service resources, dynamic availability, reservations, bookings, and immutable lifecycle history.';
 COMMENT ON TABLE booking.bookable_resources IS 'Private provider-owned capacity units such as bays, staff roles, equipment, demo vehicles, charging stations, or tow trucks. Not publicly exposed.';
