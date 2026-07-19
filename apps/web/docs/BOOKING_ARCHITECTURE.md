@@ -23,7 +23,7 @@ Public service discovery remains provider `active`, branch `active`, and offerin
 
 Migration: `supabase/migrations/20260719120000_booking01a_universal_booking_foundation.sql`
 
-Config: `supabase/config.toml` exposes `service_marketplace` to PostgREST, but keeps `booking` private. Public Data API clients use narrow `public` facades instead of exposing the full booking schema.
+Config: `supabase/config.toml` keeps both `service_marketplace` and `booking` out of PostgREST `api.schemas`. Public Data API clients use narrow `public` views and facades instead of exposing private schemas.
 
 Schema: `booking`
 

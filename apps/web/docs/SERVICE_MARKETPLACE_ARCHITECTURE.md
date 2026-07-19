@@ -39,6 +39,13 @@ Admin projection:
 
 - `public.service_admin_provider_applications`
 
+Public/API facades:
+
+- `public.submit_service_provider_application(...)`
+- `public.review_service_provider_application(...)`
+
+`service_marketplace` is intentionally not exposed through PostgREST `api.schemas`. Browser clients use public views and narrow public RPC facades; the complete private schema remains behind RLS, grants, and database functions.
+
 The migration uses UUID primary keys, foreign keys, check constraints, timestamps, obvious indexes, RLS, and grants. It uses constrained text statuses rather than Postgres ENUMs because service lifecycle wording may evolve during provider onboarding.
 
 ## Lifecycle

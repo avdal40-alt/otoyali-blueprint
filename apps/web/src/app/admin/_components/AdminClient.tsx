@@ -112,6 +112,15 @@ type AuditRow = {
   created_at: string | null;
 };
 
+type ServiceApplicationReviewResponse = {
+  data?: {
+    application_id?: string | null;
+    status?: string | null;
+    reviewed_at?: string | null;
+  } | null;
+  error?: string;
+};
+
 const navItems: Array<{ section: AdminSection; href: string; label: string }> = [
   { section: "dashboard", href: "/admin", label: "Dashboard" },
   { section: "listings", href: "/admin/listings", label: "İlanlar" },
@@ -211,7 +220,7 @@ function AdminSectionContent({ section, userId, role, locale }: { section: Admin
   if (section === "dashboard") return <Dashboard userId={userId} />;
   if (section === "listings") return <ListingsModeration userId={userId} locale={locale} />;
   if (section === "videos") return <VideosModeration userId={userId} />;
-  if (section === "services") return <ServiceApplicationsModeration userId={userId} locale={locale} />;
+  if (section === "services") return <ServiceApplicationsModeration locale={locale} />;
   if (section === "reports") return <ReportsModeration userId={userId} />;
   if (section === "users") return <UsersOverview />;
   return <AdminSettings role={role} />;
@@ -526,7 +535,7 @@ function VideosModeration({ userId }: { userId: string }) {
   );
 }
 
-function ServiceApplicationsModeration({ userId, locale }: { userId: string; locale: Locale }) {
+function ServiceApplicationsModeration({ locale }: { locale: Locale }) {
   const [rows, setRows] = useState<ServiceProviderApplicationAdminRow[]>([]);
   const [filter, setFilter] = useState("pending_review");
   const [loading, setLoading] = useState(true);
@@ -556,21 +565,38 @@ function ServiceApplicationsModeration({ userId, locale }: { userId: string; loc
     const note = window.prompt("Kısa not", defaultNote)?.trim() ?? null;
     if ((status === "rejected" || status === "archived") && !note) return;
     const supabase = getSupabaseBrowserClient();
-    const patch = {
-      status,
-      moderation_note: note,
-      reviewed_by: userId,
-      reviewed_at: new Date().toISOString()
-    };
-    const { error: updateError } = await supabase.schema("service_marketplace").from("provider_applications").update(patch).eq("id", application.application_id);
-    if (updateError) {
-      setError(updateError.message);
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (sessionError || !accessToken) {
+      setError(sessionError?.message ?? "Admin oturumu bulunamadı.");
       return;
     }
-    await logAdminAction(userId, `${status}_service_application`, "service_provider_application", application.application_id, {
-      note,
-      previous_status: application.status
+
+    let result: ServiceApplicationReviewResponse | null = null;
+    const response = await fetch("/api/admin/service-applications/review", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({
+        applicationId: application.application_id,
+        decision: status,
+        reviewNote: note
+      })
     });
+
+    try {
+      result = (await response.json()) as ServiceApplicationReviewResponse;
+    } catch {
+      result = null;
+    }
+
+    if (!response.ok) {
+      setError(result?.error ?? "Servis başvurusu güncellenemedi.");
+      return;
+    }
+
     await load();
   }
 

@@ -16,9 +16,8 @@ API-exposed schemas in local config:
 - `graphql_public`
 - `vehicle`
 - `marketplace`
-- `service_marketplace`
 
-The `identity` and `booking` schemas exist in migrations but are not listed in the local API schemas.
+The `identity`, `service_marketplace`, and `booking` schemas exist in migrations but are not listed in the local API schemas.
 
 ## Migrations
 
@@ -67,6 +66,8 @@ Important tables/views/functions:
 - `public.service_public_provider_details`
 - `public.service_public_offerings`
 - `public.service_admin_provider_applications`
+- `public.submit_service_provider_application(...)`
+- `public.review_service_provider_application(...)`
 - `vehicle.makes`
 - `vehicle.models`
 - `vehicle.vehicle_profiles`
@@ -117,6 +118,6 @@ Storage buckets confirmed in migrations:
 
 Some `public.ff_*` views exist as compatibility/public-read surfaces. Keep them stable because they are used by the web app and were also created for FlutterFlow compatibility.
 
-SERVICE-01 adds `public.service_public_*` views for public service discovery and `public.service_admin_provider_applications` for admin-only application review. Public service views must not expose provider owner IDs, private application fields, or moderation notes.
+SERVICE-01 keeps `service_marketplace` private. Data API clients use `public.service_public_*` views for service discovery, `public.service_admin_provider_applications` for admin-only application review reads, and narrow public RPC facades for service application submission and review decisions. Public service views must not expose provider owner IDs, private application fields, or moderation notes.
 
 BOOKING-01A adds the private `booking` schema. Data API clients should call `public.get_booking_availability`, a narrow PostgREST-safe facade that delegates to `booking.get_public_availability` and returns safe slot projections for active public service offerings. Raw booking resources, schedules, exceptions, bookings, reservations, timeline rows, customer contact data, provider notes, and exception reasons are private and protected by grants plus RLS. Do not add `booking` to `api.schemas`; expose narrow public facades instead.

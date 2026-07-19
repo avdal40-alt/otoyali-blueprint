@@ -76,6 +76,7 @@ Current implementation:
 - Provider application routes: `/servisler/basvuru`, `/en/services/apply`.
 - Admin readiness route: `/admin/services`.
 - Public Supabase projections expose only active providers, active branches, active offerings, and active standardized categories.
+- Browser writes use narrow public RPC facades; the complete `service_marketplace` schema is not exposed through PostgREST.
 - Provider applications are private, phone-authenticated, and never self-activate public provider profiles.
 
 SERVICE-01 does not implement bookings, appointment slots, prices, ratings, CRM, work orders, payments, or service history.

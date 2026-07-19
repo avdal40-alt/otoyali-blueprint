@@ -114,7 +114,18 @@ export function ServiceApplicationForm() {
 
     setSubmitting(true);
     const supabase = getSupabaseBrowserClient();
-    const { error } = await supabase.schema("service_marketplace").from("provider_applications").insert(validation.data);
+    const { error } = await supabase.rpc("submit_service_provider_application", {
+      p_business_name: validation.data.business_name,
+      p_contact_person_name: validation.data.contact_person_name,
+      p_contact_phone: validation.data.contact_phone,
+      p_city: validation.data.city,
+      p_category_keys: validation.data.category_keys,
+      p_supported_verticals: validation.data.supported_verticals,
+      p_district: validation.data.district,
+      p_website_url: validation.data.website_url,
+      p_notes: validation.data.notes,
+      p_consent_accuracy: validation.data.consent_accuracy
+    });
     setSubmitting(false);
 
     if (error) {
