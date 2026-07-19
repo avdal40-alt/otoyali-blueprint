@@ -776,18 +776,18 @@ BEGIN
   ),
   slot_candidates AS (
     SELECT
-      window.resource_id,
+      candidate_window.resource_id,
       generated.slot_start_at,
       generated.slot_start_at + v_duration AS slot_end_at,
       generated.slot_start_at - v_preparation AS blocking_start_at,
       generated.slot_start_at + v_duration + v_cleanup AS blocking_end_at
-    FROM candidate_windows window
+    FROM candidate_windows candidate_window
     CROSS JOIN LATERAL generate_series(
-      window.window_start_at + v_preparation,
-      window.window_end_at - v_duration - v_cleanup,
+      candidate_window.window_start_at + v_preparation,
+      candidate_window.window_end_at - v_duration - v_cleanup,
       v_slot_interval
     ) AS generated(slot_start_at)
-    WHERE window.window_end_at >= window.window_start_at + v_duration + v_preparation + v_cleanup
+    WHERE candidate_window.window_end_at >= candidate_window.window_start_at + v_duration + v_preparation + v_cleanup
   ),
   effective_slots AS (
     SELECT
@@ -922,9 +922,9 @@ BEGIN
   feasible_resources AS (
     SELECT DISTINCT resource.resource_id, resource.priority
     FROM eligible_resources resource
-    JOIN candidate_windows window ON window.resource_id = resource.resource_id
-    WHERE p_requested_start_at - v_preparation >= window.window_start_at
-      AND p_requested_end_at + v_cleanup <= window.window_end_at
+    JOIN candidate_windows candidate_window ON candidate_window.resource_id = resource.resource_id
+    WHERE p_requested_start_at - v_preparation >= candidate_window.window_start_at
+      AND p_requested_end_at + v_cleanup <= candidate_window.window_end_at
       AND COALESCE((
         SELECT exception.capacity
         FROM booking.availability_exceptions exception
