@@ -202,7 +202,14 @@ export const tr = {
   auth: {
     loginTitle: "Telefon numaranızla giriş yapın",
     loginBody: "Size tek kullanımlık doğrulama kodu göndereceğiz.",
-    phoneHint: "Türkiye cep telefonu formatı kullanın: +90 5xx xxx xx xx.",
+    phoneHint: "Türkiye varsayılan olarak seçili gelir. Uluslararası numaranızı ülke seçerek veya + ile yapıştırarak kullanabilirsiniz.",
+    phoneLabel: "Telefon numarası",
+    countryLabel: "Ülke veya bölge",
+    countrySearchLabel: "Ülke ara",
+    countrySearchPlaceholder: "Ülke adı veya kodu ara",
+    phonePlaceholder: "Telefon numaranız",
+    countryNoResults: "Ülke bulunamadı.",
+    phoneInputHelper: "Uluslararası format desteklenir. Örnek: +90 555 123 45 67",
     sendCode: "Kod gönder",
     sending: "Gönderiliyor",
     verifyTitle: "Doğrulama kodu",
@@ -210,6 +217,8 @@ export const tr = {
     verifyCode: "Giriş yap",
     verifying: "Doğrulanıyor",
     resendCode: "Kodu tekrar gönder",
+    resendCooldown: "{seconds} sn sonra tekrar gönder",
+    phoneMissing: "telefon numaranız",
     loginRequired: "Giriş yapmanız gerekir"
   },
   video: {
@@ -451,9 +460,14 @@ export const tr = {
   },
   errors: {
     generic: "İşlem tamamlanamadı. Lütfen tekrar deneyin.",
+    invalidPhone: "Telefon numarasını ve ülke seçimini kontrol edin.",
+    ambiguousPhoneCountry: "Bu numara için ülke seçimi net değil. Lütfen ülkeyi seçin veya numarayı + ile uluslararası formatta girin.",
+    otpSendFailed: "Doğrulama kodu gönderilemedi. Lütfen tekrar deneyin.",
     smsUnavailable: "SMS girişi şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
+    tooManyRequests: "Çok fazla deneme yapıldı. Lütfen kısa bir süre bekleyip tekrar deneyin.",
     invalidOtp: "Kod doğrulanamadı. Lütfen tekrar deneyin.",
     missingSession: "Oturum bulunamadı. Lütfen tekrar giriş yapın.",
+    networkUnavailable: "Bağlantı kurulamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.",
     missingSupabaseEnv: "Supabase ortam değişkenleri eksik."
   },
   validation: {

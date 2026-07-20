@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PhoneInput } from "@/components/auth/PhoneInput";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/States";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
-import { normalizePhoneTR } from "@/lib/format";
-import { friendlyAuthError, safeNextPath } from "@/lib/auth/auth-ui";
+import { authErrorMessage, mapAuthError, safeNextPath } from "@/lib/auth/auth-ui";
+import { createOtpPhoneTransaction, saveOtpPhoneTransaction } from "@/lib/auth/otp-transaction";
+import { DEFAULT_PHONE_COUNTRY, parseAuthPhoneNumber, type AuthPhoneCountry } from "@/lib/auth/phone";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 
@@ -17,16 +18,27 @@ export function LoginClient() {
   const searchParams = useSearchParams();
   const next = safeNextPath(searchParams.get("next"), localizePath("/profile", locale));
   const [phone, setPhone] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState<AuthPhoneCountry>(DEFAULT_PHONE_COUNTRY);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const normalizedPhone = normalizePhoneTR(phone);
-  const isValidPhone = /^\+90[5]\d{9}$/.test(normalizedPhone);
+  const phoneResult = parseAuthPhoneNumber(phone, selectedCountry);
+  const isValidPhone = phoneResult.ok;
+
+  useEffect(() => {
+    if (!phone.trim().startsWith("+")) return;
+
+    const result = parseAuthPhoneNumber(phone, selectedCountry);
+    if (result.ok && result.country !== selectedCountry) {
+      setSelectedCountry(result.country);
+    }
+  }, [phone, selectedCountry]);
 
   async function submit() {
     setError(null);
 
-    if (!isValidPhone) {
-      setError(String(dictionary.validation.phoneInvalid));
+    if (!phoneResult.ok) {
+      const category = phoneResult.error === "ambiguous_country" ? "ambiguous_phone_country" : "invalid_phone";
+      setError(authErrorMessage(category, locale));
       return;
     }
 
@@ -38,7 +50,7 @@ export function LoginClient() {
     setLoading(true);
     const supabase = getSupabaseBrowserClient();
     const { error: otpError } = await supabase.auth.signInWithOtp({
-      phone: normalizedPhone,
+      phone: phoneResult.e164,
       options: {
         shouldCreateUser: true
       }
@@ -46,14 +58,12 @@ export function LoginClient() {
     setLoading(false);
 
     if (otpError) {
-      if (process.env.NODE_ENV !== "production") {
-        console.warn("Supabase phone OTP error:", otpError.message);
-      }
-      setError(friendlyAuthError(otpError.message, locale));
+      setError(authErrorMessage(mapAuthError(otpError, "otp_send_failed"), locale));
       return;
     }
 
-    router.push(localizePath(`/otp?phone=${encodeURIComponent(normalizedPhone)}&next=${encodeURIComponent(next)}`, locale));
+    saveOtpPhoneTransaction(createOtpPhoneTransaction(phoneResult.e164, phoneResult.country));
+    router.push(localizePath(`/otp?next=${encodeURIComponent(next)}`, locale));
   }
 
   return (
@@ -65,7 +75,20 @@ export function LoginClient() {
         {String(dictionary.auth.phoneHint)}
       </p>
       <div className="mt-5 grid gap-4">
-        <PhoneInput value={phone} onChange={setPhone} />
+        <PhoneInput
+          value={phone}
+          onChange={setPhone}
+          selectedCountry={selectedCountry}
+          onCountryChange={setSelectedCountry}
+          locale={locale}
+          label={String(dictionary.auth.phoneLabel)}
+          countryLabel={String(dictionary.auth.countryLabel)}
+          searchLabel={String(dictionary.auth.countrySearchLabel)}
+          searchPlaceholder={String(dictionary.auth.countrySearchPlaceholder)}
+          placeholder={String(dictionary.auth.phonePlaceholder)}
+          noResults={String(dictionary.auth.countryNoResults)}
+          helperText={String(dictionary.auth.phoneInputHelper)}
+        />
         {error ? <ErrorState message={error} /> : null}
         <Button onClick={submit} disabled={loading || !isValidPhone}>
           {loading ? String(dictionary.auth.sending) : String(dictionary.auth.sendCode)}

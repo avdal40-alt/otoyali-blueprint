@@ -132,20 +132,6 @@ export function titleCase(value: string) {
   return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
 }
 
-export function normalizePhoneTR(value: string) {
-  const digits = value.replace(/\D/g, "");
-
-  if (digits.startsWith("90")) {
-    return `+${digits}`;
-  }
-
-  if (digits.startsWith("0")) {
-    return `+90${digits.slice(1)}`;
-  }
-
-  return `+90${digits}`;
-}
-
 function enumLabel(group: keyof typeof enumLabels, value?: string | null, locale?: string | null) {
   const normalizedLocale = resolveFormatLocale(locale);
   if (!value) return t(normalizedLocale, "format.noInfo");

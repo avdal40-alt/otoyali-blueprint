@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
-import { friendlyAuthError, safeNextPath } from "@/lib/auth/auth-ui";
+import { authErrorMessage, mapAuthError, safeNextPath } from "@/lib/auth/auth-ui";
 
 export function AuthCallbackClient() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export function AuthCallbackClient() {
       const errorDescription = searchParams.get("error_description") || searchParams.get("error");
 
       if (errorDescription) {
-        setError(friendlyAuthError(errorDescription));
+        setError(authErrorMessage(mapAuthError(errorDescription)));
         return;
       }
 
@@ -35,10 +35,7 @@ export function AuthCallbackClient() {
       const supabase = getSupabaseBrowserClient();
       const { error: callbackError } = await supabase.auth.exchangeCodeForSession(code);
       if (callbackError) {
-        if (process.env.NODE_ENV !== "production") {
-          console.warn("Supabase auth callback error:", callbackError.message);
-        }
-        setError(friendlyAuthError(callbackError.message));
+        setError(authErrorMessage(mapAuthError(callbackError)));
         return;
       }
 

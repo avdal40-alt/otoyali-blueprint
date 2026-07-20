@@ -10,6 +10,7 @@ import { ErrorState, LoadingState } from "@/components/ui/States";
 import { useI18n } from "@/i18n/client";
 import { localizePath } from "@/i18n/config";
 import { t } from "@/i18n/get-dictionary";
+import { authErrorMessage, mapAuthError } from "@/lib/auth/auth-ui";
 import type { MarketplaceVerticalId } from "@/lib/marketplace/types";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { SERVICE_CATEGORIES } from "../domain/categories";
@@ -67,7 +68,7 @@ export function ServiceApplicationForm() {
       const { data, error } = await supabase.auth.getUser();
       if (error) {
         setAuthState("error");
-        setSubmitError(error.message);
+        setSubmitError(authErrorMessage(mapAuthError(error), locale));
         return;
       }
 

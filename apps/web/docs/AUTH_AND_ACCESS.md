@@ -47,11 +47,15 @@ Current product strategy:
 
 - phone-first OTP
 - no email/password as the main product strategy
-- friendly Turkish error when SMS/provider is unavailable
+- global international phone-number parsing with Türkiye selected by default
+- users may enter a national number for the selected country or paste an international `+` number
+- OTP phone transfer uses short-lived per-tab `sessionStorage`; full phone numbers are not placed in the OTP URL by the current flow
+- safe, categorized auth errors; raw provider messages are not shown in the browser UI
+- 60-second OTP resend cooldown in the client
 
 Current production gap:
 
-- SMS provider is not configured yet. Plan AUTH-02 or SMS-01 before launch.
+- Production SMS delivery still depends on Supabase Dashboard configuration and the external SMS provider. Code cannot confirm provider readiness without the production project settings.
 
 ## Admin Access
 

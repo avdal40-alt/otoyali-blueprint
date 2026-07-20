@@ -957,7 +957,7 @@ function ProfileFields({
         </Select>
       </Field>
       <Field label="Telefon">
-        <Input value={profile.phone} onChange={(event) => onChange("phone", event.target.value)} placeholder="+905..." />
+        <Input value={profile.phone} onChange={(event) => onChange("phone", event.target.value)} placeholder="+..." />
       </Field>
       <Field label={isDealer ? "Yetkili kişi adı" : "Adınız"}>
         <Input value={profile.fullName} onChange={(event) => onChange("fullName", event.target.value)} placeholder={isDealer ? "Yetkili kişi adı" : "Adınız"} />

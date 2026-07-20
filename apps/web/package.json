@@ -7,10 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:phone-auth": "node scripts/phone-auth.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
+    "libphonenumber-js": "^1.13.9",
     "next": "^14.2.14",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

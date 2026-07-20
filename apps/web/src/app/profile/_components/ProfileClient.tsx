@@ -161,7 +161,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
           </label>
           <label className="grid gap-1">
             <span className="text-xs font-bold text-oto-muted">Telefon</span>
-            <Input value={profile?.phone ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, phone: event.target.value } : current)} placeholder="+905..." />
+            <Input value={profile?.phone ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, phone: event.target.value } : current)} placeholder="+..." />
           </label>
           <label className="grid gap-1">
             <span className="text-xs font-bold text-oto-muted">Şehir</span>

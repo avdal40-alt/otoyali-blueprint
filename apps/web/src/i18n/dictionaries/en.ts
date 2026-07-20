@@ -202,7 +202,14 @@ export const en = {
   auth: {
     loginTitle: "Log in with your phone number",
     loginBody: "We will send you a one-time verification code.",
-    phoneHint: "Use a Turkish mobile phone format: +90 5xx xxx xx xx.",
+    phoneHint: "Turkey is selected by default. You can choose another country or paste an international number starting with +.",
+    phoneLabel: "Phone number",
+    countryLabel: "Country or region",
+    countrySearchLabel: "Search country",
+    countrySearchPlaceholder: "Search by country or code",
+    phonePlaceholder: "Your phone number",
+    countryNoResults: "No country found.",
+    phoneInputHelper: "International format is supported. Example: +90 555 123 45 67",
     sendCode: "Send code",
     sending: "Sending",
     verifyTitle: "Verification code",
@@ -210,6 +217,8 @@ export const en = {
     verifyCode: "Log in",
     verifying: "Verifying",
     resendCode: "Resend code",
+    resendCooldown: "Resend in {seconds}s",
+    phoneMissing: "your phone number",
     loginRequired: "Login required"
   },
   video: {
@@ -451,9 +460,14 @@ export const en = {
   },
   errors: {
     generic: "We could not complete the action. Please try again.",
+    invalidPhone: "Check the phone number and selected country.",
+    ambiguousPhoneCountry: "The country for this number is not clear. Select the country or enter the number in international format starting with +.",
+    otpSendFailed: "The verification code could not be sent. Please try again.",
     smsUnavailable: "SMS login is not configured right now. Please try again later.",
+    tooManyRequests: "Too many attempts. Please wait a short time and try again.",
     invalidOtp: "The code could not be verified. Please try again.",
     missingSession: "No session was found. Please log in again.",
+    networkUnavailable: "Could not connect. Check your internet connection and try again.",
     missingSupabaseEnv: "Supabase environment variables are missing."
   },
   validation: {
