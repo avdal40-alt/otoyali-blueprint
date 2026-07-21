@@ -56,6 +56,9 @@ type SellerProfileState = {
   phone: string;
   city: string;
   sellerType: string;
+  language: string;
+  country: string;
+  timezone: string;
 };
 
 type PersistedWizardState = Omit<WizardState, "photos">;
@@ -166,7 +169,7 @@ export function SellWizard({
 
       setUserId(data.user.id);
       const { data: profileRow } = await supabase.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
-      const sellerProfile = toSellerProfile((profileRow as Profile | null) ?? null, data.user.phone ?? "");
+      const sellerProfile = toSellerProfile((profileRow as Profile | null) ?? null, data.user.phone ?? "", locale);
       setProfile(sellerProfile);
       const savedDraft = readStoredDraft(data.user.id);
       setState((current) => ({
@@ -297,9 +300,9 @@ export function SellWizard({
         display_name: profile.displayName.trim(),
         city: profile.city,
         seller_type: profile.sellerType,
-        language: "tr",
-        country: "TR",
-        timezone: "Europe/Istanbul",
+        language: profile.language,
+        country: profile.country,
+        timezone: profile.timezone,
         onboarding_completed_at: new Date().toISOString()
       },
       { onConflict: "id" }
@@ -1060,7 +1063,7 @@ function SuccessState({ onCreateNew }: { onCreateNew: () => void }) {
   );
 }
 
-function toSellerProfile(profile: Profile | null, authPhone: string): SellerProfileState {
+function toSellerProfile(profile: Profile | null, authPhone: string, locale: string): SellerProfileState {
   const fullName = profile?.full_name?.trim() || [profile?.first_name, profile?.last_name].filter(Boolean).join(" ").trim();
   const phone = profile?.phone?.trim() || authPhone;
 
@@ -1069,7 +1072,10 @@ function toSellerProfile(profile: Profile | null, authPhone: string): SellerProf
     displayName: profile?.display_name?.trim() || fullName || phone,
     phone,
     city: profile?.city ?? "",
-    sellerType: profile?.seller_type ?? "private"
+    sellerType: profile?.seller_type ?? "private",
+    language: profile?.language ?? locale,
+    country: profile?.country ?? "TR",
+    timezone: profile?.timezone ?? "Europe/Istanbul"
   };
 }
 

@@ -1,5 +1,5 @@
 import type { AuthPhoneCountry } from "@/lib/auth/phone";
-import { parseAuthPhoneNumber } from "@/lib/auth/phone";
+import { isSupportedPhoneCountry, parseAuthPhoneNumber } from "@/lib/auth/phone";
 
 const OTP_TRANSACTION_STORAGE_KEY = "otoyali.auth.otpTransaction";
 const OTP_TRANSACTION_TTL_MS = 10 * 60 * 1000;
@@ -47,6 +47,11 @@ export function readOtpPhoneTransaction(): OtpPhoneTransaction | null {
       return null;
     }
 
+    if (!isSupportedPhoneCountry(parsed.country)) {
+      clearOtpPhoneTransaction();
+      return null;
+    }
+
     const phoneResult = parseAuthPhoneNumber(parsed.phone, parsed.country);
     if (!phoneResult.ok || phoneResult.e164 !== parsed.phone) {
       clearOtpPhoneTransaction();
@@ -55,7 +60,7 @@ export function readOtpPhoneTransaction(): OtpPhoneTransaction | null {
 
     return {
       phone: parsed.phone,
-      country: phoneResult.country,
+      country: parsed.country,
       createdAt: parsed.createdAt,
       expiresAt: parsed.expiresAt
     };

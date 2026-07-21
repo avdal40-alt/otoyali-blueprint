@@ -9,6 +9,7 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { authErrorMessage, mapAuthError, safeNextPath } from "@/lib/auth/auth-ui";
 import { createOtpPhoneTransaction, saveOtpPhoneTransaction } from "@/lib/auth/otp-transaction";
 import { DEFAULT_PHONE_COUNTRY, parseAuthPhoneNumber, type AuthPhoneCountry } from "@/lib/auth/phone";
+import { buildPhoneSignupMetadata } from "@/lib/auth/signup-metadata";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 
@@ -47,12 +48,19 @@ export function LoginClient() {
       return;
     }
 
+    const signupMetadata = buildPhoneSignupMetadata({ selectedCountry, locale });
+    if (!signupMetadata) {
+      setError(authErrorMessage("invalid_phone", locale));
+      return;
+    }
+
     setLoading(true);
     const supabase = getSupabaseBrowserClient();
     const { error: otpError } = await supabase.auth.signInWithOtp({
       phone: phoneResult.e164,
       options: {
-        shouldCreateUser: true
+        shouldCreateUser: true,
+        data: signupMetadata
       }
     });
     setLoading(false);
@@ -62,7 +70,7 @@ export function LoginClient() {
       return;
     }
 
-    saveOtpPhoneTransaction(createOtpPhoneTransaction(phoneResult.e164, phoneResult.country));
+    saveOtpPhoneTransaction(createOtpPhoneTransaction(phoneResult.e164, signupMetadata.country));
     router.push(localizePath(`/otp?next=${encodeURIComponent(next)}`, locale));
   }
 

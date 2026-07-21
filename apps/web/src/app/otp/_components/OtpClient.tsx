@@ -15,6 +15,7 @@ import {
   type OtpPhoneTransaction
 } from "@/lib/auth/otp-transaction";
 import { maskE164Phone } from "@/lib/auth/phone";
+import { buildPhoneSignupMetadata } from "@/lib/auth/signup-metadata";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { interpolate } from "@/i18n/get-dictionary";
@@ -83,16 +84,16 @@ export function OtpClient() {
 
     const { data: userData } = await supabase.auth.getUser();
     if (userData.user) {
-      await supabase.from("profiles").upsert(
-        {
-          id: userData.user.id,
-          phone: transaction.phone,
-          language: locale,
-          country: transaction.country,
-          timezone: getBrowserTimeZone()
-        },
-        { onConflict: "id" }
-      );
+      const signupMetadata = buildPhoneSignupMetadata({ selectedCountry: transaction.country, locale });
+      const profileUpdate = {
+        id: userData.user.id,
+        phone: transaction.phone,
+        language: signupMetadata?.language ?? locale,
+        country: signupMetadata?.country ?? transaction.country,
+        ...(signupMetadata?.timezone ? { timezone: signupMetadata.timezone } : {})
+      };
+
+      await supabase.from("profiles").upsert(profileUpdate, { onConflict: "id" });
     }
 
     clearOtpPhoneTransaction();
@@ -115,12 +116,19 @@ export function OtpClient() {
       return;
     }
 
+    const signupMetadata = buildPhoneSignupMetadata({ selectedCountry: transaction.country, locale });
+    if (!signupMetadata) {
+      setError(authErrorMessage("invalid_phone", locale));
+      return;
+    }
+
     setResending(true);
     const supabase = getSupabaseBrowserClient();
     const { error: resendError } = await supabase.auth.signInWithOtp({
       phone: transaction.phone,
       options: {
-        shouldCreateUser: true
+        shouldCreateUser: true,
+        data: signupMetadata
       }
     });
     setResending(false);
@@ -157,12 +165,4 @@ export function OtpClient() {
       </div>
     </div>
   );
-}
-
-function getBrowserTimeZone() {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Istanbul";
-  } catch {
-    return "Europe/Istanbul";
-  }
 }
