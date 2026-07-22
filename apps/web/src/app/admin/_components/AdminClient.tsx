@@ -302,6 +302,7 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reviewingListingId, setReviewingListingId] = useState<string | null>(null);
 
   const load = useCallback(async function load() {
     setLoading(true);
@@ -365,26 +366,41 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
     void load();
   }, [load]);
 
-  async function moderate(listing: ListingRow, action: "approve" | "reject" | "archive" | "pending") {
+  async function moderate(listing: ListingRow, action: "approve" | "reject") {
     const note = action === "approve" ? null : window.prompt("Kısa not / gerekçe")?.trim() ?? null;
-    if ((action === "reject" || action === "archive") && !note) return;
+    if (action === "reject" && !note) return;
     const supabase = getSupabaseBrowserClient();
-    const now = new Date().toISOString();
-    const patch =
-      action === "approve"
-        ? { status: "active", moderation_status: "active", moderation_note: null, rejection_reason: null, archived_at: null, moderated_by: userId, moderated_at: now }
-        : action === "reject"
-          ? { status: "removed", moderation_status: "rejected", moderation_note: note, rejection_reason: note, moderated_by: userId, moderated_at: now }
-          : action === "archive"
-            ? { status: "removed", moderation_status: "archived", moderation_note: note, archived_at: now, moderated_by: userId, moderated_at: now }
-            : { status: "paused", moderation_status: "pending_review", moderation_note: note, moderated_by: userId, moderated_at: now };
-
-    const { error: updateError } = await supabase.schema("marketplace").from("listings").update(patch).eq("id", listing.id);
-    if (updateError) {
-      setError(updateError.message);
+    setError(null);
+    setReviewingListingId(listing.id);
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) {
+      setError("Admin oturumu bulunamadı.");
+      setReviewingListingId(null);
       return;
     }
-    await logAdminAction(userId, `${action}_listing`, "listing", listing.id, { note, previous_status: listing.status, previous_moderation_status: listing.moderation_status });
+
+    const response = await fetch("/api/admin/listings/review", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({
+        listingId: listing.id,
+        decision: action,
+        rejectionReason: note
+      })
+    });
+    const payload = await response.json().catch(() => null) as { error?: string } | null;
+
+    if (!response.ok) {
+      setError(payload?.error ?? "İlan moderasyonu tamamlanamadı.");
+      setReviewingListingId(null);
+      return;
+    }
+
+    setReviewingListingId(null);
     await load();
   }
 
@@ -434,9 +450,18 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
               <p>Moderasyon: {moderationLabel(row.moderation_status)}</p>
             </div>
             <div className="flex flex-wrap gap-2 lg:justify-end">
-              <SmallButton onClick={() => moderate(row, "approve")}>Onayla</SmallButton>
-              <SmallButton onClick={() => moderate(row, "reject")} variant="secondary">Reddet</SmallButton>
-              <SmallButton onClick={() => moderate(row, "archive")} variant="secondary">Arşivle</SmallButton>
+              {row.moderation_status === "pending_review" ? (
+                <>
+                  <SmallButton onClick={() => moderate(row, "approve")} disabled={Boolean(reviewingListingId)}>
+                    {reviewingListingId === row.id ? "İşleniyor" : "Onayla"}
+                  </SmallButton>
+                  <SmallButton onClick={() => moderate(row, "reject")} variant="secondary" disabled={Boolean(reviewingListingId)}>
+                    Reddet
+                  </SmallButton>
+                </>
+              ) : (
+                <span className="rounded-md bg-oto-surface px-3 py-2 text-xs font-black text-oto-muted">Karar kapalı</span>
+              )}
               <Link href={localizePath(`/listing/${row.id}`, locale)} className="rounded-md border border-oto-border px-3 py-2 text-xs font-black text-oto-text">Aç</Link>
             </div>
           </div>
@@ -858,9 +883,9 @@ function AuditLogList({ logs }: { logs: AuditRow[] }) {
   );
 }
 
-function SmallButton({ children, onClick, variant = "primary" }: { children: React.ReactNode; onClick: () => void; variant?: "primary" | "secondary" }) {
+function SmallButton({ children, onClick, variant = "primary", disabled = false }: { children: React.ReactNode; onClick: () => void; variant?: "primary" | "secondary"; disabled?: boolean }) {
   return (
-    <Button type="button" variant={variant} onClick={onClick} className="h-9 px-3 text-xs">
+    <Button type="button" variant={variant} onClick={onClick} disabled={disabled} className="h-9 px-3 text-xs">
       {children}
     </Button>
   );

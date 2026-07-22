@@ -9,7 +9,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test:phone-auth": "node scripts/phone-auth.test.cjs",
-    "test:auth-signup-metadata": "node scripts/auth-signup-metadata.test.cjs"
+    "test:auth-signup-metadata": "node scripts/auth-signup-metadata.test.cjs",
+    "test:security-lifecycle": "node scripts/security-lifecycle.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

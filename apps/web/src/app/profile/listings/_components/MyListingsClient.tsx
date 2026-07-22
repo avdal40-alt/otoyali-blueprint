@@ -1,7 +1,7 @@
 "use client";
 
 import type { ChangeEvent, FormEvent } from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
@@ -35,6 +35,15 @@ type MyListing = {
 const MAX_VIDEO_SIZE_BYTES = 100 * 1024 * 1024;
 const ALLOWED_VIDEO_TYPES = new Set(["video/mp4", "video/webm", "video/quicktime"]);
 
+type OwnerLifecycleAction = "submit" | "resubmit" | "pause" | "archive";
+
+const ownerLifecycleRpc: Record<OwnerLifecycleAction, string> = {
+  submit: "submit_own_listing_for_review",
+  resubmit: "resubmit_own_listing_for_review",
+  pause: "pause_own_listing",
+  archive: "archive_own_listing"
+};
+
 export function MyListingsClient() {
   const router = useRouter();
   const { locale, dictionary } = useI18n();
@@ -42,6 +51,7 @@ export function MyListingsClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [actionListingId, setActionListingId] = useState<string | null>(null);
   const [videoListingId, setVideoListingId] = useState<string | null>(null);
   const [videoTitle, setVideoTitle] = useState("");
   const [videoDescription, setVideoDescription] = useState("");
@@ -50,8 +60,7 @@ export function MyListingsClient() {
   const [videoError, setVideoError] = useState<string | null>(null);
   const [videoSuccess, setVideoSuccess] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function load() {
+  const loadListings = useCallback(async function loadListings() {
       if (!hasSupabaseEnv()) {
         setError("Supabase ortam değişkenleri eksik.");
         setLoading(false);
@@ -137,29 +146,29 @@ export function MyListingsClient() {
         })
       );
       setLoading(false);
-    }
-
-    void load();
   }, [router, locale]);
 
-  async function updateListingWorkflow(
-    listingId: string,
-    values: { status?: "active" | "paused" | "removed"; moderation_status?: "active" | "archived" }
-  ) {
-    const supabase = getSupabaseBrowserClient();
-    const { error: updateError } = await supabase
-      .schema("marketplace")
-      .from("listings")
-      .update(values)
-      .eq("id", listingId);
+  useEffect(() => {
+    void loadListings();
+  }, [loadListings]);
 
-    if (updateError) {
-      logClientError("myListings.updateWorkflow", updateError);
-      setError("İlan durumu güncellenemedi. Lütfen tekrar deneyin.");
+  async function runListingWorkflow(listingId: string, action: OwnerLifecycleAction) {
+    const supabase = getSupabaseBrowserClient();
+    setError(null);
+    setActionListingId(listingId);
+    const { error: workflowError } = await supabase.rpc(ownerLifecycleRpc[action], {
+      p_listing_id: listingId
+    });
+
+    if (workflowError) {
+      logClientError("myListings.runWorkflow", workflowError);
+      setError(lifecycleErrorMessage(workflowError, locale));
+      setActionListingId(null);
       return;
     }
 
-    setItems((current) => current.map((item) => item.id === listingId ? { ...item, ...values } : item));
+    await loadListings();
+    setActionListingId(null);
   }
 
   function openVideoForm(item: MyListing) {
@@ -301,6 +310,12 @@ export function MyListingsClient() {
       {items.map((item) => {
         const workflow = statusMeta(item);
         const canViewPublic = item.status === "active" && item.moderation_status === "active";
+        const canSubmit = item.status === "draft" && item.moderation_status !== "pending_review";
+        const canResubmit = item.moderation_status === "rejected";
+        const canPause = canViewPublic;
+        const canArchive = item.status !== "removed" && item.moderation_status !== "archived";
+        const actionBusy = actionListingId === item.id;
+        const anyActionBusy = Boolean(actionListingId);
 
         return (
         <article key={item.id} className="overflow-hidden rounded-oto border border-oto-border bg-white shadow-soft">
@@ -338,13 +353,25 @@ export function MyListingsClient() {
                   <Button type="button" variant="secondary" disabled>Önizle · Yakında</Button>
                 )}
                 <Button type="button" variant="secondary" disabled>{item.moderation_status === "rejected" ? "Tekrar düzenle · Yakında" : "Düzenle · Yakında"}</Button>
-                {canViewPublic ? (
-                  <Button type="button" variant="secondary" onClick={() => updateListingWorkflow(item.id, { status: "paused" })}>Duraklat</Button>
-                ) : item.status === "paused" ? (
-                  <Button type="button" variant="secondary" onClick={() => updateListingWorkflow(item.id, { status: "active" })}>Yeniden yayınla</Button>
+                {canSubmit ? (
+                  <Button type="button" variant="secondary" disabled={anyActionBusy} onClick={() => runListingWorkflow(item.id, "submit")}>
+                    {actionBusy ? "Gönderiliyor" : "İncelemeye gönder"}
+                  </Button>
                 ) : null}
-                {item.status !== "removed" ? (
-                  <Button type="button" variant="secondary" onClick={() => updateListingWorkflow(item.id, { status: "removed", moderation_status: "archived" })}>Arşivle</Button>
+                {canResubmit ? (
+                  <Button type="button" variant="secondary" disabled={anyActionBusy} onClick={() => runListingWorkflow(item.id, "resubmit")}>
+                    {actionBusy ? "Gönderiliyor" : "Tekrar incelemeye gönder"}
+                  </Button>
+                ) : null}
+                {canPause ? (
+                  <Button type="button" variant="secondary" disabled={anyActionBusy} onClick={() => runListingWorkflow(item.id, "pause")}>
+                    {actionBusy ? "Duraklatılıyor" : "Duraklat"}
+                  </Button>
+                ) : null}
+                {canArchive ? (
+                  <Button type="button" variant="secondary" disabled={anyActionBusy} onClick={() => runListingWorkflow(item.id, "archive")}>
+                    {actionBusy ? "Arşivleniyor" : "Arşivle"}
+                  </Button>
                 ) : null}
                 {canViewPublic ? <Button type="button" variant="secondary" onClick={() => openVideoForm(item)}>Video ekle</Button> : null}
               </div>
@@ -476,6 +503,23 @@ function statusMeta(item: MyListing) {
     className: "bg-oto-surface text-oto-muted",
     body: "Taslak ilanlar public sayfalarda görünmez."
   };
+}
+
+function lifecycleErrorMessage(error: unknown, locale: string) {
+  const code = error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code ?? "") : "";
+  const isEnglish = locale === "en";
+
+  if (code === "OT401") return isEnglish ? "Please sign in to manage this listing." : "İlanı yönetmek için giriş yapın.";
+  if (code === "OT403") return isEnglish ? "You can only manage your own listings." : "Yalnızca kendi ilanlarınızı yönetebilirsiniz.";
+  if (code === "OT404") return isEnglish ? "Listing could not be found." : "İlan bulunamadı.";
+  if (code === "OT409") {
+    return isEnglish
+      ? "This listing state changed. Refresh the page and try again."
+      : "İlan durumu değişti. Sayfayı yenileyip tekrar deneyin.";
+  }
+  if (code === "OT422") return isEnglish ? "This listing action is not valid." : "Bu ilan işlemi geçerli değil.";
+
+  return isEnglish ? "Listing status could not be updated. Please try again." : "İlan durumu güncellenemedi. Lütfen tekrar deneyin.";
 }
 
 function logClientError(context: string, detail: unknown) {

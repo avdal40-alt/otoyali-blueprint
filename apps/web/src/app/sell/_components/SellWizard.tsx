@@ -600,24 +600,33 @@ export function SellWizard({
     }
 
     setPublishStatus("İlanınız moderasyon kontrolüne gönderiliyor.");
-    const { error: activateError } = await supabase
+    const { error: finalizeError } = await supabase
       .schema("marketplace")
       .from("listings")
       .update({
-        status: "draft",
-        moderation_status: "pending_review",
         quality_score: qualityScore,
         cover_media_id: coverMediaId
       })
       .eq("id", listingId);
 
+    if (finalizeError) {
+      logClientError("sell.finalizeListingContent", finalizeError);
+      setSubmitting(false);
+      setPublishStatus(null);
+      setError("İlanınız incelemeye gönderilemedi. Lütfen tekrar deneyin.");
+      return;
+    }
+
+    const { error: submitError } = await supabase.rpc("submit_own_listing_for_review", {
+      p_listing_id: listingId
+    });
+
     setSubmitting(false);
     setPublishStatus(null);
 
-    if (activateError) {
-      logClientError("sell.submitForReview", activateError);
-      setPublishedListingId(listingId);
-      clearStoredDraft(userId);
+    if (submitError) {
+      logClientError("sell.submitForReview", submitError);
+      setError("İlanınız incelemeye gönderilemedi. Lütfen tekrar deneyin.");
       return;
     }
 
