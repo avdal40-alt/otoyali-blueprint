@@ -352,7 +352,11 @@ export function MyListingsClient() {
                 ) : (
                   <Button type="button" variant="secondary" disabled>Önizle · Yakında</Button>
                 )}
-                <Button type="button" variant="secondary" disabled>{item.moderation_status === "rejected" ? "Tekrar düzenle · Yakında" : "Düzenle · Yakında"}</Button>
+                {item.moderation_status === "rejected" ? (
+                  <ButtonLink href={localizePath(`/sell?edit=${item.id}`, locale)} variant="secondary">Tekrar düzenle</ButtonLink>
+                ) : (
+                  <Button type="button" variant="secondary" disabled>Düzenle · Yakında</Button>
+                )}
                 {canSubmit ? (
                   <Button type="button" variant="secondary" disabled={anyActionBusy} onClick={() => runListingWorkflow(item.id, "submit")}>
                     {actionBusy ? "Gönderiliyor" : "İncelemeye gönder"}

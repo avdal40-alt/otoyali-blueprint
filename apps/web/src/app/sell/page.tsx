@@ -19,12 +19,17 @@ import { SellWizard } from "./_components/SellWizard";
 export default async function SellPage({
   searchParams
 }: {
-  searchParams?: { vertical?: string | string[] };
+  searchParams?: { vertical?: string | string[]; edit?: string | string[] };
 }) {
   const locale = getRequestLocale();
   const dictionary = getDictionary(locale);
   const verticalId = getPublishVerticalFromSearchParam(searchParams?.vertical);
   const vertical = getMarketplaceVertical(verticalId);
+  const editValue = Array.isArray(searchParams?.edit) ? searchParams?.edit[0] : searchParams?.edit;
+  const editListingId = editValue && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(editValue)
+    ? editValue
+    : null;
+  const mode = editValue ? "editRejected" : "create";
 
   if (!canPublishVertical(verticalId)) {
     return (
@@ -70,7 +75,7 @@ export default async function SellPage({
           </Link>
           {" "}{String(dictionary.sell.agreementSuffix)}
         </div>
-        <SellWizard makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />
+        <SellWizard mode={mode} editListingId={editListingId} makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />
       </PageContainer>
       <MarketplaceFooter />
       <MobileBottomNav />

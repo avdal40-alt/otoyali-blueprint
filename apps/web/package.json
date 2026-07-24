@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test:phone-auth": "node scripts/phone-auth.test.cjs",
     "test:auth-signup-metadata": "node scripts/auth-signup-metadata.test.cjs",
-    "test:security-lifecycle": "node scripts/security-lifecycle.test.cjs"
+    "test:security-lifecycle": "node scripts/security-lifecycle.test.cjs",
+    "test:sell-03": "node scripts/sell-03.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

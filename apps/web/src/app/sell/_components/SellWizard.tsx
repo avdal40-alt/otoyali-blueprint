@@ -27,6 +27,17 @@ type PhotoItem = {
   prepared?: PreparedImageSet | null;
 };
 
+type ExistingMedia = {
+  id: string;
+  url: string;
+  thumb_url?: string | null;
+  card_url?: string | null;
+  large_url?: string | null;
+  is_cover: boolean;
+};
+
+export type SellWizardMode = "create" | "editRejected";
+
 type WizardState = {
   makeId: string;
   modelId: string;
@@ -125,11 +136,15 @@ const photoChecklist = [
 ];
 
 export function SellWizard({
+  mode,
+  editListingId,
   makes,
   models,
   cities,
   listings
 }: {
+  mode: SellWizardMode;
+  editListingId: string | null;
   makes: Make[];
   models: Model[];
   cities?: City[];
@@ -151,6 +166,9 @@ export function SellWizard({
   const [modelsForMake, setModelsForMake] = useState<Model[]>(models);
   const [modelsLoading, setModelsLoading] = useState(false);
   const [modelsError, setModelsError] = useState<string | null>(null);
+  const [existingMedia, setExistingMedia] = useState<ExistingMedia[]>([]);
+  const [expectedUpdatedAt, setExpectedUpdatedAt] = useState<string | null>(null);
+  const [editSaved, setEditSaved] = useState<"rejected" | "pending_review" | null>(null);
 
   useEffect(() => {
     async function checkAuth() {
@@ -163,7 +181,10 @@ export function SellWizard({
       const supabase = getSupabaseBrowserClient();
       const { data } = await supabase.auth.getUser();
       if (!data.user) {
-        router.replace(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/sell", locale))}`);
+        const sellReturnPath = mode === "editRejected" && editListingId
+          ? `${localizePath("/sell", locale)}?edit=${editListingId}`
+          : localizePath("/sell", locale);
+        router.replace(`${localizePath("/login", locale)}?next=${encodeURIComponent(sellReturnPath)}`);
         return;
       }
 
@@ -171,6 +192,55 @@ export function SellWizard({
       const { data: profileRow } = await supabase.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
       const sellerProfile = toSellerProfile((profileRow as Profile | null) ?? null, data.user.phone ?? "", locale);
       setProfile(sellerProfile);
+      if (mode === "editRejected") {
+        if (!editListingId) {
+          setError("Düzenlenebilir ilan bulunamadı.");
+          setCheckingAuth(false);
+          return;
+        }
+        const { data: editData, error: editError } = await supabase.rpc("get_own_rejected_listing_for_edit", {
+          p_listing_id: editListingId
+        });
+        if (editError || !editData) {
+          setError("Düzenlenebilir ilan bulunamadı.");
+          setCheckingAuth(false);
+          return;
+        }
+        const edit = editData as {
+          listing: Record<string, unknown>;
+          vehicle: Record<string, unknown>;
+          media: ExistingMedia[];
+        };
+        const listing = edit.listing;
+        const vehicle = edit.vehicle;
+        setState({
+          makeId: String(vehicle.make_id ?? ""),
+          modelId: String(vehicle.model_id ?? ""),
+          year: String(vehicle.year ?? ""),
+          city: String(listing.city ?? ""),
+          condition: String(vehicle.condition ?? "used"),
+          sellerType: String(listing.seller_type ?? sellerProfile.sellerType),
+          mileageKm: String(vehicle.mileage_km ?? ""),
+          fuelType: String(vehicle.fuel_type ?? "gasoline"),
+          transmission: String(vehicle.transmission ?? "automatic"),
+          bodyType: String(vehicle.body_type ?? ""),
+          driveType: String(vehicle.drive_type ?? ""),
+          color: String(vehicle.color ?? ""),
+          engineVolumeL: vehicle.engine_volume_l == null ? "" : String(vehicle.engine_volume_l),
+          damageState: String(vehicle.damage_state ?? "unknown"),
+          ownerCount: vehicle.owner_count == null ? "" : String(vehicle.owner_count),
+          priceAmount: String(listing.price_amount ?? ""),
+          currency: String(listing.currency ?? "TRY").trim(),
+          priceNegotiable: Boolean(listing.price_negotiable),
+          description: String(listing.description ?? ""),
+          photos: []
+        });
+        setExpectedUpdatedAt(String(listing.updated_at));
+        setExistingMedia(edit.media ?? []);
+        void loadModelsForMake(String(vehicle.make_id ?? ""));
+        setCheckingAuth(false);
+        return;
+      }
       const savedDraft = readStoredDraft(data.user.id);
       setState((current) => ({
         ...current,
@@ -186,12 +256,12 @@ export function SellWizard({
     }
 
     void checkAuth();
-  }, [dictionary.errors.missingSupabaseEnv, locale, router]);
+  }, [dictionary.errors.missingSupabaseEnv, editListingId, locale, mode, router]);
 
   useEffect(() => {
-    if (!userId || publishedListingId) return;
+    if (mode !== "create" || !userId || publishedListingId) return;
     saveStoredDraft(userId, state);
-  }, [publishedListingId, state, userId]);
+  }, [mode, publishedListingId, state, userId]);
 
   useEffect(() => {
     if (!userId || publishedListingId || submitting || !hasUnsavedDraft(state)) return;
@@ -237,7 +307,11 @@ export function SellWizard({
   }, [listings, selectedMake, selectedModel, state.mileageKm, state.year]);
 
   function update<K extends keyof WizardState>(key: K, value: WizardState[K]) {
-    setState((current) => ({ ...current, [key]: value }));
+    setState((current) => ({
+      ...current,
+      [key]: value,
+      ...(key === "fuelType" && value === "electric" ? { engineVolumeL: "" } : {})
+    }));
   }
 
   function updateMake(makeId: string) {
@@ -434,8 +508,102 @@ export function SellWizard({
     setStep((current) => Math.min(steps.length, current + 1));
   }
 
+  async function saveRejected(sendForReview: boolean) {
+    setError(null);
+    setEditSaved(null);
+    if (!editListingId || !expectedUpdatedAt || !profile) {
+      setError("Düzenlenebilir ilan bulunamadı.");
+      return;
+    }
+    const validation = validateForPublish(state);
+    if (validation) {
+      setError(validation);
+      return;
+    }
+
+    setSubmitting(true);
+    setPublishStatus("Değişiklikler kaydediliyor.");
+    const supabase = getSupabaseBrowserClient();
+    const { data: savedRows, error: saveError } = await supabase.rpc("save_own_rejected_listing", {
+      p_listing_id: editListingId,
+      p_expected_updated_at: expectedUpdatedAt,
+      p_make_id: state.makeId,
+      p_model_id: state.modelId,
+      p_year: Number(state.year),
+      p_mileage_km: Number(state.mileageKm),
+      p_condition: state.condition,
+      p_fuel_type: state.fuelType,
+      p_transmission: state.transmission,
+      p_body_type: state.bodyType || null,
+      p_drive_type: state.driveType || null,
+      p_color: state.color || null,
+      p_engine_volume_l: state.fuelType === "electric" ? null : Number(state.engineVolumeL),
+      p_damage_state: state.damageState || null,
+      p_owner_count: state.ownerCount ? Number(state.ownerCount) : null,
+      p_title: generatedTitle,
+      p_description: state.description.trim() || null,
+      p_price_amount: Number(state.priceAmount),
+      p_currency: state.currency,
+      p_price_negotiable: state.priceNegotiable,
+      p_city: state.city,
+      p_seller_type: profile.sellerType,
+      p_seller_display_name: profile.displayName,
+      p_quality_score: qualityScore
+    });
+    if (saveError) {
+      logClientError("sell.saveRejected", saveError);
+      setError(editErrorMessage(saveError));
+      setSubmitting(false);
+      setPublishStatus(null);
+      return;
+    }
+
+    const saved = Array.isArray(savedRows) ? savedRows[0] : savedRows;
+    if (saved && typeof saved === "object" && "updated_at" in saved) {
+      setExpectedUpdatedAt(String(saved.updated_at));
+    }
+    if (sendForReview) {
+      setPublishStatus("İlanınız tekrar incelemeye gönderiliyor.");
+      const { error: resubmitError } = await supabase.rpc("resubmit_own_listing_for_review", {
+        p_listing_id: editListingId
+      });
+      if (resubmitError) {
+        logClientError("sell.resubmitRejected", resubmitError);
+        setError(editErrorMessage(resubmitError));
+        setSubmitting(false);
+        setPublishStatus(null);
+        return;
+      }
+      const { data: canonicalListing, error: reloadError } = await supabase
+        .schema("marketplace")
+        .from("listings")
+        .select("status,moderation_status")
+        .eq("id", editListingId)
+        .single();
+      if (reloadError || canonicalListing?.moderation_status !== "pending_review" || canonicalListing?.status !== "draft") {
+        setError("İlan kaydedildi ancak güncel inceleme durumu yüklenemedi. İlanlarım sayfasını yenileyin.");
+        setSubmitting(false);
+        setPublishStatus(null);
+        return;
+      }
+      setEditSaved("pending_review");
+    } else {
+      const { data: canonical } = await supabase.rpc("get_own_rejected_listing_for_edit", {
+        p_listing_id: editListingId
+      });
+      const canonicalListing = canonical && typeof canonical === "object" && "listing" in canonical
+        ? (canonical as { listing: { updated_at?: unknown } }).listing
+        : null;
+      if (canonicalListing?.updated_at) setExpectedUpdatedAt(String(canonicalListing.updated_at));
+      setEditSaved("rejected");
+    }
+    setSubmitting(false);
+    setPublishStatus(null);
+  }
+
   async function publish(event: FormEvent) {
     event.preventDefault();
+    if (mode === "editRejected") return;
     setError(null);
 
     if (!userId) {
@@ -777,9 +945,12 @@ export function SellWizard({
                 {colorOptions.map((option) => <option key={option.label} value={option.value}>{option.label}</option>)}
               </Select>
             </Field>
-            <Field label="Motor hacmi">
-              <Input value={state.engineVolumeL} onChange={(event) => update("engineVolumeL", event.target.value)} placeholder="1.6" inputMode="decimal" />
-            </Field>
+            {state.fuelType !== "electric" ? (
+              <Field label="Motor hacmi">
+                <Input value={state.engineVolumeL} onChange={(event) => update("engineVolumeL", event.target.value)} placeholder="1.6" inputMode="decimal" />
+                {error?.startsWith("Motor hacmi") ? <span className="text-xs font-bold text-oto-danger">{error}</span> : null}
+              </Field>
+            ) : null}
             <Field label="Hasar durumu">
               <Select value={state.damageState} onChange={(event) => update("damageState", event.target.value)}>
                 {damageOptions.map((option) => <option key={option} value={option}>{damageStateLabel(option)}</option>)}
@@ -814,6 +985,16 @@ export function SellWizard({
 
       {step === 4 ? (
         <Panel title="Fotoğraflar">
+          {existingMedia.length > 0 ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {existingMedia.map((media) => (
+                <div key={media.id} className="overflow-hidden rounded-oto border border-oto-border bg-white">
+                  <div className="aspect-[4/3]"><SafeImage src={media.thumb_url || media.card_url || media.url} alt="Mevcut ilan fotoğrafı" /></div>
+                  <p className="p-3 text-xs font-bold text-oto-muted">{media.is_cover ? "Mevcut kapak fotoğrafı" : "Mevcut fotoğraf"}</p>
+                </div>
+              ))}
+            </div>
+          ) : null}
           <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
             <h3 className="text-sm font-black text-oto-text">Fotoğraf rehberi</h3>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -822,14 +1003,14 @@ export function SellWizard({
               ))}
             </div>
           </div>
-          <label className="grid cursor-pointer gap-2 rounded-oto border border-dashed border-oto-border bg-white p-5 text-center">
+          {mode === "create" ? <label className="grid cursor-pointer gap-2 rounded-oto border border-dashed border-oto-border bg-white p-5 text-center">
             <span className="text-base font-black text-oto-text">Fotoğraf ekle</span>
             <span className="text-sm font-semibold leading-6 text-oto-muted">
               JPEG, PNG veya WebP kullanın. Görseller large, card ve thumb boyutlarına optimize edilir. Her fotoğraf en fazla 10 MB olabilir.
             </span>
             <Input className="mx-auto max-w-md" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => handlePhotoSelect(event.target.files)} />
-          </label>
-          <p className="text-sm text-oto-muted">{state.photos.length}/{maxPhotos} fotoğraf seçildi. Plaka ve kişisel bilgilerin görünür olmadığından emin olun.</p>
+          </label> : null}
+          <p className="text-sm text-oto-muted">{existingMedia.length + state.photos.length}/{maxPhotos} fotoğraf. Mevcut fotoğraflar ve kapak değiştirilmeden korunur.</p>
           {state.photos.length > 0 && state.photos.length < 3 ? (
             <p className="rounded-md bg-amber-50 p-3 text-sm font-semibold text-amber-700">En az 3 fotoğraf eklemeniz önerilir.</p>
           ) : null}
@@ -905,7 +1086,7 @@ export function SellWizard({
         <Panel title="Önizleme ve yayınla">
           <div className="overflow-hidden rounded-oto border border-oto-border bg-white">
             <div className="aspect-[4/3] bg-oto-surface">
-              <SafeImage src={state.photos.find((photo) => photo.isCover)?.previewUrl} alt={generatedTitle || "İlan önizleme"} />
+              <SafeImage src={state.photos.find((photo) => photo.isCover)?.previewUrl || existingMedia.find((media) => media.is_cover)?.url || existingMedia[0]?.url} alt={generatedTitle || "İlan önizleme"} />
             </div>
             <div className="grid gap-3 p-4">
               <h2 className="text-xl font-black text-oto-text">{generatedTitle || "İlan başlığı"}</h2>
@@ -917,7 +1098,7 @@ export function SellWizard({
               <p className="text-sm leading-6 text-oto-muted">{state.description || "Satıcı açıklama eklememiş."}</p>
             </div>
           </div>
-          <label className="flex items-start gap-3 rounded-oto border border-oto-border bg-oto-surface p-4 text-sm font-semibold leading-6 text-oto-muted">
+          {mode === "create" ? <label className="flex items-start gap-3 rounded-oto border border-oto-border bg-oto-surface p-4 text-sm font-semibold leading-6 text-oto-muted">
             <input className="mt-1" type="checkbox" checked={rulesAccepted} onChange={(event) => setRulesAccepted(event.target.checked)} />
             <span>
               İlanı yayınlayarak{" "}
@@ -926,12 +1107,25 @@ export function SellWizard({
               <Link href="/listing-rules" className="font-black text-oto-blue">İlan Yayınlama Kuralları</Link>
               {" "}metinlerini kabul etmiş olursunuz.
             </span>
-          </label>
+          </label> : null}
+          {editSaved === "rejected" ? <p className="rounded-md bg-emerald-50 p-3 text-sm font-bold text-emerald-700">Değişiklikler kaydedildi. İlan reddedilmiş ve gizli durumda kaldı.</p> : null}
+          {editSaved === "pending_review" ? <p className="rounded-md bg-emerald-50 p-3 text-sm font-bold text-emerald-700">Değişiklikler kaydedildi. İlan onay bekliyor ve yönetici onayına kadar gizli kalacak.</p> : null}
           {error ? <ErrorState message={error} /> : null}
           {publishStatus ? <p className="rounded-md bg-oto-surface p-3 text-sm font-bold text-oto-muted">{publishStatus}</p> : null}
-          <Button type="submit" variant="orange" disabled={submitting}>
-            {submitting ? "Yayınlanıyor" : "İlanı yayınla"}
-          </Button>
+          {mode === "create" ? (
+            <Button type="submit" variant="orange" disabled={submitting}>
+              {submitting ? "Yayınlanıyor" : "İlanı yayınla"}
+            </Button>
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              <Button type="button" variant="secondary" disabled={submitting || editSaved === "pending_review"} onClick={() => void saveRejected(false)}>
+                {submitting ? "Kaydediliyor" : "Değişiklikleri kaydet"}
+              </Button>
+              <Button type="button" variant="orange" disabled={submitting || editSaved === "pending_review"} onClick={() => void saveRejected(true)}>
+                {submitting ? "Gönderiliyor" : "Kaydet ve incelemeye gönder"}
+              </Button>
+            </div>
+          )}
         </Panel>
       ) : null}
 
@@ -1134,6 +1328,12 @@ function validateStep(step: number, state: WizardState) {
   if (step === 3) {
     if (state.condition === "used" && !state.mileageKm) return "İkinci el araçlar için kilometre girin.";
     if (state.mileageKm && Number(state.mileageKm) < 0) return "Geçerli bir kilometre girin.";
+    if (state.fuelType !== "electric" && (!state.engineVolumeL || Number(state.engineVolumeL) <= 0)) {
+      return "Motor hacmi benzinli, dizel, LPG ve hibrit araçlar için zorunludur.";
+    }
+    if (state.fuelType === "electric" && state.engineVolumeL) {
+      return "Tam elektrikli araçlarda motor hacmi boş bırakılmalıdır.";
+    }
   }
   if (step === 5) {
     if (Number(state.priceAmount) <= 0) return "Geçerli bir fiyat girin.";
@@ -1144,6 +1344,14 @@ function validateStep(step: number, state: WizardState) {
 
 function validateForPublish(state: WizardState) {
   return validateStep(2, state) || validateStep(3, state) || validateStep(5, state);
+}
+
+function editErrorMessage(error: unknown) {
+  const code = error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code ?? "") : "";
+  if (code === "OT409") return "İlan siz düzenlerken değişti. Sayfayı yenileyip tekrar deneyin.";
+  if (code === "OT422") return "Araç alanlarını kontrol edin; motor hacmi yalnızca tam elektrikli araçlarda boş olabilir.";
+  if (code === "OT401") return "İlanı düzenlemek için giriş yapın.";
+  return "Düzenlenebilir ilan bulunamadı veya artık düzenlemeye uygun değil.";
 }
 
 function validYear(value: string) {
