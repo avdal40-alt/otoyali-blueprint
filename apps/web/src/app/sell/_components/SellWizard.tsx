@@ -169,6 +169,11 @@ export function SellWizard({
   const [existingMedia, setExistingMedia] = useState<ExistingMedia[]>([]);
   const [expectedUpdatedAt, setExpectedUpdatedAt] = useState<string | null>(null);
   const [editSaved, setEditSaved] = useState<"rejected" | "pending_review" | null>(null);
+  const [existingTitle, setExistingTitle] = useState("");
+  const [existingTitleGenerated, setExistingTitleGenerated] = useState(true);
+  const [existingQualityScore, setExistingQualityScore] = useState<number | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const sell03 = dictionary.sell.sell03 as Record<string, string>;
 
   useEffect(() => {
     async function checkAuth() {
@@ -194,7 +199,7 @@ export function SellWizard({
       setProfile(sellerProfile);
       if (mode === "editRejected") {
         if (!editListingId) {
-          setError("Düzenlenebilir ilan bulunamadı.");
+          setError(sell03.listingUnavailable);
           setCheckingAuth(false);
           return;
         }
@@ -202,7 +207,7 @@ export function SellWizard({
           p_listing_id: editListingId
         });
         if (editError || !editData) {
-          setError("Düzenlenebilir ilan bulunamadı.");
+          setError(sell03.listingUnavailable);
           setCheckingAuth(false);
           return;
         }
@@ -213,6 +218,10 @@ export function SellWizard({
         };
         const listing = edit.listing;
         const vehicle = edit.vehicle;
+        setExistingTitle(String(listing.title ?? ""));
+        setExistingTitleGenerated(Boolean(listing.title_generated));
+        setExistingQualityScore(typeof listing.quality_score === "number" ? listing.quality_score : null);
+        setRejectionReason(String(listing.rejection_reason ?? listing.moderation_note ?? ""));
         setState({
           makeId: String(vehicle.make_id ?? ""),
           modelId: String(vehicle.model_id ?? ""),
@@ -256,7 +265,7 @@ export function SellWizard({
     }
 
     void checkAuth();
-  }, [dictionary.errors.missingSupabaseEnv, editListingId, locale, mode, router]);
+  }, [dictionary.errors.missingSupabaseEnv, editListingId, locale, mode, router, sell03.listingUnavailable]);
 
   useEffect(() => {
     if (mode !== "create" || !userId || publishedListingId) return;
@@ -287,6 +296,8 @@ export function SellWizard({
   }, [cities]);
   const generatedTitle = generateListingTitle(selectedMake, selectedModel, state.year);
   const qualityScore = calculateQualityScore(state);
+  const displayTitle = mode === "editRejected" ? existingTitle : generatedTitle;
+  const displayQualityScore = mode === "editRejected" ? existingQualityScore : qualityScore;
   const profileValidation = profile ? validateSellerProfile(profile) : "Satıcı bilgilerinizi tamamlayın.";
   const profileComplete = !profileValidation;
   const qualityItems = getQualityItems(state, profileComplete);
@@ -499,7 +510,7 @@ export function SellWizard({
       return;
     }
 
-    const validation = validateStep(step, state);
+    const validation = validateStep(step, state, sell03);
     if (validation) {
       setError(validation);
       return;
@@ -512,17 +523,17 @@ export function SellWizard({
     setError(null);
     setEditSaved(null);
     if (!editListingId || !expectedUpdatedAt || !profile) {
-      setError("Düzenlenebilir ilan bulunamadı.");
+      setError(sell03.listingUnavailable);
       return;
     }
-    const validation = validateForPublish(state);
+    const validation = validateForPublish(state, sell03);
     if (validation) {
       setError(validation);
       return;
     }
 
     setSubmitting(true);
-    setPublishStatus("Değişiklikler kaydediliyor.");
+    setPublishStatus(sell03.saveProgress);
     const supabase = getSupabaseBrowserClient();
     const { data: savedRows, error: saveError } = await supabase.rpc("save_own_rejected_listing", {
       p_listing_id: editListingId,
@@ -540,19 +551,15 @@ export function SellWizard({
       p_engine_volume_l: state.fuelType === "electric" ? null : Number(state.engineVolumeL),
       p_damage_state: state.damageState || null,
       p_owner_count: state.ownerCount ? Number(state.ownerCount) : null,
-      p_title: generatedTitle,
       p_description: state.description.trim() || null,
       p_price_amount: Number(state.priceAmount),
       p_currency: state.currency,
       p_price_negotiable: state.priceNegotiable,
-      p_city: state.city,
-      p_seller_type: profile.sellerType,
-      p_seller_display_name: profile.displayName,
-      p_quality_score: qualityScore
+      p_city: state.city
     });
     if (saveError) {
       logClientError("sell.saveRejected", saveError);
-      setError(editErrorMessage(saveError));
+      setError(editErrorMessage(saveError, sell03));
       setSubmitting(false);
       setPublishStatus(null);
       return;
@@ -563,38 +570,20 @@ export function SellWizard({
       setExpectedUpdatedAt(String(saved.updated_at));
     }
     if (sendForReview) {
-      setPublishStatus("İlanınız tekrar incelemeye gönderiliyor.");
+      setPublishStatus(sell03.resubmitProgress);
       const { error: resubmitError } = await supabase.rpc("resubmit_own_listing_for_review", {
         p_listing_id: editListingId
       });
       if (resubmitError) {
         logClientError("sell.resubmitRejected", resubmitError);
-        setError(editErrorMessage(resubmitError));
+        setError(editErrorMessage(resubmitError, sell03, true));
         setSubmitting(false);
         setPublishStatus(null);
         return;
       }
-      const { data: canonicalListing, error: reloadError } = await supabase
-        .schema("marketplace")
-        .from("listings")
-        .select("status,moderation_status")
-        .eq("id", editListingId)
-        .single();
-      if (reloadError || canonicalListing?.moderation_status !== "pending_review" || canonicalListing?.status !== "draft") {
-        setError("İlan kaydedildi ancak güncel inceleme durumu yüklenemedi. İlanlarım sayfasını yenileyin.");
-        setSubmitting(false);
-        setPublishStatus(null);
-        return;
-      }
+      setRejectionReason("");
       setEditSaved("pending_review");
     } else {
-      const { data: canonical } = await supabase.rpc("get_own_rejected_listing_for_edit", {
-        p_listing_id: editListingId
-      });
-      const canonicalListing = canonical && typeof canonical === "object" && "listing" in canonical
-        ? (canonical as { listing: { updated_at?: unknown } }).listing
-        : null;
-      if (canonicalListing?.updated_at) setExpectedUpdatedAt(String(canonicalListing.updated_at));
       setEditSaved("rejected");
     }
     setSubmitting(false);
@@ -621,7 +610,7 @@ export function SellWizard({
       return;
     }
 
-    const validation = validateForPublish(state);
+    const validation = validateForPublish(state, sell03);
     if (validation) {
       setError(validation);
       return;
@@ -839,6 +828,12 @@ export function SellWizard({
 
   return (
     <form onSubmit={publish} className="grid gap-5">
+      {mode === "editRejected" && rejectionReason ? (
+        <section className="rounded-oto border border-red-200 bg-red-50 p-5" aria-live="polite">
+          <h2 className="text-base font-black text-red-900">{sell03.rejectionReasonHeading}</h2>
+          <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-red-800">{rejectionReason}</p>
+        </section>
+      ) : null}
       <div className="flex gap-2 overflow-x-auto pb-1">
         {steps.map((label, index) => {
           const item = index + 1;
@@ -995,14 +990,14 @@ export function SellWizard({
               ))}
             </div>
           ) : null}
-          <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
+          {mode === "create" ? <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
             <h3 className="text-sm font-black text-oto-text">Fotoğraf rehberi</h3>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {photoChecklist.map((item) => (
                 <div key={item} className="rounded-md bg-white px-3 py-2 text-xs font-bold text-oto-muted">{item}</div>
               ))}
             </div>
-          </div>
+          </div> : null}
           {mode === "create" ? <label className="grid cursor-pointer gap-2 rounded-oto border border-dashed border-oto-border bg-white p-5 text-center">
             <span className="text-base font-black text-oto-text">Fotoğraf ekle</span>
             <span className="text-sm font-semibold leading-6 text-oto-muted">
@@ -1010,11 +1005,15 @@ export function SellWizard({
             </span>
             <Input className="mx-auto max-w-md" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => handlePhotoSelect(event.target.files)} />
           </label> : null}
-          <p className="text-sm text-oto-muted">{existingMedia.length + state.photos.length}/{maxPhotos} fotoğraf. Mevcut fotoğraflar ve kapak değiştirilmeden korunur.</p>
-          {state.photos.length > 0 && state.photos.length < 3 ? (
+          {mode === "editRejected" ? (
+            <p className="rounded-md bg-oto-surface p-3 text-sm font-semibold text-oto-muted">{sell03.mediaPreserved}</p>
+          ) : (
+            <p className="text-sm text-oto-muted">{state.photos.length}/{maxPhotos} fotoğraf.</p>
+          )}
+          {mode === "create" && state.photos.length > 0 && state.photos.length < 3 ? (
             <p className="rounded-md bg-amber-50 p-3 text-sm font-semibold text-amber-700">En az 3 fotoğraf eklemeniz önerilir.</p>
           ) : null}
-          {state.photos.length > 0 ? (
+          {mode === "create" && state.photos.length > 0 ? (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {state.photos.map((photo) => (
                 <div key={photo.id} className="overflow-hidden rounded-oto border border-oto-border bg-white">
@@ -1086,15 +1085,15 @@ export function SellWizard({
         <Panel title="Önizleme ve yayınla">
           <div className="overflow-hidden rounded-oto border border-oto-border bg-white">
             <div className="aspect-[4/3] bg-oto-surface">
-              <SafeImage src={state.photos.find((photo) => photo.isCover)?.previewUrl || existingMedia.find((media) => media.is_cover)?.url || existingMedia[0]?.url} alt={generatedTitle || "İlan önizleme"} />
+              <SafeImage src={(mode === "create" ? state.photos.find((photo) => photo.isCover)?.previewUrl : null) || existingMedia.find((media) => media.is_cover)?.url || existingMedia[0]?.url} alt={displayTitle || "İlan önizleme"} />
             </div>
             <div className="grid gap-3 p-4">
-              <h2 className="text-xl font-black text-oto-text">{generatedTitle || "İlan başlığı"}</h2>
+              <h2 className="text-xl font-black text-oto-text" data-title-generated={mode === "editRejected" ? existingTitleGenerated : true}>{displayTitle || "İlan başlığı"}</h2>
               <p className="text-2xl font-black text-oto-text">{formatPrice(Number(state.priceAmount || 0), state.currency, locale)}</p>
               <p className="text-sm font-semibold text-oto-muted">
                 {cityLabel(state.city, locale)} · {formatMileage(Number(state.mileageKm || 0), locale)} · {fuelLabel(state.fuelType, locale)} · {transmissionLabel(state.transmission, locale)} · {sellerTypeLabel(profile?.sellerType ?? state.sellerType, locale)}
               </p>
-              <QualityScore score={qualityScore} items={qualityItems} />
+              <QualityScore score={displayQualityScore ?? 0} items={qualityItems} />
               <p className="text-sm leading-6 text-oto-muted">{state.description || "Satıcı açıklama eklememiş."}</p>
             </div>
           </div>
@@ -1108,8 +1107,8 @@ export function SellWizard({
               {" "}metinlerini kabul etmiş olursunuz.
             </span>
           </label> : null}
-          {editSaved === "rejected" ? <p className="rounded-md bg-emerald-50 p-3 text-sm font-bold text-emerald-700">Değişiklikler kaydedildi. İlan reddedilmiş ve gizli durumda kaldı.</p> : null}
-          {editSaved === "pending_review" ? <p className="rounded-md bg-emerald-50 p-3 text-sm font-bold text-emerald-700">Değişiklikler kaydedildi. İlan onay bekliyor ve yönetici onayına kadar gizli kalacak.</p> : null}
+          {editSaved === "rejected" ? <p className="rounded-md bg-emerald-50 p-3 text-sm font-bold text-emerald-700">{sell03.saveSuccess}</p> : null}
+          {editSaved === "pending_review" ? <p className="rounded-md bg-emerald-50 p-3 text-sm font-bold text-emerald-700">{sell03.resubmitSuccess}</p> : null}
           {error ? <ErrorState message={error} /> : null}
           {publishStatus ? <p className="rounded-md bg-oto-surface p-3 text-sm font-bold text-oto-muted">{publishStatus}</p> : null}
           {mode === "create" ? (
@@ -1320,7 +1319,7 @@ function validateSellerProfile(profile: SellerProfileState) {
   return null;
 }
 
-function validateStep(step: number, state: WizardState) {
+function validateStep(step: number, state: WizardState, sell03?: Record<string, string>) {
   if (step === 2) {
     if (!state.makeId || !state.modelId || !state.year) return "Marka, model ve yıl alanlarını doldurun.";
     if (!validYear(state.year)) return "Geçerli bir yıl girin.";
@@ -1328,11 +1327,11 @@ function validateStep(step: number, state: WizardState) {
   if (step === 3) {
     if (state.condition === "used" && !state.mileageKm) return "İkinci el araçlar için kilometre girin.";
     if (state.mileageKm && Number(state.mileageKm) < 0) return "Geçerli bir kilometre girin.";
-    if (state.fuelType !== "electric" && (!state.engineVolumeL || Number(state.engineVolumeL) <= 0)) {
-      return "Motor hacmi benzinli, dizel, LPG ve hibrit araçlar için zorunludur.";
+    if (state.fuelType !== "electric" && (!state.engineVolumeL || !Number.isFinite(Number(state.engineVolumeL)) || Number(state.engineVolumeL) <= 0)) {
+      return sell03?.combustionDisplacement ?? "Motor hacmi benzinli, dizel, LPG ve hibrit araçlar için zorunludur.";
     }
     if (state.fuelType === "electric" && state.engineVolumeL) {
-      return "Tam elektrikli araçlarda motor hacmi boş bırakılmalıdır.";
+      return sell03?.electricDisplacement ?? "Tam elektrikli araçlarda motor hacmi boş bırakılmalıdır.";
     }
   }
   if (step === 5) {
@@ -1342,16 +1341,25 @@ function validateStep(step: number, state: WizardState) {
   return null;
 }
 
-function validateForPublish(state: WizardState) {
-  return validateStep(2, state) || validateStep(3, state) || validateStep(5, state);
+function validateForPublish(state: WizardState, sell03?: Record<string, string>) {
+  const year = Number(state.year);
+  const mileage = Number(state.mileageKm);
+  const price = Number(state.priceAmount);
+  const ownerCount = state.ownerCount ? Number(state.ownerCount) : null;
+  if (!Number.isSafeInteger(year) || !Number.isSafeInteger(mileage) || mileage < 0
+      || !Number.isSafeInteger(price) || price <= 0
+      || (ownerCount !== null && (!Number.isSafeInteger(ownerCount) || ownerCount <= 0))) {
+    return sell03?.invalidVehicleFields ?? "Araç alanlarını kontrol edin.";
+  }
+  return validateStep(2, state, sell03) || validateStep(3, state, sell03) || validateStep(5, state, sell03);
 }
 
-function editErrorMessage(error: unknown) {
+function editErrorMessage(error: unknown, sell03: Record<string, string>, resubmit = false) {
   const code = error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code ?? "") : "";
-  if (code === "OT409") return "İlan siz düzenlerken değişti. Sayfayı yenileyip tekrar deneyin.";
-  if (code === "OT422") return "Araç alanlarını kontrol edin; motor hacmi yalnızca tam elektrikli araçlarda boş olabilir.";
-  if (code === "OT401") return "İlanı düzenlemek için giriş yapın.";
-  return "Düzenlenebilir ilan bulunamadı veya artık düzenlemeye uygun değil.";
+  if (code === "OT409") return sell03.staleConflict;
+  if (code === "OT422") return sell03.invalidVehicleFields;
+  if (code === "OT401") return sell03.authenticationRequired;
+  return resubmit ? sell03.resubmitFailure : sell03.listingUnavailable;
 }
 
 function validYear(value: string) {

@@ -22,7 +22,10 @@ BEGIN
       'id', l.id, 'title', l.title, 'description', l.description,
       'price_amount', l.price_amount, 'currency', l.currency,
       'price_negotiable', l.price_negotiable, 'city', l.city,
-      'seller_type', l.seller_type, 'updated_at', l.updated_at,
+      'seller_type', l.seller_type, 'seller_display_name', l.seller_display_name,
+      'quality_score', l.quality_score, 'title_generated', l.title_generated,
+      'rejection_reason', l.rejection_reason, 'moderation_note', l.moderation_note,
+      'moderated_at', l.moderated_at, 'updated_at', l.updated_at,
       'vehicle_profile_id', l.vehicle_profile_id
     ),
     'vehicle', jsonb_build_object(
@@ -50,7 +53,7 @@ BEGIN
     AND l.seller_id = v_user_id
     AND vp.created_by = v_user_id
     AND vehicle.is_current_profile_owner(vp.id, v_user_id)
-    AND l.status = 'draft'
+    AND l.status IN ('draft', 'removed')
     AND l.moderation_status = 'rejected'
     AND l.archived_at IS NULL;
 
@@ -77,15 +80,11 @@ CREATE OR REPLACE FUNCTION public.save_own_rejected_listing(
   p_engine_volume_l NUMERIC,
   p_damage_state TEXT,
   p_owner_count SMALLINT,
-  p_title TEXT,
   p_description TEXT,
   p_price_amount BIGINT,
   p_currency TEXT,
   p_price_negotiable BOOLEAN,
-  p_city TEXT,
-  p_seller_type TEXT,
-  p_seller_display_name TEXT,
-  p_quality_score SMALLINT
+  p_city TEXT
 )
 RETURNS TABLE (listing_id UUID, updated_at TIMESTAMPTZ, status TEXT, moderation_status TEXT)
 LANGUAGE plpgsql
@@ -136,41 +135,41 @@ BEGIN
     RAISE EXCEPTION 'listing not found' USING ERRCODE = 'OT404';
   END IF;
 
-  UPDATE vehicle.vehicle_profiles
+  UPDATE vehicle.vehicle_profiles AS vp
   SET make_id = p_make_id, model_id = p_model_id, year = p_year,
       mileage_km = p_mileage_km, condition = p_condition,
       fuel_type = p_fuel_type, transmission = p_transmission,
       body_type = NULLIF(trim(p_body_type), ''), drive_type = NULLIF(trim(p_drive_type), ''),
       color = NULLIF(trim(p_color), ''), engine_volume_l = p_engine_volume_l,
       damage_state = NULLIF(trim(p_damage_state), ''), owner_count = p_owner_count
-  WHERE id = v_listing.vehicle_profile_id;
+  WHERE vp.id = v_listing.vehicle_profile_id;
 
-  UPDATE marketplace.listings
-  SET title = trim(p_title), title_generated = TRUE,
-      description = NULLIF(trim(p_description), ''), price_amount = p_price_amount,
-      currency = upper(p_currency), price_negotiable = p_price_negotiable,
-      city = trim(p_city), seller_type = p_seller_type,
-      seller_display_name = NULLIF(trim(p_seller_display_name), ''),
-      quality_score = p_quality_score
-  WHERE id = p_listing_id
-    AND status = 'draft' AND moderation_status = 'rejected' AND archived_at IS NULL
-  RETURNING marketplace.listings.updated_at INTO v_updated_at;
+  UPDATE marketplace.listings AS l
+  SET description = NULLIF(trim(p_description), ''), price_amount = p_price_amount,
+      currency = upper(trim(p_currency)), price_negotiable = p_price_negotiable,
+      city = trim(p_city)
+  WHERE l.id = p_listing_id
+    AND l.status IN ('draft', 'removed')
+    AND l.moderation_status = 'rejected'
+    AND l.archived_at IS NULL
+  RETURNING l.updated_at INTO v_updated_at;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'listing changed during editing' USING ERRCODE = 'OT409';
   END IF;
-  RETURN QUERY SELECT p_listing_id, v_updated_at, 'draft'::TEXT, 'rejected'::TEXT;
+  RETURN QUERY
+  SELECT p_listing_id, v_updated_at, v_listing.status::TEXT, v_listing.moderation_status::TEXT;
 END;
 $$;
 
 REVOKE ALL ON FUNCTION public.get_own_rejected_listing_for_edit(UUID) FROM PUBLIC, anon, service_role, authenticated;
 GRANT EXECUTE ON FUNCTION public.get_own_rejected_listing_for_edit(UUID) TO authenticated;
-REVOKE ALL ON FUNCTION public.save_own_rejected_listing(UUID, TIMESTAMPTZ, UUID, UUID, SMALLINT, INTEGER, TEXT, vehicle.fuel_type, vehicle.transmission_type, TEXT, TEXT, TEXT, NUMERIC, TEXT, SMALLINT, TEXT, TEXT, BIGINT, TEXT, BOOLEAN, TEXT, TEXT, TEXT, SMALLINT) FROM PUBLIC, anon, service_role, authenticated;
-GRANT EXECUTE ON FUNCTION public.save_own_rejected_listing(UUID, TIMESTAMPTZ, UUID, UUID, SMALLINT, INTEGER, TEXT, vehicle.fuel_type, vehicle.transmission_type, TEXT, TEXT, TEXT, NUMERIC, TEXT, SMALLINT, TEXT, TEXT, BIGINT, TEXT, BOOLEAN, TEXT, TEXT, TEXT, SMALLINT) TO authenticated;
+REVOKE ALL ON FUNCTION public.save_own_rejected_listing(UUID, TIMESTAMPTZ, UUID, UUID, SMALLINT, INTEGER, TEXT, vehicle.fuel_type, vehicle.transmission_type, TEXT, TEXT, TEXT, NUMERIC, TEXT, SMALLINT, TEXT, BIGINT, TEXT, BOOLEAN, TEXT) FROM PUBLIC, anon, service_role, authenticated;
+GRANT EXECUTE ON FUNCTION public.save_own_rejected_listing(UUID, TIMESTAMPTZ, UUID, UUID, SMALLINT, INTEGER, TEXT, vehicle.fuel_type, vehicle.transmission_type, TEXT, TEXT, TEXT, NUMERIC, TEXT, SMALLINT, TEXT, BIGINT, TEXT, BOOLEAN, TEXT) TO authenticated;
 
 COMMENT ON FUNCTION public.get_own_rejected_listing_for_edit(UUID) IS
   'SELL-03 owner-only canonical rejected listing, vehicle and media loader. Ineligible and foreign rows are indistinguishable.';
-COMMENT ON FUNCTION public.save_own_rejected_listing(UUID, TIMESTAMPTZ, UUID, UUID, SMALLINT, INTEGER, TEXT, vehicle.fuel_type, vehicle.transmission_type, TEXT, TEXT, TEXT, NUMERIC, TEXT, SMALLINT, TEXT, TEXT, BIGINT, TEXT, BOOLEAN, TEXT, TEXT, TEXT, SMALLINT) IS
+COMMENT ON FUNCTION public.save_own_rejected_listing(UUID, TIMESTAMPTZ, UUID, UUID, SMALLINT, INTEGER, TEXT, vehicle.fuel_type, vehicle.transmission_type, TEXT, TEXT, TEXT, NUMERIC, TEXT, SMALLINT, TEXT, BIGINT, TEXT, BOOLEAN, TEXT) IS
   'SELL-03 narrow atomic rejected-content save. Identity, relationship, media and lifecycle fields are immutable.';
 
 NOTIFY pgrst, 'reload schema';

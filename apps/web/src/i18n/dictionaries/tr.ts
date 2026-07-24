@@ -179,7 +179,22 @@ export const tr = {
     agreementMiddle: "ve",
     agreementSuffix: "kapsamında doğru ve güncel bilgi paylaşmayı kabul etmiş olursunuz.",
     listingRules: "İlan Yayınlama Kuralları",
-    terms: "Kullanım Şartları"
+    terms: "Kullanım Şartları",
+    sell03: {
+      listingUnavailable: "Düzenlenebilir ilan bulunamadı veya ilan artık düzenlemeye uygun değil.",
+      authenticationRequired: "İlanı düzenlemek için giriş yapın.",
+      staleConflict: "İlan siz düzenlerken değişti. Sayfayı yenileyip tekrar deneyin.",
+      invalidVehicleFields: "Araç alanlarını kontrol edin; motor hacmi yalnızca tam elektrikli araçlarda boş olabilir.",
+      saveProgress: "Değişiklikler kaydediliyor.",
+      saveSuccess: "Değişiklikler kaydedildi. İlan reddedilmiş ve gizli durumda kaldı.",
+      resubmitProgress: "İlanınız tekrar incelemeye gönderiliyor.",
+      resubmitSuccess: "Değişiklikler kaydedildi. İlan onay bekliyor ve yönetici onayına kadar gizli kalacak.",
+      resubmitFailure: "İlan incelemeye gönderilemedi. Lütfen tekrar deneyin.",
+      rejectionReasonHeading: "Reddedilme nedeni",
+      mediaPreserved: "Mevcut fotoğraflar, sıraları ve kapak fotoğrafı değişmeden korunur.",
+      electricDisplacement: "Tam elektrikli araçlarda motor hacmi boş bırakılmalıdır.",
+      combustionDisplacement: "Motor hacmi benzinli, dizel, LPG ve hibrit araçlar için zorunludur."
+    }
   },
   profile: {
     title: "Profil",
