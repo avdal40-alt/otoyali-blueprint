@@ -324,9 +324,16 @@ export function SellWizard({
     return catalogCities.length > 0 ? catalogCities : fallbackCityOptions;
   }, [cities]);
   const generatedTitle = generateListingTitle(selectedMake, selectedModel, state.year);
+  const identityDirty = dirtyEditFields.has("makeId")
+    || dirtyEditFields.has("modelId")
+    || dirtyEditFields.has("year");
+  const canPreviewRegeneratedTitle = existingTitleGenerated
+    && identityDirty
+    && !modelsLoading
+    && Boolean(selectedMake && selectedModel && state.year);
   const qualityScore = calculateQualityScore(state);
   const displayTitle = mode === "editRejected"
-    ? (existingTitleGenerated ? generatedTitle : existingTitle)
+    ? (canPreviewRegeneratedTitle ? generatedTitle : existingTitle)
     : generatedTitle;
   const displayQualityScore = mode === "editRejected" ? existingQualityScore : qualityScore;
   const profileValidation = profile ? validateSellerProfile(profile) : "Satıcı bilgilerinizi tamamlayın.";
@@ -580,6 +587,26 @@ export function SellWizard({
     const supabase = getSupabaseBrowserClient();
     const raw = <K extends EditableField>(key: K, changedValue: OriginalEditSnapshot[K]) =>
       dirtyEditFields.has(key) ? changedValue : originalEditSnapshot[key];
+    const submittedSnapshot: OriginalEditSnapshot = {
+      makeId: raw("makeId", state.makeId),
+      modelId: raw("modelId", state.modelId),
+      year: raw("year", state.year),
+      mileageKm: raw("mileageKm", state.mileageKm),
+      condition: raw("condition", state.condition),
+      fuelType: raw("fuelType", state.fuelType),
+      transmission: raw("transmission", state.transmission),
+      bodyType: raw("bodyType", state.bodyType || null),
+      driveType: raw("driveType", state.driveType || null),
+      color: raw("color", state.color || null),
+      engineVolumeL: raw("engineVolumeL", state.fuelType === "electric" ? null : state.engineVolumeL),
+      damageState: raw("damageState", state.damageState || null),
+      ownerCount: raw("ownerCount", state.ownerCount || null),
+      description: raw("description", state.description),
+      priceAmount: raw("priceAmount", state.priceAmount),
+      currency: raw("currency", state.currency),
+      priceNegotiable: raw("priceNegotiable", state.priceNegotiable),
+      city: raw("city", state.city)
+    };
     const { data: savedRows, error: saveError } = await supabase.rpc("save_own_rejected_listing", {
       p_listing_id: editListingId,
       p_expected_listing_updated_at: expectedUpdatedAt,
@@ -621,6 +648,8 @@ export function SellWizard({
       if ("saved_title" in saved) setExistingTitle(String(saved.saved_title));
       if ("saved_title_generated" in saved) setExistingTitleGenerated(Boolean(saved.saved_title_generated));
     }
+    setOriginalEditSnapshot(submittedSnapshot);
+    setDirtyEditFields(new Set());
     if (sendForReview) {
       setPublishStatus(sell03.resubmitProgress);
       const { data: resubmitRows, error: resubmitError } = await supabase.rpc("resubmit_own_listing_for_review", {
@@ -1177,10 +1206,10 @@ export function SellWizard({
           ) : (
             <div className="flex flex-wrap gap-3">
               <Button type="button" variant="secondary" disabled={submitting || editSaved === "pending_review"} onClick={() => void saveRejected(false)}>
-                {submitting ? "Kaydediliyor" : "Değişiklikleri kaydet"}
+                {submitting ? sell03.savingButton : sell03.saveButton}
               </Button>
               <Button type="button" variant="orange" disabled={submitting || editSaved === "pending_review"} onClick={() => void saveRejected(true)}>
-                {submitting ? "Gönderiliyor" : "Kaydet ve incelemeye gönder"}
+                {submitting ? sell03.resubmittingButton : sell03.resubmitButton}
               </Button>
             </div>
           )}

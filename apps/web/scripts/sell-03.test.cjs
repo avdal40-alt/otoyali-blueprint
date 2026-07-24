@@ -27,6 +27,7 @@ excludesAll(listings, ["Tekrar düzenle", "Tekrar düzenle · Yakında"]);
 includesAll(migration, [
   "get_own_rejected_listing_for_edit",
   "save_own_rejected_listing",
+  "resubmit_own_listing_for_review",
   "auth.uid()",
   "FOR UPDATE",
   "l.seller_id = v_user_id",
@@ -52,7 +53,7 @@ includesAll(migration, [
   "l.moderation_status = 'rejected'",
   "RETURNING l.updated_at INTO v_listing_updated_at",
   "RETURNING vp.updated_at INTO v_vehicle_updated_at",
-  "p_price_amount_text !~ '^[0-9]+$'",
+  "p_price_amount_text !~ '^[1-9][0-9]*$'",
   "p_price_amount_text > '9223372036854775807'",
   "FROM vehicle.profile_ownership AS po",
   "po.is_current = TRUE",
@@ -69,6 +70,52 @@ includesAll(migration, [
   "'updated_at', vp.updated_at"
 ]);
 
+const resubmitStart = migration.indexOf("CREATE OR REPLACE FUNCTION public.resubmit_own_listing_for_review(p_listing_id UUID)");
+const resubmitEnd = migration.indexOf("$$;", resubmitStart) + 3;
+const resubmit = migration.slice(resubmitStart, resubmitEnd);
+assert.ok(resubmitStart >= 0, "Hardened resubmit replacement must exist");
+includesAll(resubmit, [
+  "RETURNS TABLE (\n  listing_id UUID,\n  status TEXT,\n  moderation_status TEXT",
+  "v_user_id UUID := auth.uid()",
+  "FROM marketplace.listings AS l",
+  "v_listing.archived_at IS NOT NULL",
+  "FROM vehicle.vehicle_profiles AS vp",
+  "FROM vehicle.profile_ownership AS po",
+  "po.is_current = TRUE",
+  "po.ended_at IS NULL",
+  "v_ownership.owner_id <> v_user_id",
+  "v_ownership.is_current IS NOT TRUE",
+  "v_ownership.ended_at IS NOT NULL",
+  "status = 'draft'",
+  "moderation_status = 'pending_review'",
+  "moderation_note = NULL",
+  "rejection_reason = NULL",
+  "moderated_by = NULL",
+  "moderated_at = NULL"
+]);
+assert.equal((migration.match(/CREATE OR REPLACE FUNCTION public\.resubmit_own_listing_for_review\(/g) ?? []).length, 1, "No resubmit overload");
+assert.equal((resubmit.match(/FOR UPDATE/g) ?? []).length, 3, "Resubmit locks listing, vehicle, and ownership");
+assert.ok(resubmit.indexOf("FROM marketplace.listings AS l") < resubmit.indexOf("FROM vehicle.vehicle_profiles AS vp"));
+assert.ok(resubmit.indexOf("FROM vehicle.vehicle_profiles AS vp") < resubmit.indexOf("FROM vehicle.profile_ownership AS po"));
+assert.ok(resubmit.indexOf("FOR UPDATE;", resubmit.indexOf("FROM vehicle.profile_ownership AS po"))
+  < resubmit.indexOf("v_ownership.owner_id <> v_user_id"), "Ownership authorization follows ownership lock");
+includesAll(migration, [
+  "REVOKE ALL ON FUNCTION public.resubmit_own_listing_for_review(UUID) FROM PUBLIC",
+  "REVOKE ALL ON FUNCTION public.resubmit_own_listing_for_review(UUID) FROM anon",
+  "REVOKE ALL ON FUNCTION public.resubmit_own_listing_for_review(UUID) FROM service_role",
+  "GRANT EXECUTE ON FUNCTION public.resubmit_own_listing_for_review(UUID) TO authenticated",
+  "COMMENT ON FUNCTION public.resubmit_own_listing_for_review(UUID)"
+]);
+
+const priceNull = migration.indexOf("IF p_price_amount_text IS NULL THEN");
+const priceRegex = migration.indexOf("IF p_price_amount_text !~ '^[1-9][0-9]*$' THEN");
+const priceLength = migration.indexOf("IF length(p_price_amount_text) > 19 THEN");
+const priceLexical = migration.indexOf("IF length(p_price_amount_text) = 19");
+const priceCast = migration.indexOf("v_price_amount := p_price_amount_text::BIGINT");
+assert.ok(priceNull < priceRegex && priceRegex < priceLength && priceLength < priceLexical && priceLexical < priceCast,
+  "Price checks must precede the BIGINT cast in canonical order");
+assert.equal(migration.includes("p_price_amount_text::NUMERIC"), false, "No unsafe NUMERIC price cast");
+
 // Fixed parameters and assignments prove identity, lifecycle, relationship, and media are not caller-controlled.
 for (const protectedName of [
   "p_seller_id", "p_owner_id", "p_vehicle_profile_id", "p_status",
@@ -83,8 +130,11 @@ excludesAll(migration, [
   "quality_score =", "seller_type =", "seller_display_name =",
   "title_generated ="
 ]);
-assert.equal((migration.match(/status = 'draft'/g) ?? []).length, 0, "Save migration must contain no draft-only assignment/guard");
-assert.equal((migration.match(/status <> 'draft'/g) ?? []).length, 0, "Save migration must contain no draft-only guard");
+const saveStart = migration.indexOf("CREATE OR REPLACE FUNCTION public.save_own_rejected_listing(");
+const saveEnd = migration.indexOf("$$;", saveStart) + 3;
+const saveFunction = migration.slice(saveStart, saveEnd);
+assert.equal((saveFunction.match(/status = 'draft'/g) ?? []).length, 0, "Save function must contain no draft-only assignment/guard");
+assert.equal((saveFunction.match(/status <> 'draft'/g) ?? []).length, 0, "Save function must contain no draft-only guard");
 includesAll(security, [
   "v_listing.status IN ('draft', 'removed')",
   "v_listing.moderation_status = 'rejected'"
@@ -107,6 +157,12 @@ includesAll(wizard, [
   "p_expected_vehicle_updated_at: expectedVehicleUpdatedAt",
   "p_price_amount_text: raw(\"priceAmount\", state.priceAmount)",
   "setExistingTitle(String(saved.saved_title))",
+  "setOriginalEditSnapshot(submittedSnapshot)",
+  "setDirtyEditFields(new Set())",
+  "const submittedSnapshot: OriginalEditSnapshot",
+  "const identityDirty = dirtyEditFields.has(\"makeId\")",
+  "&& !modelsLoading",
+  "? (canPreviewRegeneratedTitle ? generatedTitle : existingTitle)",
   'resubmitted.status !== "draft"',
   'resubmitted.moderation_status !== "pending_review"',
   "a.sort_order - b.sort_order",
@@ -127,6 +183,13 @@ excludesAll(wizard, [
   '"Mevcut fotoğraf"',
   '.schema("marketplace")\n        .from("listings")\n        .select("status,moderation_status")'
 ]);
+const editActions = wizard.slice(
+  wizard.indexOf('onClick={() => void saveRejected(false)}'),
+  wizard.indexOf("</div>", wizard.indexOf('onClick={() => void saveRejected(true)}'))
+);
+for (const text of ["Değişiklikleri kaydet", "Kaydediliyor", "Kaydet ve incelemeye gönder", "Gönderiliyor"]) {
+  assert.equal(editActions.includes(`"${text}"`), false, `Edit action must be dictionary-driven: ${text}`);
+}
 assert.ok(
   wizard.indexOf('if (saveError)') < wizard.indexOf('if (sendForReview)'),
   "A failed save must stop before resubmit"
@@ -165,17 +228,18 @@ assert.equal(migration.includes("engine_volume_l = 1"), false, "No displacement 
 const validPrice = (value) => /^[1-9][0-9]*$/.test(value) && BigInt(value) <= 9223372036854775807n;
 assert.equal(validPrice("9007199254740993"), true);
 assert.equal(validPrice("9223372036854775807"), true);
-for (const value of ["", " 1", "-1", "-0", "1.0", "1e3", "Infinity", "NaN", "9223372036854775808"]) {
+for (const value of ["", "0", "01", "+1", " 1", "1 ", "-1", "-0", "1.0", "1e3", "Infinity", "NaN", "9223372036854775808"]) {
   assert.equal(validPrice(value), false, `Invalid exact price rejected: ${value}`);
 }
 
-// Generated-title truth table mirrors the narrow server rule.
-const savedTitle = ({ generated, identityChanged, oldTitle, make, model, year }) =>
-  generated && identityChanged ? [make, model, year].join(" ") : oldTitle;
-assert.equal(savedTitle({ generated: false, identityChanged: false, oldTitle: "Manual", make: "A", model: "B", year: 2024 }), "Manual");
-assert.equal(savedTitle({ generated: false, identityChanged: true, oldTitle: "Manual", make: "A", model: "B", year: 2024 }), "Manual");
-assert.equal(savedTitle({ generated: true, identityChanged: false, oldTitle: "Old 2020", make: "A", model: "B", year: 2024 }), "Old 2020");
-assert.equal(savedTitle({ generated: true, identityChanged: true, oldTitle: "Old 2020", make: "A", model: "B", year: 2024 }), "A B 2024");
+// Generated-title truth table mirrors initial, loading, manual, unchanged, and authoritative changed preview states.
+const previewTitle = ({ generated, identityChanged, modelsLoading, oldTitle, make, model, year }) =>
+  generated && identityChanged && !modelsLoading && make && model && year ? [make, model, year].join(" ") : oldTitle;
+assert.equal(previewTitle({ generated: true, identityChanged: false, modelsLoading: false, oldTitle: "Stored 2020" }), "Stored 2020", "initial load");
+assert.equal(previewTitle({ generated: true, identityChanged: true, modelsLoading: true, oldTitle: "Stored 2020", make: "A", year: 2024 }), "Stored 2020", "models loading");
+assert.equal(previewTitle({ generated: false, identityChanged: true, modelsLoading: false, oldTitle: "Manual", make: "A", model: "B", year: 2024 }), "Manual", "manual title");
+assert.equal(previewTitle({ generated: true, identityChanged: false, modelsLoading: false, oldTitle: "Stored 2020", make: "A", model: "B", year: 2024 }), "Stored 2020", "generated unchanged");
+assert.equal(previewTitle({ generated: true, identityChanged: true, modelsLoading: false, oldTitle: "Stored 2020", make: "A", model: "B", year: 2024 }), "A B 2024", "complete authoritative identity change");
 
 // Raw snapshot selection preserves null, empty, and whitespace values on no-op saves.
 const rawValue = (snapshot, dirty, key, changed) => dirty.has(key) ? changed : snapshot[key];
@@ -185,16 +249,29 @@ assert.equal(rawValue({ description: "" }, new Set(), "description", null), "");
 assert.equal(rawValue(snapshot, new Set(), "bodyType", ""), null);
 assert.equal(rawValue(snapshot, new Set(), "currency", "USD"), "TRY");
 assert.equal(rawValue(snapshot, new Set(), "city", "Ankara"), "  Ankara  ");
+const firstSubmitted = { description: null, bodyType: "", priceAmount: "9007199254740993", currency: "USD" };
+const rebasedSnapshot = { ...firstSubmitted };
+const clearedDirty = new Set();
+assert.deepEqual(rebasedSnapshot, firstSubmitted, "snapshot rebased from submitted values");
+assert.equal(clearedDirty.size, 0, "dirty fields cleared");
+assert.equal(rawValue(rebasedSnapshot, clearedDirty, "priceAmount", "1"), "9007199254740993", "second no-op uses rebased exact price");
+assert.equal(rawValue(rebasedSnapshot, clearedDirty, "description", "changed"), null, "rebased null retained");
+assert.equal(rawValue(rebasedSnapshot, clearedDirty, "bodyType", null), "", "rebased empty retained");
+assert.ok(wizard.indexOf("setExpectedUpdatedAt(String(saved.saved_listing_updated_at))") < wizard.indexOf("setOriginalEditSnapshot(submittedSnapshot)"));
+assert.ok(wizard.indexOf("setExistingTitle(String(saved.saved_title))") < wizard.indexOf("setOriginalEditSnapshot(submittedSnapshot)"));
 
 for (const key of [
   "listingUnavailable", "authenticationRequired", "staleConflict", "invalidVehicleFields",
   "saveProgress", "saveSuccess", "resubmitProgress", "resubmitSuccess", "resubmitFailure",
+  "saveButton", "savingButton", "resubmitButton", "resubmittingButton",
   "rejectionReasonHeading", "mediaPreserved", "electricDisplacement",
   "existingPhotoAlt", "existingCoverPhoto", "existingPhoto"
 ]) {
   assert.ok(tr.includes(`${key}:`), `Turkish SELL-03 key missing: ${key}`);
   assert.ok(en.includes(`${key}:`), `English SELL-03 key missing: ${key}`);
 }
+assert.ok(en.includes("Photo editing is not currently available in this edit flow."));
+assert.ok(tr.includes("fotoğraf düzenleme şu anda kullanılamıyor."));
 assert.ok(en.includes("editRejected:"), "English rejected edit link key missing");
 assert.ok(tr.includes("editRejected:"), "Turkish rejected edit link key missing");
 

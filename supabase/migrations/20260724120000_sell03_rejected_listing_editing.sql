@@ -114,13 +114,28 @@ BEGIN
     RAISE EXCEPTION 'listing not found' USING ERRCODE = 'OT404';
   END IF;
 
-  IF p_price_amount_text IS NULL OR p_price_amount_text !~ '^[0-9]+$'
-     OR length(p_price_amount_text) > 19
-     OR (length(p_price_amount_text) = 19 AND p_price_amount_text > '9223372036854775807')
-     OR p_price_amount_text::NUMERIC <= 0 THEN
+  IF p_price_amount_text IS NULL THEN
     RAISE EXCEPTION 'invalid price amount' USING ERRCODE = 'OT422';
   END IF;
-  v_price_amount := p_price_amount_text::BIGINT;
+  IF p_price_amount_text !~ '^[1-9][0-9]*$' THEN
+    RAISE EXCEPTION 'invalid price amount' USING ERRCODE = 'OT422';
+  END IF;
+  IF length(p_price_amount_text) > 19 THEN
+    RAISE EXCEPTION 'invalid price amount' USING ERRCODE = 'OT422';
+  END IF;
+  IF length(p_price_amount_text) = 19
+     AND p_price_amount_text > '9223372036854775807' THEN
+    RAISE EXCEPTION 'invalid price amount' USING ERRCODE = 'OT422';
+  END IF;
+  BEGIN
+    v_price_amount := p_price_amount_text::BIGINT;
+  EXCEPTION
+    WHEN numeric_value_out_of_range THEN
+      RAISE EXCEPTION 'invalid price amount' USING ERRCODE = 'OT422';
+  END;
+  IF v_price_amount <= 0 THEN
+    RAISE EXCEPTION 'invalid price amount' USING ERRCODE = 'OT422';
+  END IF;
 
   IF p_make_id IS NULL OR p_model_id IS NULL OR p_year IS NULL
      OR p_year < 1900 OR p_year > EXTRACT(YEAR FROM NOW())::INTEGER + 1
@@ -239,6 +254,103 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION public.resubmit_own_listing_for_review(p_listing_id UUID)
+RETURNS TABLE (
+  listing_id UUID,
+  status TEXT,
+  moderation_status TEXT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_catalog
+AS $$
+DECLARE
+  v_user_id UUID := auth.uid();
+  v_listing RECORD;
+  v_vehicle RECORD;
+  v_ownership RECORD;
+  v_new_status marketplace.listing_status;
+  v_new_moderation_status TEXT;
+BEGIN
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'authentication required' USING ERRCODE = 'OT401';
+  END IF;
+
+  -- Deterministic order: listing, vehicle profile, then its current ownership row.
+  SELECT l.id, l.vehicle_profile_id, l.seller_id, l.status,
+         l.moderation_status, l.archived_at
+  INTO v_listing
+  FROM marketplace.listings AS l
+  WHERE l.id = p_listing_id
+  FOR UPDATE;
+
+  IF NOT FOUND OR v_listing.seller_id <> v_user_id
+     OR v_listing.status NOT IN ('draft', 'removed')
+     OR v_listing.moderation_status <> 'rejected'
+     OR v_listing.archived_at IS NOT NULL THEN
+    RAISE EXCEPTION 'listing not found' USING ERRCODE = 'OT404';
+  END IF;
+
+  SELECT vp.id
+  INTO v_vehicle
+  FROM vehicle.vehicle_profiles AS vp
+  WHERE vp.id = v_listing.vehicle_profile_id
+  FOR UPDATE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'listing not found' USING ERRCODE = 'OT404';
+  END IF;
+
+  SELECT po.owner_id, po.is_current, po.ended_at
+  INTO v_ownership
+  FROM vehicle.profile_ownership AS po
+  WHERE po.vehicle_profile_id = v_vehicle.id
+    AND po.is_current = TRUE
+    AND po.ended_at IS NULL
+  FOR UPDATE;
+  IF NOT FOUND OR v_ownership.owner_id <> v_user_id
+     OR v_ownership.is_current IS NOT TRUE
+     OR v_ownership.ended_at IS NOT NULL THEN
+    RAISE EXCEPTION 'listing not found' USING ERRCODE = 'OT404';
+  END IF;
+
+  UPDATE marketplace.listings AS l
+  SET status = 'draft',
+      moderation_status = 'pending_review',
+      moderation_note = NULL,
+      rejection_reason = NULL,
+      moderated_by = NULL,
+      moderated_at = NULL,
+      archived_at = NULL
+  WHERE l.id = v_listing.id
+    AND l.status = v_listing.status
+    AND l.moderation_status = v_listing.moderation_status
+    AND l.archived_at IS NULL
+  RETURNING l.status, l.moderation_status
+  INTO v_new_status, v_new_moderation_status;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'listing not found' USING ERRCODE = 'OT404';
+  END IF;
+
+  INSERT INTO public.admin_audit_logs (
+    actor_user_id, action, entity_type, entity_id, metadata
+  ) VALUES (
+    v_user_id,
+    'listing.resubmit',
+    'listing',
+    p_listing_id,
+    jsonb_build_object(
+      'previous_status', v_listing.status::TEXT,
+      'previous_moderation_status', v_listing.moderation_status,
+      'new_status', v_new_status::TEXT,
+      'new_moderation_status', v_new_moderation_status
+    )
+  );
+
+  RETURN QUERY SELECT p_listing_id, v_new_status::TEXT, v_new_moderation_status;
+END;
+$$;
+
 REVOKE ALL ON FUNCTION public.get_own_rejected_listing_for_edit(UUID) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.get_own_rejected_listing_for_edit(UUID) FROM anon;
 REVOKE ALL ON FUNCTION public.get_own_rejected_listing_for_edit(UUID) FROM service_role;
@@ -251,10 +363,18 @@ REVOKE ALL ON FUNCTION public.save_own_rejected_listing(UUID, TIMESTAMPTZ, TIMES
 REVOKE ALL ON FUNCTION public.save_own_rejected_listing(UUID, TIMESTAMPTZ, TIMESTAMPTZ, UUID, UUID, SMALLINT, INTEGER, TEXT, vehicle.fuel_type, vehicle.transmission_type, TEXT, TEXT, TEXT, NUMERIC, TEXT, SMALLINT, TEXT, TEXT, TEXT, BOOLEAN, TEXT) FROM authenticated;
 GRANT EXECUTE ON FUNCTION public.save_own_rejected_listing(UUID, TIMESTAMPTZ, TIMESTAMPTZ, UUID, UUID, SMALLINT, INTEGER, TEXT, vehicle.fuel_type, vehicle.transmission_type, TEXT, TEXT, TEXT, NUMERIC, TEXT, SMALLINT, TEXT, TEXT, TEXT, BOOLEAN, TEXT) TO authenticated;
 
+REVOKE ALL ON FUNCTION public.resubmit_own_listing_for_review(UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.resubmit_own_listing_for_review(UUID) FROM anon;
+REVOKE ALL ON FUNCTION public.resubmit_own_listing_for_review(UUID) FROM service_role;
+REVOKE ALL ON FUNCTION public.resubmit_own_listing_for_review(UUID) FROM authenticated;
+GRANT EXECUTE ON FUNCTION public.resubmit_own_listing_for_review(UUID) TO authenticated;
+
 COMMENT ON FUNCTION public.get_own_rejected_listing_for_edit(UUID) IS
   'SELL-03 owner-only canonical rejected listing, vehicle and canonically ordered media loader.';
 COMMENT ON FUNCTION public.save_own_rejected_listing(UUID, TIMESTAMPTZ, TIMESTAMPTZ, UUID, UUID, SMALLINT, INTEGER, TEXT, vehicle.fuel_type, vehicle.transmission_type, TEXT, TEXT, TEXT, NUMERIC, TEXT, SMALLINT, TEXT, TEXT, TEXT, BOOLEAN, TEXT) IS
   'SELL-03 narrow atomic rejected-content save with listing, vehicle and ownership locking.';
+COMMENT ON FUNCTION public.resubmit_own_listing_for_review(UUID) IS
+  'SELL-03 hardened owner-only rejected resubmission with listing, vehicle and current ownership locking.';
 
 NOTIFY pgrst, 'reload schema';
 COMMIT;
