@@ -353,7 +353,7 @@ export function MyListingsClient() {
                   <Button type="button" variant="secondary" disabled>Önizle · Yakında</Button>
                 )}
                 {item.moderation_status === "rejected" ? (
-                  <ButtonLink href={localizePath(`/sell?edit=${item.id}`, locale)} variant="secondary">Tekrar düzenle</ButtonLink>
+                  <ButtonLink href={localizePath(`/sell?edit=${item.id}`, locale)} variant="secondary">{String(dictionary.myListings.editRejected)}</ButtonLink>
                 ) : (
                   <Button type="button" variant="secondary" disabled>Düzenle · Yakında</Button>
                 )}

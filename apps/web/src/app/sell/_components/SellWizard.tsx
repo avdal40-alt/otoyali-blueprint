@@ -34,6 +34,7 @@ type ExistingMedia = {
   card_url?: string | null;
   large_url?: string | null;
   is_cover: boolean;
+  sort_order: number;
 };
 
 export type SellWizardMode = "create" | "editRejected";
@@ -73,6 +74,8 @@ type SellerProfileState = {
 };
 
 type PersistedWizardState = Omit<WizardState, "photos">;
+type EditableField = Exclude<keyof WizardState, "photos" | "sellerType">;
+type OriginalEditSnapshot = Record<EditableField, string | boolean | null>;
 
 type QualityItem = {
   label: string;
@@ -168,6 +171,9 @@ export function SellWizard({
   const [modelsError, setModelsError] = useState<string | null>(null);
   const [existingMedia, setExistingMedia] = useState<ExistingMedia[]>([]);
   const [expectedUpdatedAt, setExpectedUpdatedAt] = useState<string | null>(null);
+  const [expectedVehicleUpdatedAt, setExpectedVehicleUpdatedAt] = useState<string | null>(null);
+  const [originalEditSnapshot, setOriginalEditSnapshot] = useState<OriginalEditSnapshot | null>(null);
+  const [dirtyEditFields, setDirtyEditFields] = useState<Set<EditableField>>(() => new Set());
   const [editSaved, setEditSaved] = useState<"rejected" | "pending_review" | null>(null);
   const [existingTitle, setExistingTitle] = useState("");
   const [existingTitleGenerated, setExistingTitleGenerated] = useState(true);
@@ -222,7 +228,7 @@ export function SellWizard({
         setExistingTitleGenerated(Boolean(listing.title_generated));
         setExistingQualityScore(typeof listing.quality_score === "number" ? listing.quality_score : null);
         setRejectionReason(String(listing.rejection_reason ?? listing.moderation_note ?? ""));
-        setState({
+        const loadedState: WizardState = {
           makeId: String(vehicle.make_id ?? ""),
           modelId: String(vehicle.model_id ?? ""),
           year: String(vehicle.year ?? ""),
@@ -243,9 +249,32 @@ export function SellWizard({
           priceNegotiable: Boolean(listing.price_negotiable),
           description: String(listing.description ?? ""),
           photos: []
+        };
+        setState(loadedState);
+        setOriginalEditSnapshot({
+          makeId: String(vehicle.make_id ?? ""),
+          modelId: String(vehicle.model_id ?? ""),
+          year: String(vehicle.year ?? ""),
+          city: listing.city == null ? null : String(listing.city),
+          condition: vehicle.condition == null ? null : String(vehicle.condition),
+          mileageKm: String(vehicle.mileage_km ?? ""),
+          fuelType: vehicle.fuel_type == null ? null : String(vehicle.fuel_type),
+          transmission: vehicle.transmission == null ? null : String(vehicle.transmission),
+          bodyType: vehicle.body_type == null ? null : String(vehicle.body_type),
+          driveType: vehicle.drive_type == null ? null : String(vehicle.drive_type),
+          color: vehicle.color == null ? null : String(vehicle.color),
+          engineVolumeL: vehicle.engine_volume_l == null ? null : String(vehicle.engine_volume_l),
+          damageState: vehicle.damage_state == null ? null : String(vehicle.damage_state),
+          ownerCount: vehicle.owner_count == null ? null : String(vehicle.owner_count),
+          priceAmount: String(listing.price_amount ?? ""),
+          currency: listing.currency == null ? null : String(listing.currency),
+          priceNegotiable: Boolean(listing.price_negotiable),
+          description: listing.description == null ? null : String(listing.description)
         });
+        setDirtyEditFields(new Set());
         setExpectedUpdatedAt(String(listing.updated_at));
-        setExistingMedia(edit.media ?? []);
+        setExpectedVehicleUpdatedAt(String(vehicle.updated_at));
+        setExistingMedia([...(edit.media ?? [])].sort((a, b) => a.sort_order - b.sort_order));
         void loadModelsForMake(String(vehicle.make_id ?? ""));
         setCheckingAuth(false);
         return;
@@ -296,7 +325,9 @@ export function SellWizard({
   }, [cities]);
   const generatedTitle = generateListingTitle(selectedMake, selectedModel, state.year);
   const qualityScore = calculateQualityScore(state);
-  const displayTitle = mode === "editRejected" ? existingTitle : generatedTitle;
+  const displayTitle = mode === "editRejected"
+    ? (existingTitleGenerated ? generatedTitle : existingTitle)
+    : generatedTitle;
   const displayQualityScore = mode === "editRejected" ? existingQualityScore : qualityScore;
   const profileValidation = profile ? validateSellerProfile(profile) : "Satıcı bilgilerinizi tamamlayın.";
   const profileComplete = !profileValidation;
@@ -318,6 +349,12 @@ export function SellWizard({
   }, [listings, selectedMake, selectedModel, state.mileageKm, state.year]);
 
   function update<K extends keyof WizardState>(key: K, value: WizardState[K]) {
+    if (mode === "editRejected" && key !== "photos" && key !== "sellerType") {
+      setDirtyEditFields((current) => new Set(current).add(key));
+      if (key === "fuelType" && value === "electric") {
+        setDirtyEditFields((current) => new Set(current).add("engineVolumeL"));
+      }
+    }
     setState((current) => ({
       ...current,
       [key]: value,
@@ -326,6 +363,9 @@ export function SellWizard({
   }
 
   function updateMake(makeId: string) {
+    if (mode === "editRejected") {
+      setDirtyEditFields((current) => new Set(current).add("makeId").add("modelId"));
+    }
     setState((current) => ({ ...current, makeId, modelId: "" }));
     setModelsForMake([]);
     setModelsError(null);
@@ -337,6 +377,9 @@ export function SellWizard({
   function updateProfile<K extends keyof SellerProfileState>(key: K, value: SellerProfileState[K]) {
     setProfile((current) => current ? { ...current, [key]: value } : current);
     if (key === "city" || key === "sellerType") {
+      if (mode === "editRejected" && key === "city") {
+        setDirtyEditFields((current) => new Set(current).add("city"));
+      }
       setState((current) => ({ ...current, [key === "city" ? "city" : "sellerType"]: value }));
     }
   }
@@ -522,7 +565,7 @@ export function SellWizard({
   async function saveRejected(sendForReview: boolean) {
     setError(null);
     setEditSaved(null);
-    if (!editListingId || !expectedUpdatedAt || !profile) {
+    if (!editListingId || !expectedUpdatedAt || !expectedVehicleUpdatedAt || !profile || !originalEditSnapshot) {
       setError(sell03.listingUnavailable);
       return;
     }
@@ -535,27 +578,33 @@ export function SellWizard({
     setSubmitting(true);
     setPublishStatus(sell03.saveProgress);
     const supabase = getSupabaseBrowserClient();
+    const raw = <K extends EditableField>(key: K, changedValue: OriginalEditSnapshot[K]) =>
+      dirtyEditFields.has(key) ? changedValue : originalEditSnapshot[key];
     const { data: savedRows, error: saveError } = await supabase.rpc("save_own_rejected_listing", {
       p_listing_id: editListingId,
-      p_expected_updated_at: expectedUpdatedAt,
-      p_make_id: state.makeId,
-      p_model_id: state.modelId,
-      p_year: Number(state.year),
-      p_mileage_km: Number(state.mileageKm),
-      p_condition: state.condition,
-      p_fuel_type: state.fuelType,
-      p_transmission: state.transmission,
-      p_body_type: state.bodyType || null,
-      p_drive_type: state.driveType || null,
-      p_color: state.color || null,
-      p_engine_volume_l: state.fuelType === "electric" ? null : Number(state.engineVolumeL),
-      p_damage_state: state.damageState || null,
-      p_owner_count: state.ownerCount ? Number(state.ownerCount) : null,
-      p_description: state.description.trim() || null,
-      p_price_amount: Number(state.priceAmount),
-      p_currency: state.currency,
-      p_price_negotiable: state.priceNegotiable,
-      p_city: state.city
+      p_expected_listing_updated_at: expectedUpdatedAt,
+      p_expected_vehicle_updated_at: expectedVehicleUpdatedAt,
+      p_make_id: raw("makeId", state.makeId),
+      p_model_id: raw("modelId", state.modelId),
+      p_year: Number(raw("year", state.year)),
+      p_mileage_km: Number(raw("mileageKm", state.mileageKm)),
+      p_condition: raw("condition", state.condition),
+      p_fuel_type: raw("fuelType", state.fuelType),
+      p_transmission: raw("transmission", state.transmission),
+      p_body_type: raw("bodyType", state.bodyType || null),
+      p_drive_type: raw("driveType", state.driveType || null),
+      p_color: raw("color", state.color || null),
+      p_engine_volume_l: raw("engineVolumeL", state.fuelType === "electric" ? null : state.engineVolumeL),
+      p_damage_state: raw("damageState", state.damageState || null),
+      p_owner_count: (() => {
+        const value = raw("ownerCount", state.ownerCount || null);
+        return value == null ? null : Number(value);
+      })(),
+      p_description: raw("description", state.description),
+      p_price_amount_text: raw("priceAmount", state.priceAmount),
+      p_currency: raw("currency", state.currency),
+      p_price_negotiable: raw("priceNegotiable", state.priceNegotiable),
+      p_city: raw("city", state.city)
     });
     if (saveError) {
       logClientError("sell.saveRejected", saveError);
@@ -566,17 +615,27 @@ export function SellWizard({
     }
 
     const saved = Array.isArray(savedRows) ? savedRows[0] : savedRows;
-    if (saved && typeof saved === "object" && "updated_at" in saved) {
-      setExpectedUpdatedAt(String(saved.updated_at));
+    if (saved && typeof saved === "object") {
+      if ("saved_listing_updated_at" in saved) setExpectedUpdatedAt(String(saved.saved_listing_updated_at));
+      if ("saved_vehicle_updated_at" in saved) setExpectedVehicleUpdatedAt(String(saved.saved_vehicle_updated_at));
+      if ("saved_title" in saved) setExistingTitle(String(saved.saved_title));
+      if ("saved_title_generated" in saved) setExistingTitleGenerated(Boolean(saved.saved_title_generated));
     }
     if (sendForReview) {
       setPublishStatus(sell03.resubmitProgress);
-      const { error: resubmitError } = await supabase.rpc("resubmit_own_listing_for_review", {
+      const { data: resubmitRows, error: resubmitError } = await supabase.rpc("resubmit_own_listing_for_review", {
         p_listing_id: editListingId
       });
       if (resubmitError) {
         logClientError("sell.resubmitRejected", resubmitError);
         setError(editErrorMessage(resubmitError, sell03, true));
+        setSubmitting(false);
+        setPublishStatus(null);
+        return;
+      }
+      const resubmitted = Array.isArray(resubmitRows) ? resubmitRows[0] : resubmitRows;
+      if (!resubmitted || resubmitted.status !== "draft" || resubmitted.moderation_status !== "pending_review") {
+        setError(sell03.resubmitFailure);
         setSubmitting(false);
         setPublishStatus(null);
         return;
@@ -984,8 +1043,8 @@ export function SellWizard({
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {existingMedia.map((media) => (
                 <div key={media.id} className="overflow-hidden rounded-oto border border-oto-border bg-white">
-                  <div className="aspect-[4/3]"><SafeImage src={media.thumb_url || media.card_url || media.url} alt="Mevcut ilan fotoğrafı" /></div>
-                  <p className="p-3 text-xs font-bold text-oto-muted">{media.is_cover ? "Mevcut kapak fotoğrafı" : "Mevcut fotoğraf"}</p>
+                  <div className="aspect-[4/3]"><SafeImage src={media.thumb_url || media.card_url || media.url} alt={sell03.existingPhotoAlt} /></div>
+                  <p className="p-3 text-xs font-bold text-oto-muted">{media.is_cover ? sell03.existingCoverPhoto : sell03.existingPhoto}</p>
                 </div>
               ))}
             </div>
@@ -1342,13 +1401,19 @@ function validateStep(step: number, state: WizardState, sell03?: Record<string, 
 }
 
 function validateForPublish(state: WizardState, sell03?: Record<string, string>) {
-  const year = Number(state.year);
-  const mileage = Number(state.mileageKm);
-  const price = Number(state.priceAmount);
-  const ownerCount = state.ownerCount ? Number(state.ownerCount) : null;
-  if (!Number.isSafeInteger(year) || !Number.isSafeInteger(mileage) || mileage < 0
-      || !Number.isSafeInteger(price) || price <= 0
-      || (ownerCount !== null && (!Number.isSafeInteger(ownerCount) || ownerCount <= 0))) {
+  const unsignedInteger = /^(0|[1-9][0-9]*)$/;
+  const priceValid = /^[1-9][0-9]*$/.test(state.priceAmount)
+    && BigInt(state.priceAmount) <= 9223372036854775807n;
+  const mileageValid = unsignedInteger.test(state.mileageKm)
+    && BigInt(state.mileageKm) <= 2147483647n;
+  const ownerCountValid = state.ownerCount === ""
+    || (/^[1-9][0-9]*$/.test(state.ownerCount) && BigInt(state.ownerCount) <= 32767n);
+  const engineValid = state.fuelType === "electric"
+    ? state.engineVolumeL === ""
+    : /^(?:[0-9]{1,3})(?:\.[0-9])?$/.test(state.engineVolumeL)
+      && Number(state.engineVolumeL) > 0
+      && Number(state.engineVolumeL) <= 999.9;
+  if (!validYear(state.year) || !mileageValid || !priceValid || !ownerCountValid || !engineValid) {
     return sell03?.invalidVehicleFields ?? "Araç alanlarını kontrol edin.";
   }
   return validateStep(2, state, sell03) || validateStep(3, state, sell03) || validateStep(5, state, sell03);
@@ -1363,6 +1428,7 @@ function editErrorMessage(error: unknown, sell03: Record<string, string>, resubm
 }
 
 function validYear(value: string) {
+  if (!/^[0-9]{4}$/.test(value)) return false;
   const year = Number(value);
   const maxYear = new Date().getFullYear() + 1;
   return Number.isInteger(year) && year >= 1900 && year <= maxYear;

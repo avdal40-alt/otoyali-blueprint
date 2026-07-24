@@ -192,6 +192,9 @@ export const tr = {
       resubmitFailure: "İlan incelemeye gönderilemedi. Lütfen tekrar deneyin.",
       rejectionReasonHeading: "Reddedilme nedeni",
       mediaPreserved: "Mevcut fotoğraflar, sıraları ve kapak fotoğrafı değişmeden korunur.",
+      existingPhotoAlt: "Mevcut ilan fotoğrafı",
+      existingCoverPhoto: "Mevcut kapak fotoğrafı",
+      existingPhoto: "Mevcut fotoğraf",
       electricDisplacement: "Tam elektrikli araçlarda motor hacmi boş bırakılmalıdır.",
       combustionDisplacement: "Motor hacmi benzinli, dizel, LPG ve hibrit araçlar için zorunludur."
     }
@@ -212,7 +215,8 @@ export const tr = {
     title: "İlanlarım",
     eyebrow: "Hesabım",
     emptyTitle: "Henüz ilanınız yok",
-    emptyBody: "Araç bilgilerinizi ekleyerek ilk ilanınızı oluşturabilirsiniz."
+    emptyBody: "Araç bilgilerinizi ekleyerek ilk ilanınızı oluşturabilirsiniz.",
+    editRejected: "Tekrar düzenle"
   },
   auth: {
     loginTitle: "Telefon numaranızla giriş yapın",

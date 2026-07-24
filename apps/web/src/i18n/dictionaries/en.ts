@@ -192,6 +192,9 @@ export const en = {
       resubmitFailure: "The listing could not be sent for review. Please try again.",
       rejectionReasonHeading: "Reason for rejection",
       mediaPreserved: "Existing photos, their order, and the cover photo will remain unchanged.",
+      existingPhotoAlt: "Existing listing photo",
+      existingCoverPhoto: "Existing cover photo",
+      existingPhoto: "Existing photo",
       electricDisplacement: "Engine displacement must be empty for fully electric vehicles.",
       combustionDisplacement: "Engine displacement is required for gasoline, diesel, LPG, and hybrid vehicles."
     }
@@ -212,7 +215,8 @@ export const en = {
     title: "My listings",
     eyebrow: "Account",
     emptyTitle: "You have no listings yet",
-    emptyBody: "Add your vehicle details to create your first listing."
+    emptyBody: "Add your vehicle details to create your first listing.",
+    editRejected: "Edit again"
   },
   auth: {
     loginTitle: "Log in with your phone number",

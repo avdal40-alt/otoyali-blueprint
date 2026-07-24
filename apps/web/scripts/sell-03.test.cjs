@@ -21,8 +21,8 @@ function excludesAll(source, values) {
 }
 
 includesAll(page, ["edit?: string | string[]", "editRejected", "editListingId", "SellWizard mode={mode}"]);
-includesAll(listings, ["`/sell?edit=${item.id}`", "Tekrar düzenle"]);
-excludesAll(listings, ["Tekrar düzenle · Yakında"]);
+includesAll(listings, ["`/sell?edit=${item.id}`", "dictionary.myListings.editRejected"]);
+excludesAll(listings, ["Tekrar düzenle", "Tekrar düzenle · Yakında"]);
 
 includesAll(migration, [
   "get_own_rejected_listing_for_edit",
@@ -35,12 +35,13 @@ includesAll(migration, [
   "l.moderation_status = 'rejected'",
   "l.archived_at IS NULL",
   "RAISE EXCEPTION 'listing not found' USING ERRCODE = 'OT404'",
-  "v_listing.updated_at IS DISTINCT FROM p_expected_updated_at",
+  "v_listing.updated_at IS DISTINCT FROM p_expected_listing_updated_at",
+  "v_vehicle.updated_at IS DISTINCT FROM p_expected_vehicle_updated_at",
   "UPDATE vehicle.vehicle_profiles",
   "UPDATE marketplace.listings",
   "p_fuel_type = 'electric' AND p_engine_volume_l IS NOT NULL",
-  "p_fuel_type <> 'electric' AND (p_engine_volume_l IS NULL OR p_engine_volume_l <= 0)",
-  "REVOKE ALL ON FUNCTION public.get_own_rejected_listing_for_edit(UUID) FROM PUBLIC, anon, service_role, authenticated",
+  "p_fuel_type <> 'electric' AND p_engine_volume_l IS NULL",
+  "REVOKE ALL ON FUNCTION public.get_own_rejected_listing_for_edit(UUID) FROM PUBLIC",
   "GRANT EXECUTE ON FUNCTION public.get_own_rejected_listing_for_edit(UUID) TO authenticated",
   "GRANT EXECUTE ON FUNCTION public.save_own_rejected_listing",
   "'rejection_reason', l.rejection_reason",
@@ -49,7 +50,23 @@ includesAll(migration, [
   "UPDATE marketplace.listings AS l",
   "l.status IN ('draft', 'removed')",
   "l.moderation_status = 'rejected'",
-  "RETURNING l.updated_at INTO v_updated_at"
+  "RETURNING l.updated_at INTO v_listing_updated_at",
+  "RETURNING vp.updated_at INTO v_vehicle_updated_at",
+  "p_price_amount_text !~ '^[0-9]+$'",
+  "p_price_amount_text > '9223372036854775807'",
+  "FROM vehicle.profile_ownership AS po",
+  "po.is_current = TRUE",
+  "po.ended_at IS NULL",
+  "FOR UPDATE",
+  "v_listing.status NOT IN ('draft', 'removed')",
+  "v_canonical_title := v_listing.title",
+  "IF v_listing.title_generated",
+  "concat_ws(' ', mk.name, m.name, p_year::TEXT)",
+  "saved_title TEXT",
+  "saved_title_generated BOOLEAN",
+  "ORDER BY pm.sort_order, pm.created_at, pm.id",
+  "'price_amount', l.price_amount::TEXT",
+  "'updated_at', vp.updated_at"
 ]);
 
 // Fixed parameters and assignments prove identity, lifecycle, relationship, and media are not caller-controlled.
@@ -64,8 +81,10 @@ excludesAll(migration, ["INSERT INTO marketplace.listings", "INSERT INTO vehicle
 excludesAll(migration, [
   "p_quality_score", "p_seller_type", "p_seller_display_name", "p_title",
   "quality_score =", "seller_type =", "seller_display_name =",
-  "title =", "title_generated ="
+  "title_generated ="
 ]);
+assert.equal((migration.match(/status = 'draft'/g) ?? []).length, 0, "Save migration must contain no draft-only assignment/guard");
+assert.equal((migration.match(/status <> 'draft'/g) ?? []).length, 0, "Save migration must contain no draft-only guard");
 includesAll(security, [
   "v_listing.status IN ('draft', 'removed')",
   "v_listing.moderation_status = 'rejected'"
@@ -82,9 +101,17 @@ includesAll(wizard, [
   'setEditSaved("pending_review")',
   'key === "fuelType" && value === "electric" ? { engineVolumeL: "" }',
   'state.fuelType !== "electric"',
-  'p_engine_volume_l: state.fuelType === "electric" ? null',
+  'p_engine_volume_l: raw("engineVolumeL", state.fuelType === "electric" ? null : state.engineVolumeL)',
+  "originalEditSnapshot",
+  "dirtyEditFields",
+  "p_expected_vehicle_updated_at: expectedVehicleUpdatedAt",
+  "p_price_amount_text: raw(\"priceAmount\", state.priceAmount)",
+  "setExistingTitle(String(saved.saved_title))",
+  'resubmitted.status !== "draft"',
+  'resubmitted.moderation_status !== "pending_review"',
+  "a.sort_order - b.sort_order",
   "existingMedia.map",
-  "Mevcut kapak fotoğrafı",
+  "sell03.existingCoverPhoto",
   "listing.rejection_reason ?? listing.moderation_note",
   "setExistingTitle(String(listing.title ?? \"\"))",
   "setExistingTitleGenerated(Boolean(listing.title_generated))",
@@ -94,6 +121,10 @@ includesAll(wizard, [
 ]);
 excludesAll(wizard, [
   "p_quality_score:", "p_seller_type:", "p_seller_display_name:", "p_title:",
+  "p_price_amount: Number(state.priceAmount)",
+  'alt="Mevcut ilan fotoğrafı"',
+  '"Mevcut kapak fotoğrafı"',
+  '"Mevcut fotoğraf"',
   '.schema("marketplace")\n        .from("listings")\n        .select("status,moderation_status")'
 ]);
 assert.ok(
@@ -130,14 +161,42 @@ assert.equal(normalizedDisplacement("diesel", "2.0"), 2);
 assert.equal(normalizedDisplacement("hybrid", "1.8"), 1.8);
 assert.equal(migration.includes("engine_volume_l = 1"), false, "No displacement sentinel workaround");
 
+// Exact decimal-string price validation avoids JavaScript Number precision loss.
+const validPrice = (value) => /^[1-9][0-9]*$/.test(value) && BigInt(value) <= 9223372036854775807n;
+assert.equal(validPrice("9007199254740993"), true);
+assert.equal(validPrice("9223372036854775807"), true);
+for (const value of ["", " 1", "-1", "-0", "1.0", "1e3", "Infinity", "NaN", "9223372036854775808"]) {
+  assert.equal(validPrice(value), false, `Invalid exact price rejected: ${value}`);
+}
+
+// Generated-title truth table mirrors the narrow server rule.
+const savedTitle = ({ generated, identityChanged, oldTitle, make, model, year }) =>
+  generated && identityChanged ? [make, model, year].join(" ") : oldTitle;
+assert.equal(savedTitle({ generated: false, identityChanged: false, oldTitle: "Manual", make: "A", model: "B", year: 2024 }), "Manual");
+assert.equal(savedTitle({ generated: false, identityChanged: true, oldTitle: "Manual", make: "A", model: "B", year: 2024 }), "Manual");
+assert.equal(savedTitle({ generated: true, identityChanged: false, oldTitle: "Old 2020", make: "A", model: "B", year: 2024 }), "Old 2020");
+assert.equal(savedTitle({ generated: true, identityChanged: true, oldTitle: "Old 2020", make: "A", model: "B", year: 2024 }), "A B 2024");
+
+// Raw snapshot selection preserves null, empty, and whitespace values on no-op saves.
+const rawValue = (snapshot, dirty, key, changed) => dirty.has(key) ? changed : snapshot[key];
+const snapshot = { description: null, bodyType: null, currency: "TRY", city: "  Ankara  " };
+assert.equal(rawValue(snapshot, new Set(), "description", ""), null);
+assert.equal(rawValue({ description: "" }, new Set(), "description", null), "");
+assert.equal(rawValue(snapshot, new Set(), "bodyType", ""), null);
+assert.equal(rawValue(snapshot, new Set(), "currency", "USD"), "TRY");
+assert.equal(rawValue(snapshot, new Set(), "city", "Ankara"), "  Ankara  ");
+
 for (const key of [
   "listingUnavailable", "authenticationRequired", "staleConflict", "invalidVehicleFields",
   "saveProgress", "saveSuccess", "resubmitProgress", "resubmitSuccess", "resubmitFailure",
-  "rejectionReasonHeading", "mediaPreserved", "electricDisplacement"
+  "rejectionReasonHeading", "mediaPreserved", "electricDisplacement",
+  "existingPhotoAlt", "existingCoverPhoto", "existingPhoto"
 ]) {
   assert.ok(tr.includes(`${key}:`), `Turkish SELL-03 key missing: ${key}`);
   assert.ok(en.includes(`${key}:`), `English SELL-03 key missing: ${key}`);
 }
+assert.ok(en.includes("editRejected:"), "English rejected edit link key missing");
+assert.ok(tr.includes("editRejected:"), "Turkish rejected edit link key missing");
 
 // Coverage classification: this suite contains static source assertions and synthetic
 // logic tests only. It does not execute the application, PostgreSQL, RPC ACLs, or RLS.
