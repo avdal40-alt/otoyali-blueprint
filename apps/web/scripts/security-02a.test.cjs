@@ -13,11 +13,15 @@ function includesAll(source, values) {
   for (const value of values) assert.ok(source.includes(value), `Expected source to include: ${value}`);
 }
 
+function normalizeSqlIdentifiers(source) {
+  return source.replace(/"([a-z_][a-z0-9_$]*)"/g, "$1");
+}
+
 function sqlStatements(source, startPattern) {
-  const withoutComments = source
+  const normalized = normalizeSqlIdentifiers(source)
     .replace(/--[^\r\n]*/g, " ")
     .replace(/\/\*[\s\S]*?\*\//g, " ");
-  return withoutComments.match(new RegExp(`\\b${startPattern}\\b[\\s\\S]*?;`, "gi")) ?? [];
+  return normalized.match(new RegExp(`\\b${startPattern}\\b[\\s\\S]*?;`, "gi")) ?? [];
 }
 
 function policyDetails(statement) {
@@ -43,22 +47,55 @@ function authenticatedOwnershipMutationPolicies(source) {
 
 function authenticatedOwnershipMutationGrants(source) {
   return sqlStatements(source, "GRANT").filter((statement) => {
-    if (!/\bON\s+(?:TABLE\s+)?vehicle\s*\.\s*profile_ownership\b/i.test(statement)) return false;
+    const targetsOwnership = /\bON\s+(?:TABLE\s+)?vehicle\s*\.\s*profile_ownership\b/i.test(statement);
+    const targetsAllVehicleTables = /\bON\s+ALL\s+TABLES\s+IN\s+SCHEMA\s+vehicle\b/i.test(statement);
+    if (!targetsOwnership && !targetsAllVehicleTables) return false;
     const privilegeList = statement.match(/^\s*GRANT\s+([\s\S]*?)\bON\b/i)?.[1] ?? "";
     const roleList = statement.match(/\bTO\b([\s\S]*?);\s*$/i)?.[1] ?? "";
-    return /\bauthenticated\b/i.test(roleList)
+    return /\b(?:authenticated|PUBLIC)\b/i.test(roleList)
       && /\b(?:ALL(?:\s+PRIVILEGES)?|INSERT|UPDATE|DELETE)\b/i.test(privilegeList);
   });
 }
 
+function authenticatedVehicleDefaultMutationGrants(source) {
+  return sqlStatements(source, "ALTER\\s+DEFAULT\\s+PRIVILEGES").filter((statement) => {
+    const schemaList = statement.match(/\bIN\s+SCHEMA\s+([\s\S]*?)\bGRANT\b/i)?.[1];
+    const appliesToVehicle = schemaList === undefined || /\bvehicle\b/i.test(schemaList);
+    const privilegeList = statement.match(/\bGRANT\s+([\s\S]*?)\bON\s+TABLES\b/i)?.[1] ?? "";
+    const roleList = statement.match(/\bTO\b([\s\S]*?);\s*$/i)?.[1] ?? "";
+    return appliesToVehicle
+      && /\b(?:authenticated|PUBLIC)\b/i.test(roleList)
+      && /\b(?:ALL(?:\s+PRIVILEGES)?|INSERT|UPDATE|DELETE)\b/i.test(privilegeList);
+  });
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function directOwnershipMutations(source) {
   const mutations = [];
-  const ownershipFrom = /\.from\s*\(\s*["'`]profile_ownership["'`]\s*\)/gi;
+  const ownershipConstants = [...source.matchAll(/\bconst\s+([A-Za-z_$][\w$]*)(?:\s*:\s*[^=;]+)?\s*=\s*["'`]profile_ownership["'`](?:\s+as\s+const)?\s*;/g)]
+    .map((match) => match[1]);
+  const tableArgument = ["[\\\"'`]profile_ownership[\\\"'`]", ...ownershipConstants.map(escapeRegExp)].join("|");
+  const ownershipFrom = new RegExp(`\\.from\\s*\\(\\s*(?:${tableArgument})\\s*\\)`, "gi");
   for (const match of source.matchAll(ownershipFrom)) {
     const statementEnd = source.indexOf(";", match.index);
     const chain = source.slice(match.index, statementEnd >= 0 ? statementEnd : match.index + 2000);
     const operation = chain.match(/\.\s*(insert|update|delete|upsert)\s*\(/i)?.[1];
     if (operation) mutations.push(operation.toLowerCase());
+  }
+
+  const ownershipAlias = new RegExp(
+    `\\b(?:const|let|var)\\s+([A-Za-z_$][\\w$]*)(?:\\s*:\\s*[^=;]+)?\\s*=\\s*[^;]*?\\.from\\s*\\(\\s*(?:${tableArgument})\\s*\\)[^;]*(?:;|$)`,
+    "gi"
+  );
+  for (const match of source.matchAll(ownershipAlias)) {
+    const alias = escapeRegExp(match[1]);
+    const aliasMutation = new RegExp(`\\b${alias}\\s*(?:\\?\\.|\\.)\\s*(insert|update|delete|upsert)\\s*\\(`, "gi");
+    for (const operation of source.slice(match.index + match[0].length).matchAll(aliasMutation)) {
+      mutations.push(operation[1].toLowerCase());
+    }
   }
   return mutations;
 }
@@ -141,6 +178,11 @@ assert.deepEqual(
   [],
   "Migration must not grant authenticated ownership INSERT, UPDATE, DELETE, or ALL privileges"
 );
+assert.deepEqual(
+  authenticatedVehicleDefaultMutationGrants(migration),
+  [],
+  "Migration must not default-grant authenticated vehicle-table mutation privileges"
+);
 
 const coreOwnershipPolicies = sqlStatements(vehicleCore, "CREATE\\s+POLICY")
   .filter((statement) => policyDetails(statement).targetsOwnership);
@@ -184,6 +226,46 @@ for (const operation of ["INSERT", "UPDATE", "DELETE", "ALL"]) {
     `Grant detector must reject authenticated GRANT ${operation}`
   );
 }
+for (const target of ['"vehicle" . "profile_ownership"', 'vehicle . "profile_ownership"', '"vehicle" . profile_ownership']) {
+  assert.equal(
+    authenticatedOwnershipMutationPolicies(`CREATE POLICY "renamed mutation policy" ON ${target} FOR INSERT TO PUBLIC WITH CHECK (TRUE);`).length,
+    1,
+    `Policy detector must reject PUBLIC mutation policies on quoted target ${target}`
+  );
+}
+assert.equal(
+  authenticatedOwnershipMutationGrants('GRANT ALL PRIVILEGES ON "vehicle" . "profile_ownership" TO authenticated;').length,
+  1,
+  "Grant detector must reject explicit ALL PRIVILEGES with a quoted ownership target"
+);
+assert.equal(
+  authenticatedOwnershipMutationGrants("GRANT SELECT, INSERT, UPDATE, DELETE ON vehicle.profile_ownership TO authenticated;").length,
+  1,
+  "Grant detector must reject combined authenticated mutation privileges"
+);
+for (const statement of [
+  "GRANT ALL ON ALL TABLES IN SCHEMA vehicle TO authenticated;",
+  "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA vehicle TO authenticated;",
+  "GRANT INSERT, UPDATE, DELETE\nON ALL TABLES IN SCHEMA vehicle\nTO authenticated;",
+  'GRANT UPDATE ON ALL TABLES IN SCHEMA "vehicle" TO PUBLIC;'
+]) {
+  assert.equal(
+    authenticatedOwnershipMutationGrants(statement).length,
+    1,
+    `Grant detector must reject vehicle-schema mutation grant: ${statement}`
+  );
+}
+for (const statement of [
+  "ALTER DEFAULT PRIVILEGES IN SCHEMA vehicle GRANT ALL ON TABLES TO authenticated;",
+  'ALTER DEFAULT PRIVILEGES IN SCHEMA "vehicle" GRANT INSERT, UPDATE ON TABLES TO PUBLIC;',
+  "ALTER DEFAULT PRIVILEGES GRANT DELETE ON TABLES TO authenticated;"
+]) {
+  assert.equal(
+    authenticatedVehicleDefaultMutationGrants(statement).length,
+    1,
+    `Default-privilege detector must reject vehicle-table mutation grant: ${statement}`
+  );
+}
 assert.deepEqual(
   authenticatedOwnershipMutationPolicies("CREATE POLICY own_read ON vehicle.profile_ownership FOR SELECT TO authenticated USING (owner_id = auth.uid());"),
   [],
@@ -199,6 +281,29 @@ assert.deepEqual(
   [],
   "Grant detector must allow ownership SELECT and RPC EXECUTE"
 );
+assert.deepEqual(
+  authenticatedOwnershipMutationGrants("GRANT ALL ON vehicle.profile_ownership TO service_role; GRANT USAGE ON SCHEMA vehicle TO authenticated;"),
+  [],
+  "Grant detector must allow service_role table access and authenticated schema USAGE"
+);
+assert.deepEqual(
+  authenticatedVehicleDefaultMutationGrants("ALTER DEFAULT PRIVILEGES IN SCHEMA marketplace GRANT ALL ON TABLES TO authenticated;"),
+  [],
+  "Default-privilege detector must ignore unrelated schemas"
+);
+for (const statement of [
+  "REVOKE UPDATE ON vehicle.profile_ownership FROM authenticated; GRANT UPDATE ON vehicle.profile_ownership TO authenticated;",
+  "GRANT UPDATE ON vehicle.profile_ownership TO authenticated; REVOKE UPDATE ON vehicle.profile_ownership FROM authenticated;"
+]) {
+  assert.equal(
+    authenticatedOwnershipMutationGrants(statement).length,
+    1,
+    "Grant detector must intentionally reject dangerous grants regardless of REVOKE ordering"
+  );
+}
+
+// Intentionally stricter than effective-state modeling: any dangerous GRANT in
+// this migration fails even when a later REVOKE would make the final state safe.
 
 const insertStart = migration.indexOf("INSERT INTO vehicle.profile_ownership AS inserted_ownership");
 const returningStart = migration.indexOf("RETURNING", insertStart);
@@ -250,10 +355,29 @@ for (const operation of ["insert", "update", "delete", "upsert"]) {
     `Browser mutation detector must reject multiline .${operation}()`
   );
 }
+for (const operation of ["insert", "update", "delete", "upsert"]) {
+  assert.deepEqual(
+    directOwnershipMutations(`const ownership = supabase.schema("vehicle").from("profile_ownership");\nownership.${operation}({ owner_id: userId });`),
+    [operation],
+    `Browser mutation detector must reject ownership query-alias .${operation}()`
+  );
+}
+for (const operation of ["insert", "update"]) {
+  assert.deepEqual(
+    directOwnershipMutations(`const OWNERSHIP_TABLE: string = "profile_ownership" as const;\nconst ownership: unknown = supabase.from(OWNERSHIP_TABLE);\nownership.${operation}({ owner_id: userId });`),
+    [operation],
+    `Browser mutation detector must reject constant-table alias .${operation}()`
+  );
+}
 assert.deepEqual(
   directOwnershipMutations('supabase.from("profile_ownership").select("id");'),
   [],
   "Browser mutation detector must allow ownership reads"
+);
+assert.deepEqual(
+  directOwnershipMutations('supabase.from("other_table").insert({ value: true });'),
+  [],
+  "Browser mutation detector must allow unrelated-table mutations"
 );
 
 includesAll(vehicleCore, [
@@ -266,5 +390,7 @@ const rpcEnd = wizard.indexOf("});", rpcStart) + 3;
 assert.ok(rpcStart >= 0 && rpcEnd > rpcStart, "Ownership RPC call must be complete");
 assert.ok(rpcStart < wizard.indexOf("if (ownershipError)", rpcStart), "Create flow must handle RPC errors");
 
-console.log("SECURITY-02A coverage: static source assertions + synthetic shape checks; no PostgreSQL compilation/execution, catalog ACL verification, RPC/RLS execution, concurrency, or cross-user runtime authorization");
+console.log("SECURITY-02A coverage: static source assertions + synthetic shape/source-analysis checks; no PostgreSQL parsing/compilation/execution, effective catalog ACL verification, live RLS/RPC execution, concurrency, or cross-user runtime authorization");
+console.log("SECURITY-02A grant checks intentionally reject any dangerous source GRANT regardless of a later REVOKE");
+console.log("SECURITY-02A browser checks cover direct chains, simple local table constants, and local query aliases; they are not general JavaScript data-flow analysis");
 console.log("SECURITY-02A tests passed");
