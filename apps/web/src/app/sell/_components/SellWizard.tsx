@@ -750,11 +750,8 @@ export function SellWizard({
 
     const vehicleProfileId = vehicleProfile.id as string;
     setPublishStatus("Araç sahipliği doğrulanıyor.");
-    const { error: ownershipError } = await supabase.schema("vehicle").from("profile_ownership").insert({
-      vehicle_profile_id: vehicleProfileId,
-      owner_id: userId,
-      ownership_type: "owner",
-      is_current: true
+    const { error: ownershipError } = await supabase.rpc("initialize_own_vehicle_profile_ownership", {
+      p_vehicle_profile_id: vehicleProfileId
     });
 
     if (ownershipError) {

@@ -11,6 +11,7 @@
     "test:phone-auth": "node scripts/phone-auth.test.cjs",
     "test:auth-signup-metadata": "node scripts/auth-signup-metadata.test.cjs",
     "test:security-lifecycle": "node scripts/security-lifecycle.test.cjs",
+    "test:security-02a": "node scripts/security-02a.test.cjs",
     "test:sell-03": "node scripts/sell-03.test.cjs"
   },
   "dependencies": {
