@@ -3,7 +3,7 @@ BEGIN;
 DROP POLICY IF EXISTS profile_ownership_insert_own_created_profile ON vehicle.profile_ownership;
 DROP POLICY IF EXISTS profile_ownership_update_own ON vehicle.profile_ownership;
 
-REVOKE INSERT, UPDATE ON vehicle.profile_ownership FROM authenticated;
+REVOKE INSERT, UPDATE, DELETE ON vehicle.profile_ownership FROM authenticated;
 
 CREATE OR REPLACE FUNCTION public.initialize_own_vehicle_profile_ownership(
   p_vehicle_profile_id UUID
@@ -18,7 +18,7 @@ RETURNS TABLE (
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = pg_catalog, public, vehicle, auth
+SET search_path = pg_catalog
 AS $$
 DECLARE
   v_user_id UUID := auth.uid();
@@ -54,7 +54,7 @@ BEGIN
 
   BEGIN
     RETURN QUERY
-    INSERT INTO vehicle.profile_ownership (
+    INSERT INTO vehicle.profile_ownership AS inserted_ownership (
       vehicle_profile_id,
       owner_id,
       ownership_type,
@@ -71,12 +71,12 @@ BEGIN
       NULL
     )
     RETURNING
-      id,
-      vehicle_profile_id,
-      owner_id,
-      is_current,
-      started_at,
-      ended_at;
+      inserted_ownership.id,
+      inserted_ownership.vehicle_profile_id,
+      inserted_ownership.owner_id,
+      inserted_ownership.is_current,
+      inserted_ownership.started_at,
+      inserted_ownership.ended_at;
   EXCEPTION
     WHEN unique_violation THEN
       RAISE EXCEPTION 'vehicle profile not found' USING ERRCODE = 'OT404';
