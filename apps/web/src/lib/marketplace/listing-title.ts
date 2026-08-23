@@ -5,7 +5,12 @@ export type VehicleListingTitleInput = {
 };
 
 function normalizeTitlePart(value: string | number | null | undefined) {
-  return value?.toString().trim().replace(/\s+/g, " ") ?? "";
+  // Keep this ASCII whitespace set aligned with rejected-edit SQL. Catalog
+  // labels are otherwise preserved verbatim, including case and Unicode.
+  return value
+    ?.toString()
+    .replace(/[ \t\n\v\f\r]+/g, " ")
+    .replace(/^ | $/g, "") ?? "";
 }
 
 export function generateVehicleListingTitle({ makeName, modelName, year }: VehicleListingTitleInput) {

@@ -212,11 +212,25 @@ BEGIN
   END IF;
 
   v_canonical_title := v_listing.title;
-  IF v_listing.title_generated
-     AND (v_vehicle.make_id IS DISTINCT FROM p_make_id
-       OR v_vehicle.model_id IS DISTINCT FROM p_model_id
-       OR v_vehicle.year IS DISTINCT FROM p_year) THEN
-    SELECT concat_ws(' ', mk.name, m.name, p_year::TEXT)
+  IF v_listing.title_generated THEN
+    -- Match the client helper's explicit ASCII whitespace contract without
+    -- relying on PostgreSQL locale-dependent whitespace character classes.
+    SELECT concat_ws(
+      ' ',
+      btrim(regexp_replace(
+        mk.name,
+        '[' || chr(9) || chr(10) || chr(11) || chr(12) || chr(13) || ' ]+',
+        ' ',
+        'g'
+      )),
+      btrim(regexp_replace(
+        m.name,
+        '[' || chr(9) || chr(10) || chr(11) || chr(12) || chr(13) || ' ]+',
+        ' ',
+        'g'
+      )),
+      p_year::TEXT
+    )
     INTO v_canonical_title
     FROM vehicle.makes AS mk
     JOIN vehicle.models AS m ON m.make_id = mk.id
