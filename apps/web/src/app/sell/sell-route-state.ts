@@ -49,6 +49,12 @@ export class LatestRequestGuard {
     return this.currentToken();
   }
 
+  begin(target: string): LatestRequestToken {
+    this.target = target;
+    this.generation += 1;
+    return this.currentToken();
+  }
+
   currentToken(): LatestRequestToken {
     return { generation: this.generation, target: this.target ?? "" };
   }
@@ -61,5 +67,9 @@ export class LatestRequestGuard {
     if (this.isCurrent(token)) {
       this.generation += 1;
     }
+  }
+
+  invalidate(): void {
+    this.generation += 1;
   }
 }

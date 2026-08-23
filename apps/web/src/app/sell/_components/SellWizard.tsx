@@ -183,21 +183,46 @@ export function SellWizard({
   const [loadedRouteKey, setLoadedRouteKey] = useState<string | null>(null);
   const [loadedEditListingId, setLoadedEditListingId] = useState<string | null>(null);
   const routeRequestGuard = useRef(new LatestRequestGuard());
+  const submissionRequestGuard = useRef(new LatestRequestGuard());
+  const profileRequestGuard = useRef(new LatestRequestGuard());
   const modelRequestGuard = useRef(new LatestRequestGuard());
+  const photoRequestGuards = useRef(new Map<string, LatestRequestGuard>());
+  const mounted = useRef(false);
   const renderedRouteKey = useRef<string | null>(null);
   const routeKey = mode === "editRejected" ? `edit:${editListingId ?? "invalid"}` : "create";
   if (renderedRouteKey.current !== routeKey) {
     renderedRouteKey.current = routeKey;
     routeRequestGuard.current.setTarget(routeKey);
+    submissionRequestGuard.current.setTarget(routeKey);
+    profileRequestGuard.current.setTarget(routeKey);
     modelRequestGuard.current.setTarget(`route:${routeKey}`);
   }
-  const routeRequestGeneration = routeRequestGuard.current.currentToken().generation;
   const sell03 = dictionary.sell.sell03 as Record<string, string>;
 
   useEffect(() => {
-    const routeRequestToken = { generation: routeRequestGeneration, target: routeKey };
+    const routeGuard = routeRequestGuard.current;
+    const submissionGuard = submissionRequestGuard.current;
+    const profileGuard = profileRequestGuard.current;
+    const modelGuard = modelRequestGuard.current;
+    const photoGuards = photoRequestGuards.current;
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      routeGuard.invalidate();
+      submissionGuard.invalidate();
+      profileGuard.invalidate();
+      modelGuard.invalidate();
+      photoGuards.forEach((guard) => guard.invalidate());
+      photoGuards.clear();
+    };
+  }, []);
+
+  useEffect(() => {
+    const routeRequestToken = routeRequestGuard.current.currentToken();
     let active = true;
-    const isCurrentRequest = () => active && routeRequestGuard.current.isCurrent(routeRequestToken);
+    const isCurrentRequest = () => mounted.current
+      && active
+      && routeRequestGuard.current.isCurrent(routeRequestToken);
 
     setCheckingAuth(true);
     setLoadedRouteKey(null);
@@ -349,7 +374,7 @@ export function SellWizard({
     return () => {
       active = false;
     };
-  }, [dictionary.errors.missingSupabaseEnv, editListingId, locale, mode, models, routeKey, routeRequestGeneration, router, sell03.listingUnavailable]);
+  }, [dictionary.errors.missingSupabaseEnv, editListingId, locale, mode, models, routeKey, router, sell03.listingUnavailable]);
 
   useEffect(() => {
     if (mode !== "create" || checkingAuth || loadedRouteKey !== routeKey || !userId || publishedListingId) return;
@@ -431,6 +456,10 @@ export function SellWizard({
     setState((current) => ({ ...current, makeId, modelId: "" }));
     setModelsForMake([]);
     setModelsError(null);
+    if (!makeId) {
+      modelRequestGuard.current.invalidate();
+      setModelsLoading(false);
+    }
     if (makeId) {
       void loadModelsForMake(makeId);
     }
@@ -449,7 +478,11 @@ export function SellWizard({
   async function loadModelsForMake(makeId: string) {
     if (!hasSupabaseEnv()) return;
 
-    const requestToken = modelRequestGuard.current.setTarget(`make:${makeId}`);
+    const routeToken = routeRequestGuard.current.currentToken();
+    const requestToken = modelRequestGuard.current.begin(`make:${makeId}`);
+    const isCurrentRequest = () => mounted.current
+      && routeRequestGuard.current.isCurrent(routeToken)
+      && modelRequestGuard.current.isCurrent(requestToken);
     setModelsLoading(true);
     setModelsError(null);
     const supabase = getSupabaseBrowserClient();
@@ -459,7 +492,7 @@ export function SellWizard({
       .eq("make_id", makeId)
       .order("model_name", { ascending: true });
 
-    if (!modelRequestGuard.current.isCurrent(requestToken)) return;
+    if (!isCurrentRequest()) return;
 
     if (loadError) {
       logClientError("sell.loadModels", loadError);
@@ -469,17 +502,22 @@ export function SellWizard({
       setModelsForMake((data ?? []) as Model[]);
     }
 
-    if (modelRequestGuard.current.isCurrent(requestToken)) setModelsLoading(false);
+    if (isCurrentRequest()) setModelsLoading(false);
   }
 
-  async function persistProfile() {
+  async function persistProfile(parentIsCurrent: () => boolean = () => true) {
     if (!profile || !userId) return false;
-    const requestToken = routeRequestGuard.current.currentToken();
     const validation = validateSellerProfile(profile);
     if (validation) {
       setError(validation);
       return false;
     }
+    const routeToken = routeRequestGuard.current.currentToken();
+    const requestToken = profileRequestGuard.current.begin(routeKey);
+    const isCurrentRequest = () => mounted.current
+      && parentIsCurrent()
+      && routeRequestGuard.current.isCurrent(routeToken)
+      && profileRequestGuard.current.isCurrent(requestToken);
 
     setProfileSaving(true);
     setError(null);
@@ -503,7 +541,7 @@ export function SellWizard({
       { onConflict: "id" }
     );
 
-    if (!routeRequestGuard.current.isCurrent(requestToken)) return false;
+    if (!isCurrentRequest()) return false;
 
     if (profileError) {
       logClientError("sell.saveProfile", profileError);
@@ -557,7 +595,13 @@ export function SellWizard({
   }
 
   async function processPhoto(photoId: string, file: File) {
-    const requestToken = routeRequestGuard.current.currentToken();
+    const routeToken = routeRequestGuard.current.currentToken();
+    const photoGuard = photoRequestGuards.current.get(photoId) ?? new LatestRequestGuard();
+    photoRequestGuards.current.set(photoId, photoGuard);
+    const requestToken = photoGuard.begin(photoId);
+    const isCurrentRequest = () => mounted.current
+      && routeRequestGuard.current.isCurrent(routeToken)
+      && photoGuard.isCurrent(requestToken);
     updatePhoto(photoId, {
       processingStatus: "processing",
       statusText: "Görseller optimize ediliyor",
@@ -566,14 +610,14 @@ export function SellWizard({
 
     try {
       const prepared = await prepareImageVariants(file);
-      if (!routeRequestGuard.current.isCurrent(requestToken)) return;
+      if (!isCurrentRequest()) return;
       updatePhoto(photoId, {
         processingStatus: "ready",
         statusText: "Fotoğraf hazır",
         prepared
       });
     } catch (processingError) {
-      if (!routeRequestGuard.current.isCurrent(requestToken)) return;
+      if (!isCurrentRequest()) return;
       logClientError("sell.processPhoto", processingError);
       updatePhoto(photoId, {
         processingStatus: "failed",
@@ -596,6 +640,8 @@ export function SellWizard({
   }
 
   function removePhoto(photoId: string) {
+    photoRequestGuards.current.get(photoId)?.invalidate();
+    photoRequestGuards.current.delete(photoId);
     setState((current) => {
       const removed = current.photos.find((photo) => photo.id === photoId);
       if (removed) URL.revokeObjectURL(removed.previewUrl);
@@ -638,7 +684,9 @@ export function SellWizard({
     setError(null);
     setEditSaved(null);
     if (
-      !isCurrentEditTarget(editListingId, loadedEditListingId, routeKey, loadedRouteKey)
+      !mounted.current
+      || mode !== "editRejected"
+      || !isCurrentEditTarget(editListingId, loadedEditListingId, routeKey, loadedRouteKey)
       || !expectedUpdatedAt
       || !expectedVehicleUpdatedAt
       || !profile
@@ -653,12 +701,16 @@ export function SellWizard({
       return;
     }
 
+    const routeToken = routeRequestGuard.current.currentToken();
+    const submissionToken = submissionRequestGuard.current.begin(routeKey);
+    const isCurrentSubmission = () => mounted.current
+      && routeRequestGuard.current.isCurrent(routeToken)
+      && submissionRequestGuard.current.isCurrent(submissionToken)
+      && mode === "editRejected"
+      && loadedRouteKey === routeKey
+      && isCurrentEditTarget(editListingId, loadedEditListingId, routeKey, loadedRouteKey);
     setSubmitting(true);
     setPublishStatus(sell03.saveProgress);
-    const submissionToken = routeRequestGuard.current.currentToken();
-    const isCurrentSubmission = () => routeRequestGuard.current.isCurrent(submissionToken)
-      && loadedRouteKey === routeKey
-      && loadedEditListingId === editListingId;
     const supabase = getSupabaseBrowserClient();
     const raw = <K extends EditableField>(key: K, changedValue: OriginalEditSnapshot[K]) =>
       dirtyEditFields.has(key) ? changedValue : originalEditSnapshot[key];
@@ -727,6 +779,7 @@ export function SellWizard({
     setOriginalEditSnapshot(submittedSnapshot);
     setDirtyEditFields(new Set());
     if (sendForReview) {
+      if (!isCurrentSubmission()) return;
       setPublishStatus(sell03.resubmitProgress);
       const { data: resubmitRows, error: resubmitError } = await supabase.rpc("resubmit_own_listing_for_review", {
         p_listing_id: editListingId
@@ -757,7 +810,7 @@ export function SellWizard({
 
   async function publish(event: FormEvent) {
     event.preventDefault();
-    if (mode === "editRejected") return;
+    if (!mounted.current || mode !== "create" || routeKey !== "create" || loadedRouteKey !== routeKey) return;
     setError(null);
 
     if (!userId) {
@@ -781,9 +834,18 @@ export function SellWizard({
       return;
     }
 
+    const routeToken = routeRequestGuard.current.currentToken();
+    const submissionToken = submissionRequestGuard.current.begin(routeKey);
+    const isCurrentPublication = () => mounted.current
+      && mode === "create"
+      && routeKey === "create"
+      && loadedRouteKey === routeKey
+      && routeRequestGuard.current.isCurrent(routeToken)
+      && submissionRequestGuard.current.isCurrent(submissionToken);
     setSubmitting(true);
     setPublishStatus("Satıcı bilgileriniz kontrol ediliyor.");
-    const profileSaved = await persistProfile();
+    const profileSaved = await persistProfile(isCurrentPublication);
+    if (!isCurrentPublication()) return;
     if (!profileSaved) {
       setSubmitting(false);
       setPublishStatus(null);
@@ -817,6 +879,7 @@ export function SellWizard({
       .select("id")
       .single();
 
+    if (!isCurrentPublication()) return;
     if (profileError || !vehicleProfile) {
       logClientError("sell.createVehicleProfile", profileError);
       setSubmitting(false);
@@ -831,6 +894,7 @@ export function SellWizard({
       p_vehicle_profile_id: vehicleProfileId
     });
 
+    if (!isCurrentPublication()) return;
     if (ownershipError) {
       logClientError("sell.createOwnership", ownershipError);
       setSubmitting(false);
@@ -862,6 +926,7 @@ export function SellWizard({
       .select("id")
       .single();
 
+    if (!isCurrentPublication()) return;
     if (listingError || !listing) {
       logClientError("sell.createListing", listingError);
       setSubmitting(false);
@@ -876,6 +941,7 @@ export function SellWizard({
     if (state.photos.length > 0) {
       const mediaRows = [];
       for (let index = 0; index < state.photos.length; index++) {
+        if (!isCurrentPublication()) return;
         const photo = state.photos[index];
         setPublishStatus(`Fotoğraflar yükleniyor (${index + 1}/${state.photos.length}).`);
         updatePhoto(photo.id, { uploadStatus: "uploading", statusText: "Fotoğraflar yükleniyor" });
@@ -887,11 +953,17 @@ export function SellWizard({
             vehicleProfileId,
             photo,
             sortOrder: index,
-            onStatus: (statusText) => updatePhoto(photo.id, { uploadStatus: "uploading", statusText })
+            isCurrent: isCurrentPublication,
+            onStatus: (statusText) => {
+              if (isCurrentPublication()) updatePhoto(photo.id, { uploadStatus: "uploading", statusText });
+            }
           });
+          if (!isCurrentPublication()) return;
+          if (!mediaUpload) return;
           mediaRows.push(mediaUpload);
           updatePhoto(photo.id, { uploadStatus: "ready", statusText: "Fotoğraf hazır" });
         } catch (uploadError) {
+          if (!isCurrentPublication()) return;
           logClientError("sell.uploadPhoto", uploadError);
           updatePhoto(photo.id, { uploadStatus: "failed", statusText: "Fotoğraf yüklenemedi", error: "Fotoğraf yüklenemedi. Lütfen tekrar deneyin." });
           setSubmitting(false);
@@ -907,6 +979,7 @@ export function SellWizard({
         .insert(mediaRows)
         .select("id,is_cover");
 
+      if (!isCurrentPublication()) return;
       if (mediaError) {
         logClientError("sell.createMedia", mediaError);
         setSubmitting(false);
@@ -928,6 +1001,7 @@ export function SellWizard({
       })
       .eq("id", listingId);
 
+    if (!isCurrentPublication()) return;
     if (finalizeError) {
       logClientError("sell.finalizeListingContent", finalizeError);
       setSubmitting(false);
@@ -940,6 +1014,7 @@ export function SellWizard({
       p_listing_id: listingId
     });
 
+    if (!isCurrentPublication()) return;
     setSubmitting(false);
     setPublishStatus(null);
 
@@ -1547,6 +1622,7 @@ async function uploadPhotoMedia({
   vehicleProfileId,
   photo,
   sortOrder,
+  isCurrent,
   onStatus
 }: {
   supabase: ReturnType<typeof getSupabaseBrowserClient>;
@@ -1554,6 +1630,7 @@ async function uploadPhotoMedia({
   vehicleProfileId: string;
   photo: PhotoItem;
   sortOrder: number;
+  isCurrent: () => boolean;
   onStatus: (statusText: string) => void;
 }) {
   const mediaId = crypto.randomUUID();
@@ -1561,6 +1638,7 @@ async function uploadPhotoMedia({
   const variants = getUploadVariants(photo);
 
   for (const item of variants) {
+    if (!isCurrent()) return null;
     onStatus(`${variantStatusLabel(item.name)} yükleniyor`);
     const path = `${userId}/${vehicleProfileId}/${mediaId}/${item.name}/${item.name}.${item.extension}`;
     const { error } = await supabase.storage.from("listing-media").upload(path, item.file, {
@@ -1569,6 +1647,7 @@ async function uploadPhotoMedia({
       contentType: item.mimeType
     });
 
+    if (!isCurrent()) return null;
     if (error) {
       if (item.required) {
         throw error;
