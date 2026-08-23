@@ -5,6 +5,7 @@ import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer, SectionHeader } from "@/components/layout/PageContainer";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
+import { ErrorState } from "@/components/ui/States";
 import { getCities } from "@/lib/queries/cities";
 import { getHomeListings } from "@/lib/queries/listings";
 import { getMakes } from "@/lib/queries/makes";
@@ -15,6 +16,7 @@ import { t } from "@/i18n/get-dictionary";
 import { canPublishVertical, getPublishVerticalFromSearchParam } from "@/lib/marketplace/publish";
 import { getMarketplaceVertical } from "@/lib/marketplace/verticals";
 import { SellWizard } from "./_components/SellWizard";
+import { getSellEditTarget } from "./sell-route-state";
 
 export default async function SellPage({
   searchParams
@@ -25,11 +27,7 @@ export default async function SellPage({
   const dictionary = getDictionary(locale);
   const verticalId = getPublishVerticalFromSearchParam(searchParams?.vertical);
   const vertical = getMarketplaceVertical(verticalId);
-  const editValue = Array.isArray(searchParams?.edit) ? searchParams?.edit[0] : searchParams?.edit;
-  const editListingId = editValue && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(editValue)
-    ? editValue
-    : null;
-  const mode = editValue ? "editRejected" : "create";
+  const editTarget = getSellEditTarget(searchParams);
 
   if (!canPublishVertical(verticalId)) {
     return (
@@ -57,6 +55,20 @@ export default async function SellPage({
     );
   }
 
+  if (editTarget.kind === "invalid") {
+    return (
+      <>
+        <AppHeader />
+        <PageContainer className="max-w-4xl">
+          <SectionHeader title={String(dictionary.sell.title)} eyebrow={String(dictionary.sell.eyebrow)} />
+          <ErrorState message={String((dictionary.sell.sell03 as Record<string, string>).listingUnavailable)} />
+        </PageContainer>
+        <MarketplaceFooter />
+        <MobileBottomNav />
+      </>
+    );
+  }
+
   const [makesResult, listingsResult, citiesResult] = await Promise.all([getMakes(), getHomeListings(80), getCities()]);
 
   return (
@@ -75,7 +87,14 @@ export default async function SellPage({
           </Link>
           {" "}{String(dictionary.sell.agreementSuffix)}
         </div>
-        <SellWizard mode={mode} editListingId={editListingId} makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />
+        <SellWizard
+          mode={editTarget.kind === "edit" ? "editRejected" : "create"}
+          editListingId={editTarget.kind === "edit" ? editTarget.listingId : null}
+          makes={makesResult.data}
+          models={[]}
+          cities={citiesResult.data}
+          listings={listingsResult.data}
+        />
       </PageContainer>
       <MarketplaceFooter />
       <MobileBottomNav />

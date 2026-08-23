@@ -20,7 +20,13 @@ function excludesAll(source, values) {
   for (const value of values) assert.ok(!source.includes(value), `Expected source to exclude: ${value}`);
 }
 
-includesAll(page, ["edit?: string | string[]", "editRejected", "editListingId", "SellWizard mode={mode}"]);
+includesAll(page, [
+  "edit?: string | string[]",
+  "getSellEditTarget(searchParams)",
+  'editTarget.kind === "invalid"',
+  'editTarget.kind === "edit" ? "editRejected" : "create"',
+  "editTarget.listingId"
+]);
 includesAll(listings, ["`/sell?edit=${item.id}`", "dictionary.myListings.editRejected"]);
 excludesAll(listings, ["Tekrar düzenle", "Tekrar düzenle · Yakında"]);
 

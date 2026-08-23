@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, type ReactNode, useMemo, useState, useEffect } from "react";
+import { FormEvent, type ReactNode, useMemo, useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { City, HomeListing, Make, Model, Profile } from "@/lib/supabase/types";
@@ -14,6 +14,7 @@ import { getPriceSuggestion } from "@/lib/market-price/analysis";
 import { prepareImageVariants, type PreparedImageSet, type PreparedImageVariantName } from "@/lib/media/client-image-processing";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { isCurrentEditTarget, LatestRequestGuard } from "../sell-route-state";
 
 type PhotoItem = {
   id: string;
@@ -179,18 +180,62 @@ export function SellWizard({
   const [existingTitleGenerated, setExistingTitleGenerated] = useState(true);
   const [existingQualityScore, setExistingQualityScore] = useState<number | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [loadedRouteKey, setLoadedRouteKey] = useState<string | null>(null);
+  const [loadedEditListingId, setLoadedEditListingId] = useState<string | null>(null);
+  const routeRequestGuard = useRef(new LatestRequestGuard());
+  const modelRequestGuard = useRef(new LatestRequestGuard());
+  const renderedRouteKey = useRef<string | null>(null);
+  const routeKey = mode === "editRejected" ? `edit:${editListingId ?? "invalid"}` : "create";
+  if (renderedRouteKey.current !== routeKey) {
+    renderedRouteKey.current = routeKey;
+    routeRequestGuard.current.setTarget(routeKey);
+    modelRequestGuard.current.setTarget(`route:${routeKey}`);
+  }
+  const routeRequestGeneration = routeRequestGuard.current.currentToken().generation;
   const sell03 = dictionary.sell.sell03 as Record<string, string>;
 
   useEffect(() => {
+    const routeRequestToken = { generation: routeRequestGeneration, target: routeKey };
+    let active = true;
+    const isCurrentRequest = () => active && routeRequestGuard.current.isCurrent(routeRequestToken);
+
+    setCheckingAuth(true);
+    setLoadedRouteKey(null);
+    setLoadedEditListingId(null);
+    setStep(1);
+    setState(initialState);
+    setProfileSaving(false);
+    setError(null);
+    setSubmitting(false);
+    setRulesAccepted(false);
+    setPublishStatus(null);
+    setPublishedListingId(null);
+    setModelsForMake(models);
+    setModelsLoading(false);
+    setModelsError(null);
+    setExistingMedia([]);
+    setExpectedUpdatedAt(null);
+    setExpectedVehicleUpdatedAt(null);
+    setOriginalEditSnapshot(null);
+    setDirtyEditFields(new Set());
+    setEditSaved(null);
+    setExistingTitle("");
+    setExistingTitleGenerated(true);
+    setExistingQualityScore(null);
+    setRejectionReason("");
+
     async function checkAuth() {
       if (!hasSupabaseEnv()) {
+        if (!isCurrentRequest()) return;
         setError(String(dictionary.errors.missingSupabaseEnv));
+        setLoadedRouteKey(routeKey);
         setCheckingAuth(false);
         return;
       }
 
       const supabase = getSupabaseBrowserClient();
       const { data } = await supabase.auth.getUser();
+      if (!isCurrentRequest()) return;
       if (!data.user) {
         const sellReturnPath = mode === "editRejected" && editListingId
           ? `${localizePath("/sell", locale)}?edit=${editListingId}`
@@ -201,19 +246,23 @@ export function SellWizard({
 
       setUserId(data.user.id);
       const { data: profileRow } = await supabase.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
+      if (!isCurrentRequest()) return;
       const sellerProfile = toSellerProfile((profileRow as Profile | null) ?? null, data.user.phone ?? "", locale);
       setProfile(sellerProfile);
       if (mode === "editRejected") {
         if (!editListingId) {
           setError(sell03.listingUnavailable);
+          setLoadedRouteKey(routeKey);
           setCheckingAuth(false);
           return;
         }
         const { data: editData, error: editError } = await supabase.rpc("get_own_rejected_listing_for_edit", {
           p_listing_id: editListingId
         });
+        if (!isCurrentRequest()) return;
         if (editError || !editData) {
           setError(sell03.listingUnavailable);
+          setLoadedRouteKey(routeKey);
           setCheckingAuth(false);
           return;
         }
@@ -276,6 +325,8 @@ export function SellWizard({
         setExpectedVehicleUpdatedAt(String(vehicle.updated_at));
         setExistingMedia([...(edit.media ?? [])].sort((a, b) => a.sort_order - b.sort_order));
         void loadModelsForMake(String(vehicle.make_id ?? ""));
+        setLoadedEditListingId(editListingId);
+        setLoadedRouteKey(routeKey);
         setCheckingAuth(false);
         return;
       }
@@ -290,16 +341,20 @@ export function SellWizard({
       if (savedDraft?.makeId) {
         void loadModelsForMake(savedDraft.makeId);
       }
+      setLoadedRouteKey(routeKey);
       setCheckingAuth(false);
     }
 
     void checkAuth();
-  }, [dictionary.errors.missingSupabaseEnv, editListingId, locale, mode, router, sell03.listingUnavailable]);
+    return () => {
+      active = false;
+    };
+  }, [dictionary.errors.missingSupabaseEnv, editListingId, locale, mode, models, routeKey, routeRequestGeneration, router, sell03.listingUnavailable]);
 
   useEffect(() => {
-    if (mode !== "create" || !userId || publishedListingId) return;
+    if (mode !== "create" || checkingAuth || loadedRouteKey !== routeKey || !userId || publishedListingId) return;
     saveStoredDraft(userId, state);
-  }, [mode, publishedListingId, state, userId]);
+  }, [checkingAuth, loadedRouteKey, mode, publishedListingId, routeKey, state, userId]);
 
   useEffect(() => {
     if (!userId || publishedListingId || submitting || !hasUnsavedDraft(state)) return;
@@ -394,13 +449,17 @@ export function SellWizard({
   async function loadModelsForMake(makeId: string) {
     if (!hasSupabaseEnv()) return;
 
+    const requestToken = modelRequestGuard.current.setTarget(`make:${makeId}`);
     setModelsLoading(true);
+    setModelsError(null);
     const supabase = getSupabaseBrowserClient();
     const { data, error: loadError } = await supabase
       .from("ff_models")
       .select("model_id,make_id,make_name,model_name,model_slug")
       .eq("make_id", makeId)
       .order("model_name", { ascending: true });
+
+    if (!modelRequestGuard.current.isCurrent(requestToken)) return;
 
     if (loadError) {
       logClientError("sell.loadModels", loadError);
@@ -410,11 +469,12 @@ export function SellWizard({
       setModelsForMake((data ?? []) as Model[]);
     }
 
-    setModelsLoading(false);
+    if (modelRequestGuard.current.isCurrent(requestToken)) setModelsLoading(false);
   }
 
   async function persistProfile() {
     if (!profile || !userId) return false;
+    const requestToken = routeRequestGuard.current.currentToken();
     const validation = validateSellerProfile(profile);
     if (validation) {
       setError(validation);
@@ -442,6 +502,8 @@ export function SellWizard({
       },
       { onConflict: "id" }
     );
+
+    if (!routeRequestGuard.current.isCurrent(requestToken)) return false;
 
     if (profileError) {
       logClientError("sell.saveProfile", profileError);
@@ -495,6 +557,7 @@ export function SellWizard({
   }
 
   async function processPhoto(photoId: string, file: File) {
+    const requestToken = routeRequestGuard.current.currentToken();
     updatePhoto(photoId, {
       processingStatus: "processing",
       statusText: "Görseller optimize ediliyor",
@@ -503,12 +566,14 @@ export function SellWizard({
 
     try {
       const prepared = await prepareImageVariants(file);
+      if (!routeRequestGuard.current.isCurrent(requestToken)) return;
       updatePhoto(photoId, {
         processingStatus: "ready",
         statusText: "Fotoğraf hazır",
         prepared
       });
     } catch (processingError) {
+      if (!routeRequestGuard.current.isCurrent(requestToken)) return;
       logClientError("sell.processPhoto", processingError);
       updatePhoto(photoId, {
         processingStatus: "failed",
@@ -572,7 +637,13 @@ export function SellWizard({
   async function saveRejected(sendForReview: boolean) {
     setError(null);
     setEditSaved(null);
-    if (!editListingId || !expectedUpdatedAt || !expectedVehicleUpdatedAt || !profile || !originalEditSnapshot) {
+    if (
+      !isCurrentEditTarget(editListingId, loadedEditListingId, routeKey, loadedRouteKey)
+      || !expectedUpdatedAt
+      || !expectedVehicleUpdatedAt
+      || !profile
+      || !originalEditSnapshot
+    ) {
       setError(sell03.listingUnavailable);
       return;
     }
@@ -584,6 +655,10 @@ export function SellWizard({
 
     setSubmitting(true);
     setPublishStatus(sell03.saveProgress);
+    const submissionToken = routeRequestGuard.current.currentToken();
+    const isCurrentSubmission = () => routeRequestGuard.current.isCurrent(submissionToken)
+      && loadedRouteKey === routeKey
+      && loadedEditListingId === editListingId;
     const supabase = getSupabaseBrowserClient();
     const raw = <K extends EditableField>(key: K, changedValue: OriginalEditSnapshot[K]) =>
       dirtyEditFields.has(key) ? changedValue : originalEditSnapshot[key];
@@ -633,6 +708,7 @@ export function SellWizard({
       p_price_negotiable: raw("priceNegotiable", state.priceNegotiable),
       p_city: raw("city", state.city)
     });
+    if (!isCurrentSubmission()) return;
     if (saveError) {
       logClientError("sell.saveRejected", saveError);
       setError(editErrorMessage(saveError, sell03));
@@ -655,6 +731,7 @@ export function SellWizard({
       const { data: resubmitRows, error: resubmitError } = await supabase.rpc("resubmit_own_listing_for_review", {
         p_listing_id: editListingId
       });
+      if (!isCurrentSubmission()) return;
       if (resubmitError) {
         logClientError("sell.resubmitRejected", resubmitError);
         setError(editErrorMessage(resubmitError, sell03, true));
@@ -877,7 +954,11 @@ export function SellWizard({
     setPublishedListingId(listingId);
   }
 
-  if (checkingAuth) return <LoadingState label="Oturum kontrol ediliyor" />;
+  if (checkingAuth || loadedRouteKey !== routeKey) return <LoadingState label="Oturum kontrol ediliyor" />;
+
+  if (mode === "editRejected" && !isCurrentEditTarget(editListingId, loadedEditListingId, routeKey, loadedRouteKey)) {
+    return <ErrorState message={error || sell03.listingUnavailable} />;
+  }
 
   if (publishedListingId) {
     return (
@@ -1202,10 +1283,10 @@ export function SellWizard({
             </Button>
           ) : (
             <div className="flex flex-wrap gap-3">
-              <Button type="button" variant="secondary" disabled={submitting || editSaved === "pending_review"} onClick={() => void saveRejected(false)}>
+              <Button type="button" variant="secondary" disabled={submitting || editSaved === "pending_review" || !isCurrentEditTarget(editListingId, loadedEditListingId, routeKey, loadedRouteKey)} onClick={() => void saveRejected(false)}>
                 {submitting ? sell03.savingButton : sell03.saveButton}
               </Button>
-              <Button type="button" variant="orange" disabled={submitting || editSaved === "pending_review"} onClick={() => void saveRejected(true)}>
+              <Button type="button" variant="orange" disabled={submitting || editSaved === "pending_review" || !isCurrentEditTarget(editListingId, loadedEditListingId, routeKey, loadedRouteKey)} onClick={() => void saveRejected(true)}>
                 {submitting ? sell03.resubmittingButton : sell03.resubmitButton}
               </Button>
             </div>
