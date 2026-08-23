@@ -37,6 +37,11 @@ const ALLOWED_VIDEO_TYPES = new Set(["video/mp4", "video/webm", "video/quicktime
 
 type OwnerLifecycleAction = "submit" | "resubmit" | "pause" | "archive";
 
+type ListingWorkflowOutcome =
+  | { kind: "mutation-failed"; error: unknown }
+  | { kind: "mutation-succeeded" }
+  | { kind: "mutation-succeeded-refresh-failed"; error: unknown };
+
 const ownerLifecycleRpc: Record<OwnerLifecycleAction, string> = {
   submit: "submit_own_listing_for_review",
   resubmit: "resubmit_own_listing_for_review",
@@ -53,6 +58,8 @@ export function MyListingsClient() {
   const [userId, setUserId] = useState<string | null>(null);
   const [actionListingId, setActionListingId] = useState<string | null>(null);
   const actionInFlight = useRef<string | null>(null);
+  const mounted = useRef(false);
+  const listingLoadGeneration = useRef(0);
   const [videoListingId, setVideoListingId] = useState<string | null>(null);
   const [videoTitle, setVideoTitle] = useState("");
   const [videoDescription, setVideoDescription] = useState("");
@@ -62,14 +69,23 @@ export function MyListingsClient() {
   const [videoSuccess, setVideoSuccess] = useState<string | null>(null);
 
   const loadListings = useCallback(async function loadListings() {
+    const loadGeneration = ++listingLoadGeneration.current;
+    const isCurrentLoad = () => mounted.current && listingLoadGeneration.current === loadGeneration;
+
+    if (!isCurrentLoad()) return;
+
+    try {
       if (!hasSupabaseEnv()) {
-        setError("Supabase ortam değişkenleri eksik.");
-        setLoading(false);
+        if (isCurrentLoad()) {
+          setError("Supabase ortam değişkenleri eksik.");
+          setLoading(false);
+        }
         return;
       }
 
       const supabase = getSupabaseBrowserClient();
       const { data: userData } = await supabase.auth.getUser();
+      if (!isCurrentLoad()) return;
       if (!userData.user) {
         router.replace(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/my-listings", locale))}`);
         return;
@@ -84,9 +100,10 @@ export function MyListingsClient() {
         .limit(50)
         .order("created_at", { ascending: false });
 
+      if (!isCurrentLoad()) return;
       if (listingError) {
         logClientError("myListings.load", listingError);
-        setError("İlanlarınız yüklenemedi. Lütfen tekrar deneyin.");
+        setError(listingLoadErrorMessage(locale));
         setLoading(false);
         return;
       }
@@ -114,6 +131,7 @@ export function MyListingsClient() {
           .order("sort_order", { ascending: true })
       ]);
 
+      if (!isCurrentLoad()) return;
       const profileRows = (profiles ?? []) as Array<{ id: string; make_id: string; model_id: string; year: number | null }>;
       const makeIds = Array.from(new Set(profileRows.map((profile) => profile.make_id).filter(Boolean)));
       const modelIds = Array.from(new Set(profileRows.map((profile) => profile.model_id).filter(Boolean)));
@@ -122,6 +140,7 @@ export function MyListingsClient() {
         modelIds.length > 0 ? supabase.schema("vehicle").from("models").select("id,name").in("id", modelIds) : Promise.resolve({ data: [] })
       ]);
 
+      if (!isCurrentLoad()) return;
       const profilesById = new Map(profileRows.map((profile) => [profile.id, profile]));
       const makesById = new Map(((makes ?? []) as Array<{ id: string; name: string }>).map((make) => [make.id, make.name]));
       const modelsById = new Map(((models ?? []) as Array<{ id: string; name: string }>).map((model) => [model.id, model.name]));
@@ -147,11 +166,25 @@ export function MyListingsClient() {
         })
       );
       setLoading(false);
+    } catch (loadError) {
+      if (isCurrentLoad()) throw loadError;
+    }
   }, [router, locale]);
 
   useEffect(() => {
-    void loadListings();
-  }, [loadListings]);
+    mounted.current = true;
+    void loadListings().catch((loadError) => {
+      if (!mounted.current) return;
+      logClientError("myListings.load", loadError);
+      setError(listingLoadErrorMessage(locale));
+      setLoading(false);
+    });
+
+    return () => {
+      mounted.current = false;
+      listingLoadGeneration.current += 1;
+    };
+  }, [loadListings, locale]);
 
   async function runListingWorkflow(listingId: string, action: OwnerLifecycleAction) {
     if (actionInFlight.current !== null) return;
@@ -161,24 +194,22 @@ export function MyListingsClient() {
     actionInFlight.current = listingId;
     setActionListingId(listingId);
     try {
-      const { error: workflowError } = await supabase.rpc(ownerLifecycleRpc[action], {
-        p_listing_id: listingId
-      });
+      const outcome = await resolveListingWorkflow(
+        () => supabase.rpc(ownerLifecycleRpc[action], { p_listing_id: listingId }),
+        loadListings
+      );
 
-      if (workflowError) {
-        logClientError("myListings.runWorkflow", workflowError);
-        setError(lifecycleErrorMessage(workflowError, locale));
-        return;
+      if (outcome.kind === "mutation-failed") {
+        logClientError("myListings.runWorkflow", outcome.error);
+        if (mounted.current) setError(lifecycleErrorMessage(outcome.error, locale));
+      } else if (outcome.kind === "mutation-succeeded-refresh-failed") {
+        logClientError("myListings.refreshAfterWorkflow", outcome.error);
+        if (mounted.current) setError(listingLoadErrorMessage(locale));
       }
-
-      await loadListings();
-    } catch (workflowError) {
-      logClientError("myListings.runWorkflow", workflowError);
-      setError(lifecycleErrorMessage(null, locale));
     } finally {
       if (actionInFlight.current === listingId) {
         actionInFlight.current = null;
-        setActionListingId(null);
+        if (mounted.current) setActionListingId(null);
       }
     }
   }
@@ -536,6 +567,29 @@ function lifecycleErrorMessage(error: unknown, locale: string) {
   if (code === "OT422") return isEnglish ? "This listing action is not valid." : "Bu ilan işlemi geçerli değil.";
 
   return isEnglish ? "Listing status could not be updated. Please try again." : "İlan durumu güncellenemedi. Lütfen tekrar deneyin.";
+}
+
+function listingLoadErrorMessage(locale: string) {
+  return locale === "en" ? "Your listings could not be loaded. Please try again." : "İlanlarınız yüklenemedi. Lütfen tekrar deneyin.";
+}
+
+export async function resolveListingWorkflow(
+  runMutation: () => PromiseLike<{ error: unknown }>,
+  refreshListings: () => Promise<void>
+): Promise<ListingWorkflowOutcome> {
+  try {
+    const { error } = await runMutation();
+    if (error) return { kind: "mutation-failed", error };
+  } catch (error) {
+    return { kind: "mutation-failed", error };
+  }
+
+  try {
+    await refreshListings();
+    return { kind: "mutation-succeeded" };
+  } catch (error) {
+    return { kind: "mutation-succeeded-refresh-failed", error };
+  }
 }
 
 function logClientError(context: string, detail: unknown) {
