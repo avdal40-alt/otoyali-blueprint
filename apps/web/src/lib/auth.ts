@@ -1,9 +1,7 @@
+import { safeNextPath } from "./auth/return-path";
+
 export function nextPathFromSearchParams(searchParams: URLSearchParams) {
-  const next = searchParams.get("next");
-  if (!next || !next.startsWith("/")) {
-    return "/";
-  }
-  return next;
+  return safeNextPath(searchParams.get("next"), "/");
 }
 
 export function loginPath(next: string) {

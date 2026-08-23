@@ -27,7 +27,6 @@ export function OtpClient() {
   const { locale, dictionary } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = safeNextPath(searchParams.get("next"), localizePath("/profile", locale));
   const [transaction, setTransaction] = useState<OtpPhoneTransaction | null>(null);
   const [token, setToken] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -97,7 +96,7 @@ export function OtpClient() {
     }
 
     clearOtpPhoneTransaction();
-    router.replace(next);
+    router.replace(safeNextPath(searchParams.get("next"), localizePath("/profile", locale)));
   }
 
   async function resend() {

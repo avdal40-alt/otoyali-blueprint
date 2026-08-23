@@ -1,5 +1,6 @@
 import type { Locale } from "@/i18n/types";
 import { t } from "@/i18n/get-dictionary";
+export { safeNextPath } from "./return-path";
 
 export type AuthErrorCategory =
   | "invalid_phone"
@@ -11,19 +12,6 @@ export type AuthErrorCategory =
   | "missing_session"
   | "network_unavailable"
   | "generic_auth_failure";
-
-export function safeNextPath(value?: string | null, fallback = "/profile") {
-  if (!value) return fallback;
-
-  try {
-    const decoded = decodeURIComponent(value);
-    if (!decoded.startsWith("/") || decoded.startsWith("//")) return fallback;
-    if (decoded.includes("://")) return fallback;
-    return decoded;
-  } catch {
-    return fallback;
-  }
-}
 
 export function authErrorMessage(category: AuthErrorCategory, locale: Locale = "tr") {
   const keyByCategory: Record<AuthErrorCategory, string> = {
