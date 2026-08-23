@@ -781,20 +781,23 @@ export function SellWizard({
     if (sendForReview) {
       if (!isCurrentSubmission()) return;
       setPublishStatus(sell03.resubmitProgress);
-      const { data: resubmitRows, error: resubmitError } = await supabase.rpc("resubmit_own_listing_for_review", {
-        p_listing_id: editListingId
-      });
-      if (!isCurrentSubmission()) return;
-      if (resubmitError) {
-        logClientError("sell.resubmitRejected", resubmitError);
-        setError(editErrorMessage(resubmitError, sell03, true));
+      let resubmitError: unknown;
+      try {
+        ({ error: resubmitError } = await supabase.rpc("resubmit_own_listing_for_review", {
+          p_listing_id: editListingId
+        }));
+      } catch (resubmitRequestError) {
+        if (!isCurrentSubmission()) return;
+        logClientError("sell.resubmitRejected", resubmitRequestError);
+        setError(editErrorMessage(null, sell03, true));
         setSubmitting(false);
         setPublishStatus(null);
         return;
       }
-      const resubmitted = Array.isArray(resubmitRows) ? resubmitRows[0] : resubmitRows;
-      if (!resubmitted || resubmitted.status !== "draft" || resubmitted.moderation_status !== "pending_review") {
-        setError(sell03.resubmitFailure);
+      if (!isCurrentSubmission()) return;
+      if (resubmitError) {
+        logClientError("sell.resubmitRejected", resubmitError);
+        setError(editErrorMessage(resubmitError, sell03, true));
         setSubmitting(false);
         setPublishStatus(null);
         return;

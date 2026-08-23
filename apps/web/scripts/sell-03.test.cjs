@@ -169,8 +169,6 @@ includesAll(wizard, [
   "const identityDirty = dirtyEditFields.has(\"makeId\")",
   "&& !modelsLoading",
   "? (canPreviewRegeneratedTitle ? generatedTitle : existingTitle)",
-  'resubmitted.status !== "draft"',
-  'resubmitted.moderation_status !== "pending_review"',
   "a.sort_order - b.sort_order",
   "existingMedia.map",
   "sell03.existingCoverPhoto",
@@ -187,7 +185,9 @@ excludesAll(wizard, [
   'alt="Mevcut ilan fotoğrafı"',
   '"Mevcut kapak fotoğrafı"',
   '"Mevcut fotoğraf"',
-  '.schema("marketplace")\n        .from("listings")\n        .select("status,moderation_status")'
+  '.schema("marketplace")\n        .from("listings")\n        .select("status,moderation_status")',
+  "resubmitRows",
+  "const resubmitted ="
 ]);
 const editActions = wizard.slice(
   wizard.indexOf('onClick={() => void saveRejected(false)}'),

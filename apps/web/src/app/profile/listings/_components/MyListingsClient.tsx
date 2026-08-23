@@ -1,7 +1,7 @@
 "use client";
 
 import type { ChangeEvent, FormEvent } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
@@ -52,6 +52,7 @@ export function MyListingsClient() {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [actionListingId, setActionListingId] = useState<string | null>(null);
+  const actionInFlight = useRef<string | null>(null);
   const [videoListingId, setVideoListingId] = useState<string | null>(null);
   const [videoTitle, setVideoTitle] = useState("");
   const [videoDescription, setVideoDescription] = useState("");
@@ -153,22 +154,33 @@ export function MyListingsClient() {
   }, [loadListings]);
 
   async function runListingWorkflow(listingId: string, action: OwnerLifecycleAction) {
+    if (actionInFlight.current !== null) return;
+
     const supabase = getSupabaseBrowserClient();
     setError(null);
+    actionInFlight.current = listingId;
     setActionListingId(listingId);
-    const { error: workflowError } = await supabase.rpc(ownerLifecycleRpc[action], {
-      p_listing_id: listingId
-    });
+    try {
+      const { error: workflowError } = await supabase.rpc(ownerLifecycleRpc[action], {
+        p_listing_id: listingId
+      });
 
-    if (workflowError) {
+      if (workflowError) {
+        logClientError("myListings.runWorkflow", workflowError);
+        setError(lifecycleErrorMessage(workflowError, locale));
+        return;
+      }
+
+      await loadListings();
+    } catch (workflowError) {
       logClientError("myListings.runWorkflow", workflowError);
-      setError(lifecycleErrorMessage(workflowError, locale));
-      setActionListingId(null);
-      return;
+      setError(lifecycleErrorMessage(null, locale));
+    } finally {
+      if (actionInFlight.current === listingId) {
+        actionInFlight.current = null;
+        setActionListingId(null);
+      }
     }
-
-    await loadListings();
-    setActionListingId(null);
   }
 
   function openVideoForm(item: MyListing) {
