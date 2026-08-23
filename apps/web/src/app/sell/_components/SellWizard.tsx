@@ -9,13 +9,14 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { SafeImage } from "@/components/ui/SafeImage";
-import { bodyTypeLabel, cityLabel, damageStateLabel, driveTypeLabel, formatMileage, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
+import { bodyTypeLabel, cityLabel, colorLabel, conditionLabel, damageStateLabel, driveTypeLabel, formatMileage, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
 import { getPriceSuggestion } from "@/lib/market-price/analysis";
 import { prepareImageVariants, type PreparedImageSet, type PreparedImageVariantName } from "@/lib/media/client-image-processing";
 import { localizePath } from "@/i18n/config";
-import { useI18n } from "@/i18n/client";
+import type { Locale } from "@/i18n/types";
 import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
 import { isCurrentEditTarget, LatestRequestGuard } from "../sell-route-state";
+import { getSellCopy, getVariantUploadStatus, type SellCopy } from "../sell-copy";
 
 type PhotoItem = {
   id: string;
@@ -112,37 +113,17 @@ const initialState: WizardState = {
   photos: []
 };
 
-const steps = ["Satıcı bilgileri", "Araç bilgileri", "Donanım ve açıklama", "Fotoğraflar", "Fiyat ve konum", "Önizleme"];
-
 const fuelOptions = ["gasoline", "diesel", "hybrid", "electric", "lpg", "other"];
 const transmissionOptions = ["automatic", "manual", "semi_automatic"];
 const bodyTypeOptions = ["sedan", "hatchback", "suv", "coupe", "wagon", "pickup", "minivan", "commercial", "other"];
 const driveTypeOptions = ["front", "rear", "4x4", "awd"];
 const damageOptions = ["unknown", "none", "painted", "replaced", "heavy_damage"];
-const colorOptions = [
-  { value: "", label: "Renk" },
-  { value: "white", label: "Beyaz" },
-  { value: "black", label: "Siyah" },
-  { value: "gray", label: "Gri" },
-  { value: "blue", label: "Mavi" },
-  { value: "red", label: "Kırmızı" },
-  { value: "silver", label: "Gümüş" }
-];
-
-const photoChecklist = [
-  "Ön 3/4 görünüm",
-  "Arka 3/4 görünüm",
-  "İç mekan",
-  "Gösterge paneli",
-  "Kilometre ekranı",
-  "Motor bölümü",
-  "Lastikler",
-  "Hasar / çizik varsa yakın çekim"
-];
+const colorOptions = ["", "white", "black", "gray", "blue", "red", "silver"];
 
 export function SellWizard({
   mode,
   editListingId,
+  locale,
   makes,
   models,
   cities,
@@ -150,12 +131,14 @@ export function SellWizard({
 }: {
   mode: SellWizardMode;
   editListingId: string | null;
+  locale: Locale;
   makes: Make[];
   models: Model[];
   cities?: City[];
   listings: HomeListing[];
 }) {
-  const { locale, dictionary } = useI18n();
+  const copy = getSellCopy(locale);
+  const steps = copy.steps;
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -198,7 +181,7 @@ export function SellWizard({
     profileRequestGuard.current.setTarget(routeKey);
     modelRequestGuard.current.setTarget(`route:${routeKey}`);
   }
-  const sell03 = dictionary.sell.sell03 as Record<string, string>;
+  const sell03 = copy;
 
   useEffect(() => {
     const routeGuard = routeRequestGuard.current;
@@ -253,7 +236,7 @@ export function SellWizard({
     async function checkAuth() {
       if (!hasSupabaseEnv()) {
         if (!isCurrentRequest()) return;
-        setError(String(dictionary.errors.missingSupabaseEnv));
+        setError(copy.missingSupabaseEnv);
         setLoadedRouteKey(routeKey);
         setCheckingAuth(false);
         return;
@@ -375,7 +358,7 @@ export function SellWizard({
     return () => {
       active = false;
     };
-  }, [dictionary.errors.missingSupabaseEnv, editListingId, locale, mode, models, routeKey, router, sell03.listingUnavailable]);
+  }, [copy.missingSupabaseEnv, editListingId, locale, mode, models, routeKey, router, sell03.listingUnavailable]);
 
   useEffect(() => {
     if (mode !== "create" || checkingAuth || loadedRouteKey !== routeKey || !userId || publishedListingId) return;
@@ -414,9 +397,9 @@ export function SellWizard({
     ? (existingTitleGenerated ? generatedTitle : existingTitle)
     : generatedTitle;
   const displayQualityScore = mode === "editRejected" ? existingQualityScore : qualityScore;
-  const profileValidation = profile ? validateSellerProfile(profile) : "Satıcı bilgilerinizi tamamlayın.";
+  const profileValidation = profile ? validateSellerProfile(profile, copy) : copy.profileIncomplete;
   const profileComplete = !profileValidation;
-  const qualityItems = getQualityItems(state, profileComplete);
+  const qualityItems = getQualityItems(state, profileComplete, copy);
   const usesFallbackCatalogOption = selectedMake?.make_name === "Diğer" || selectedModel?.model_name === "Diğer";
   const priceSuggestion = useMemo(() => {
     if (!selectedMake || !selectedModel || !state.year || !state.mileageKm) {
@@ -494,7 +477,7 @@ export function SellWizard({
 
     if (loadError) {
       logClientError("sell.loadModels", loadError);
-      setModelsError("Modeller yüklenemedi. Lütfen tekrar deneyin.");
+      setModelsError(copy.modelsLoadFailure);
       setModelsForMake([]);
     } else {
       setModelsForMake((data ?? []) as Model[]);
@@ -505,7 +488,7 @@ export function SellWizard({
 
   async function persistProfile(parentIsCurrent: () => boolean = () => true) {
     if (!profile || !userId) return false;
-    const validation = validateSellerProfile(profile);
+    const validation = validateSellerProfile(profile, copy);
     if (validation) {
       setError(validation);
       return false;
@@ -543,7 +526,7 @@ export function SellWizard({
 
     if (profileError) {
       logClientError("sell.saveProfile", profileError);
-      setError("Satıcı bilgileriniz kaydedilemedi. Lütfen tekrar deneyin.");
+      setError(copy.profileSaveFailure);
       setProfileSaving(false);
       return false;
     } else {
@@ -564,13 +547,13 @@ export function SellWizard({
     const nextFiles = Array.from(files);
     const availableSlots = maxPhotos - state.photos.length;
     if (nextFiles.length > availableSlots) {
-      setError("En fazla 20 fotoğraf yükleyebilirsiniz.");
+      setError(copy.tooManyPhotos);
       return;
     }
 
     const invalid = nextFiles.find((file) => !allowedMimeTypes.includes(file.type) || file.size > maxFileSize);
     if (invalid) {
-      setError("Fotoğraf yüklenemedi. Lütfen JPEG, PNG veya WebP formatında ve 10 MB altında dosya seçin.");
+      setError(copy.invalidPhoto);
       return;
     }
 
@@ -582,7 +565,7 @@ export function SellWizard({
       isCover: shouldSetCover && index === 0,
       processingStatus: "processing" as const,
       uploadStatus: "idle" as const,
-      statusText: "Görseller optimize ediliyor",
+      statusText: copy.optimizingImages,
       error: null,
       prepared: null
     }));
@@ -602,7 +585,7 @@ export function SellWizard({
       && photoGuard.isCurrent(requestToken);
     updatePhoto(photoId, {
       processingStatus: "processing",
-      statusText: "Görseller optimize ediliyor",
+      statusText: copy.optimizingImages,
       error: null
     });
 
@@ -611,7 +594,7 @@ export function SellWizard({
       if (!isCurrentRequest()) return;
       updatePhoto(photoId, {
         processingStatus: "ready",
-        statusText: "Fotoğraf hazır",
+        statusText: copy.photoReady,
         prepared
       });
     } catch (processingError) {
@@ -619,8 +602,8 @@ export function SellWizard({
       logClientError("sell.processPhoto", processingError);
       updatePhoto(photoId, {
         processingStatus: "failed",
-        statusText: "Fotoğraf işlenemedi",
-        error: "Görsel işlenemedi. Orijinal dosya güvenli yedek olarak kullanılacak.",
+        statusText: copy.photoProcessingFailed,
+        error: copy.photoProcessingFallback,
         prepared: null
       });
     }
@@ -820,12 +803,12 @@ export function SellWizard({
     }
 
     if (!profileComplete || !profile) {
-      setError("İlan yayınlamadan önce satıcı profilinizi tamamlayın.");
+      setError(copy.completeProfileBeforePublish);
       return;
     }
 
     if (!rulesAccepted) {
-      setError("Devam etmek için ilan yayınlama kurallarını kabul edin.");
+      setError(copy.acceptRules);
       return;
     }
 
@@ -844,7 +827,7 @@ export function SellWizard({
       && routeRequestGuard.current.isCurrent(routeToken)
       && submissionRequestGuard.current.isCurrent(submissionToken);
     setSubmitting(true);
-    setPublishStatus("Satıcı bilgileriniz kontrol ediliyor.");
+    setPublishStatus(copy.checkingSeller);
     const profileSaved = await persistProfile(isCurrentPublication);
     if (!isCurrentPublication()) return;
     if (!profileSaved) {
@@ -854,7 +837,7 @@ export function SellWizard({
     }
 
     const supabase = getSupabaseBrowserClient();
-    setPublishStatus("Araç profili oluşturuluyor.");
+    setPublishStatus(copy.creatingVehicleProfile);
 
     const { data: vehicleProfile, error: profileError } = await supabase
       .schema("vehicle")
@@ -885,12 +868,12 @@ export function SellWizard({
       logClientError("sell.createVehicleProfile", profileError);
       setSubmitting(false);
       setPublishStatus(null);
-      setError("Araç bilgileri kaydedilemedi. Lütfen tekrar deneyin.");
+      setError(copy.vehicleSaveFailure);
       return;
     }
 
     const vehicleProfileId = vehicleProfile.id as string;
-    setPublishStatus("Araç sahipliği doğrulanıyor.");
+    setPublishStatus(copy.verifyingOwnership);
     const { error: ownershipError } = await supabase.rpc("initialize_own_vehicle_profile_ownership", {
       p_vehicle_profile_id: vehicleProfileId
     });
@@ -900,11 +883,11 @@ export function SellWizard({
       logClientError("sell.createOwnership", ownershipError);
       setSubmitting(false);
       setPublishStatus(null);
-      setError("Araç sahipliği kaydedilemedi. Lütfen tekrar deneyin.");
+      setError(copy.ownershipSaveFailure);
       return;
     }
 
-    setPublishStatus("İlan taslağı oluşturuluyor.");
+    setPublishStatus(copy.creatingDraft);
     const { data: listing, error: listingError } = await supabase
       .schema("marketplace")
       .from("listings")
@@ -932,7 +915,7 @@ export function SellWizard({
       logClientError("sell.createListing", listingError);
       setSubmitting(false);
       setPublishStatus(null);
-      setError("İlan taslağı oluşturulamadı. Lütfen tekrar deneyin.");
+      setError(copy.draftCreateFailure);
       return;
     }
 
@@ -944,8 +927,8 @@ export function SellWizard({
       for (let index = 0; index < state.photos.length; index++) {
         if (!isCurrentPublication()) return;
         const photo = state.photos[index];
-        setPublishStatus(`Fotoğraflar yükleniyor (${index + 1}/${state.photos.length}).`);
-        updatePhoto(photo.id, { uploadStatus: "uploading", statusText: "Fotoğraflar yükleniyor" });
+        setPublishStatus(copy.photosUploading(index + 1, state.photos.length));
+        updatePhoto(photo.id, { uploadStatus: "uploading", statusText: copy.photosUploadingShort });
 
         try {
           const mediaUpload = await uploadPhotoMedia({
@@ -955,6 +938,7 @@ export function SellWizard({
             photo,
             sortOrder: index,
             isCurrent: isCurrentPublication,
+            copy,
             onStatus: (statusText) => {
               if (isCurrentPublication()) updatePhoto(photo.id, { uploadStatus: "uploading", statusText });
             }
@@ -962,14 +946,14 @@ export function SellWizard({
           if (!isCurrentPublication()) return;
           if (!mediaUpload) return;
           mediaRows.push(mediaUpload);
-          updatePhoto(photo.id, { uploadStatus: "ready", statusText: "Fotoğraf hazır" });
+          updatePhoto(photo.id, { uploadStatus: "ready", statusText: copy.photoReady });
         } catch (uploadError) {
           if (!isCurrentPublication()) return;
           logClientError("sell.uploadPhoto", uploadError);
-          updatePhoto(photo.id, { uploadStatus: "failed", statusText: "Fotoğraf yüklenemedi", error: "Fotoğraf yüklenemedi. Lütfen tekrar deneyin." });
+          updatePhoto(photo.id, { uploadStatus: "failed", statusText: copy.photoUploadFailure, error: copy.photoUploadFailure });
           setSubmitting(false);
           setPublishStatus(null);
-          setError("Fotoğraf yüklenemedi. Lütfen tekrar deneyin.");
+          setError(copy.photoUploadFailure);
           return;
         }
       }
@@ -985,14 +969,14 @@ export function SellWizard({
         logClientError("sell.createMedia", mediaError);
         setSubmitting(false);
         setPublishStatus(null);
-        setError("Fotoğraflar kaydedilemedi. Lütfen tekrar deneyin.");
+        setError(copy.photoSaveFailure);
         return;
       }
 
       coverMediaId = ((insertedMedia ?? []) as Array<{ id: string; is_cover: boolean }>).find((item) => item.is_cover)?.id ?? null;
     }
 
-    setPublishStatus("İlanınız moderasyon kontrolüne gönderiliyor.");
+    setPublishStatus(copy.submittingForModeration);
     const { error: finalizeError } = await supabase
       .schema("marketplace")
       .from("listings")
@@ -1007,7 +991,7 @@ export function SellWizard({
       logClientError("sell.finalizeListingContent", finalizeError);
       setSubmitting(false);
       setPublishStatus(null);
-      setError("İlanınız incelemeye gönderilemedi. Lütfen tekrar deneyin.");
+      setError(copy.submitFailure);
       return;
     }
 
@@ -1021,7 +1005,7 @@ export function SellWizard({
 
     if (submitError) {
       logClientError("sell.submitForReview", submitError);
-      setError("İlanınız incelemeye gönderilemedi. Lütfen tekrar deneyin.");
+      setError(copy.submitFailure);
       return;
     }
 
@@ -1030,7 +1014,7 @@ export function SellWizard({
     setPublishedListingId(listingId);
   }
 
-  if (checkingAuth || loadedRouteKey !== routeKey) return <LoadingState label="Oturum kontrol ediliyor" />;
+  if (checkingAuth || loadedRouteKey !== routeKey) return <LoadingState label={copy.checkingSession} />;
 
   if (mode === "editRejected" && !isCurrentEditTarget(editListingId, loadedEditListingId, routeKey, loadedRouteKey)) {
     return <ErrorState message={error || sell03.listingUnavailable} />;
@@ -1039,6 +1023,8 @@ export function SellWizard({
   if (publishedListingId) {
     return (
       <SuccessState
+        copy={copy}
+        locale={locale}
         onCreateNew={() => {
           setState({
             ...initialState,
@@ -1056,12 +1042,12 @@ export function SellWizard({
   if (profile && !profileComplete) {
     return (
       <div className="grid gap-5">
-        <Panel title="Satıcı profilinizi tamamlayın">
-          <p className="text-sm leading-6 text-oto-muted">İlan yayınlamak için yalnızca gerekli satıcı bilgilerini tamamlayın. Telefonunuz misafir kullanıcılara açık gösterilmez.</p>
-          <ProfileFields profile={profile} cities={cityOptions} onChange={updateProfile} locale={locale} />
+        <Panel title={copy.completeProfileTitle}>
+          <p className="text-sm leading-6 text-oto-muted">{copy.completeProfileBody}</p>
+          <ProfileFields profile={profile} cities={cityOptions} onChange={updateProfile} locale={locale} copy={copy} />
           {error ? <ErrorState message={error} /> : null}
           <Button type="button" onClick={saveProfile} disabled={profileSaving}>
-            {profileSaving ? "Kaydediliyor" : "Devam et"}
+            {profileSaving ? copy.savingButton : copy.continue}
           </Button>
         </Panel>
       </div>
@@ -1094,134 +1080,129 @@ export function SellWizard({
       </div>
 
       {step === 1 && profile ? (
-        <Panel title="Satıcı bilgileri">
+        <Panel title={copy.sellerInformation}>
           <div className="grid gap-3">
             <p className="text-sm leading-6 text-oto-muted">
-              Bu bilgiler ilan yönetimi ve güvenli iletişim için kullanılır. Telefon numaranız ilan kartlarında açık gösterilmez.
+              {copy.sellerInformationHelp}
             </p>
-            <ProfileFields profile={profile} cities={cityOptions} onChange={updateProfile} locale={locale} />
+            <ProfileFields profile={profile} cities={cityOptions} onChange={updateProfile} locale={locale} copy={copy} />
             {profile.sellerType === "dealer" ? (
               <p className="rounded-md bg-oto-surface px-3 py-2 text-xs font-bold leading-5 text-oto-muted">
-                Galeri doğrulaması ileride eklenecek. MVP kapsamında yalnızca galeri adı ve yetkili kişi bilgisi alınır.
+                {copy.dealerVerificationHelp}
               </p>
             ) : null}
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="secondary" onClick={saveProfile} disabled={profileSaving}>
-                {profileSaving ? "Kaydediliyor" : "Bilgileri kaydet"}
+                {profileSaving ? copy.savingButton : copy.saveInformation}
               </Button>
-              <span className="self-center text-xs font-bold text-oto-muted">Son adımda bilgiler yeniden kontrol edilir.</span>
+              <span className="self-center text-xs font-bold text-oto-muted">{copy.finalReviewHelp}</span>
             </div>
           </div>
         </Panel>
       ) : null}
 
       {step === 2 ? (
-        <Panel title="Araç bilgileri">
+        <Panel title={copy.vehicleInformation}>
           <div className="grid gap-3 md:grid-cols-2">
-            <Field label="Marka">
+            <Field label={copy.make}>
               <Select value={state.makeId} onChange={(event) => updateMake(event.target.value)}>
-                <option value="">Marka seçin</option>
+                <option value="">{copy.selectMake}</option>
                 {makes.map((make) => <option key={make.make_id} value={make.make_id}>{make.make_name}</option>)}
               </Select>
             </Field>
-            <Field label="Model">
+            <Field label={copy.model}>
               <Select value={state.modelId} onChange={(event) => update("modelId", event.target.value)} disabled={!state.makeId}>
-                <option value="">{modelsLoading ? "Modeller yükleniyor" : "Model seçin"}</option>
+                <option value="">{modelsLoading ? copy.modelsLoading : copy.selectModel}</option>
                 {filteredModels.map((model) => <option key={model.model_id} value={model.model_id}>{model.model_name}</option>)}
               </Select>
               {modelsError ? <span className="text-xs font-bold text-oto-danger">{modelsError}</span> : null}
             </Field>
-            <Field label="Yıl">
+            <Field label={copy.year}>
               <Input value={state.year} onChange={(event) => update("year", event.target.value)} placeholder="2021" inputMode="numeric" />
             </Field>
-            <Field label="Durum">
+            <Field label={copy.condition}>
               <Select value={state.condition} onChange={(event) => update("condition", event.target.value)}>
-                <option value="used">İkinci el</option>
-                <option value="new">Sıfır km</option>
+                <option value="used">{conditionLabel("used", locale)}</option>
+                <option value="new">{conditionLabel("new", locale)}</option>
               </Select>
             </Field>
           </div>
           {usesFallbackCatalogOption ? (
             <p className="rounded-md bg-oto-surface px-3 py-2 text-sm font-semibold text-oto-muted">
-              Eksik marka veya modeli destek ekibine bildirebilirsiniz.
+              {copy.missingCatalogHelp}
             </p>
           ) : null}
         </Panel>
       ) : null}
 
       {step === 3 ? (
-        <Panel title="Donanım ve açıklama">
+        <Panel title={copy.equipmentAndDescription}>
           <div className="grid gap-3 md:grid-cols-2">
-            <Field label="Kilometre">
+            <Field label={copy.mileage}>
               <Input value={state.mileageKm} onChange={(event) => update("mileageKm", event.target.value)} placeholder="45000" inputMode="numeric" />
             </Field>
-            <Field label="Yakıt tipi">
+            <Field label={copy.fuelType}>
               <Select value={state.fuelType} onChange={(event) => update("fuelType", event.target.value)}>
                 {fuelOptions.map((option) => <option key={option} value={option}>{fuelLabel(option, locale)}</option>)}
               </Select>
             </Field>
-            <Field label="Vites">
+            <Field label={copy.transmission}>
               <Select value={state.transmission} onChange={(event) => update("transmission", event.target.value)}>
                 {transmissionOptions.map((option) => <option key={option} value={option}>{transmissionLabel(option, locale)}</option>)}
               </Select>
             </Field>
-            <Field label="Kasa tipi">
+            <Field label={copy.bodyType}>
               <Select value={state.bodyType} onChange={(event) => update("bodyType", event.target.value)}>
-                <option value="">Kasa tipi seçin</option>
-                {bodyTypeOptions.map((option) => <option key={option} value={option}>{bodyTypeLabel(option)}</option>)}
+                <option value="">{copy.selectBodyType}</option>
+                {bodyTypeOptions.map((option) => <option key={option} value={option}>{bodyTypeLabel(option, locale)}</option>)}
               </Select>
             </Field>
-            <Field label="Çekiş">
+            <Field label={copy.driveType}>
               <Select value={state.driveType} onChange={(event) => update("driveType", event.target.value)}>
-                <option value="">Çekiş seçin</option>
-                {driveTypeOptions.map((option) => <option key={option} value={option}>{driveTypeLabel(option)}</option>)}
+                <option value="">{copy.selectDriveType}</option>
+                {driveTypeOptions.map((option) => <option key={option} value={option}>{driveTypeLabel(option, locale)}</option>)}
               </Select>
             </Field>
-            <Field label="Renk">
+            <Field label={copy.color}>
               <Select value={state.color} onChange={(event) => update("color", event.target.value)}>
-                {colorOptions.map((option) => <option key={option.label} value={option.value}>{option.label}</option>)}
+                {colorOptions.map((option) => <option key={option || "empty"} value={option}>{option ? colorLabel(option, locale) : copy.colors.empty}</option>)}
               </Select>
             </Field>
             {state.fuelType !== "electric" ? (
-              <Field label="Motor hacmi">
+              <Field label={copy.engineDisplacement}>
                 <Input value={state.engineVolumeL} onChange={(event) => update("engineVolumeL", event.target.value)} placeholder="1.6" inputMode="decimal" />
-                {error?.startsWith("Motor hacmi") ? <span className="text-xs font-bold text-oto-danger">{error}</span> : null}
+                {error === copy.combustionDisplacement ? <span className="text-xs font-bold text-oto-danger">{error}</span> : null}
               </Field>
             ) : null}
-            <Field label="Hasar durumu">
+            <Field label={copy.damageState}>
               <Select value={state.damageState} onChange={(event) => update("damageState", event.target.value)}>
-                {damageOptions.map((option) => <option key={option} value={option}>{damageStateLabel(option)}</option>)}
+                {damageOptions.map((option) => <option key={option} value={option}>{damageStateLabel(option, locale)}</option>)}
               </Select>
             </Field>
-            <Field label="Sahip sayısı">
+            <Field label={copy.ownerCount}>
               <Input value={state.ownerCount} onChange={(event) => update("ownerCount", event.target.value)} placeholder="1" inputMode="numeric" />
             </Field>
           </div>
-          <p className="text-xs font-semibold leading-5 text-oto-muted">Hasar bilgileri satıcı beyanıdır; OTOYALI doğrulama iddiasında bulunmaz.</p>
+          <p className="text-xs font-semibold leading-5 text-oto-muted">{copy.damageDisclaimer}</p>
           <div className="grid gap-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <label className="text-xs font-bold text-oto-muted">Açıklama</label>
-              <span className="rounded-full bg-oto-surface px-3 py-1 text-xs font-black text-oto-muted">AI ile açıklama hazırla · Yakında</span>
+              <label className="text-xs font-bold text-oto-muted">{copy.description}</label>
+              <span className="rounded-full bg-oto-surface px-3 py-1 text-xs font-black text-oto-muted">{copy.aiDescriptionSoon}</span>
             </div>
             <Textarea
               value={state.description}
               onChange={(event) => update("description", event.target.value)}
-              placeholder="Örnek: Aracım düzenli bakımlı, iç-dış kondisyonu iyi. Bilinen hasar ve değişen parçalar açıklamada belirtilmiştir. Ek donanımlar ve satış nedeni hakkında kısa bilgi paylaşabilirsiniz."
+              placeholder={copy.descriptionPlaceholder}
             />
             <div className="grid gap-1 text-xs font-semibold text-oto-muted sm:grid-cols-2">
-              <span>Aracın genel durumu</span>
-              <span>Bakım geçmişi</span>
-              <span>Bilinen hasar / değişen parçalar</span>
-              <span>Donanım ve aksesuarlar</span>
-              <span>Satış nedeni</span>
-              <span>Takas düşünceniz</span>
+              {copy.descriptionPrompts.map((prompt) => <span key={prompt}>{prompt}</span>)}
             </div>
           </div>
         </Panel>
       ) : null}
 
       {step === 4 ? (
-        <Panel title="Fotoğraflar">
+        <Panel title={copy.photos}>
           {existingMedia.length > 0 ? (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {existingMedia.map((media) => (
@@ -1233,51 +1214,51 @@ export function SellWizard({
             </div>
           ) : null}
           {mode === "create" ? <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
-            <h3 className="text-sm font-black text-oto-text">Fotoğraf rehberi</h3>
+            <h3 className="text-sm font-black text-oto-text">{copy.photoGuide}</h3>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              {photoChecklist.map((item) => (
+              {copy.photoChecklist.map((item) => (
                 <div key={item} className="rounded-md bg-white px-3 py-2 text-xs font-bold text-oto-muted">{item}</div>
               ))}
             </div>
           </div> : null}
           {mode === "create" ? <label className="grid cursor-pointer gap-2 rounded-oto border border-dashed border-oto-border bg-white p-5 text-center">
-            <span className="text-base font-black text-oto-text">Fotoğraf ekle</span>
+            <span className="text-base font-black text-oto-text">{copy.addPhoto}</span>
             <span className="text-sm font-semibold leading-6 text-oto-muted">
-              JPEG, PNG veya WebP kullanın. Görseller large, card ve thumb boyutlarına optimize edilir. Her fotoğraf en fazla 10 MB olabilir.
+              {copy.photoRequirements}
             </span>
             <Input className="mx-auto max-w-md" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => handlePhotoSelect(event.target.files)} />
           </label> : null}
           {mode === "editRejected" ? (
             <p className="rounded-md bg-oto-surface p-3 text-sm font-semibold text-oto-muted">{sell03.mediaPreserved}</p>
           ) : (
-            <p className="text-sm text-oto-muted">{state.photos.length}/{maxPhotos} fotoğraf.</p>
+            <p className="text-sm text-oto-muted">{copy.photoCount(state.photos.length, maxPhotos)}</p>
           )}
           {mode === "create" && state.photos.length > 0 && state.photos.length < 3 ? (
-            <p className="rounded-md bg-amber-50 p-3 text-sm font-semibold text-amber-700">En az 3 fotoğraf eklemeniz önerilir.</p>
+            <p className="rounded-md bg-amber-50 p-3 text-sm font-semibold text-amber-700">{copy.minimumPhotosHelp}</p>
           ) : null}
           {mode === "create" && state.photos.length > 0 ? (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {state.photos.map((photo) => (
                 <div key={photo.id} className="overflow-hidden rounded-oto border border-oto-border bg-white">
                   <div className="aspect-[4/3]">
-                    <SafeImage src={photo.previewUrl} alt="İlan fotoğrafı" />
+                    <SafeImage src={photo.previewUrl} alt={copy.listingPhotoAlt} />
                   </div>
                   <div className="grid gap-2 p-3">
-                    <span className="text-xs font-bold text-oto-muted">{photo.isCover ? "Kapak fotoğrafı" : photo.file.name}</span>
+                    <span className="text-xs font-bold text-oto-muted">{photo.isCover ? copy.coverPhoto : photo.file.name}</span>
                     <span className={photo.processingStatus === "failed" || photo.uploadStatus === "failed" ? "rounded-full bg-red-50 px-3 py-1 text-xs font-black text-oto-danger" : "rounded-full bg-oto-surface px-3 py-1 text-xs font-black text-oto-muted"}>
                       {photo.statusText}
                     </span>
                     {photo.prepared ? (
                       <span className="text-xs font-semibold text-oto-muted">
-                        Large {Math.round(photo.prepared.variants.large.sizeBytes / 1024)} KB · Card {Math.round(photo.prepared.variants.card.sizeBytes / 1024)} KB · Thumb {Math.round(photo.prepared.variants.thumb.sizeBytes / 1024)} KB
+                        {copy.variantLabels.large} {Math.round(photo.prepared.variants.large.sizeBytes / 1024)} KB · {copy.variantLabels.card} {Math.round(photo.prepared.variants.card.sizeBytes / 1024)} KB · {copy.variantLabels.thumb} {Math.round(photo.prepared.variants.thumb.sizeBytes / 1024)} KB
                       </span>
                     ) : null}
                     {photo.error ? <span className="text-xs font-semibold leading-5 text-oto-danger">{photo.error}</span> : null}
                     <div className="grid grid-cols-2 gap-2">
-                      <Button type="button" variant="secondary" onClick={() => setCover(photo.id)} disabled={photo.isCover}>Kapak yap</Button>
-                      <Button type="button" variant="ghost" onClick={() => removePhoto(photo.id)}>Kaldır</Button>
+                      <Button type="button" variant="secondary" onClick={() => setCover(photo.id)} disabled={photo.isCover}>{copy.makeCover}</Button>
+                      <Button type="button" variant="ghost" onClick={() => removePhoto(photo.id)}>{copy.remove}</Button>
                       {photo.processingStatus === "failed" ? (
-                        <Button type="button" variant="secondary" onClick={() => retryPhotoProcessing(photo)}>Tekrar dene</Button>
+                        <Button type="button" variant="secondary" onClick={() => retryPhotoProcessing(photo)}>{copy.tryAgain}</Button>
                       ) : null}
                     </div>
                   </div>
@@ -1289,64 +1270,64 @@ export function SellWizard({
       ) : null}
 
       {step === 5 ? (
-        <Panel title="Fiyat ve konum">
+        <Panel title={copy.priceAndLocation}>
           <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h3 className="text-base font-black text-oto-text">Plaka/VIN ile doldur</h3>
-                <p className="mt-1 text-sm font-semibold text-oto-muted">Araç bilgilerini otomatik doldurma yakında.</p>
+                <h3 className="text-base font-black text-oto-text">{copy.fillFromPlate}</h3>
+                <p className="mt-1 text-sm font-semibold text-oto-muted">{copy.automaticFillSoon}</p>
               </div>
-              <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-oto-muted">Yakında</span>
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-oto-muted">{copy.comingSoon}</span>
             </div>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
-            <Field label="Fiyat">
+            <Field label={copy.price}>
               <Input value={state.priceAmount} onChange={(event) => update("priceAmount", event.target.value)} placeholder="1250000" inputMode="numeric" />
             </Field>
-            <Field label="Para birimi">
+            <Field label={copy.currency}>
               <Select value={state.currency} onChange={(event) => update("currency", event.target.value)}>
                 <option value="TRY">TRY</option>
               </Select>
             </Field>
-            <Field label="Şehir">
+            <Field label={copy.city}>
               <Select value={state.city} onChange={(event) => update("city", event.target.value)}>
-                <option value="">Şehir seçin</option>
+                <option value="">{copy.selectCity}</option>
                 {cityOptions.map((city) => <option key={city} value={city}>{cityLabel(city, locale)}</option>)}
               </Select>
             </Field>
           </div>
           <label className="flex items-center gap-2 text-sm font-semibold text-oto-muted">
             <input type="checkbox" checked={state.priceNegotiable} onChange={(event) => update("priceNegotiable", event.target.checked)} />
-            Pazarlık var
+            {copy.negotiable}
           </label>
-          <PriceSuggestionCard suggestion={priceSuggestion} currency={state.currency} locale={locale} />
+          <PriceSuggestionCard suggestion={priceSuggestion} currency={state.currency} locale={locale} copy={copy} />
         </Panel>
       ) : null}
 
       {step === 6 ? (
-        <Panel title="Önizleme ve yayınla">
+        <Panel title={copy.previewAndPublish}>
           <div className="overflow-hidden rounded-oto border border-oto-border bg-white">
             <div className="aspect-[4/3] bg-oto-surface">
-              <SafeImage src={(mode === "create" ? state.photos.find((photo) => photo.isCover)?.previewUrl : null) || existingMedia.find((media) => media.is_cover)?.url || existingMedia[0]?.url} alt={displayTitle || "İlan önizleme"} />
+              <SafeImage src={(mode === "create" ? state.photos.find((photo) => photo.isCover)?.previewUrl : null) || existingMedia.find((media) => media.is_cover)?.url || existingMedia[0]?.url} alt={displayTitle || copy.listingPreviewAlt} />
             </div>
             <div className="grid gap-3 p-4">
-              <h2 className="text-xl font-black text-oto-text" data-title-generated={mode === "editRejected" ? existingTitleGenerated : true}>{displayTitle || "İlan başlığı"}</h2>
+              <h2 className="text-xl font-black text-oto-text" data-title-generated={mode === "editRejected" ? existingTitleGenerated : true}>{displayTitle || copy.listingTitleFallback}</h2>
               <p className="text-2xl font-black text-oto-text">{formatPrice(Number(state.priceAmount || 0), state.currency, locale)}</p>
               <p className="text-sm font-semibold text-oto-muted">
                 {cityLabel(state.city, locale)} · {formatMileage(Number(state.mileageKm || 0), locale)} · {fuelLabel(state.fuelType, locale)} · {transmissionLabel(state.transmission, locale)} · {sellerTypeLabel(profile?.sellerType ?? state.sellerType, locale)}
               </p>
-              <QualityScore score={displayQualityScore ?? 0} items={qualityItems} />
-              <p className="text-sm leading-6 text-oto-muted">{state.description || "Satıcı açıklama eklememiş."}</p>
+              <QualityScore score={displayQualityScore ?? 0} items={qualityItems} copy={copy} />
+              <p className="text-sm leading-6 text-oto-muted">{state.description || copy.noSellerDescription}</p>
             </div>
           </div>
           {mode === "create" ? <label className="flex items-start gap-3 rounded-oto border border-oto-border bg-oto-surface p-4 text-sm font-semibold leading-6 text-oto-muted">
             <input className="mt-1" type="checkbox" checked={rulesAccepted} onChange={(event) => setRulesAccepted(event.target.checked)} />
             <span>
-              İlanı yayınlayarak{" "}
-              <Link href="/terms" className="font-black text-oto-blue">Kullanım Şartları</Link>
-              {" "}ve{" "}
-              <Link href="/listing-rules" className="font-black text-oto-blue">İlan Yayınlama Kuralları</Link>
-              {" "}metinlerini kabul etmiş olursunuz.
+              {copy.agreementPrefix}{" "}
+              <Link href={localizePath("/terms", locale)} className="font-black text-oto-blue">{copy.terms}</Link>
+              {" "}{copy.agreementMiddle}{" "}
+              <Link href={localizePath("/listing-rules", locale)} className="font-black text-oto-blue">{copy.listingRules}</Link>
+              {" "}{copy.agreementSuffix}
             </span>
           </label> : null}
           {editSaved === "rejected" ? <p className="rounded-md bg-emerald-50 p-3 text-sm font-bold text-emerald-700">{sell03.saveSuccess}</p> : null}
@@ -1355,7 +1336,7 @@ export function SellWizard({
           {publishStatus ? <p className="rounded-md bg-oto-surface p-3 text-sm font-bold text-oto-muted">{publishStatus}</p> : null}
           {mode === "create" ? (
             <Button type="submit" variant="orange" disabled={submitting}>
-              {submitting ? "Yayınlanıyor" : "İlanı yayınla"}
+              {submitting ? copy.publishing : copy.publish}
             </Button>
           ) : (
             <div className="flex flex-wrap gap-3">
@@ -1373,9 +1354,9 @@ export function SellWizard({
       {error && step !== 6 ? <ErrorState message={error} /> : null}
 
       <div className="flex justify-between gap-3">
-        <Button type="button" variant="secondary" onClick={() => setStep((current) => Math.max(1, current - 1))} disabled={step === 1 || submitting}>Geri</Button>
+        <Button type="button" variant="secondary" onClick={() => setStep((current) => Math.max(1, current - 1))} disabled={step === 1 || submitting}>{copy.back}</Button>
         {step < steps.length ? (
-          <Button type="button" onClick={goNext}>Devam</Button>
+          <Button type="button" onClick={goNext}>{copy.next}</Button>
         ) : null}
       </div>
     </form>
@@ -1386,35 +1367,37 @@ function ProfileFields({
   profile,
   cities,
   onChange,
-  locale
+  locale,
+  copy
 }: {
   profile: SellerProfileState;
   cities: string[];
   onChange: <K extends keyof SellerProfileState>(key: K, value: SellerProfileState[K]) => void;
   locale: "tr" | "en";
+  copy: SellCopy;
 }) {
   const isDealer = profile.sellerType === "dealer";
 
   return (
     <div className="grid gap-3 md:grid-cols-2">
-      <Field label="Satıcı türü">
+      <Field label={copy.sellerType}>
         <Select value={profile.sellerType} onChange={(event) => onChange("sellerType", event.target.value)}>
-          <option value="private">Bireysel</option>
-          <option value="dealer">Galeri</option>
+          <option value="private">{sellerTypeLabel("private", locale)}</option>
+          <option value="dealer">{sellerTypeLabel("dealer", locale)}</option>
         </Select>
       </Field>
-      <Field label="Telefon">
+      <Field label={copy.phone}>
         <Input value={profile.phone} onChange={(event) => onChange("phone", event.target.value)} placeholder="+..." />
       </Field>
-      <Field label={isDealer ? "Yetkili kişi adı" : "Adınız"}>
-        <Input value={profile.fullName} onChange={(event) => onChange("fullName", event.target.value)} placeholder={isDealer ? "Yetkili kişi adı" : "Adınız"} />
+      <Field label={isDealer ? copy.authorizedPersonName : copy.yourName}>
+        <Input value={profile.fullName} onChange={(event) => onChange("fullName", event.target.value)} placeholder={isDealer ? copy.authorizedPersonName : copy.yourName} />
       </Field>
-      <Field label={isDealer ? "Galeri adı" : "Görünen ad"}>
-        <Input value={profile.displayName} onChange={(event) => onChange("displayName", event.target.value)} placeholder={isDealer ? "Galeri adı" : "Görünen ad"} />
+      <Field label={isDealer ? copy.dealerName : copy.displayName}>
+        <Input value={profile.displayName} onChange={(event) => onChange("displayName", event.target.value)} placeholder={isDealer ? copy.dealerName : copy.displayName} />
       </Field>
-      <Field label="Şehir">
+      <Field label={copy.city}>
         <Select value={profile.city} onChange={(event) => onChange("city", event.target.value)}>
-          <option value="">Şehir seçin</option>
+          <option value="">{copy.selectCity}</option>
           {cities.map((city) => <option key={city} value={city}>{cityLabel(city, locale)}</option>)}
         </Select>
       </Field>
@@ -1434,36 +1417,38 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 function PriceSuggestionCard({
   suggestion,
   currency,
-  locale
+  locale,
+  copy
 }: {
   suggestion: ReturnType<typeof getPriceSuggestion>;
   currency: string;
   locale: "tr" | "en";
+  copy: SellCopy;
 }) {
   return (
     <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
-      <h3 className="text-base font-black text-oto-text">Tahmini piyasa fiyatı</h3>
+      <h3 className="text-base font-black text-oto-text">{copy.estimatedMarketPrice}</h3>
       {suggestion ? (
         <div className="mt-3 grid gap-2 text-sm font-semibold text-oto-muted">
-          <p>{locale === "en" ? "Similar listing range" : "Benzer ilan aralığı"}: {formatPrice(suggestion.minPrice, currency, locale)} - {formatPrice(suggestion.maxPrice, currency, locale)}</p>
-          <p>{locale === "en" ? "Suggested price for a faster sale" : "Daha hızlı satış için önerilen fiyat"}: {formatPrice(suggestion.averagePrice, currency, locale)}</p>
-          <p className="text-xs">{suggestion.comparableCount} benzer ilan üzerinden hesaplandı. Garanti edilen satış fiyatı değildir.</p>
+          <p>{copy.similarListingRange}: {formatPrice(suggestion.minPrice, currency, locale)} - {formatPrice(suggestion.maxPrice, currency, locale)}</p>
+          <p>{copy.fasterSalePrice}: {formatPrice(suggestion.averagePrice, currency, locale)}</p>
+          <p className="text-xs">{copy.comparableBasis(suggestion.comparableCount)}</p>
         </div>
       ) : (
         <p className="mt-3 text-sm font-semibold leading-6 text-oto-muted">
-          Yeterli benzer ilan yok. Fiyat önerisi yakında daha güçlü olacak.
+          {copy.noPriceSuggestion}
         </p>
       )}
     </div>
   );
 }
 
-function QualityScore({ score, items }: { score: number; items: QualityItem[] }) {
+function QualityScore({ score, items, copy }: { score: number; items: QualityItem[]; copy: SellCopy }) {
   return (
     <div className="rounded-oto bg-oto-surface p-4">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-black text-oto-text">İlan kalitesi: {score}%</p>
-        <span className="text-xs font-bold text-oto-muted">{score >= 80 ? "Çok iyi" : score >= 55 ? "İyi" : "Eksik"}</span>
+        <p className="text-sm font-black text-oto-text">{copy.quality}: {score}%</p>
+        <span className="text-xs font-bold text-oto-muted">{score >= 80 ? copy.qualityVeryGood : score >= 55 ? copy.qualityGood : copy.qualityIncomplete}</span>
       </div>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
         <div className="h-full rounded-full bg-oto-blue" style={{ width: `${score}%` }} />
@@ -1471,12 +1456,12 @@ function QualityScore({ score, items }: { score: number; items: QualityItem[] })
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {items.map((item) => (
           <span key={item.label} className={item.complete ? "rounded-md bg-white px-3 py-2 text-xs font-bold text-oto-success" : "rounded-md bg-white px-3 py-2 text-xs font-bold text-oto-muted"}>
-            {item.complete ? "Tamamlandı" : "Eksik"} · {item.label}
+            {item.complete ? copy.complete : copy.incomplete} · {item.label}
           </span>
         ))}
       </div>
       <p className="mt-3 text-sm leading-6 text-oto-muted">
-        Bu skor ilan tamlığı içindir; araç doğrulaması veya güven raporu anlamına gelmez.
+        {copy.qualityDisclaimer}
       </p>
     </div>
   );
@@ -1491,17 +1476,17 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function SuccessState({ onCreateNew }: { onCreateNew: () => void }) {
+function SuccessState({ onCreateNew, copy, locale }: { onCreateNew: () => void; copy: SellCopy; locale: "tr" | "en" }) {
   return (
-    <Panel title="İlanınız alındı">
+    <Panel title={copy.successTitle}>
       <p className="text-sm leading-6 text-oto-muted">
-        İlanınız moderasyon kontrolüne gönderildi. Onaylandıktan sonra yayına alınacaktır.
+        {copy.successBody}
       </p>
       <div className="grid gap-3 rounded-oto border border-oto-border bg-oto-surface p-4 sm:grid-cols-2">
-        <ButtonLink href="/my-listings">İlanımı görüntüle</ButtonLink>
-        <ButtonLink href="/my-listings" variant="secondary">İlanlarım</ButtonLink>
-        <ButtonLink href="/" variant="secondary">Ana sayfaya dön</ButtonLink>
-        <Button type="button" variant="orange" onClick={onCreateNew}>Yeni ilan oluştur</Button>
+        <ButtonLink href={localizePath("/my-listings", locale)}>{copy.viewListing}</ButtonLink>
+        <ButtonLink href={localizePath("/my-listings", locale)} variant="secondary">{copy.myListings}</ButtonLink>
+        <ButtonLink href={localizePath("/", locale)} variant="secondary">{copy.backHome}</ButtonLink>
+        <Button type="button" variant="orange" onClick={onCreateNew}>{copy.createNew}</Button>
       </div>
     </Panel>
   );
@@ -1535,51 +1520,51 @@ function calculateQualityScore(state: WizardState) {
   return Math.min(score, 100);
 }
 
-function getQualityItems(state: WizardState, profileComplete: boolean): QualityItem[] {
+function getQualityItems(state: WizardState, profileComplete: boolean, copy: SellCopy): QualityItem[] {
   return [
-    { label: "Satıcı bilgileri", complete: profileComplete },
-    { label: "Araç bilgileri", complete: Boolean(state.makeId && state.modelId && state.year && validYear(state.year)) },
-    { label: "Fiyat girildi", complete: Number(state.priceAmount) > 0 },
-    { label: "Şehir seçildi", complete: Boolean(state.city) },
-    { label: "Açıklama eklendi", complete: state.description.trim().length >= 60 },
-    { label: "En az 3 fotoğraf", complete: state.photos.length >= 3 },
-    { label: "Kapak fotoğrafı seçildi", complete: state.photos.some((photo) => photo.isCover) },
-    { label: "Hasar bilgisi açıklandı", complete: Boolean(state.damageState && state.damageState !== "unknown") }
+    { label: copy.qualityItems[0], complete: profileComplete },
+    { label: copy.qualityItems[1], complete: Boolean(state.makeId && state.modelId && state.year && validYear(state.year)) },
+    { label: copy.qualityItems[2], complete: Number(state.priceAmount) > 0 },
+    { label: copy.qualityItems[3], complete: Boolean(state.city) },
+    { label: copy.qualityItems[4], complete: state.description.trim().length >= 60 },
+    { label: copy.qualityItems[5], complete: state.photos.length >= 3 },
+    { label: copy.qualityItems[6], complete: state.photos.some((photo) => photo.isCover) },
+    { label: copy.qualityItems[7], complete: Boolean(state.damageState && state.damageState !== "unknown") }
   ];
 }
 
-function validateSellerProfile(profile: SellerProfileState) {
-  if (!profile.sellerType) return "Satıcı türünü seçin.";
-  if (!profile.phone.trim()) return "Telefon bilginiz eksik. Lütfen tekrar giriş yapın.";
-  if (!profile.city) return "Şehir seçin.";
-  if (!profile.fullName.trim()) return profile.sellerType === "dealer" ? "Yetkili kişi adını girin." : "Adınızı girin.";
-  if (!profile.displayName.trim()) return profile.sellerType === "dealer" ? "Galeri adını girin." : "Görünen adınızı girin.";
+function validateSellerProfile(profile: SellerProfileState, copy: SellCopy) {
+  if (!profile.sellerType) return copy.selectSellerType;
+  if (!profile.phone.trim()) return copy.missingPhone;
+  if (!profile.city) return copy.requiredCity;
+  if (!profile.fullName.trim()) return profile.sellerType === "dealer" ? copy.enterAuthorizedPerson : copy.enterYourName;
+  if (!profile.displayName.trim()) return profile.sellerType === "dealer" ? copy.enterDealerName : copy.enterDisplayName;
   return null;
 }
 
-function validateStep(step: number, state: WizardState, sell03?: Record<string, string>) {
+function validateStep(step: number, state: WizardState, copy: SellCopy) {
   if (step === 2) {
-    if (!state.makeId || !state.modelId || !state.year) return "Marka, model ve yıl alanlarını doldurun.";
-    if (!validYear(state.year)) return "Geçerli bir yıl girin.";
+    if (!state.makeId || !state.modelId || !state.year) return copy.requiredVehicleIdentity;
+    if (!validYear(state.year)) return copy.invalidYear;
   }
   if (step === 3) {
-    if (state.condition === "used" && !state.mileageKm) return "İkinci el araçlar için kilometre girin.";
-    if (state.mileageKm && Number(state.mileageKm) < 0) return "Geçerli bir kilometre girin.";
+    if (state.condition === "used" && !state.mileageKm) return copy.usedMileageRequired;
+    if (state.mileageKm && Number(state.mileageKm) < 0) return copy.invalidMileage;
     if (state.fuelType !== "electric" && (!state.engineVolumeL || !Number.isFinite(Number(state.engineVolumeL)) || Number(state.engineVolumeL) <= 0)) {
-      return sell03?.combustionDisplacement ?? "Motor hacmi benzinli, dizel, LPG ve hibrit araçlar için zorunludur.";
+      return copy.combustionDisplacement;
     }
     if (state.fuelType === "electric" && state.engineVolumeL) {
-      return sell03?.electricDisplacement ?? "Tam elektrikli araçlarda motor hacmi boş bırakılmalıdır.";
+      return copy.electricDisplacement;
     }
   }
   if (step === 5) {
-    if (Number(state.priceAmount) <= 0) return "Geçerli bir fiyat girin.";
-    if (!state.city) return "Şehir seçin.";
+    if (Number(state.priceAmount) <= 0) return copy.invalidPrice;
+    if (!state.city) return copy.requiredCity;
   }
   return null;
 }
 
-function validateForPublish(state: WizardState, sell03?: Record<string, string>) {
+function validateForPublish(state: WizardState, copy: SellCopy) {
   const unsignedInteger = /^(0|[1-9][0-9]*)$/;
   const priceValid = /^[1-9][0-9]*$/.test(state.priceAmount)
     && BigInt(state.priceAmount) <= 9223372036854775807n;
@@ -1593,12 +1578,12 @@ function validateForPublish(state: WizardState, sell03?: Record<string, string>)
       && Number(state.engineVolumeL) > 0
       && Number(state.engineVolumeL) <= 999.9;
   if (!validYear(state.year) || !mileageValid || !priceValid || !ownerCountValid || !engineValid) {
-    return sell03?.invalidVehicleFields ?? "Araç alanlarını kontrol edin.";
+    return copy.invalidVehicleFields;
   }
-  return validateStep(2, state, sell03) || validateStep(3, state, sell03) || validateStep(5, state, sell03);
+  return validateStep(2, state, copy) || validateStep(3, state, copy) || validateStep(5, state, copy);
 }
 
-function editErrorMessage(error: unknown, sell03: Record<string, string>, resubmit = false) {
+function editErrorMessage(error: unknown, sell03: SellCopy, resubmit = false) {
   const code = error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code ?? "") : "";
   if (code === "OT409") return sell03.staleConflict;
   if (code === "OT422") return sell03.invalidVehicleFields;
@@ -1620,6 +1605,7 @@ async function uploadPhotoMedia({
   photo,
   sortOrder,
   isCurrent,
+  copy,
   onStatus
 }: {
   supabase: ReturnType<typeof getSupabaseBrowserClient>;
@@ -1628,6 +1614,7 @@ async function uploadPhotoMedia({
   photo: PhotoItem;
   sortOrder: number;
   isCurrent: () => boolean;
+  copy: SellCopy;
   onStatus: (statusText: string) => void;
 }) {
   const mediaId = crypto.randomUUID();
@@ -1636,7 +1623,7 @@ async function uploadPhotoMedia({
 
   for (const item of variants) {
     if (!isCurrent()) return null;
-    onStatus(`${variantStatusLabel(item.name)} yükleniyor`);
+    onStatus(getVariantUploadStatus(copy, item.name));
     const path = `${userId}/${vehicleProfileId}/${mediaId}/${item.name}/${item.name}.${item.extension}`;
     const { error } = await supabase.storage.from("listing-media").upload(path, item.file, {
       cacheControl: "31536000",
@@ -1715,17 +1702,6 @@ function getUploadVariants(photo: PhotoItem) {
       required: true
     }
   ];
-}
-
-function variantStatusLabel(name: PreparedImageVariantName) {
-  const labels: Record<PreparedImageVariantName, string> = {
-    original: "Orijinal görsel",
-    large: "Detay görseli",
-    card: "Kart görseli",
-    thumb: "Küçük önizleme"
-  };
-
-  return labels[name];
 }
 
 function extensionFromMimeType(mimeType: string, fileName: string) {

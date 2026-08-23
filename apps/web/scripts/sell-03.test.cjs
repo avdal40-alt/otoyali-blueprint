@@ -12,6 +12,7 @@ const listings = read(projectRoot, "src", "app", "profile", "listings", "_compon
 const security = read(repoRoot, "supabase", "migrations", "20260721140000_security01_listing_lifecycle_hardening.sql");
 const tr = read(projectRoot, "src", "i18n", "dictionaries", "tr.ts");
 const en = read(projectRoot, "src", "i18n", "dictionaries", "en.ts");
+const sellCopy = read(projectRoot, "src", "app", "sell", "sell-copy.ts");
 
 function includesAll(source, values) {
   for (const value of values) assert.ok(source.includes(value), `Expected source to include: ${value}`);
@@ -276,11 +277,10 @@ for (const key of [
   "rejectionReasonHeading", "mediaPreserved", "electricDisplacement",
   "existingPhotoAlt", "existingCoverPhoto", "existingPhoto"
 ]) {
-  assert.ok(tr.includes(`${key}:`), `Turkish SELL-03 key missing: ${key}`);
-  assert.ok(en.includes(`${key}:`), `English SELL-03 key missing: ${key}`);
+  assert.ok(sellCopy.includes(`${key}:`), `SELL-03 localized copy key missing: ${key}`);
 }
-assert.ok(en.includes("Photo editing is not currently available in this edit flow."));
-assert.ok(tr.includes("fotoğraf düzenleme şu anda kullanılamıyor."));
+assert.ok(sellCopy.includes("Photo editing is not currently available in this edit flow."));
+assert.ok(sellCopy.includes("fotoğraf düzenleme şu anda kullanılamıyor."));
 assert.ok(en.includes("editRejected:"), "English rejected edit link key missing");
 assert.ok(tr.includes("editRejected:"), "Turkish rejected edit link key missing");
 

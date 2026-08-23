@@ -179,29 +179,7 @@ export const en = {
     agreementMiddle: "and",
     agreementSuffix: ".",
     listingRules: "Listing Rules",
-    terms: "Terms of Use",
-    sell03: {
-      listingUnavailable: "No editable listing was found, or the listing is no longer eligible for editing.",
-      authenticationRequired: "Log in to edit this listing.",
-      staleConflict: "The listing changed while you were editing. Refresh the page and try again.",
-      invalidVehicleFields: "Check the vehicle fields; engine displacement may be empty only for fully electric vehicles.",
-      saveProgress: "Saving changes.",
-      saveSuccess: "Changes saved. The listing remains rejected and hidden.",
-      resubmitProgress: "Sending your listing for review again.",
-      resubmitSuccess: "Changes saved. The listing is awaiting review and remains hidden until approved.",
-      resubmitFailure: "The listing could not be sent for review. Please try again.",
-      saveButton: "Save changes",
-      savingButton: "Saving",
-      resubmitButton: "Save and send for review",
-      resubmittingButton: "Sending",
-      rejectionReasonHeading: "Reason for rejection",
-      mediaPreserved: "Existing photos, their order, and the cover photo will remain unchanged. Photo editing is not currently available in this edit flow.",
-      existingPhotoAlt: "Existing listing photo",
-      existingCoverPhoto: "Existing cover photo",
-      existingPhoto: "Existing photo",
-      electricDisplacement: "Engine displacement must be empty for fully electric vehicles.",
-      combustionDisplacement: "Engine displacement is required for gasoline, diesel, LPG, and hybrid vehicles."
-    }
+    terms: "Terms of Use"
   },
   profile: {
     title: "Profile",

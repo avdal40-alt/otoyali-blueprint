@@ -17,6 +17,7 @@ import { canPublishVertical, getPublishVerticalFromSearchParam } from "@/lib/mar
 import { getMarketplaceVertical } from "@/lib/marketplace/verticals";
 import { SellWizard } from "./_components/SellWizard";
 import { getSellEditTarget } from "./sell-route-state";
+import { getSellCopy } from "./sell-copy";
 
 export default async function SellPage({
   searchParams
@@ -25,6 +26,7 @@ export default async function SellPage({
 }) {
   const locale = getRequestLocale();
   const dictionary = getDictionary(locale);
+  const sellCopy = getSellCopy(locale);
   const verticalId = getPublishVerticalFromSearchParam(searchParams?.vertical);
   const vertical = getMarketplaceVertical(verticalId);
   const editTarget = getSellEditTarget(searchParams);
@@ -61,7 +63,7 @@ export default async function SellPage({
         <AppHeader />
         <PageContainer className="max-w-4xl">
           <SectionHeader title={String(dictionary.sell.title)} eyebrow={String(dictionary.sell.eyebrow)} />
-          <ErrorState message={String((dictionary.sell.sell03 as Record<string, string>).listingUnavailable)} />
+          <ErrorState message={sellCopy.listingUnavailable} />
         </PageContainer>
         <MarketplaceFooter />
         <MobileBottomNav />
@@ -90,6 +92,7 @@ export default async function SellPage({
         <SellWizard
           mode={editTarget.kind === "edit" ? "editRejected" : "create"}
           editListingId={editTarget.kind === "edit" ? editTarget.listingId : null}
+          locale={locale}
           makes={makesResult.data}
           models={[]}
           cities={citiesResult.data}

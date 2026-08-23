@@ -16,6 +16,7 @@
     "test:sell-03": "node scripts/sell-03.test.cjs",
     "test:sell-03f": "node scripts/sell-03f-resubmit.test.cjs",
     "test:sell-03g": "node scripts/sell-03g-title-consistency.test.cjs",
+    "test:sell-03h": "node scripts/sell-03h-localization.test.cjs",
     "test:sell-route-state": "node scripts/sell-route-state.test.cjs"
   },
   "dependencies": {
