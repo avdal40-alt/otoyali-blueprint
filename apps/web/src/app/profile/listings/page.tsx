@@ -13,7 +13,7 @@ export default function MyListingsPage() {
       <AppHeader />
       <PageContainer>
         <SectionHeader title={String(dictionary.myListings.title)} eyebrow={String(dictionary.myListings.eyebrow)} />
-        <MyListingsClient />
+        <MyListingsClient locale={locale} />
       </PageContainer>
     </>
   );

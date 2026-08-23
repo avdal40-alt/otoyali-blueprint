@@ -85,12 +85,12 @@ const otherModel = { model_id: "model-other", model_name: "Diğer", model_slug: 
 const ordinaryTurkishModel = { model_id: "sahin", model_name: "Şahin", model_slug: "sahin" };
 assert.equal(isSellCatalogOther(otherMake), true);
 assert.equal(isSellCatalogOther(otherModel), true);
-assert.equal(getSellCatalogDisplayName("en", otherMake), "Other", "EN make sentinel label must be localized");
-assert.equal(getSellCatalogDisplayName("en", otherModel), "Other", "EN model sentinel label must be localized");
-assert.equal(getSellCatalogDisplayName("tr", otherMake), "Diğer", "TR make sentinel label must remain Diğer");
-assert.equal(getSellCatalogDisplayName("tr", otherModel), "Diğer", "TR model sentinel label must remain Diğer");
-assert.equal(getSellCatalogDisplayName("en", ordinaryTurkishModel), "Şahin", "Ordinary catalog data must not be translated in EN");
-assert.equal(getSellCatalogDisplayName("tr", ordinaryTurkishModel), "Şahin", "Ordinary catalog data must not be translated in TR");
+assert.equal(getSellCatalogDisplayName({ kind: "make", item: otherMake, locale: "en" }), "Other", "EN make sentinel label must be localized");
+assert.equal(getSellCatalogDisplayName({ kind: "model", item: otherModel, locale: "en" }), "Other", "EN model sentinel label must be localized");
+assert.equal(getSellCatalogDisplayName({ kind: "make", item: otherMake, locale: "tr" }), "Diğer", "TR make sentinel label must remain Diğer");
+assert.equal(getSellCatalogDisplayName({ kind: "model", item: otherModel, locale: "tr" }), "Diğer", "TR model sentinel label must remain Diğer");
+assert.equal(getSellCatalogDisplayName({ kind: "model", item: ordinaryTurkishModel, locale: "en" }), "Şahin", "Ordinary catalog data must not be translated in EN");
+assert.equal(getSellCatalogDisplayName({ kind: "model", item: ordinaryTurkishModel, locale: "tr" }), "Şahin", "Ordinary catalog data must not be translated in TR");
 
 // A same-route locale change immediately changes the model guard target, invalidating the old completion.
 const modelGuard = new routeState.LatestRequestGuard();
@@ -126,8 +126,8 @@ for (const storedValue of ['"gasoline"', '"automatic"', '"heavy_damage"', '"priv
 }
 
 // Catalog selector labels use the display-only helper, while title/data paths remain canonical.
-assert.ok(wizard.includes("{getSellCatalogDisplayName(locale, make)}"));
-assert.ok(wizard.includes("{getSellCatalogDisplayName(locale, model)}"));
+assert.ok(wizard.includes('{getSellCatalogDisplayName({ kind: "make", item: make, locale })}'));
+assert.ok(wizard.includes('{getSellCatalogDisplayName({ kind: "model", item: model, locale })}'));
 assert.ok(!wizard.includes(">{make.make_name}</option>"), "Make options must not leak the raw sentinel name");
 assert.ok(!wizard.includes(">{model.model_name}</option>"), "Model options must not leak the raw sentinel name");
 assert.ok(wizard.includes("makeName: selectedMake?.make_name"), "Generated titles must keep raw canonical make data");

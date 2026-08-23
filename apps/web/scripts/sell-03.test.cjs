@@ -28,7 +28,7 @@ includesAll(page, [
   'editTarget.kind === "edit" ? "editRejected" : "create"',
   "editTarget.listingId"
 ]);
-includesAll(listings, ["`/sell?edit=${item.id}`", "dictionary.myListings.editRejected"]);
+includesAll(listings, ["`/sell?edit=${item.id}`", "copy.editRejected"]);
 excludesAll(listings, ["Tekrar düzenle", "Tekrar düzenle · Yakında"]);
 
 includesAll(migration, [

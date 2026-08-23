@@ -2,12 +2,19 @@ import { normalizeLocale } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import type { PreparedImageVariantName } from "@/lib/media/client-image-processing";
 
-type SellCatalogItem = {
+type SellMakeCatalogItem = {
   make_name?: string | null;
   make_slug?: string | null;
+};
+
+type SellModelCatalogItem = {
   model_name?: string | null;
   model_slug?: string | null;
 };
+
+type SellCatalogDisplayInput =
+  | { kind: "make"; item: SellMakeCatalogItem; locale: Locale }
+  | { kind: "model"; item: SellModelCatalogItem; locale: Locale };
 
 const tr = {
   steps: ["Satıcı bilgileri", "Araç bilgileri", "Donanım ve açıklama", "Fotoğraflar", "Fiyat ve konum", "Önizleme"],
@@ -212,13 +219,14 @@ export function getVariantUploadStatus(copy: SellCopy, name: PreparedImageVarian
   return `${copy.variantLabels[name]} ${copy.uploading}`;
 }
 
-export function isSellCatalogOther(item: SellCatalogItem): boolean {
-  return item.make_slug === "diger" || item.model_slug === "diger";
+export function isSellCatalogOther(item: SellMakeCatalogItem | SellModelCatalogItem): boolean {
+  return ("make_slug" in item && item.make_slug === "diger") || ("model_slug" in item && item.model_slug === "diger");
 }
 
-export function getSellCatalogDisplayName(locale: Locale, item: SellCatalogItem): string {
+export function getSellCatalogDisplayName(input: SellCatalogDisplayInput): string {
+  const { item, locale } = input;
   if (isSellCatalogOther(item)) return getSellCopy(locale).catalogOther;
-  return item.make_name ?? item.model_name ?? "";
+  return input.kind === "make" ? input.item.make_name ?? "" : input.item.model_name ?? "";
 }
 
 export function getSellModelRequestContextKey(routeKey: string, locale: Locale): string {

@@ -1115,13 +1115,13 @@ export function SellWizard({
             <Field label={copy.make}>
               <Select value={state.makeId} onChange={(event) => updateMake(event.target.value)}>
                 <option value="">{copy.selectMake}</option>
-                {makes.map((make) => <option key={make.make_id} value={make.make_id}>{getSellCatalogDisplayName(locale, make)}</option>)}
+                {makes.map((make) => <option key={make.make_id} value={make.make_id}>{getSellCatalogDisplayName({ kind: "make", item: make, locale })}</option>)}
               </Select>
             </Field>
             <Field label={copy.model}>
               <Select value={state.modelId} onChange={(event) => update("modelId", event.target.value)} disabled={!state.makeId}>
                 <option value="">{modelsLoading ? copy.modelsLoading : copy.selectModel}</option>
-                {filteredModels.map((model) => <option key={model.model_id} value={model.model_id}>{getSellCatalogDisplayName(locale, model)}</option>)}
+                {filteredModels.map((model) => <option key={model.model_id} value={model.model_id}>{getSellCatalogDisplayName({ kind: "model", item: model, locale })}</option>)}
               </Select>
               {modelsError ? <span className="text-xs font-bold text-oto-danger">{modelsError}</span> : null}
             </Field>
