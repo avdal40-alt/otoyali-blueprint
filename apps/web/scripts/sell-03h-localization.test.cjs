@@ -7,6 +7,7 @@ const projectRoot = path.resolve(__dirname, "..");
 const read = (...parts) => fs.readFileSync(path.join(...parts), "utf8");
 const configSource = read(projectRoot, "src", "i18n", "config.ts");
 const copySource = read(projectRoot, "src", "app", "sell", "sell-copy.ts");
+const routeStateSource = read(projectRoot, "src", "app", "sell", "sell-route-state.ts");
 const wizard = read(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx");
 const page = read(projectRoot, "src", "app", "sell", "page.tsx");
 
@@ -27,7 +28,14 @@ const production = loadModule(copySource, (request) => {
   if (request === "@/i18n/config") return config;
   throw new Error(`Unexpected production-helper dependency: ${request}`);
 });
-const { getSellCopy, getVariantUploadStatus } = production;
+const routeState = loadModule(routeStateSource);
+const {
+  getSellCatalogDisplayName,
+  getSellCopy,
+  getSellModelRequestContextKey,
+  getVariantUploadStatus,
+  isSellCatalogOther
+} = production;
 const tr = getSellCopy("tr");
 const en = getSellCopy("en");
 
@@ -71,6 +79,30 @@ assert.equal(en.checkingSession, "Checking session");
 assert.equal(getVariantUploadStatus(tr, "thumb"), "Küçük önizleme yükleniyor");
 assert.equal(getVariantUploadStatus(en, "thumb"), "Thumbnail uploading");
 
+// The seeded `diger` slug is the semantic fallback identity; only its control label is localized.
+const otherMake = { make_id: "make-other", make_name: "Diğer", make_slug: "diger" };
+const otherModel = { model_id: "model-other", model_name: "Diğer", model_slug: "diger" };
+const ordinaryTurkishModel = { model_id: "sahin", model_name: "Şahin", model_slug: "sahin" };
+assert.equal(isSellCatalogOther(otherMake), true);
+assert.equal(isSellCatalogOther(otherModel), true);
+assert.equal(getSellCatalogDisplayName("en", otherMake), "Other", "EN make sentinel label must be localized");
+assert.equal(getSellCatalogDisplayName("en", otherModel), "Other", "EN model sentinel label must be localized");
+assert.equal(getSellCatalogDisplayName("tr", otherMake), "Diğer", "TR make sentinel label must remain Diğer");
+assert.equal(getSellCatalogDisplayName("tr", otherModel), "Diğer", "TR model sentinel label must remain Diğer");
+assert.equal(getSellCatalogDisplayName("en", ordinaryTurkishModel), "Şahin", "Ordinary catalog data must not be translated in EN");
+assert.equal(getSellCatalogDisplayName("tr", ordinaryTurkishModel), "Şahin", "Ordinary catalog data must not be translated in TR");
+
+// A same-route locale change immediately changes the model guard target, invalidating the old completion.
+const modelGuard = new routeState.LatestRequestGuard();
+modelGuard.setTarget(getSellModelRequestContextKey("create", "tr"));
+const staleTurkishRequest = modelGuard.begin("make:make-a");
+assert.equal(modelGuard.isCurrent(staleTurkishRequest), true);
+modelGuard.setTarget(getSellModelRequestContextKey("create", "en"));
+assert.equal(modelGuard.isCurrent(staleTurkishRequest), false, "Locale change must invalidate the prior-locale request");
+const currentEnglishRequest = modelGuard.begin("make:make-a");
+assert.equal(modelGuard.isCurrent(currentEnglishRequest), true, "The replacement same-make request must own loading/error state");
+assert.equal(modelGuard.isCurrent(staleTurkishRequest), false, "The stale request must not clear replacement state");
+
 // Exact original leak regression: HEAD rendered this literal in EN on step 1.
 assert.ok(!wizard.includes('<Panel title="Satıcı bilgileri">'));
 assert.ok(wizard.includes("<Panel title={copy.sellerInformation}>") );
@@ -93,9 +125,14 @@ for (const storedValue of ['"gasoline"', '"automatic"', '"heavy_damage"', '"priv
   assert.ok(wizard.includes(storedValue), `Stored enum value changed or disappeared: ${storedValue}`);
 }
 
-// Catalog/user data remains direct, and server/client unavailable states share the same helper.
-assert.ok(wizard.includes("{make.make_name}"));
-assert.ok(wizard.includes("{model.model_name}"));
+// Catalog selector labels use the display-only helper, while title/data paths remain canonical.
+assert.ok(wizard.includes("{getSellCatalogDisplayName(locale, make)}"));
+assert.ok(wizard.includes("{getSellCatalogDisplayName(locale, model)}"));
+assert.ok(!wizard.includes(">{make.make_name}</option>"), "Make options must not leak the raw sentinel name");
+assert.ok(!wizard.includes(">{model.model_name}</option>"), "Model options must not leak the raw sentinel name");
+assert.ok(wizard.includes("makeName: selectedMake?.make_name"), "Generated titles must keep raw canonical make data");
+assert.ok(wizard.includes("selectedModel.model_name"), "Generated titles must keep raw canonical model data");
+assert.ok(wizard.includes("title: generatedTitle"), "Create persistence must keep the canonical generated title");
 assert.ok(wizard.includes("state.description || copy.noSellerDescription"));
 assert.ok(page.includes("const sellCopy = getSellCopy(locale)"));
 assert.ok(page.includes("message={sellCopy.listingUnavailable}"));
@@ -108,8 +145,33 @@ assert.ok(wizard.includes('localizePath("/listing-rules", locale)'));
 const wizardTurkishLines = wizard.split(/\r?\n/).filter((line) => /[çğıİöşüÇĞÖŞÜ]/.test(line));
 assert.deepEqual(wizardTurkishLines.map((line) => line.trim()), [
   'const fallbackCityOptions = ["İstanbul", "Ankara", "İzmir", "Antalya"];',
-  'city: "İstanbul",',
-  'const usesFallbackCatalogOption = selectedMake?.make_name === "Diğer" || selectedModel?.model_name === "Diğer";'
-], "Only catalog/proper-name Turkish literals may remain in SellWizard");
+  'city: "İstanbul",'
+], "Only proper-name Turkish literals may remain in SellWizard; the selector may not bless raw Diğer");
+
+// React wiring: localized callback copy is a primitive dependency, and callers depend on the callback.
+const wizardAst = ts.createSourceFile("SellWizard.tsx", wizard, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+let callbackHasLocalizedDependency = false;
+let effectDependsOnCallback = false;
+function inspectHooks(node) {
+  if (ts.isVariableDeclaration(node)
+    && ts.isIdentifier(node.name)
+    && node.name.text === "loadModelsForMake"
+    && node.initializer
+    && ts.isCallExpression(node.initializer)
+    && node.initializer.expression.getText(wizardAst) === "useCallback") {
+    const dependencies = node.initializer.arguments[1]?.getText(wizardAst) ?? "";
+    callbackHasLocalizedDependency = dependencies.includes("copy.modelsLoadFailure");
+  }
+  if (ts.isCallExpression(node) && node.expression.getText(wizardAst) === "useEffect") {
+    const dependencies = node.arguments[1]?.getText(wizardAst) ?? "";
+    if (dependencies.includes("loadModelsForMake")) effectDependsOnCallback = true;
+  }
+  ts.forEachChild(node, inspectHooks);
+}
+inspectHooks(wizardAst);
+assert.equal(callbackHasLocalizedDependency, true, "Model loader must refresh when localized failure copy changes");
+assert.equal(effectDependsOnCallback, true, "Effects invoking the model loader must depend on the callback");
+assert.ok(wizard.includes("getSellModelRequestContextKey(routeKey, locale)"), "Model request currentness must include same-route locale changes");
+assert.ok(wizard.includes("modelRequestGuard.current.setTarget(modelRequestContextKey)"), "Locale context changes must invalidate the old model generation during render");
 
 console.log("SELL-03H sell-flow localization tests passed.");

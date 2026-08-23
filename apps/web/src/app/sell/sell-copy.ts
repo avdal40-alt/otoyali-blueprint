@@ -2,6 +2,13 @@ import { normalizeLocale } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import type { PreparedImageVariantName } from "@/lib/media/client-image-processing";
 
+type SellCatalogItem = {
+  make_name?: string | null;
+  make_slug?: string | null;
+  model_name?: string | null;
+  model_slug?: string | null;
+};
+
 const tr = {
   steps: ["Satıcı bilgileri", "Araç bilgileri", "Donanım ve açıklama", "Fotoğraflar", "Fiyat ve konum", "Önizleme"],
   colors: { empty: "Renk", white: "Beyaz", black: "Siyah", gray: "Gri", blue: "Mavi", red: "Kırmızı", silver: "Gümüş" },
@@ -67,6 +74,7 @@ const tr = {
   make: "Marka",
   selectMake: "Marka seçin",
   model: "Model",
+  catalogOther: "Diğer",
   selectModel: "Model seçin",
   modelsLoading: "Modeller yükleniyor",
   year: "Yıl",
@@ -178,7 +186,7 @@ const en: typeof tr = {
   photosUploading: (current, total) => `Uploading photos (${current}/${total}).`, photosUploadingShort: "Uploading photos", uploading: "uploading", photoUploadFailure: "The photo could not be uploaded. Please try again.", photoSaveFailure: "Photos could not be saved. Please try again.", submittingForModeration: "Sending your listing for moderation.", submitFailure: "Your listing could not be sent for review. Please try again.", checkingSession: "Checking session",
   completeProfileTitle: "Complete your seller profile", completeProfileBody: "Complete only the seller information required to publish. Your phone number is not shown publicly to guest users.", continue: "Continue", back: "Back", next: "Continue",
   sellerInformation: "Seller information", sellerInformationHelp: "This information is used for listing management and secure communication. Your phone number is not shown publicly on listing cards.", dealerVerificationHelp: "Dealer verification will be added later. For now, only the dealer name and authorized contact are required.", saveInformation: "Save information", finalReviewHelp: "Your information will be checked again in the final step.",
-  vehicleInformation: "Vehicle information", make: "Make", selectMake: "Select make", model: "Model", selectModel: "Select model", modelsLoading: "Loading models", year: "Year", condition: "Condition", missingCatalogHelp: "You can report a missing make or model to support.",
+  vehicleInformation: "Vehicle information", make: "Make", selectMake: "Select make", model: "Model", catalogOther: "Other", selectModel: "Select model", modelsLoading: "Loading models", year: "Year", condition: "Condition", missingCatalogHelp: "You can report a missing make or model to support.",
   equipmentAndDescription: "Features and description", mileage: "Mileage", fuelType: "Fuel type", transmission: "Transmission", bodyType: "Body type", selectBodyType: "Select body type", driveType: "Drive type", selectDriveType: "Select drive type", color: "Color", engineDisplacement: "Engine displacement", damageState: "Damage status", ownerCount: "Number of owners", damageDisclaimer: "Damage information is provided by the seller; OTOYALI does not claim to verify it.",
   description: "Description", aiDescriptionSoon: "Write with AI · Coming soon", descriptionPlaceholder: "Example: The vehicle has been serviced regularly and is in good condition inside and out. Known damage and replaced parts are disclosed here, along with notable features and the reason for sale.", descriptionPrompts: ["Overall condition", "Service history", "Known damage or replaced parts", "Features and accessories", "Reason for sale", "Trade-in preference"],
   photos: "Photos", photoGuide: "Photo guide", addPhoto: "Add photos", photoRequirements: "Use JPEG, PNG, or WebP. Images are optimized into large, card, and thumbnail sizes. Each photo can be up to 10 MB.", photoCount: (count, max) => `${count}/${max} photos.`, minimumPhotosHelp: "We recommend adding at least 3 photos.", listingPhotoAlt: "Listing photo", coverPhoto: "Cover photo", makeCover: "Make cover", remove: "Remove", tryAgain: "Try again",
@@ -202,4 +210,17 @@ export function getSellCopy(locale?: string | null): SellCopy {
 
 export function getVariantUploadStatus(copy: SellCopy, name: PreparedImageVariantName) {
   return `${copy.variantLabels[name]} ${copy.uploading}`;
+}
+
+export function isSellCatalogOther(item: SellCatalogItem): boolean {
+  return item.make_slug === "diger" || item.model_slug === "diger";
+}
+
+export function getSellCatalogDisplayName(locale: Locale, item: SellCatalogItem): string {
+  if (isSellCatalogOther(item)) return getSellCopy(locale).catalogOther;
+  return item.make_name ?? item.model_name ?? "";
+}
+
+export function getSellModelRequestContextKey(routeKey: string, locale: Locale): string {
+  return `route:${routeKey}:locale:${locale}`;
 }

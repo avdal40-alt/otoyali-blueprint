@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, type ReactNode, useMemo, useRef, useState, useEffect } from "react";
+import { FormEvent, type ReactNode, useCallback, useMemo, useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { City, HomeListing, Make, Model, Profile } from "@/lib/supabase/types";
@@ -16,7 +16,7 @@ import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
 import { isCurrentEditTarget, LatestRequestGuard } from "../sell-route-state";
-import { getSellCopy, getVariantUploadStatus, type SellCopy } from "../sell-copy";
+import { getSellCatalogDisplayName, getSellCopy, getSellModelRequestContextKey, getVariantUploadStatus, isSellCatalogOther, type SellCopy } from "../sell-copy";
 
 type PhotoItem = {
   id: string;
@@ -173,15 +173,50 @@ export function SellWizard({
   const photoRequestGuards = useRef(new Map<string, LatestRequestGuard>());
   const mounted = useRef(false);
   const renderedRouteKey = useRef<string | null>(null);
+  const renderedModelRequestContextKey = useRef<string | null>(null);
   const routeKey = mode === "editRejected" ? `edit:${editListingId ?? "invalid"}` : "create";
   if (renderedRouteKey.current !== routeKey) {
     renderedRouteKey.current = routeKey;
     routeRequestGuard.current.setTarget(routeKey);
     submissionRequestGuard.current.setTarget(routeKey);
     profileRequestGuard.current.setTarget(routeKey);
-    modelRequestGuard.current.setTarget(`route:${routeKey}`);
+  }
+  const modelRequestContextKey = getSellModelRequestContextKey(routeKey, locale);
+  if (renderedModelRequestContextKey.current !== modelRequestContextKey) {
+    renderedModelRequestContextKey.current = modelRequestContextKey;
+    modelRequestGuard.current.setTarget(modelRequestContextKey);
   }
   const sell03 = copy;
+
+  const loadModelsForMake = useCallback(async (makeId: string) => {
+    if (!hasSupabaseEnv()) return;
+
+    const routeToken = routeRequestGuard.current.currentToken();
+    const requestToken = modelRequestGuard.current.begin(`make:${makeId}`);
+    const isCurrentRequest = () => mounted.current
+      && routeRequestGuard.current.isCurrent(routeToken)
+      && modelRequestGuard.current.isCurrent(requestToken);
+    setModelsLoading(true);
+    setModelsError(null);
+    const supabase = getSupabaseBrowserClient();
+    const { data, error: loadError } = await supabase
+      .from("ff_models")
+      .select("model_id,make_id,make_name,model_name,model_slug")
+      .eq("make_id", makeId)
+      .order("model_name", { ascending: true });
+
+    if (!isCurrentRequest()) return;
+
+    if (loadError) {
+      logClientError("sell.loadModels", loadError);
+      setModelsError(copy.modelsLoadFailure);
+      setModelsForMake([]);
+    } else {
+      setModelsForMake((data ?? []) as Model[]);
+    }
+
+    if (isCurrentRequest()) setModelsLoading(false);
+  }, [copy.modelsLoadFailure]);
 
   useEffect(() => {
     const routeGuard = routeRequestGuard.current;
@@ -358,7 +393,7 @@ export function SellWizard({
     return () => {
       active = false;
     };
-  }, [copy.missingSupabaseEnv, editListingId, locale, mode, models, routeKey, router, sell03.listingUnavailable]);
+  }, [copy.missingSupabaseEnv, editListingId, loadModelsForMake, locale, mode, models, routeKey, router, sell03.listingUnavailable]);
 
   useEffect(() => {
     if (mode !== "create" || checkingAuth || loadedRouteKey !== routeKey || !userId || publishedListingId) return;
@@ -400,7 +435,10 @@ export function SellWizard({
   const profileValidation = profile ? validateSellerProfile(profile, copy) : copy.profileIncomplete;
   const profileComplete = !profileValidation;
   const qualityItems = getQualityItems(state, profileComplete, copy);
-  const usesFallbackCatalogOption = selectedMake?.make_name === "Diğer" || selectedModel?.model_name === "Diğer";
+  const usesFallbackCatalogOption = Boolean(
+    (selectedMake && isSellCatalogOther(selectedMake))
+    || (selectedModel && isSellCatalogOther(selectedModel))
+  );
   const priceSuggestion = useMemo(() => {
     if (!selectedMake || !selectedModel || !state.year || !state.mileageKm) {
       return null;
@@ -454,36 +492,6 @@ export function SellWizard({
       }
       setState((current) => ({ ...current, [key === "city" ? "city" : "sellerType"]: value }));
     }
-  }
-
-  async function loadModelsForMake(makeId: string) {
-    if (!hasSupabaseEnv()) return;
-
-    const routeToken = routeRequestGuard.current.currentToken();
-    const requestToken = modelRequestGuard.current.begin(`make:${makeId}`);
-    const isCurrentRequest = () => mounted.current
-      && routeRequestGuard.current.isCurrent(routeToken)
-      && modelRequestGuard.current.isCurrent(requestToken);
-    setModelsLoading(true);
-    setModelsError(null);
-    const supabase = getSupabaseBrowserClient();
-    const { data, error: loadError } = await supabase
-      .from("ff_models")
-      .select("model_id,make_id,make_name,model_name,model_slug")
-      .eq("make_id", makeId)
-      .order("model_name", { ascending: true });
-
-    if (!isCurrentRequest()) return;
-
-    if (loadError) {
-      logClientError("sell.loadModels", loadError);
-      setModelsError(copy.modelsLoadFailure);
-      setModelsForMake([]);
-    } else {
-      setModelsForMake((data ?? []) as Model[]);
-    }
-
-    if (isCurrentRequest()) setModelsLoading(false);
   }
 
   async function persistProfile(parentIsCurrent: () => boolean = () => true) {
@@ -1107,13 +1115,13 @@ export function SellWizard({
             <Field label={copy.make}>
               <Select value={state.makeId} onChange={(event) => updateMake(event.target.value)}>
                 <option value="">{copy.selectMake}</option>
-                {makes.map((make) => <option key={make.make_id} value={make.make_id}>{make.make_name}</option>)}
+                {makes.map((make) => <option key={make.make_id} value={make.make_id}>{getSellCatalogDisplayName(locale, make)}</option>)}
               </Select>
             </Field>
             <Field label={copy.model}>
               <Select value={state.modelId} onChange={(event) => update("modelId", event.target.value)} disabled={!state.makeId}>
                 <option value="">{modelsLoading ? copy.modelsLoading : copy.selectModel}</option>
-                {filteredModels.map((model) => <option key={model.model_id} value={model.model_id}>{model.model_name}</option>)}
+                {filteredModels.map((model) => <option key={model.model_id} value={model.model_id}>{getSellCatalogDisplayName(locale, model)}</option>)}
               </Select>
               {modelsError ? <span className="text-xs font-bold text-oto-danger">{modelsError}</span> : null}
             </Field>
