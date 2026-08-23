@@ -217,18 +217,18 @@ BEGIN
     -- relying on PostgreSQL locale-dependent whitespace character classes.
     SELECT concat_ws(
       ' ',
-      btrim(regexp_replace(
+      NULLIF(btrim(regexp_replace(
         mk.name,
         '[' || chr(9) || chr(10) || chr(11) || chr(12) || chr(13) || ' ]+',
         ' ',
         'g'
-      )),
-      btrim(regexp_replace(
+      )), ''),
+      NULLIF(btrim(regexp_replace(
         m.name,
         '[' || chr(9) || chr(10) || chr(11) || chr(12) || chr(13) || ' ]+',
         ' ',
         'g'
-      )),
+      )), ''),
       p_year::TEXT
     )
     INTO v_canonical_title
