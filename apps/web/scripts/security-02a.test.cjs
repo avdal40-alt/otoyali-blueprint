@@ -121,6 +121,14 @@ includesAll(migration, [
   "DROP POLICY IF EXISTS profile_ownership_insert_own_created_profile",
   "DROP POLICY IF EXISTS profile_ownership_update_own",
   "REVOKE INSERT, UPDATE, DELETE ON vehicle.profile_ownership FROM authenticated",
+  "CREATE POLICY profile_ownership_insert_own_created_profile",
+  "owner_id = auth.uid()",
+  "ownership_type = 'owner'",
+  "is_current IS TRUE",
+  "ended_at IS NULL",
+  "vp.created_by = auth.uid()",
+  "vp.profile_status = 'active'",
+  "GRANT INSERT (vehicle_profile_id, owner_id, ownership_type, is_current)",
   "CREATE OR REPLACE FUNCTION public.initialize_own_vehicle_profile_ownership(",
   "p_vehicle_profile_id UUID",
   "ownership_id UUID",
@@ -164,19 +172,33 @@ assert.equal(migration.includes("UPDATE vehicle.profile_ownership"), false, "No 
 assert.equal(migration.includes("DELETE FROM vehicle.profile_ownership"), false, "No ownership deletion");
 assert.equal(migration.includes("transfer"), true, "Transfer prohibition is documented in the function comment");
 assert.equal(
-  /GRANT\s+[^;]*(?:INSERT|UPDATE|DELETE|ALL)[^;]*ON\s+vehicle\.profile_ownership\s+TO\s+authenticated/i.test(migration),
+  /GRANT\s+[^;]*(?:UPDATE|DELETE|ALL)[^;]*ON\s+vehicle\.profile_ownership\s+TO\s+authenticated/i.test(migration),
   false,
-  "Migration must not restore authenticated ownership mutation privileges"
+  "EXPAND migration must not restore authenticated ownership UPDATE, DELETE, or ALL privileges"
 );
+const expandMutationPolicies = authenticatedOwnershipMutationPolicies(migration);
+assert.equal(expandMutationPolicies.length, 1, "EXPAND must retain exactly one authenticated ownership mutation policy");
+assert.equal(policyDetails(expandMutationPolicies[0]).operation, "INSERT", "Only legacy INSERT may remain during EXPAND");
+includesAll(expandMutationPolicies[0], [
+  "owner_id = auth.uid()",
+  "ownership_type = 'owner'",
+  "is_current IS TRUE",
+  "ended_at IS NULL",
+  "vp.created_by = auth.uid()",
+  "vp.profile_status = 'active'"
+]);
 assert.deepEqual(
-  authenticatedOwnershipMutationPolicies(migration),
+  authenticatedOwnershipMutationPolicies(migration)
+    .filter((statement) => ["ALL", "UPDATE", "DELETE"].includes(policyDetails(statement).operation)),
   [],
-  "Migration must not create any authenticated ownership INSERT, UPDATE, DELETE, or ALL policy"
+  "EXPAND must not create authenticated ownership UPDATE, DELETE, or ALL policies"
 );
-assert.deepEqual(
-  authenticatedOwnershipMutationGrants(migration),
-  [],
-  "Migration must not grant authenticated ownership INSERT, UPDATE, DELETE, or ALL privileges"
+const expandMutationGrants = authenticatedOwnershipMutationGrants(migration);
+assert.equal(expandMutationGrants.length, 1, "EXPAND must retain exactly one authenticated ownership mutation grant");
+assert.match(
+  expandMutationGrants[0],
+  /^\s*GRANT\s+INSERT\s*\(\s*vehicle_profile_id\s*,\s*owner_id\s*,\s*ownership_type\s*,\s*is_current\s*\)\s+ON\s+vehicle\.profile_ownership\s+TO\s+authenticated\s*;/i,
+  "Legacy INSERT must be column-scoped to the exact old-client payload"
 );
 assert.deepEqual(
   authenticatedVehicleDefaultMutationGrants(migration),
@@ -390,7 +412,9 @@ const rpcEnd = wizard.indexOf("});", rpcStart) + 3;
 assert.ok(rpcStart >= 0 && rpcEnd > rpcStart, "Ownership RPC call must be complete");
 assert.ok(rpcStart < wizard.indexOf("if (ownershipError)", rpcStart), "Create flow must handle RPC errors");
 
-console.log("SECURITY-02A coverage: static source assertions + synthetic shape/source-analysis checks; no PostgreSQL parsing/compilation/execution, effective catalog ACL verification, live RLS/RPC execution, concurrency, or cross-user runtime authorization");
+console.log("SECURITY-02A EXPAND coverage: secure initializer RPC; temporary constrained legacy INSERT; no authenticated direct UPDATE/DELETE");
+console.log("SECURITY-02A FINAL CONTRACT is intentionally pending: a later migration must drop the temporary INSERT policy and revoke INSERT");
+console.log("SECURITY-02A source coverage does not replace PostgreSQL compilation, catalog ACL, RLS/RPC, concurrency, or cross-user runtime validation");
 console.log("SECURITY-02A grant checks intentionally reject any dangerous source GRANT regardless of a later REVOKE");
 console.log("SECURITY-02A browser checks cover direct chains, simple local table constants, and local query aliases; they are not general JavaScript data-flow analysis");
 console.log("SECURITY-02A tests passed");

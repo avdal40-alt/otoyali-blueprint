@@ -5,6 +5,30 @@ DROP POLICY IF EXISTS profile_ownership_update_own ON vehicle.profile_ownership;
 
 REVOKE INSERT, UPDATE, DELETE ON vehicle.profile_ownership FROM authenticated;
 
+-- EXPAND compatibility: the deployed client still inserts these four columns
+-- directly. A later CONTRACT migration must drop this policy and revoke INSERT.
+CREATE POLICY profile_ownership_insert_own_created_profile
+  ON vehicle.profile_ownership
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    owner_id = auth.uid()
+    AND ownership_type = 'owner'
+    AND is_current IS TRUE
+    AND ended_at IS NULL
+    AND EXISTS (
+      SELECT 1
+      FROM vehicle.vehicle_profiles AS vp
+      WHERE vp.id = profile_ownership.vehicle_profile_id
+        AND vp.created_by = auth.uid()
+        AND vp.profile_status = 'active'
+    )
+  );
+
+GRANT INSERT (vehicle_profile_id, owner_id, ownership_type, is_current)
+  ON vehicle.profile_ownership
+  TO authenticated;
+
 CREATE OR REPLACE FUNCTION public.initialize_own_vehicle_profile_ownership(
   p_vehicle_profile_id UUID
 )
