@@ -14,6 +14,7 @@ import { getMakes, getModels } from "@/lib/queries/makes";
 import type { City, HomeListing, Make, Model } from "@/lib/supabase/types";
 import { citySeoSlug, makeSeoSlug, modelSeoSlug } from "@/lib/seo/slugs";
 import { absoluteUrl } from "@/lib/seo/metadata";
+import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
 import { defaultSearchFilters, buildSearchUrl, type ListingSearchFilters } from "@/lib/search/search-params";
 import { filterListings } from "@/lib/search/filter-listings";
 import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
@@ -245,7 +246,11 @@ function buildJsonLd(config: MarketplaceSeoConfig, listings: HomeListing[]) {
       itemListElement: listings.map((listing, index) => ({
         "@type": "ListItem",
         position: index + 1,
-        name: listing.title || [listing.make_name, listing.model_name].filter(Boolean).join(" "),
+        name: listing.title || generateVehicleListingTitle({
+          makeName: listing.make_name,
+          modelName: listing.model_name,
+          year: listing.year
+        }),
         url: absoluteUrl(`/listing/${listing.listing_id}`)
       }))
     });

@@ -166,9 +166,10 @@ includesAll(wizard, [
   "setOriginalEditSnapshot(submittedSnapshot)",
   "setDirtyEditFields(new Set())",
   "const submittedSnapshot: OriginalEditSnapshot",
-  "const identityDirty = dirtyEditFields.has(\"makeId\")",
-  "&& !modelsLoading",
-  "? (canPreviewRegeneratedTitle ? generatedTitle : existingTitle)",
+  'import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title"',
+  "const generatedTitle = generateVehicleListingTitle({",
+  "modelName: selectedModel?.make_id === state.makeId ? selectedModel.model_name : null",
+  "? (existingTitleGenerated ? generatedTitle : existingTitle)",
   "a.sort_order - b.sort_order",
   "existingMedia.map",
   "sell03.existingCoverPhoto",
@@ -187,7 +188,8 @@ excludesAll(wizard, [
   '"Mevcut fotoğraf"',
   '.schema("marketplace")\n        .from("listings")\n        .select("status,moderation_status")',
   "resubmitRows",
-  "const resubmitted ="
+  "const resubmitted =",
+  "canPreviewRegeneratedTitle"
 ]);
 const editActions = wizard.slice(
   wizard.indexOf('onClick={() => void saveRejected(false)}'),

@@ -14,6 +14,7 @@ import { getPriceSuggestion } from "@/lib/market-price/analysis";
 import { prepareImageVariants, type PreparedImageSet, type PreparedImageVariantName } from "@/lib/media/client-image-processing";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
 import { isCurrentEditTarget, LatestRequestGuard } from "../sell-route-state";
 
 type PhotoItem = {
@@ -403,17 +404,14 @@ export function SellWizard({
 
     return catalogCities.length > 0 ? catalogCities : fallbackCityOptions;
   }, [cities]);
-  const generatedTitle = generateListingTitle(selectedMake, selectedModel, state.year);
-  const identityDirty = dirtyEditFields.has("makeId")
-    || dirtyEditFields.has("modelId")
-    || dirtyEditFields.has("year");
-  const canPreviewRegeneratedTitle = existingTitleGenerated
-    && identityDirty
-    && !modelsLoading
-    && Boolean(selectedMake && selectedModel && state.year);
+  const generatedTitle = generateVehicleListingTitle({
+    makeName: selectedMake?.make_name,
+    modelName: selectedModel?.make_id === state.makeId ? selectedModel.model_name : null,
+    year: state.year
+  });
   const qualityScore = calculateQualityScore(state);
   const displayTitle = mode === "editRejected"
-    ? (canPreviewRegeneratedTitle ? generatedTitle : existingTitle)
+    ? (existingTitleGenerated ? generatedTitle : existingTitle)
     : generatedTitle;
   const displayQualityScore = mode === "editRejected" ? existingQualityScore : qualityScore;
   const profileValidation = profile ? validateSellerProfile(profile) : "Satıcı bilgilerinizi tamamlayın.";
@@ -1523,10 +1521,6 @@ function toSellerProfile(profile: Profile | null, authPhone: string, locale: str
     country: profile?.country ?? "TR",
     timezone: profile?.timezone ?? "Europe/Istanbul"
   };
-}
-
-function generateListingTitle(make?: Make, model?: Model, year?: string) {
-  return [make?.make_name, model?.model_name, year].map((item) => item?.toString().trim()).filter(Boolean).join(" ");
 }
 
 function calculateQualityScore(state: WizardState) {
