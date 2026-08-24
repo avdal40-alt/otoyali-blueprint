@@ -6,6 +6,7 @@ const projectRoot = path.resolve(__dirname, "..");
 const repoRoot = path.resolve(projectRoot, "..", "..");
 const migrationsRoot = path.join(repoRoot, "supabase", "migrations");
 const migrationName = "20260822120000_security02a_vehicle_ownership_hardening.sql";
+const contractMigrationName = "20260825120000_security02f_vehicle_ownership_contract.sql";
 const migration = fs.readFileSync(path.join(migrationsRoot, migrationName), "utf8");
 const wizard = fs.readFileSync(
   path.join(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx"),
@@ -44,9 +45,9 @@ const laterMigrations = fs.readdirSync(migrationsRoot)
   .filter((name) => name.endsWith(".sql") && name > migrationName);
 assert.deepEqual(
   laterMigrations,
-  [],
-  "no pending CONTRACT migration may collapse EXPAND and CONTRACT during rollout"
+  [contractMigrationName],
+  "SECURITY-02A must remain a distinct EXPAND stage followed by exactly one additive CONTRACT migration"
 );
 
 console.log("SECURITY-02E release compatibility passed: old app + expanded DB and new app + expanded DB contracts coexist");
-console.log("SECURITY-02E contract revoke is intentionally absent until post-deploy production smoke succeeds");
+console.log("SECURITY-02E preserves the historical EXPAND stage; SECURITY-02F validates the later CONTRACT transition");

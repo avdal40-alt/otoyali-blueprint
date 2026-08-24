@@ -413,7 +413,7 @@ assert.ok(rpcStart >= 0 && rpcEnd > rpcStart, "Ownership RPC call must be comple
 assert.ok(rpcStart < wizard.indexOf("if (ownershipError)", rpcStart), "Create flow must handle RPC errors");
 
 console.log("SECURITY-02A EXPAND coverage: secure initializer RPC; temporary constrained legacy INSERT; no authenticated direct UPDATE/DELETE");
-console.log("SECURITY-02A FINAL CONTRACT is intentionally pending: a later migration must drop the temporary INSERT policy and revoke INSERT");
+console.log("SECURITY-02A remains the immutable EXPAND stage; SECURITY-02F separately validates the final CONTRACT state");
 console.log("SECURITY-02A source coverage does not replace PostgreSQL compilation, catalog ACL, RLS/RPC, concurrency, or cross-user runtime validation");
 console.log("SECURITY-02A grant checks intentionally reject any dangerous source GRANT regardless of a later REVOKE");
 console.log("SECURITY-02A browser checks cover direct chains, simple local table constants, and local query aliases; they are not general JavaScript data-flow analysis");
