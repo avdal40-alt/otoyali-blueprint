@@ -90,9 +90,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
     const supabase = getSupabaseBrowserClient();
     const { error: updateError } = await supabase
       .from("profiles")
-      .upsert({
-        id: userId,
-        phone: profile.phone,
+      .update({
         first_name: firstName || profile.first_name,
         last_name: lastNameParts.join(" ") || profile.last_name,
         full_name: fullName || null,
@@ -103,7 +101,8 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
         city: profile.city,
         timezone: profile.timezone,
         onboarding_completed_at: new Date().toISOString()
-      }, { onConflict: "id" });
+      })
+      .eq("id", userId);
 
     if (updateError) {
       logClientError("profile.save", updateError);
@@ -161,7 +160,12 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
           </label>
           <label className="grid gap-1">
             <span className="text-xs font-bold text-oto-muted">Telefon</span>
-            <Input value={profile?.phone ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, phone: event.target.value } : current)} placeholder="+..." />
+            <Input
+              value={profile?.phone ?? ""}
+              readOnly
+              aria-readonly="true"
+              helperText={locale === "en" ? "Verified through your sign-in phone." : "Giriş telefonunuz üzerinden doğrulanmıştır."}
+            />
           </label>
           <label className="grid gap-1">
             <span className="text-xs font-bold text-oto-muted">Şehir</span>

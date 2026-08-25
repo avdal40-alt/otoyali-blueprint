@@ -85,14 +85,12 @@ export function OtpClient() {
     if (userData.user) {
       const signupMetadata = buildPhoneSignupMetadata({ selectedCountry: transaction.country, locale });
       const profileUpdate = {
-        id: userData.user.id,
-        phone: transaction.phone,
         language: signupMetadata?.language ?? locale,
         country: signupMetadata?.country ?? transaction.country,
         ...(signupMetadata?.timezone ? { timezone: signupMetadata.timezone } : {})
       };
 
-      await supabase.from("profiles").upsert(profileUpdate, { onConflict: "id" });
+      await supabase.from("profiles").update(profileUpdate).eq("id", userData.user.id);
     }
 
     clearOtpPhoneTransaction();

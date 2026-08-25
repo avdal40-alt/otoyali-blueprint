@@ -71,8 +71,9 @@ assert.equal(/\b(?:CREATE|ALTER|DROP)\s+(?:OR\s+REPLACE\s+)?FUNCTION\b/i.test(co
 assert.equal(/\bREVOKE\s+SELECT\b/i.test(contract), false, "CONTRACT must preserve authenticated SELECT");
 
 const laterMigrations = fs.readdirSync(migrationsRoot)
-  .filter((name) => name.endsWith(".sql") && name > expandName);
-assert.deepEqual(laterMigrations, [contractName], "Exactly one additive migration must follow SECURITY-02A");
+  .filter((name) => name.endsWith(".sql") && name > expandName)
+  .sort();
+assert.equal(laterMigrations[0], contractName, "SECURITY-02F must immediately follow SECURITY-02A");
 
 const status = JSON.parse(supabase("status"));
 assert.equal(status.linked_project, null, "Supabase must be unlinked");

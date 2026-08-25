@@ -512,10 +512,8 @@ export function SellWizard({
     setError(null);
     const supabase = getSupabaseBrowserClient();
     const [firstName, ...lastNameParts] = profile.fullName.split(" ").filter(Boolean);
-    const { error: profileError } = await supabase.from("profiles").upsert(
+    const { error: profileError } = await supabase.from("profiles").update(
       {
-        id: userId,
-        phone: profile.phone,
         first_name: firstName || null,
         last_name: lastNameParts.join(" ") || null,
         full_name: profile.fullName.trim(),
@@ -526,9 +524,8 @@ export function SellWizard({
         country: profile.country,
         timezone: profile.timezone,
         onboarding_completed_at: new Date().toISOString()
-      },
-      { onConflict: "id" }
-    );
+      }
+    ).eq("id", userId);
 
     if (!isCurrentRequest()) return false;
 
@@ -1395,7 +1392,12 @@ function ProfileFields({
         </Select>
       </Field>
       <Field label={copy.phone}>
-        <Input value={profile.phone} onChange={(event) => onChange("phone", event.target.value)} placeholder="+..." />
+        <Input
+          value={profile.phone}
+          readOnly
+          aria-readonly="true"
+          helperText={copy.verifiedPhone}
+        />
       </Field>
       <Field label={isDealer ? copy.authorizedPersonName : copy.yourName}>
         <Input value={profile.fullName} onChange={(event) => onChange("fullName", event.target.value)} placeholder={isDealer ? copy.authorizedPersonName : copy.yourName} />
@@ -1502,7 +1504,7 @@ function SuccessState({ onCreateNew, copy, locale }: { onCreateNew: () => void; 
 
 function toSellerProfile(profile: Profile | null, authPhone: string, locale: string): SellerProfileState {
   const fullName = profile?.full_name?.trim() || [profile?.first_name, profile?.last_name].filter(Boolean).join(" ").trim();
-  const phone = profile?.phone?.trim() || authPhone;
+  const phone = authPhone.trim() || profile?.phone?.trim() || "";
 
   return {
     fullName,

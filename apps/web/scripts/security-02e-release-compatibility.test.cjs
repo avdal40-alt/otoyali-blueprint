@@ -42,11 +42,12 @@ assert.ok(
 );
 
 const laterMigrations = fs.readdirSync(migrationsRoot)
-  .filter((name) => name.endsWith(".sql") && name > migrationName);
-assert.deepEqual(
-  laterMigrations,
-  [contractMigrationName],
-  "SECURITY-02A must remain a distinct EXPAND stage followed by exactly one additive CONTRACT migration"
+  .filter((name) => name.endsWith(".sql") && name > migrationName)
+  .sort();
+assert.equal(
+  laterMigrations[0],
+  contractMigrationName,
+  "SECURITY-02A must remain a distinct EXPAND stage immediately followed by its CONTRACT migration"
 );
 
 console.log("SECURITY-02E release compatibility passed: old app + expanded DB and new app + expanded DB contracts coexist");

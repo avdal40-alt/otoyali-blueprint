@@ -15,6 +15,7 @@
     "test:security-02a": "node scripts/security-02a.test.cjs",
     "test:security-02e": "node scripts/security-02e-release-compatibility.test.cjs",
     "test:security-02f": "node scripts/security-02f-contract.test.cjs",
+    "test:security-04a": "node scripts/security-04a.test.cjs",
     "test:sell-03": "node scripts/sell-03.test.cjs",
     "test:sell-03f": "node scripts/sell-03f-resubmit.test.cjs",
     "test:sell-03g": "node scripts/sell-03g-title-consistency.test.cjs",
