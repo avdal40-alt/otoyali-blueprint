@@ -1,6 +1,7 @@
 import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import type { ListingMedia } from "@/lib/supabase/types";
 import type { QueryResult } from "./listings";
+import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
 
 const LISTING_MEDIA_COLUMNS = [
   "listing_id",
@@ -23,6 +24,16 @@ const LISTING_MEDIA_COLUMNS = [
   "size_bytes"
 ].join(",");
 
+async function signListingMedia(supabase: ReturnType<typeof getSupabaseServerClient>, rows: ListingMedia[]) {
+  const fields = ["url", "original_url", "large_url", "card_url", "thumb_url"] as const;
+  const signed = await signImageStorageUrlMap(supabase, rows.flatMap((row) => fields.map((field) => row[field])));
+  return rows.map((row) => Object.fromEntries(
+    Object.entries(row).map(([key, value]) => fields.includes(key as typeof fields[number]) && typeof value === "string"
+      ? [key, signed.get(value) ?? null]
+      : [key, value])
+  ) as ListingMedia);
+}
+
 export async function getListingMedia(listingId: string): Promise<QueryResult<ListingMedia[]>> {
   const queryName = "ff_listing_media";
   if (!hasSupabaseEnv()) {
@@ -36,9 +47,10 @@ export async function getListingMedia(listingId: string): Promise<QueryResult<Li
     .eq("listing_id", listingId)
     .order("is_cover", { ascending: false })
     .order("sort_order", { ascending: true });
+  const rows = await signListingMedia(supabase, (data ?? []) as unknown as ListingMedia[]);
 
   return {
-    data: (data ?? []) as unknown as ListingMedia[],
+    data: rows,
     error: error?.message ?? null,
     count: data?.length ?? 0,
     queryName
@@ -58,9 +70,10 @@ export async function getListingMediaByVehicleProfileId(vehicleProfileId: string
     .eq("vehicle_profile_id", vehicleProfileId)
     .order("is_cover", { ascending: false })
     .order("sort_order", { ascending: true });
+  const rows = await signListingMedia(supabase, (data ?? []) as unknown as ListingMedia[]);
 
   return {
-    data: (data ?? []) as unknown as ListingMedia[],
+    data: rows,
     error: error?.message ?? null,
     count: data?.length ?? 0,
     queryName
@@ -87,9 +100,10 @@ export async function getListingMediaForListings(listingIds: string[]): Promise<
     .order("listing_id", { ascending: true })
     .order("is_cover", { ascending: false })
     .order("sort_order", { ascending: true });
+  const rows = await signListingMedia(supabase, (data ?? []) as unknown as ListingMedia[]);
 
   return {
-    data: (data ?? []) as unknown as ListingMedia[],
+    data: rows,
     error: error?.message ?? null,
     count: data?.length ?? 0,
     queryName

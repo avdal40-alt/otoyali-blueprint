@@ -8,6 +8,7 @@ import { VehicleGrid } from "@/components/vehicle/VehicleGrid";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
 
 const FAVORITE_LISTING_COLUMNS = [
   "listing_id",
@@ -84,7 +85,9 @@ export function FavoritesClient() {
       if (listingError) {
         setError(listingError.message);
       }
-      setListings((data ?? []) as unknown as HomeListing[]);
+      const rows = (data ?? []) as unknown as HomeListing[];
+      const signed = await signImageStorageUrlMap(supabase, rows.map((row) => row.cover_image_url));
+      setListings(rows.map((row) => ({ ...row, cover_image_url: signed.get(row.cover_image_url ?? "") ?? null })));
       setLoading(false);
     }
 

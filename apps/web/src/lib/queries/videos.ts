@@ -1,6 +1,7 @@
 import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import type { OtoyaliVideo } from "@/lib/supabase/types";
 import type { QueryResult } from "./listings";
+import { signImageStorageUrlMap, signStorageUrlMap } from "@/lib/media/storage-urls";
 
 const VIDEO_FEED_COLUMNS = [
   "video_id",
@@ -57,8 +58,18 @@ export async function getVideoFeed({
     return { data: [], error: null, count: 0, queryName };
   }
 
+  const rows = (data ?? []) as unknown as OtoyaliVideo[];
+  const signedVideos = await signStorageUrlMap(supabase, "listing-videos", rows.flatMap((row) => [row.video_url, row.thumbnail_url, row.poster_url]));
+  const signedCovers = await signImageStorageUrlMap(supabase, rows.map((row) => row.cover_image_url));
+
   return {
-    data: (data ?? []) as unknown as OtoyaliVideo[],
+    data: rows.map((row) => ({
+      ...row,
+      video_url: signedVideos.get(row.video_url ?? "") ?? null,
+      thumbnail_url: signedVideos.get(row.thumbnail_url ?? "") ?? null,
+      poster_url: signedVideos.get(row.poster_url ?? "") ?? null,
+      cover_image_url: signedCovers.get(row.cover_image_url ?? "") ?? null
+    })),
     error: error?.message ?? null,
     count: data?.length ?? 0,
     queryName

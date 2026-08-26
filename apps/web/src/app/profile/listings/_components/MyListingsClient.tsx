@@ -12,6 +12,7 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { getBestImageUrl, isImageProcessingFailed } from "@/lib/media/image-variants";
+import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
 import { getMyListingsCopy, getMyListingsLifecycleErrorMessage, type MyListingsCopy } from "../my-listings-copy";
 
 type MyListing = {
@@ -145,11 +146,14 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
       const profilesById = new Map(profileRows.map((profile) => [profile.id, profile]));
       const makesById = new Map(((makes ?? []) as Array<{ id: string; name: string }>).map((make) => [make.id, make.name]));
       const modelsById = new Map(((models ?? []) as Array<{ id: string; name: string }>).map((model) => [model.id, model.name]));
+      const mediaRows = (media ?? []) as Array<{ vehicle_profile_id: string; url: string | null; thumb_url?: string | null; card_url?: string | null; large_url?: string | null; processed_status?: string | null }>;
+      const signedMedia = await signImageStorageUrlMap(supabase, mediaRows.map((item) => getBestImageUrl(item, "thumb")));
       const mediaByProfile = new Map<string, { url: string; processed_status?: string | null }>();
-      for (const item of (media ?? []) as Array<{ vehicle_profile_id: string; url: string | null; thumb_url?: string | null; card_url?: string | null; large_url?: string | null; processed_status?: string | null }>) {
+      for (const item of mediaRows) {
         const bestUrl = getBestImageUrl(item, "thumb");
-        if (bestUrl && !mediaByProfile.has(item.vehicle_profile_id)) {
-          mediaByProfile.set(item.vehicle_profile_id, { url: bestUrl, processed_status: item.processed_status });
+        const signedUrl = bestUrl ? signedMedia.get(bestUrl) : null;
+        if (signedUrl && !mediaByProfile.has(item.vehicle_profile_id)) {
+          mediaByProfile.set(item.vehicle_profile_id, { url: signedUrl, processed_status: item.processed_status });
         }
       }
 

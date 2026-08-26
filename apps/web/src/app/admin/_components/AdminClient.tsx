@@ -18,6 +18,7 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { isMissingAuthSessionError } from "@/lib/auth/auth-ui";
 import { formatPrice } from "@/lib/format";
 import { getBestImageUrl, isImageProcessingFailed } from "@/lib/media/image-variants";
+import { signImageStorageUrlMap, signStorageUrlMap } from "@/lib/media/storage-urls";
 import type { ServiceProviderApplicationAdminRow } from "@/lib/supabase/types";
 
 type AdminSection = "dashboard" | "listings" | "videos" | "services" | "reports" | "users" | "settings";
@@ -351,10 +352,21 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
     setProfiles(Object.fromEntries(profileRows.map((item) => [item.id, item])));
     setMakes(Object.fromEntries(((makeResult.data ?? []) as CatalogRow[]).map((item) => [item.id, item.name ?? ""])));
     setModels(Object.fromEntries(((modelResult.data ?? []) as CatalogRow[]).map((item) => [item.id, item.name ?? ""])));
+    const mediaRows = (mediaResult.data ?? []) as MediaPreviewRow[];
+    const signedMedia = await signImageStorageUrlMap(
+      supabase,
+      mediaRows.flatMap((item) => [item.url, item.thumb_url, item.card_url, item.large_url])
+    );
     const previews = new Map<string, MediaPreviewRow>();
-    for (const item of (mediaResult.data ?? []) as MediaPreviewRow[]) {
+    for (const item of mediaRows) {
       if (!previews.has(item.vehicle_profile_id)) {
-        previews.set(item.vehicle_profile_id, item);
+        previews.set(item.vehicle_profile_id, {
+          ...item,
+          url: signedMedia.get(item.url ?? "") ?? null,
+          thumb_url: signedMedia.get(item.thumb_url ?? "") ?? null,
+          card_url: signedMedia.get(item.card_url ?? "") ?? null,
+          large_url: signedMedia.get(item.large_url ?? "") ?? null
+        });
       }
     }
     setMediaPreviews(Object.fromEntries(previews));
@@ -488,7 +500,18 @@ function VideosModeration({ userId }: { userId: string }) {
       .limit(50);
     if (filter !== "all") query = query.eq("moderation_status", filter);
     const { data, error: videoError } = await query;
-    setRows((data ?? []) as VideoRow[]);
+    const videoRows = (data ?? []) as VideoRow[];
+    const signedVideos = await signStorageUrlMap(
+      supabase,
+      "listing-videos",
+      videoRows.flatMap((row) => [row.video_url, row.thumbnail_url, row.poster_url])
+    );
+    setRows(videoRows.map((row) => ({
+      ...row,
+      video_url: signedVideos.get(row.video_url ?? "") ?? null,
+      thumbnail_url: signedVideos.get(row.thumbnail_url ?? "") ?? null,
+      poster_url: signedVideos.get(row.poster_url ?? "") ?? null
+    })));
     setError(videoError?.message ?? null);
     setLoading(false);
   }, [filter]);

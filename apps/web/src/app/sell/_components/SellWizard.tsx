@@ -12,6 +12,7 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import { bodyTypeLabel, cityLabel, colorLabel, conditionLabel, damageStateLabel, driveTypeLabel, formatMileage, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
 import { getPriceSuggestion } from "@/lib/market-price/analysis";
 import { prepareImageVariants, type PreparedImageSet, type PreparedImageVariantName } from "@/lib/media/client-image-processing";
+import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
@@ -36,6 +37,7 @@ type ExistingMedia = {
   thumb_url?: string | null;
   card_url?: string | null;
   large_url?: string | null;
+  original_url?: string | null;
   is_cover: boolean;
   sort_order: number;
 };
@@ -367,7 +369,17 @@ export function SellWizard({
         setDirtyEditFields(new Set());
         setExpectedUpdatedAt(String(listing.updated_at));
         setExpectedVehicleUpdatedAt(String(vehicle.updated_at));
-        setExistingMedia([...(edit.media ?? [])].sort((a, b) => a.sort_order - b.sort_order));
+        const existingRows = [...(edit.media ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+        const mediaFields = ["url", "original_url", "large_url", "card_url", "thumb_url"] as const;
+        const signedMedia = await signImageStorageUrlMap(
+          supabase,
+          existingRows.flatMap((row) => mediaFields.map((field) => row[field]))
+        );
+        if (!isCurrentRequest()) return;
+        setExistingMedia(existingRows.map((row) => ({
+          ...row,
+          ...Object.fromEntries(mediaFields.map((field) => [field, signedMedia.get(row[field] ?? "") ?? null]))
+        })));
         void loadModelsForMake(String(vehicle.make_id ?? ""));
         setLoadedEditListingId(editListingId);
         setLoadedRouteKey(routeKey);
