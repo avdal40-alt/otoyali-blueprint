@@ -8,17 +8,18 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 type PageProps = {
-  params: { makeSlug: string };
+  params: Promise<{ makeSlug: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps) {
+  const resolvedParams = await params;
   const { makes } = await getSeoCatalog();
-  const make = findMakeBySlug(makes, params.makeSlug);
+  const make = findMakeBySlug(makes, resolvedParams.makeSlug);
   if (!make?.make_name) {
     return buildSeoMetadata({
       title: "Marka Bulunamadı",
       description: "Aradığınız marka için aktif SEO sayfası bulunamadı.",
-      path: `/marka/${params.makeSlug}`,
+      path: `/marka/${resolvedParams.makeSlug}`,
       noIndex: true
     });
   }
@@ -31,8 +32,9 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function MakeSeoPage({ params }: PageProps) {
+  const resolvedParams = await params;
   const { makes } = await getSeoCatalog();
-  const make = findMakeBySlug(makes, params.makeSlug);
+  const make = findMakeBySlug(makes, resolvedParams.makeSlug);
 
   if (!make?.make_name) {
     notFound();

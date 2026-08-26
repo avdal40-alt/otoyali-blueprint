@@ -4,8 +4,8 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
 import { MyListingsClient } from "./_components/MyListingsClient";
 
-export default function MyListingsPage() {
-  const locale = getRequestLocale();
+export default async function MyListingsPage() {
+  const locale = await getRequestLocale();
   const dictionary = getDictionary(locale);
 
   return (

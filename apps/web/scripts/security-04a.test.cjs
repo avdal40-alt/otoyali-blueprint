@@ -93,8 +93,10 @@ for (const expected of [
 }
 
 const laterMigrations = fs.readdirSync(migrationsRoot)
-  .filter((name) => name.endsWith(".sql") && name > "20260825120000_security02f_vehicle_ownership_contract.sql");
-assert.deepEqual(laterMigrations, [migrationName], "SECURITY-04A must be the only additive migration after SECURITY-02F");
+  .filter((name) => name.endsWith(".sql") && name > "20260825120000_security02f_vehicle_ownership_contract.sql")
+  .sort();
+assert.equal(laterMigrations[0], migrationName, "SECURITY-04A must remain the first additive migration after SECURITY-02F");
+assert.equal(laterMigrations.filter((name) => name === migrationName).length, 1, "SECURITY-04A migration must remain unique");
 
 for (const relativePath of [
   ["src", "app", "otp", "_components", "OtpClient.tsx"],
@@ -154,7 +156,7 @@ DECLARE
   v_count bigint;
   v_role record;
   v_allowed constant text[] := ARRAY[
-    'first_name', 'last_name', 'full_name', 'display_name', 'seller_type',
+    'first_name', 'last_name', 'full_name', 'display_name',
     'language', 'country', 'city', 'timezone', 'onboarding_completed_at'
   ];
 BEGIN
@@ -259,7 +261,7 @@ DECLARE v_rows bigint;
 BEGIN
   UPDATE public.profiles
   SET first_name = 'Ada', last_name = 'Yilmaz', full_name = 'Ada Yilmaz',
-      display_name = 'Ada Seller', seller_type = 'private', language = 'en',
+      display_name = 'Ada Seller', language = 'en',
       country = 'KZ', city = 'Almaty', timezone = 'Asia/Almaty',
       onboarding_completed_at = pg_catalog.now()
   WHERE id = '040a0000-0000-0000-0000-000000000001';

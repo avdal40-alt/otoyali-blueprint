@@ -46,12 +46,12 @@ export const viewport: Viewport = {
   themeColor: "#2563EB"
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = getRequestLocale();
+  const locale = await getRequestLocale();
   const dictionary = getClientDictionary(locale);
 
   return (

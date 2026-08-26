@@ -22,14 +22,15 @@ import { getSellCopy } from "./sell-copy";
 export default async function SellPage({
   searchParams
 }: {
-  searchParams?: { vertical?: string | string[]; edit?: string | string[] };
+  searchParams?: Promise<{ vertical?: string | string[]; edit?: string | string[] }>;
 }) {
-  const locale = getRequestLocale();
+  const locale = await getRequestLocale();
+  const resolvedSearchParams = await searchParams;
   const dictionary = getDictionary(locale);
   const sellCopy = getSellCopy(locale);
-  const verticalId = getPublishVerticalFromSearchParam(searchParams?.vertical);
+  const verticalId = getPublishVerticalFromSearchParam(resolvedSearchParams?.vertical);
   const vertical = getMarketplaceVertical(verticalId);
-  const editTarget = getSellEditTarget(searchParams);
+  const editTarget = getSellEditTarget(resolvedSearchParams);
 
   if (!canPublishVertical(verticalId)) {
     return (

@@ -22,7 +22,7 @@ export type LegalAction = {
 const DEFAULT_DISCLAIMER =
   "Bu sayfa MVP aşaması için hazırlanmış genel bilgilendirme metnidir. Yayın öncesinde profesyonel hukuk danışmanlığı ile güncellenmelidir.";
 
-export function LegalPage({
+export async function LegalPage({
   eyebrow = "OTOYALI",
   title,
   description,
@@ -37,7 +37,7 @@ export function LegalPage({
   actions?: LegalAction[];
   disclaimer?: string;
 }) {
-  const locale = getRequestLocale();
+  const locale = await getRequestLocale();
   const dictionary = getDictionary(locale);
   const resolvedDisclaimer = disclaimer === DEFAULT_DISCLAIMER ? String(dictionary.legal.disclaimer) : disclaimer;
 

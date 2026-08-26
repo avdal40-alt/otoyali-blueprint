@@ -10,8 +10,9 @@ export const revalidate = 0;
 export default async function SearchPage({
   searchParams
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const [listingsResult, makesResult, modelsResult, citiesResult] = await Promise.all([getHomeListings(60), getMakes(), getModels(), getCities()]);
 
   return (
@@ -20,7 +21,7 @@ export default async function SearchPage({
       makes={makesResult.data}
       models={modelsResult.data}
       cities={citiesResult.data}
-      initialFilters={parseSearchParams(searchParams)}
+      initialFilters={parseSearchParams(resolvedSearchParams)}
       error={listingsResult.error ?? makesResult.error ?? modelsResult.error}
       debugItems={[listingsResult, makesResult, modelsResult, citiesResult]}
     />

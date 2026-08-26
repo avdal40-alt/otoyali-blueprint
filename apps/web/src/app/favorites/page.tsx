@@ -6,8 +6,8 @@ import { FavoritesClient } from "./_components/FavoritesClient";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
 
-export default function FavoritesPage() {
-  const locale = getRequestLocale();
+export default async function FavoritesPage() {
+  const locale = await getRequestLocale();
   const dictionary = getDictionary(locale);
 
   return (

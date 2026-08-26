@@ -114,7 +114,7 @@ assert.ok(!listings.includes("JSON.stringify(error)"));
 
 // Both real server routes pass the normalized request locale; no profile locale is consulted.
 for (const page of [publicPage, profilePage]) {
-  assert.ok(page.includes("const locale = getRequestLocale()"));
+  assert.ok(page.includes("const locale = await getRequestLocale()"));
   assert.ok(page.includes("<MyListingsClient locale={locale} />"));
 }
 assert.ok(listings.includes("export function MyListingsClient({ locale }: { locale: Locale })"));

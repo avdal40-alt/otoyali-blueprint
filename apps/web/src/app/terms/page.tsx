@@ -86,8 +86,8 @@ const enSections: LegalSection[] = [
   }
 ];
 
-export default function TermsPage() {
-  const locale = getRequestLocale();
+export default async function TermsPage() {
+  const locale = await getRequestLocale();
   const isEnglish = locale === "en";
 
   return (

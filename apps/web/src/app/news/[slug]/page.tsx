@@ -9,8 +9,9 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import { formatDate } from "@/lib/format";
 import { getArticle } from "@/data/news";
 
-export default function ArticlePage({ params }: { params: { slug: string } }) {
-  const article = getArticle(params.slug);
+export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+  const resolvedParams = await params;
+  const article = getArticle(resolvedParams.slug);
 
   if (!article) {
     notFound();

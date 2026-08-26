@@ -7,7 +7,7 @@ import { getRequestLocale } from "@/i18n/server";
 import { ProfileClient } from "./_components/ProfileClient";
 
 export default async function ProfilePage() {
-  getRequestLocale();
+  await getRequestLocale();
   const citiesResult = await getCities();
 
   return (

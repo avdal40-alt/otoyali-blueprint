@@ -25,14 +25,15 @@ import type { ServicePublicOffering } from "@/lib/supabase/types";
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 export async function generateMetadata({ params }: PageProps) {
-  const locale = getRequestLocale();
-  if (!isSafeServiceSlug(params.slug)) {
+  const locale = await getRequestLocale();
+  const resolvedParams = await params;
+  if (!isSafeServiceSlug(resolvedParams.slug)) {
     return buildSeoMetadata({
       title: t(locale, "services.provider.notFoundTitle"),
       description: t(locale, "services.provider.notFoundDescription"),
@@ -41,13 +42,13 @@ export async function generateMetadata({ params }: PageProps) {
     });
   }
 
-  const result = await getServiceProviderBySlug(params.slug);
+  const result = await getServiceProviderBySlug(resolvedParams.slug);
   const provider = result.data.provider;
   if (!provider) {
     return buildSeoMetadata({
       title: t(locale, "services.provider.notFoundTitle"),
       description: t(locale, "services.provider.notFoundDescription"),
-      path: localizePath(`/servisler/${params.slug}`, locale),
+      path: localizePath(`/servisler/${resolvedParams.slug}`, locale),
       noIndex: true
     });
   }
@@ -55,19 +56,20 @@ export async function generateMetadata({ params }: PageProps) {
   return buildSeoMetadata({
     title: provider.business_name,
     description: provider.public_summary || t(locale, "services.provider.seoDescriptionFallback"),
-    path: localizePath(`/servisler/${params.slug}`, locale),
+    path: localizePath(`/servisler/${resolvedParams.slug}`, locale),
     alternates: {
-      tr: `/servisler/${params.slug}`,
-      en: `/en/services/${params.slug}`
+      tr: `/servisler/${resolvedParams.slug}`,
+      en: `/en/services/${resolvedParams.slug}`
     }
   });
 }
 
 export default async function ServiceProviderPage({ params }: PageProps) {
-  const locale = getRequestLocale();
-  if (!isSafeServiceSlug(params.slug)) notFound();
+  const locale = await getRequestLocale();
+  const resolvedParams = await params;
+  if (!isSafeServiceSlug(resolvedParams.slug)) notFound();
 
-  const result = await getServiceProviderBySlug(params.slug);
+  const result = await getServiceProviderBySlug(resolvedParams.slug);
   const provider = result.data.provider;
   if (!provider) notFound();
 

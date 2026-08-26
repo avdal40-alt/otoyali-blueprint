@@ -23,7 +23,7 @@ function excludesAll(source, values) {
 
 includesAll(page, [
   "edit?: string | string[]",
-  "getSellEditTarget(searchParams)",
+  "getSellEditTarget(resolvedSearchParams)",
   'editTarget.kind === "invalid"',
   'editTarget.kind === "edit" ? "editRejected" : "create"',
   "editTarget.listingId"

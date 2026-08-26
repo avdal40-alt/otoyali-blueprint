@@ -9,11 +9,11 @@ import { isServiceCategoryId } from "@/features/services/domain/categories";
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export function generateMetadata() {
-  const locale = getRequestLocale();
+export async function generateMetadata() {
+  const locale = await getRequestLocale();
   return buildSeoMetadata({
     title: t(locale, "services.seo.title"),
     description: t(locale, "services.seo.description"),
@@ -26,8 +26,9 @@ export function generateMetadata() {
 }
 
 export default async function ServicesPage({ searchParams }: PageProps) {
-  const locale = getRequestLocale();
-  const rawCategory = readParam(searchParams?.category);
+  const locale = await getRequestLocale();
+  const resolvedSearchParams = await searchParams;
+  const rawCategory = readParam(resolvedSearchParams.category);
   const selectedCategory = isServiceCategoryId(rawCategory) ? rawCategory : null;
   const providersResult = await getServiceProviders({
     category: selectedCategory,

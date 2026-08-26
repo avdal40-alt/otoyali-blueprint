@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 
-export default function LegacyVideoRedirectPage({
+export default async function LegacyVideoRedirectPage({
   searchParams
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const listing = Array.isArray(searchParams.listing) ? searchParams.listing[0] : searchParams.listing;
+  const resolvedSearchParams = await searchParams;
+  const listing = Array.isArray(resolvedSearchParams.listing) ? resolvedSearchParams.listing[0] : resolvedSearchParams.listing;
   redirect(listing ? `/video?listing=${encodeURIComponent(listing)}` : "/video");
 }

@@ -16,6 +16,11 @@
     "test:security-02e": "node scripts/security-02e-release-compatibility.test.cjs",
     "test:security-02f": "node scripts/security-02f-contract.test.cjs",
     "test:security-04a": "node scripts/security-04a.test.cjs",
+    "test:security-final-profile-privacy": "node scripts/security-final-profile-privacy.test.cjs",
+    "test:security-final-seller-identity": "node scripts/security-final-seller-identity.test.cjs",
+    "test:security-final-vehicle-identity": "node scripts/security-final-vehicle-identity.test.cjs",
+    "test:security-final-storage": "node scripts/security-final-storage.test.cjs",
+    "test:security-final-dependencies": "node scripts/security-final-dependencies.test.cjs",
     "test:sell-03": "node scripts/sell-03.test.cjs",
     "test:sell-03f": "node scripts/sell-03f-resubmit.test.cjs",
     "test:sell-03g": "node scripts/sell-03g-title-consistency.test.cjs",
@@ -26,7 +31,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "libphonenumber-js": "^1.13.9",
-    "next": "^14.2.14",
+    "next": "15.5.21",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -35,10 +40,14 @@
     "@types/react": "^18.3.9",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.14",
-    "postcss": "^8.4.47",
+    "eslint": "8.57.1",
+    "eslint-config-next": "15.5.21",
+    "postcss": "8.5.26",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.2"
+  },
+  "overrides": {
+    "postcss": "8.5.26",
+    "sharp": "0.35.4"
   }
 }

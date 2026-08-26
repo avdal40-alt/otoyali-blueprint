@@ -43,16 +43,17 @@ import { ReportListingButton } from "./_components/ReportListingButton";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function ListingDetailsPage({ params }: { params: { id: string } }) {
-  const locale = getRequestLocale();
+export default async function ListingDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const locale = await getRequestLocale();
   const dictionary = getDictionary(locale);
+  const resolvedParams = await params;
   const [detailsResult, mediaResult, fallbackListingResult, similarResult] = await Promise.all([
-    getListingDetails(params.id),
-    getListingMedia(params.id),
-    getHomeListingById(params.id),
+    getListingDetails(resolvedParams.id),
+    getListingMedia(resolvedParams.id),
+    getHomeListingById(resolvedParams.id),
     getHomeListings(12)
   ]);
-  const videosResult = await getListingVideos(params.id, 3);
+  const videosResult = await getListingVideos(resolvedParams.id, 3);
 
   if (!detailsResult.data && !detailsResult.error) {
     notFound();

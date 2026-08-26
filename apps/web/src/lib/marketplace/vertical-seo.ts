@@ -5,8 +5,8 @@ import { buildSeoMetadata } from "@/lib/seo/metadata";
 import type { MarketplaceVerticalId } from "./types";
 import { getMarketplaceVertical } from "./verticals";
 
-export function buildVerticalSeoMetadata(verticalId: MarketplaceVerticalId) {
-  const locale = getRequestLocale();
+export async function buildVerticalSeoMetadata(verticalId: MarketplaceVerticalId) {
+  const locale = await getRequestLocale();
   const vertical = getMarketplaceVertical(verticalId);
   const localizedPath = localizePath(vertical.routes.tr, locale);
 

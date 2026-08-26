@@ -21,11 +21,12 @@ export const revalidate = 0;
 export default async function VideoPage({
   searchParams
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const locale = getRequestLocale();
+  const locale = await getRequestLocale();
   const dictionary = getDictionary(locale);
-  const listingId = singleValue(searchParams.listing);
+  const resolvedSearchParams = await searchParams;
+  const listingId = singleValue(resolvedSearchParams.listing);
   const videosResult = await getVideoFeed({ listingId, limit: 6 });
   const videos = videosResult.data.filter((video) => Boolean(video.video_url));
 

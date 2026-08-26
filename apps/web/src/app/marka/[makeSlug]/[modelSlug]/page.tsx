@@ -8,19 +8,20 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 type PageProps = {
-  params: { makeSlug: string; modelSlug: string };
+  params: Promise<{ makeSlug: string; modelSlug: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps) {
+  const resolvedParams = await params;
   const { makes, models } = await getSeoCatalog();
-  const make = findMakeBySlug(makes, params.makeSlug);
-  const model = make ? findModelBySlug(models, make, params.modelSlug) : null;
+  const make = findMakeBySlug(makes, resolvedParams.makeSlug);
+  const model = make ? findModelBySlug(models, make, resolvedParams.modelSlug) : null;
 
   if (!make?.make_name || !model?.model_name) {
     return buildSeoMetadata({
       title: "Model Bulunamadı",
       description: "Aradığınız model için aktif SEO sayfası bulunamadı.",
-      path: `/marka/${params.makeSlug}/${params.modelSlug}`,
+      path: `/marka/${resolvedParams.makeSlug}/${resolvedParams.modelSlug}`,
       noIndex: true
     });
   }
@@ -33,9 +34,10 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function MakeModelSeoPage({ params }: PageProps) {
+  const resolvedParams = await params;
   const { makes, models } = await getSeoCatalog();
-  const make = findMakeBySlug(makes, params.makeSlug);
-  const model = make ? findModelBySlug(models, make, params.modelSlug) : null;
+  const make = findMakeBySlug(makes, resolvedParams.makeSlug);
+  const model = make ? findModelBySlug(models, make, resolvedParams.modelSlug) : null;
 
   if (!make?.make_name || !model?.model_name) {
     notFound();

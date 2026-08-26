@@ -18,8 +18,8 @@ import {
 } from "@/lib/marketplace/verticals";
 import { MarketplaceVerticalCard } from "./MarketplaceVerticalCard";
 
-export function VerticalLandingPage({ verticalId }: { verticalId: MarketplaceVerticalId }) {
-  const locale = getRequestLocale();
+export async function VerticalLandingPage({ verticalId }: { verticalId: MarketplaceVerticalId }) {
+  const locale = await getRequestLocale();
   const vertical = getMarketplaceVertical(verticalId);
   const isActive = vertical.status === "active";
   const attributes = MARKETPLACE_ATTRIBUTE_DEFINITIONS[vertical.id] ?? [];
@@ -142,7 +142,7 @@ function CapabilityRow({
   );
 }
 
-function LegacyFutureFeaturePage({
+async function LegacyFutureFeaturePage({
   title,
   description,
   ctaLabel,
@@ -153,7 +153,7 @@ function LegacyFutureFeaturePage({
   ctaLabel: string;
   sections: string[];
 }) {
-  const locale = getRequestLocale();
+  const locale = await getRequestLocale();
 
   return (
     <>

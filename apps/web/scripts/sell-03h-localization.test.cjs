@@ -119,7 +119,7 @@ for (const wiring of [
   "driveTypeLabel(option, locale)",
   "damageStateLabel(option, locale)",
   "colorLabel(option, locale)",
-  'value="private">{sellerTypeLabel("private", locale)}'
+  "value={sellerTypeLabel(profile.sellerType, locale)}"
 ]) assert.ok(wizard.includes(wiring), `Missing localized enum-label wiring: ${wiring}`);
 for (const storedValue of ['"gasoline"', '"automatic"', '"heavy_damage"', '"private"', '"used"']) {
   assert.ok(wizard.includes(storedValue), `Stored enum value changed or disappeared: ${storedValue}`);

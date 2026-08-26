@@ -12,8 +12,8 @@ import { buildSeoMetadata } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
 
-export function generateMetadata() {
-  const locale = getRequestLocale();
+export async function generateMetadata() {
+  const locale = await getRequestLocale();
   return buildSeoMetadata({
     title: t(locale, "services.apply.seoTitle"),
     description: t(locale, "services.apply.seoDescription"),
@@ -26,8 +26,8 @@ export function generateMetadata() {
   });
 }
 
-export default function ServiceApplicationPage() {
-  const locale = getRequestLocale();
+export default async function ServiceApplicationPage() {
+  const locale = await getRequestLocale();
 
   return (
     <>

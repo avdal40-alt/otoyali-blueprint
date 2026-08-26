@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function HomePage() {
-  const locale = getRequestLocale();
+  const locale = await getRequestLocale();
   const [listingsResult, makesResult, modelsResult, citiesResult] = await Promise.all([getHomeListings(12), getMakes(), getModels(), getCities()]);
 
   return (

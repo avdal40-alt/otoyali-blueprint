@@ -8,17 +8,18 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 type PageProps = {
-  params: { citySlug: string };
+  params: Promise<{ citySlug: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps) {
+  const resolvedParams = await params;
   const { cities } = await getSeoCatalog();
-  const city = findCityBySlug(cities, params.citySlug);
+  const city = findCityBySlug(cities, resolvedParams.citySlug);
   if (!city?.city_name) {
     return buildSeoMetadata({
       title: "Şehir Bulunamadı",
       description: "Aradığınız şehir için aktif SEO sayfası bulunamadı.",
-      path: `/sehir/${params.citySlug}`,
+      path: `/sehir/${resolvedParams.citySlug}`,
       noIndex: true
     });
   }
@@ -31,8 +32,9 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function CitySeoPage({ params }: PageProps) {
+  const resolvedParams = await params;
   const { cities } = await getSeoCatalog();
-  const city = findCityBySlug(cities, params.citySlug);
+  const city = findCityBySlug(cities, resolvedParams.citySlug);
 
   if (!city?.city_name) {
     notFound();

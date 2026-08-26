@@ -78,8 +78,8 @@ const enSections: LegalSection[] = [
   }
 ];
 
-export default function TrustPage() {
-  const locale = getRequestLocale();
+export default async function TrustPage() {
+  const locale = await getRequestLocale();
   const isEnglish = locale === "en";
 
   return (
