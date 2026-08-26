@@ -156,6 +156,7 @@ const tr = {
   backHome: "Ana sayfaya dön",
   createNew: "Yeni ilan oluştur",
   sellerType: "Satıcı türü",
+  sellerTypeVerification: "Galeri durumu doğrulama sonrasında atanır.",
   phone: "Telefon",
   verifiedPhone: "Giriş telefonunuz üzerinden doğrulanmıştır.",
   authorizedPersonName: "Yetkili kişi adı",
@@ -203,7 +204,7 @@ const en: typeof tr = {
   previewAndPublish: "Preview and publish", listingPreviewAlt: "Listing preview", listingTitleFallback: "Listing title", noSellerDescription: "The seller has not added a description.", agreementPrefix: "By publishing this listing, you accept the", terms: "Terms of Use", agreementMiddle: "and", listingRules: "Listing Rules", agreementSuffix: ".", publishing: "Publishing", publish: "Publish listing",
   quality: "Listing quality", qualityVeryGood: "Very good", qualityGood: "Good", qualityIncomplete: "Incomplete", complete: "Complete", incomplete: "Incomplete", qualityDisclaimer: "This score measures listing completeness; it does not verify the vehicle or constitute a trust report.", qualityItems: ["Seller information", "Vehicle information", "Price entered", "City selected", "Description added", "At least 3 photos", "Cover photo selected", "Damage information provided"],
   successTitle: "Listing received", successBody: "Your listing was sent for moderation. It will be published after approval.", viewListing: "View my listing", myListings: "My listings", backHome: "Back to home", createNew: "Create another listing",
-  sellerType: "Seller type", phone: "Phone", verifiedPhone: "Verified through your sign-in phone.", authorizedPersonName: "Authorized contact name", yourName: "Your name", dealerName: "Dealer name", displayName: "Display name", selectSellerType: "Select a seller type.", missingPhone: "Your phone number is missing. Please log in again.", enterAuthorizedPerson: "Enter the authorized contact name.", enterYourName: "Enter your name.", enterDealerName: "Enter the dealer name.", enterDisplayName: "Enter a display name.",
+  sellerType: "Seller type", sellerTypeVerification: "Dealer status is assigned after verification.", phone: "Phone", verifiedPhone: "Verified through your sign-in phone.", authorizedPersonName: "Authorized contact name", yourName: "Your name", dealerName: "Dealer name", displayName: "Display name", selectSellerType: "Select a seller type.", missingPhone: "Your phone number is missing. Please log in again.", enterAuthorizedPerson: "Enter the authorized contact name.", enterYourName: "Enter your name.", enterDealerName: "Enter the dealer name.", enterDisplayName: "Enter a display name.",
   requiredVehicleIdentity: "Complete the make, model, and year fields.", invalidYear: "Enter a valid year.", usedMileageRequired: "Enter the mileage for a used vehicle.", invalidMileage: "Enter a valid mileage.", invalidPrice: "Enter a valid price.",
   variantLabels: { original: "Original image", large: "Large image", card: "Card image", thumb: "Thumbnail" }
 };

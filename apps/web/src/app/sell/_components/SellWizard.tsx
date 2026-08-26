@@ -519,7 +519,6 @@ export function SellWizard({
         full_name: profile.fullName.trim(),
         display_name: profile.displayName.trim(),
         city: profile.city,
-        seller_type: profile.sellerType,
         language: profile.language,
         country: profile.country,
         timezone: profile.timezone,
@@ -1386,10 +1385,12 @@ function ProfileFields({
   return (
     <div className="grid gap-3 md:grid-cols-2">
       <Field label={copy.sellerType}>
-        <Select value={profile.sellerType} onChange={(event) => onChange("sellerType", event.target.value)}>
-          <option value="private">{sellerTypeLabel("private", locale)}</option>
-          <option value="dealer">{sellerTypeLabel("dealer", locale)}</option>
-        </Select>
+        <Input
+          value={sellerTypeLabel(profile.sellerType, locale)}
+          readOnly
+          aria-readonly="true"
+          helperText={copy.sellerTypeVerification}
+        />
       </Field>
       <Field label={copy.phone}>
         <Input

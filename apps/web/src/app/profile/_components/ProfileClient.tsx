@@ -95,7 +95,6 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
         last_name: lastNameParts.join(" ") || profile.last_name,
         full_name: fullName || null,
         display_name: displayName || null,
-        seller_type: profile.seller_type || "private",
         language: profile.language,
         country: profile.country,
         city: profile.city,
@@ -176,10 +175,12 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
           </label>
           <label className="grid gap-1 md:col-span-2">
             <span className="text-xs font-bold text-oto-muted">Satıcı tipi</span>
-            <Select value={profile?.seller_type ?? "private"} onChange={(event) => setProfile((current) => current ? { ...current, seller_type: event.target.value } : current)}>
-              <option value="private">Bireysel</option>
-              <option value="dealer">Galeri</option>
-            </Select>
+            <Input
+              value={isDealer ? (locale === "en" ? "Verified dealer" : "Doğrulanmış galeri") : (locale === "en" ? "Private seller" : "Bireysel")}
+              readOnly
+              aria-readonly="true"
+              helperText={locale === "en" ? "Dealer status is assigned after verification." : "Galeri durumu doğrulama sonrasında atanır."}
+            />
           </label>
         </div>
         {error ? <div className="mt-4"><ErrorState message={error} /></div> : null}
