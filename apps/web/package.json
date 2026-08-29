@@ -25,6 +25,7 @@
     "test:security-final-dependencies": "node scripts/security-final-dependencies.test.cjs",
     "test:prod-04a": "node scripts/prod-04a-release-gate.test.cjs",
     "test:prod-04a:db": "node scripts/prod-04a-release-gate-db.test.cjs",
+    "test:prod-04c": "node scripts/prod-04c-media-release-path.test.cjs",
     "test:sell-03": "node scripts/sell-03.test.cjs",
     "test:sell-03f": "node scripts/sell-03f-resubmit.test.cjs",
     "test:sell-03g": "node scripts/sell-03g-title-consistency.test.cjs",
