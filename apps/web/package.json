@@ -23,6 +23,8 @@
     "test:security-final-media-reference": "node scripts/security-final-media-reference.test.cjs",
     "test:security-final-r2": "node scripts/security-final-r2.test.cjs",
     "test:security-final-dependencies": "node scripts/security-final-dependencies.test.cjs",
+    "test:prod-04a": "node scripts/prod-04a-release-gate.test.cjs",
+    "test:prod-04a:db": "node scripts/prod-04a-release-gate-db.test.cjs",
     "test:sell-03": "node scripts/sell-03.test.cjs",
     "test:sell-03f": "node scripts/sell-03f-resubmit.test.cjs",
     "test:sell-03g": "node scripts/sell-03g-title-consistency.test.cjs",

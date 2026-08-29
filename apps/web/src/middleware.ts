@@ -16,6 +16,22 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const pathname = url.pathname;
 
+  if (process.env.NEXT_PUBLIC_YOLMOD_CUTOVER_MODE === "maintenance" && pathname !== "/maintenance") {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json(
+        { error: "Service temporarily unavailable" },
+        { status: 503, headers: { "Retry-After": "60", "Cache-Control": "no-store" } }
+      );
+    }
+
+    url.pathname = "/maintenance";
+    url.search = "";
+    return NextResponse.rewrite(url, {
+      status: 503,
+      headers: { "Retry-After": "60", "Cache-Control": "no-store" }
+    });
+  }
+
   if (pathname === "/akis" || pathname.startsWith("/akis/")) {
     url.pathname = "/video";
     return NextResponse.redirect(url);

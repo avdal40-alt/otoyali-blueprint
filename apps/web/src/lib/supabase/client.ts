@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { releaseHeaders } from "@/lib/release/compatibility";
 
 let browserClient: SupabaseClient | null = null;
 
@@ -22,6 +23,9 @@ export function getSupabaseBrowserClient() {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true
+      },
+      global: {
+        headers: releaseHeaders()
       }
     });
   }

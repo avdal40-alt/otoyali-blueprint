@@ -13,6 +13,7 @@ import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { getBestImageUrl, isImageProcessingFailed } from "@/lib/media/image-variants";
 import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
+import { releaseStoragePath } from "@/lib/release/compatibility";
 import { getMyListingsCopy, getMyListingsLifecycleErrorMessage, type MyListingsCopy } from "../my-listings-copy";
 
 type MyListing = {
@@ -290,7 +291,7 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
       }
 
       const supabase = getSupabaseBrowserClient();
-      const storagePath = `${userId}/${item.id}/${Date.now()}-${safeFileName(videoFile.name)}`;
+      const storagePath = releaseStoragePath(userId, item.id, `${Date.now()}-${safeFileName(videoFile.name)}`);
       const { error: uploadError } = await supabase.storage
         .from("listing-videos")
         .upload(storagePath, videoFile, {

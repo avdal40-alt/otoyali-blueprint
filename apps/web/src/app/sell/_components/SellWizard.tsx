@@ -13,6 +13,7 @@ import { bodyTypeLabel, cityLabel, colorLabel, conditionLabel, damageStateLabel,
 import { getPriceSuggestion } from "@/lib/market-price/analysis";
 import { prepareImageVariants, type PreparedImageSet, type PreparedImageVariantName } from "@/lib/media/client-image-processing";
 import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
+import { releaseStoragePath } from "@/lib/release/compatibility";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
@@ -1647,7 +1648,7 @@ async function uploadPhotoMedia({
   for (const item of variants) {
     if (!isCurrent()) return null;
     onStatus(getVariantUploadStatus(copy, item.name));
-    const path = `${userId}/${vehicleProfileId}/${mediaId}/${item.name}/${item.name}.${item.extension}`;
+    const path = releaseStoragePath(userId, vehicleProfileId, mediaId, item.name, `${item.name}.${item.extension}`);
     const { error } = await supabase.storage.from("listing-media").upload(path, item.file, {
       cacheControl: "31536000",
       upsert: false,

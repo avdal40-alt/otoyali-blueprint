@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { releaseHeaders } from "@/lib/release/compatibility";
 
 export const dynamic = "force-dynamic";
 
@@ -162,6 +163,7 @@ function createRequestSupabaseClient(authorization: string) {
     },
     global: {
       headers: {
+        ...releaseHeaders(),
         Authorization: authorization
       }
     }
