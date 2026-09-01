@@ -9,6 +9,7 @@ import { Input, Select } from "@/components/ui/Input";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { useI18n } from "@/i18n/client";
 import { localizePath } from "@/i18n/config";
+import { normalizeStoredAuthPhoneToE164 } from "@/lib/auth/phone";
 import { cityLabel } from "@/lib/format";
 
 const fallbackCities = ["İstanbul", "Ankara", "İzmir", "Antalya"];
@@ -46,7 +47,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
       setCreatedAt(user.created_at ?? null);
       const fallbackProfile: Profile = {
         id: user.id,
-        phone: user.phone ?? null,
+        phone: normalizeStoredAuthPhoneToE164(user.phone),
         first_name: null,
         last_name: null,
         full_name: null,

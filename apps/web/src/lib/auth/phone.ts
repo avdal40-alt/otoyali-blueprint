@@ -103,6 +103,23 @@ export function parseAuthPhoneNumber(rawInput: string, selectedCountry: AuthPhon
   };
 }
 
+export function normalizeStoredAuthPhoneToE164(value: string | null | undefined): string | null {
+  const storedPhone = value?.trim();
+
+  if (!storedPhone || !/^\+?[1-9][0-9]{1,14}$/.test(storedPhone)) {
+    return null;
+  }
+
+  const internationalPhone = storedPhone.startsWith("+") ? storedPhone : `+${storedPhone}`;
+  const parsed = parsePhoneNumberFromString(internationalPhone, { extract: false });
+
+  if (!parsed?.isPossible() || !parsed.isValid()) {
+    return null;
+  }
+
+  return parsed.number;
+}
+
 export function getPhoneCountryOptions(locale: Locale): PhoneCountryOption[] {
   const displayNames = createRegionDisplayNames(locale);
   const countries = getCountries();

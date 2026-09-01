@@ -21,6 +21,7 @@ new Function("require", "module", "exports", compiled)(require, phoneModule, pho
 const {
   DEFAULT_PHONE_COUNTRY,
   getPhoneCountryOptions,
+  normalizeStoredAuthPhoneToE164,
   parseAuthPhoneNumber
 } = phoneModule.exports;
 
@@ -46,6 +47,21 @@ expectValid("+33 1 23 45 67 89", "TR", { e164: "+33123456789", country: "FR" });
 expectValid("+49 1511 2345678", "TR", { e164: "+4915112345678", country: "DE" });
 expectValid("+971 50 123 4567", "TR", { e164: "+971501234567", country: "AE" });
 expectInvalid("+7", "TR", "malformed_number");
+
+assert.equal(normalizeStoredAuthPhoneToE164("77011234567"), "+77011234567");
+assert.equal(normalizeStoredAuthPhoneToE164("+905551234567"), "+905551234567");
+assert.equal(normalizeStoredAuthPhoneToE164("14155552671"), "+14155552671");
+assert.equal(normalizeStoredAuthPhoneToE164("+33123456789"), "+33123456789");
+assert.equal(normalizeStoredAuthPhoneToE164(null), null);
+assert.equal(normalizeStoredAuthPhoneToE164(undefined), null);
+assert.equal(normalizeStoredAuthPhoneToE164(""), null);
+assert.equal(normalizeStoredAuthPhoneToE164("   "), null);
+assert.equal(normalizeStoredAuthPhoneToE164("077470000000"), null);
+assert.equal(normalizeStoredAuthPhoneToE164("phone"), null);
+assert.equal(normalizeStoredAuthPhoneToE164("7747-000-0000"), null);
+assert.equal(normalizeStoredAuthPhoneToE164("123"), null);
+assert.equal(normalizeStoredAuthPhoneToE164("1234567890123456"), null);
+assert.equal(normalizeStoredAuthPhoneToE164("999999999999999"), null);
 
 const trCountries = getPhoneCountryOptions("tr");
 assert.equal(DEFAULT_PHONE_COUNTRY, "TR");

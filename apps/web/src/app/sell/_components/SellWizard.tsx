@@ -14,6 +14,7 @@ import { getPriceSuggestion } from "@/lib/market-price/analysis";
 import { prepareImageVariants, type PreparedImageSet, type PreparedImageVariantName } from "@/lib/media/client-image-processing";
 import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
 import { releaseStoragePath } from "@/lib/release/compatibility";
+import { normalizeStoredAuthPhoneToE164 } from "@/lib/auth/phone";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
@@ -1518,7 +1519,7 @@ function SuccessState({ onCreateNew, copy, locale }: { onCreateNew: () => void; 
 
 function toSellerProfile(profile: Profile | null, authPhone: string, locale: string): SellerProfileState {
   const fullName = profile?.full_name?.trim() || [profile?.first_name, profile?.last_name].filter(Boolean).join(" ").trim();
-  const phone = authPhone.trim() || profile?.phone?.trim() || "";
+  const phone = profile?.phone?.trim() || normalizeStoredAuthPhoneToE164(authPhone) || "";
 
   return {
     fullName,

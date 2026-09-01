@@ -29,11 +29,115 @@ function run(command, args, options = {}) {
   return result.stdout;
 }
 
-function supabase(...args) {
+function spawnSupabase(...args) {
   if (process.platform === "win32") {
-    return run(process.env.ComSpec || "cmd.exe", ["/d", "/s", "/c", ["npx.cmd", "supabase", ...args].join(" ")]);
+    return spawnSync(
+      process.env.ComSpec || "cmd.exe",
+      ["/d", "/s", "/c", ["npx.cmd", "supabase", ...args].join(" ")],
+      { cwd: repoRoot, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 }
+    );
   }
-  return run("npx", ["supabase", ...args]);
+  return spawnSync("npx", ["supabase", ...args], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    maxBuffer: 16 * 1024 * 1024
+  });
+}
+
+function requireSuccessfulSupabaseOutput(result, args) {
+  if (result.status !== 0) {
+    throw new Error([
+      `supabase ${args.join(" ")} failed with status ${result.status}`,
+      result.error?.message,
+      result.stdout,
+      result.stderr
+    ].filter(Boolean).join("\n"));
+  }
+  return result.stdout;
+}
+
+function supabase(...args) {
+  return requireSuccessfulSupabaseOutput(spawnSupabase(...args), args);
+}
+
+function getSupabaseHumanStatus(result = spawnSupabase("status")) {
+  return requireSuccessfulSupabaseOutput(result, ["status"]);
+}
+
+function getSupabaseJsonStatus(result = spawnSupabase("status", "--output", "json")) {
+  return requireSuccessfulSupabaseOutput(result, ["status", "--output", "json"]);
+}
+
+function requireExplicitUnlinkedHumanStatus(output) {
+  const lines = String(output ?? "").replace(/\r\n?/g, "\n").split("\n");
+  assert.ok(
+    lines.some((line) => line.trim() === "Not linked."),
+    "Human Supabase status must contain an exact standalone 'Not linked.' line"
+  );
+}
+
+function parseSupabaseJsonStatus(output) {
+  const normalizedText = String(output ?? "").trim().replace(/\r\n?/g, "\n");
+  const lines = normalizedText.split("\n");
+  const jsonText = lines[0]?.trim() === "Not linked."
+    ? lines.slice(1).join("\n").trim()
+    : normalizedText;
+
+  if (!jsonText.startsWith("{") || !jsonText.endsWith("}")) {
+    throw new Error("Supabase JSON status did not contain a complete JSON object");
+  }
+
+  let status;
+  try {
+    status = JSON.parse(jsonText);
+  } catch {
+    throw new Error("Supabase JSON status is malformed");
+  }
+
+  if (!status || typeof status !== "object" || Array.isArray(status)) {
+    throw new Error("Supabase JSON status must be an object");
+  }
+
+  return status;
+}
+
+const supabaseLinkMarkerPaths = [
+  path.join(repoRoot, "supabase", ".temp", "linked-project.json"),
+  path.join(repoRoot, "supabase", ".temp", "project-ref")
+];
+
+function requireNoSupabaseLinkMarkers(fileExists = fs.existsSync) {
+  for (const markerPath of supabaseLinkMarkerPaths) {
+    assert.equal(fileExists(markerPath), false, `Supabase link marker must be absent: ${markerPath}`);
+  }
+}
+
+function requireLocalSupabaseStatus({ humanStatusOutput, jsonStatusOutput, fileExists = fs.existsSync }) {
+  requireNoSupabaseLinkMarkers(fileExists);
+  requireExplicitUnlinkedHumanStatus(humanStatusOutput);
+
+  const status = parseSupabaseJsonStatus(jsonStatusOutput);
+  const hasLinkedProject = Object.prototype.hasOwnProperty.call(status, "linked_project");
+  if (hasLinkedProject) {
+    const linkedProject = status.linked_project;
+    assert.ok(
+      linkedProject === null || (typeof linkedProject === "string" && linkedProject.trim() === ""),
+      "Supabase JSON status must not contain a linked project ref"
+    );
+  }
+
+  for (const key of ["DB_URL", "API_URL", "REST_URL", "GRAPHQL_URL"]) {
+    assert.equal(typeof status[key], "string", `${key} must be present in Supabase status JSON`);
+    let endpoint;
+    try {
+      endpoint = new URL(status[key]);
+    } catch {
+      throw new Error(`${key} must be a valid local URL`);
+    }
+    assert.ok(endpoint.hostname === "127.0.0.1" || endpoint.hostname === "localhost", `${key} must be local-only`);
+  }
+
+  return status;
 }
 
 function psql(sql) {
@@ -110,14 +214,129 @@ for (const relativePath of [
 const profileSource = fs.readFileSync(path.join(projectRoot, "src", "app", "profile", "_components", "ProfileClient.tsx"), "utf8");
 const sellSource = fs.readFileSync(path.join(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx"), "utf8");
 assert.match(profileSource, /value=\{profile\?\.phone \?\? ""\}[\s\S]*?readOnly/);
+assert.match(profileSource, /phone: normalizeStoredAuthPhoneToE164\(user\.phone\)/);
 assert.match(sellSource, /value=\{profile\.phone\}[\s\S]*?readOnly/);
-assert.match(sellSource, /authPhone\.trim\(\) \|\| profile\?\.phone/);
+assert.match(sellSource, /profile\?\.phone\?\.trim\(\) \|\| normalizeStoredAuthPhoneToE164\(authPhone\) \|\| ""/);
 
-const status = JSON.parse(supabase("status"));
-assert.equal(status.linked_project, null, "Supabase must be unlinked");
-for (const key of ["DB_URL", "API_URL", "REST_URL", "GRAPHQL_URL"]) {
-  assert.match(status[key], /(?:127\.0\.0\.1|localhost)/, `${key} must be local-only`);
+const localStatusWithoutProjectRef = {
+  DB_URL: "postgresql://postgres:postgres@127.0.0.1:54322/postgres",
+  API_URL: "http://127.0.0.1:54321",
+  REST_URL: "http://127.0.0.1:54321/rest/v1",
+  GRAPHQL_URL: "http://127.0.0.1:54321/graphql/v1"
+};
+const successfulStatusCommand = (stdout) => ({ status: 0, stdout, stderr: "" });
+const failedStatusCommand = { status: 1, stdout: "", stderr: "status failed" };
+const noLinkMarkers = () => false;
+const localStatusJson = JSON.stringify(localStatusWithoutProjectRef);
+
+assert.deepEqual(
+  requireLocalSupabaseStatus({
+    humanStatusOutput: "Not linked.\nLocal development setup is running.",
+    jsonStatusOutput: localStatusJson,
+    fileExists: noLinkMarkers
+  }),
+  localStatusWithoutProjectRef
+);
+assert.deepEqual(
+  requireLocalSupabaseStatus({
+    humanStatusOutput: "Not linked.\r\nLocal development setup is running.\r\n",
+    jsonStatusOutput: `Not linked.\r\n${localStatusJson}`,
+    fileExists: noLinkMarkers
+  }),
+  localStatusWithoutProjectRef
+);
+assert.throws(
+  () => requireLocalSupabaseStatus({
+    humanStatusOutput: "Local development setup is running.",
+    jsonStatusOutput: localStatusJson,
+    fileExists: noLinkMarkers
+  }),
+  /exact standalone 'Not linked\.'/
+);
+assert.throws(
+  () => requireLocalSupabaseStatus({
+    humanStatusOutput: "Project not linked maybe.\nNot linked to production.",
+    jsonStatusOutput: localStatusJson,
+    fileExists: noLinkMarkers
+  }),
+  /exact standalone 'Not linked\.'/
+);
+assert.throws(
+  () => requireLocalSupabaseStatus({
+    humanStatusOutput: "Not linked.",
+    jsonStatusOutput: localStatusJson,
+    fileExists: (markerPath) => markerPath.endsWith("project-ref")
+  }),
+  /link marker must be absent/
+);
+assert.throws(
+  () => requireLocalSupabaseStatus({
+    humanStatusOutput: "Not linked.",
+    jsonStatusOutput: JSON.stringify({
+      ...localStatusWithoutProjectRef,
+      API_URL: "https://production-ref.supabase.co"
+    }),
+    fileExists: noLinkMarkers
+  }),
+  /local-only/
+);
+assert.throws(
+  () => requireLocalSupabaseStatus({
+    humanStatusOutput: "Not linked.",
+    jsonStatusOutput: JSON.stringify({
+      ...localStatusWithoutProjectRef,
+      DB_URL: "postgresql://postgres:postgres@192.168.1.25:54322/postgres"
+    }),
+    fileExists: noLinkMarkers
+  }),
+  /local-only/
+);
+assert.throws(
+  () => requireLocalSupabaseStatus({
+    humanStatusOutput: "Not linked.",
+    jsonStatusOutput: '{"DB_URL":}',
+    fileExists: noLinkMarkers
+  }),
+  /malformed/
+);
+assert.throws(
+  () => requireLocalSupabaseStatus({
+    humanStatusOutput: "Not linked.",
+    jsonStatusOutput: JSON.stringify({ DB_URL: localStatusWithoutProjectRef.DB_URL }),
+    fileExists: noLinkMarkers
+  }),
+  /API_URL must be present/
+);
+assert.throws(
+  () => getSupabaseHumanStatus(failedStatusCommand),
+  /supabase status failed with status 1/
+);
+assert.throws(
+  () => getSupabaseJsonStatus(failedStatusCommand),
+  /supabase status --output json failed with status 1/
+);
+assert.throws(
+  () => requireLocalSupabaseStatus({
+    humanStatusOutput: getSupabaseHumanStatus(successfulStatusCommand("Not linked.")),
+    jsonStatusOutput: getSupabaseJsonStatus(successfulStatusCommand(JSON.stringify({
+      ...localStatusWithoutProjectRef,
+      linked_project: "production-ref"
+    }))),
+    fileExists: noLinkMarkers
+  }),
+  /linked project ref/
+);
+
+if (process.argv.slice(2).includes("--status-parser-self-test")) {
+  assert.deepEqual(process.argv.slice(2), ["--status-parser-self-test"]);
+  console.log("SECURITY-04A local status parser passed");
+  process.exit(0);
 }
+
+const status = requireLocalSupabaseStatus({
+  humanStatusOutput: getSupabaseHumanStatus(),
+  jsonStatusOutput: getSupabaseJsonStatus()
+});
 
 supabase("db", "reset", "--local");
 
@@ -130,7 +349,7 @@ INSERT INTO auth.users (
   (
     '00000000-0000-0000-0000-000000000000',
     '040a0000-0000-0000-0000-000000000001',
-    'authenticated', 'authenticated', '+905551110001', pg_catalog.now(),
+    'authenticated', 'authenticated', '905551110001', pg_catalog.now(),
     '{"provider":"phone","providers":["phone"]}'::jsonb,
     '{"language":"tr","country":"TR","timezone":"Europe/Istanbul"}'::jsonb,
     pg_catalog.now(), pg_catalog.now()
@@ -138,7 +357,7 @@ INSERT INTO auth.users (
   (
     '00000000-0000-0000-0000-000000000000',
     '040a0000-0000-0000-0000-000000000002',
-    'authenticated', 'authenticated', '+905551110002', pg_catalog.now(),
+    'authenticated', 'authenticated', '905551110002', pg_catalog.now(),
     '{"provider":"phone","providers":["phone"]}'::jsonb,
     '{}'::jsonb, pg_catalog.now(), pg_catalog.now()
   ),
@@ -282,14 +501,16 @@ BEGIN
   SELECT count(*) INTO v_count
   FROM auth.users u JOIN public.profiles p ON p.id = u.id
   WHERE u.id = '040a0000-0000-0000-0000-000000000001'
-    AND u.phone = '+905551110001' AND p.phone = '+905551110001'
+    AND regexp_replace(u.phone, '[^0-9]', '', 'g') = regexp_replace(p.phone, '[^0-9]', '', 'g')
+    AND p.phone = '+905551110001'
     AND p.city = 'Almaty' AND p.full_name = 'Ada Yilmaz';
-  IF v_count <> 1 THEN RAISE EXCEPTION 'phone consistency or legitimate edit result failed'; END IF;
+  IF v_count <> 1 THEN RAISE EXCEPTION 'semantic phone consistency or legitimate edit result failed'; END IF;
 
   SELECT count(*) INTO v_count
   FROM auth.users u JOIN public.profiles p ON p.id = u.id
   WHERE u.id = '040a0000-0000-0000-0000-000000000002'
-    AND u.phone = '+905551110002' AND p.phone = '+905551110002' AND p.city IS NULL;
+    AND regexp_replace(u.phone, '[^0-9]', '', 'g') = regexp_replace(p.phone, '[^0-9]', '', 'g')
+    AND p.phone = '+905551110002' AND p.city IS NULL;
   IF v_count <> 1 THEN RAISE EXCEPTION 'foreign profile or bootstrap result failed'; END IF;
 
   SELECT count(*) INTO v_count
@@ -313,8 +534,9 @@ DECLARE v_count bigint;
 BEGIN
   SELECT count(*) INTO v_count
   FROM auth.users u JOIN public.profiles p ON p.id = u.id
-  WHERE u.id = '040a0000-0000-0000-0000-000000000001' AND u.phone = p.phone;
-  IF v_count <> 1 THEN RAISE EXCEPTION 'trusted service path did not restore consistency'; END IF;
+  WHERE u.id = '040a0000-0000-0000-0000-000000000001'
+    AND regexp_replace(u.phone, '[^0-9]', '', 'g') = regexp_replace(p.phone, '[^0-9]', '', 'g');
+  IF v_count <> 1 THEN RAISE EXCEPTION 'trusted service path did not restore semantic consistency'; END IF;
 END
 $security04a$;
 
@@ -330,7 +552,11 @@ SELECT jsonb_build_object(
   'phone_update', has_column_privilege('authenticated', 'public.profiles', 'phone', 'UPDATE'),
   'city_update', has_column_privilege('authenticated', 'public.profiles', 'city', 'UPDATE'),
   'bootstrap_e164', (SELECT phone FROM public.profiles WHERE id = '040a0000-0000-0000-0000-000000000003'),
-  'auth_profile_consistent', (SELECT u.phone = p.phone FROM auth.users u JOIN public.profiles p ON p.id = u.id WHERE u.id = '040a0000-0000-0000-0000-000000000001')
+  'auth_profile_digits_consistent', (
+    SELECT regexp_replace(u.phone, '[^0-9]', '', 'g') = regexp_replace(p.phone, '[^0-9]', '', 'g')
+    FROM auth.users u JOIN public.profiles p ON p.id = u.id
+    WHERE u.id = '040a0000-0000-0000-0000-000000000001'
+  )
 ) AS security04a_runtime_matrix;
 `;
 
@@ -351,6 +577,9 @@ const mixedRestAttack = restPatch({
 });
 assert.equal(mixedRestAttack.httpStatus, 403, "Mixed PostgREST city and phone PATCH must be denied atomically");
 
+const sellerTypeAttack = restPatch({ status, token, userId: userA, body: { seller_type: "dealer" } });
+assert.equal(sellerTypeAttack.httpStatus, 403, "Direct PostgREST seller_type PATCH must be denied by the final chain");
+
 const legitimateRestEdit = restPatch({ status, token, userId: userA, body: { city: "Almaty" } });
 assert.equal(legitimateRestEdit.httpStatus, 200, "Legitimate own PostgREST profile PATCH must succeed");
 
@@ -362,28 +591,31 @@ const restState = psql(String.raw`
 SELECT jsonb_build_object(
   'own_auth_phone', u.phone,
   'own_profile_phone', p.phone,
+  'own_seller_type', p.seller_type,
   'own_city', p.city,
   'foreign_city', (SELECT city FROM public.profiles WHERE id = '040a0000-0000-0000-0000-000000000002')
 )
 FROM auth.users u JOIN public.profiles p ON p.id = u.id
 WHERE u.id = '040a0000-0000-0000-0000-000000000001';
 `);
-assert.match(restState, /"own_auth_phone": "\+905551110001"/);
+assert.match(restState, /"own_auth_phone": "905551110001"/);
 assert.match(restState, /"own_profile_phone": "\+905551110001"/);
+assert.match(restState, /"own_seller_type": "private"/);
 assert.match(restState, /"own_city": "Almaty"/);
 assert.match(restState, /"foreign_city": null/);
 
 const history = psql(String.raw`
 SELECT string_agg(version, ',' ORDER BY version)
 FROM supabase_migrations.schema_migrations
-WHERE version IN ('20260822120000', '20260825120000', '20260826120000');
+WHERE version IN ('20260822120000', '20260825120000', '20260826120000', '20260827121000');
 `);
-assert.match(history, /20260822120000,20260825120000,20260826120000/,
-  "Clean reset must apply SECURITY-02A, SECURITY-02F, and SECURITY-04A in order");
+assert.match(history, /20260822120000,20260825120000,20260826120000,20260827121000/,
+  "Clean reset must apply SECURITY-02A, SECURITY-02F, SECURITY-04A, and final seller identity in order");
 
 console.log(output.trim());
 console.log("SECURITY-04A PostgREST passed: direct and mixed phone PATCH denied; own edit allowed; foreign edit isolated");
+console.log("SECURITY-FINAL seller identity passed: direct own seller_type PATCH denied and classification unchanged");
 console.log("SECURITY-04A runtime passed: own phone, mixed payload, NULL/empty, and upsert attacks denied");
 console.log("SECURITY-04A profile behavior passed: intended own fields editable; foreign row isolated");
-console.log("SECURITY-04A identity passed: bootstrap E.164 mirror and service path preserved");
+console.log("SECURITY-04A identity passed: digits-only Auth storage and E.164 profile semantics preserved");
 console.log("SECURITY-04A local isolation passed: unlinked localhost Supabase; clean full migration chain applied");
