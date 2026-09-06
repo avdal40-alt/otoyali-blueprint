@@ -159,7 +159,7 @@ includesAll(wizard, [
   'setEditSaved("pending_review")',
   'key === "fuelType" && value === "electric" ? { engineVolumeL: "" }',
   'state.fuelType !== "electric"',
-  'p_engine_volume_l: raw("engineVolumeL", state.fuelType === "electric" ? null : state.engineVolumeL)',
+  'p_engine_volume_l: submittedSnapshot.engineVolumeL',
   "originalEditSnapshot",
   "dirtyEditFields",
   "p_expected_vehicle_updated_at: expectedVehicleUpdatedAt",

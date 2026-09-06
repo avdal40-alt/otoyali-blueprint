@@ -338,7 +338,7 @@ export function SellWizard({
           bodyType: String(vehicle.body_type ?? ""),
           driveType: String(vehicle.drive_type ?? ""),
           color: String(vehicle.color ?? ""),
-          engineVolumeL: vehicle.engine_volume_l == null ? "" : String(vehicle.engine_volume_l),
+          engineVolumeL: vehicle.fuel_type === "electric" || vehicle.engine_volume_l == null ? "" : String(vehicle.engine_volume_l),
           damageState: String(vehicle.damage_state ?? "unknown"),
           ownerCount: vehicle.owner_count == null ? "" : String(vehicle.owner_count),
           priceAmount: String(listing.price_amount ?? ""),
@@ -724,7 +724,7 @@ export function SellWizard({
       bodyType: raw("bodyType", state.bodyType || null),
       driveType: raw("driveType", state.driveType || null),
       color: raw("color", state.color || null),
-      engineVolumeL: raw("engineVolumeL", state.fuelType === "electric" ? null : state.engineVolumeL),
+      engineVolumeL: state.fuelType === "electric" ? null : raw("engineVolumeL", state.engineVolumeL),
       damageState: raw("damageState", state.damageState || null),
       ownerCount: raw("ownerCount", state.ownerCount || null),
       description: raw("description", state.description),
@@ -747,7 +747,7 @@ export function SellWizard({
       p_body_type: raw("bodyType", state.bodyType || null),
       p_drive_type: raw("driveType", state.driveType || null),
       p_color: raw("color", state.color || null),
-      p_engine_volume_l: raw("engineVolumeL", state.fuelType === "electric" ? null : state.engineVolumeL),
+      p_engine_volume_l: submittedSnapshot.engineVolumeL,
       p_damage_state: raw("damageState", state.damageState || null),
       p_owner_count: (() => {
         const value = raw("ownerCount", state.ownerCount || null);
@@ -871,7 +871,7 @@ export function SellWizard({
         body_type: state.bodyType || null,
         drive_type: state.driveType || null,
         color: state.color || null,
-        engine_volume_l: state.engineVolumeL ? Number(state.engineVolumeL) : null,
+        engine_volume_l: state.fuelType === "electric" ? null : state.engineVolumeL ? Number(state.engineVolumeL) : null,
         damage_state: state.damageState || null,
         owner_count: state.ownerCount ? Number(state.ownerCount) : null,
         created_source: "manual",
@@ -1755,7 +1755,8 @@ function draftStorageKey(userId: string) {
 function readStoredDraft(userId: string): PersistedWizardState | null {
   try {
     const raw = window.localStorage.getItem(draftStorageKey(userId));
-    return raw ? (JSON.parse(raw) as PersistedWizardState) : null;
+    const draft = raw ? (JSON.parse(raw) as PersistedWizardState) : null;
+    return draft?.fuelType === "electric" ? { ...draft, engineVolumeL: "" } : draft;
   } catch {
     return null;
   }
