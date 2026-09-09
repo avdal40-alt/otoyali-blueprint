@@ -114,6 +114,7 @@ OTOYALI follows a **modular monolith → microservices evolution** pattern. At l
 | **Security by Default** | Zero trust, RLS everywhere, encryption at rest/transit | Supabase RLS, Vault for secrets |
 | **Observability-First** | If you can't measure it, you can't scale it | OpenTelemetry, structured logging |
 | **Locale-Aware** | Turkish default, i18n from schema up | `locale` columns, translation tables |
+| **Market Portability** | Turkey is the current launch market; do not build multi-market support speculatively | Keep reusable core domains market-neutral where practical; use existing configuration or market-specific boundaries for inherently local behavior when appropriate |
 | **Graceful Degradation** | AI/search failures fall back to traditional flows | Circuit breakers, cached responses |
 | **Cost-Conscious Scale** | Optimize unit economics at each growth stage | Supabase → selective service extraction |
 

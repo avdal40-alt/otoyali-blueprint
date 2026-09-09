@@ -67,6 +67,13 @@ Stay within the requested scope.
 Before expanding scope substantially, explain why expansion is necessary.
 
 
+## Market Portability
+
+Turkey is Yolmod's first and current launch market; multi-country support is not required today. Preserve MVP speed and existing production behavior: prefer the simple Turkey implementation whenever an abstraction would add meaningful complexity. Do not introduce market abstractions solely for hypothetical future countries.
+
+Do not hard-code a market assumption into reusable core when a simple existing configuration or market-specific boundary is appropriate, but do not create a new abstraction solely for hypothetical future markets. Where already centrally configured, keep inherently market-specific values (such as locale, currency, phone country code, geographic hierarchy, legal text, SEO locale, integrations, financing, taxation, seller classifications, or vehicle taxonomy) from being unnecessarily scattered. Keep reusable core domains market-neutral where practical, including identity/auth, listing lifecycle, media/storage, favorites, saved searches, moderation, reporting, trust, AI, and generic contact/access-control patterns.
+
+
 ## Reasoning policy
 
 Use the minimum reasoning depth necessary while preserving correctness.
