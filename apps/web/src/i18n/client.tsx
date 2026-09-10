@@ -2,6 +2,7 @@
 
 import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
+import { NextIntlClientProvider } from "next-intl";
 import { DEFAULT_LOCALE } from "./config";
 import { getClientDictionary } from "./get-dictionary";
 import type { ClientDictionary, Locale } from "./types";
@@ -25,7 +26,11 @@ export function I18nProvider({
   dictionary: ClientDictionary;
   children: ReactNode;
 }) {
-  return <I18nContext.Provider value={{ locale, dictionary }}>{children}</I18nContext.Provider>;
+  return (
+    <NextIntlClientProvider locale={locale} messages={dictionary}>
+      <I18nContext.Provider value={{ locale, dictionary }}>{children}</I18nContext.Provider>
+    </NextIntlClientProvider>
+  );
 }
 
 export function useI18n() {

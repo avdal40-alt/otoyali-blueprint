@@ -1,5 +1,12 @@
-export type Locale = "tr" | "en";
-export type FutureLocale = "de" | "ar" | "ru";
+import type { LOCALE_REGISTRY } from "./config";
+
+/** Route locale identifiers configured in the locale registry. */
+export type LocaleId = keyof typeof LOCALE_REGISTRY;
+
+/** Locales currently released in the application and backed by messages. */
+export type Locale = {
+  [Id in LocaleId]: (typeof LOCALE_REGISTRY)[Id]["released"] extends true ? Id : never;
+}[LocaleId];
 export type LocaleDirection = "ltr" | "rtl";
 
 export type TranslationValue = string | DictionarySection;

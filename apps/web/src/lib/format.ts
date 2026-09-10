@@ -1,15 +1,16 @@
 import { DEFAULT_LOCALE, getIntlLocale, normalizeLocale } from "@/i18n/config";
 import { t } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
+import { CURRENT_MARKET } from "@/lib/market";
 
-export function formatCurrency(amount?: number | null, currency: string | null | undefined = "TRY", locale?: string | null) {
+export function formatCurrency(amount?: number | null, currency: string | null | undefined = CURRENT_MARKET.currencyCode, locale?: string | null) {
   const normalizedLocale = resolveFormatLocale(locale);
   if (amount === null || amount === undefined || Number.isNaN(Number(amount))) {
     return t(normalizedLocale, "format.priceNotProvided");
   }
 
   const rounded = Math.round(Number(amount));
-  const code = currency || "TRY";
+  const code = currency || CURRENT_MARKET.currencyCode;
   const formatted = formatNumber(rounded, normalizedLocale);
 
   if (normalizedLocale === "tr") {
@@ -19,7 +20,7 @@ export function formatCurrency(amount?: number | null, currency: string | null |
   return code === "TRY" ? `TRY ${formatted}` : `${code} ${formatted}`;
 }
 
-export function formatPrice(amount?: number | null, currency: string | null | undefined = "TRY", locale?: string | null) {
+export function formatPrice(amount?: number | null, currency: string | null | undefined = CURRENT_MARKET.currencyCode, locale?: string | null) {
   return formatCurrency(amount, currency, locale);
 }
 

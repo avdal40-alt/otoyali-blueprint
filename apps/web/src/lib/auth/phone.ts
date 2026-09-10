@@ -5,6 +5,7 @@ import {
   type CountryCode
 } from "libphonenumber-js/max";
 import type { Locale } from "@/i18n/types";
+import { CURRENT_MARKET } from "@/lib/market";
 
 export type AuthPhoneCountry = CountryCode;
 
@@ -35,7 +36,7 @@ export type PhoneCountryOption = {
   searchText: string;
 };
 
-export const DEFAULT_PHONE_COUNTRY: AuthPhoneCountry = "TR";
+export const DEFAULT_PHONE_COUNTRY: AuthPhoneCountry = CURRENT_MARKET.defaultPhoneCountry;
 
 const supportedCountries = new Set<AuthPhoneCountry>(getCountries());
 

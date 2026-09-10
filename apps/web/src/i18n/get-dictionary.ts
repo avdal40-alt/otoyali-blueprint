@@ -3,13 +3,16 @@ import { tr } from "./dictionaries/tr";
 import { DEFAULT_LOCALE, normalizeLocale } from "./config";
 import type { ClientDictionary, Dictionary, DictionarySection, Locale, TranslationParams } from "./types";
 
-const dictionaries: Record<Locale, Dictionary> = {
+const dictionaries: Record<"tr" | "en", Dictionary> = {
   tr,
   en
 };
 
+const missingTranslationKeys = new Set<string>();
+
 export function getDictionary(locale?: string | null): Dictionary {
-  return dictionaries[normalizeLocale(locale)] ?? dictionaries[DEFAULT_LOCALE];
+  const normalizedLocale = normalizeLocale(locale);
+  return dictionaries[normalizedLocale] ?? dictionaries[DEFAULT_LOCALE];
 }
 
 export function getClientDictionary(locale?: string | null): ClientDictionary {
@@ -40,9 +43,19 @@ export function getClientDictionary(locale?: string | null): ClientDictionary {
 
 export function t(locale: Locale | string | null | undefined, key: string, params?: TranslationParams) {
   const dictionary = getDictionary(locale);
-  const value = readKey(dictionary, key) ?? readKey(dictionaries[DEFAULT_LOCALE], key) ?? key;
+  const localizedValue = readKey(dictionary, key);
+  const fallbackValue = readKey(dictionaries[DEFAULT_LOCALE], key);
+  const value = localizedValue ?? fallbackValue;
 
-  if (typeof value !== "string") return key;
+  if (typeof value !== "string") {
+    reportMissingTranslation(normalizeLocale(locale), key);
+    return String(readKey(dictionaries[DEFAULT_LOCALE], "common.translationUnavailable") ?? "");
+  }
+
+  if (localizedValue === undefined) {
+    reportMissingTranslation(normalizeLocale(locale), key);
+  }
+
   return interpolate(value, params);
 }
 
@@ -60,4 +73,12 @@ function readKey(dictionary: Dictionary | DictionarySection, key: string) {
     if (!current || typeof current !== "object") return undefined;
     return (current as DictionarySection)[part];
   }, dictionary);
+}
+
+function reportMissingTranslation(locale: Locale, key: string) {
+  const identifier = `${locale}:${key}`;
+  if (missingTranslationKeys.has(identifier)) return;
+
+  missingTranslationKeys.add(identifier);
+  console.warn(`[i18n] Missing translation for ${identifier}; using the Turkish fallback.`);
 }

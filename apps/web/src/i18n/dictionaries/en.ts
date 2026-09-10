@@ -2,6 +2,7 @@ import type { Dictionary } from "../types";
 
 export const en = {
   common: {
+    translationUnavailable: "Content is unavailable right now.",
     appName: "OTOYALI",
     continue: "Continue",
     cancel: "Cancel",

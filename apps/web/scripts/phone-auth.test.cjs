@@ -5,7 +5,9 @@ const ts = require("typescript");
 
 const projectRoot = path.resolve(__dirname, "..");
 const sourcePath = path.join(projectRoot, "src", "lib", "auth", "phone.ts");
+const marketSourcePath = path.join(projectRoot, "src", "lib", "market.ts");
 const source = fs.readFileSync(sourcePath, "utf8");
+const marketSource = fs.readFileSync(marketSourcePath, "utf8");
 const compiled = ts.transpileModule(source, {
   compilerOptions: {
     esModuleInterop: true,
@@ -15,8 +17,21 @@ const compiled = ts.transpileModule(source, {
   fileName: sourcePath
 }).outputText;
 const phoneModule = { exports: {} };
+const marketModule = { exports: {} };
 
-new Function("require", "module", "exports", compiled)(require, phoneModule, phoneModule.exports);
+new Function("require", "module", "exports", ts.transpileModule(marketSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022
+  },
+  fileName: marketSourcePath
+}).outputText)(require, marketModule, marketModule.exports);
+
+new Function("require", "module", "exports", compiled)(
+  (request) => request === "@/lib/market" ? marketModule.exports : require(request),
+  phoneModule,
+  phoneModule.exports
+);
 
 const {
   DEFAULT_PHONE_COUNTRY,

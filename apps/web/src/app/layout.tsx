@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { I18nProvider } from "@/i18n/client";
-import { getLocaleDirection } from "@/i18n/config";
+import { getLocaleDirection, getLocaleTag } from "@/i18n/config";
 import { getClientDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
 import { AssistantRoot } from "@/features/ai";
@@ -55,7 +55,7 @@ export default async function RootLayout({
   const dictionary = getClientDictionary(locale);
 
   return (
-    <html lang={locale} dir={getLocaleDirection(locale)}>
+    <html lang={getLocaleTag(locale)} dir={getLocaleDirection(locale)}>
       <body>
         <I18nProvider locale={locale} dictionary={dictionary}>
           {children}

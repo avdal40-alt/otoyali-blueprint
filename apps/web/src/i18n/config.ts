@@ -1,25 +1,75 @@
-import type { FutureLocale, Locale, LocaleDirection } from "./types";
+import type { Locale, LocaleDirection, LocaleId } from "./types";
 
-export const SUPPORTED_LOCALES = ["tr", "en"] as const;
-export const FUTURE_LOCALES = ["de", "ar", "ru"] as const satisfies readonly FutureLocale[];
+export type LocaleDefinition = {
+  tag: string;
+  dir: LocaleDirection;
+  label: string;
+  nativeLabel: string;
+  intlLocale: string;
+  released: boolean;
+};
+
+export const LOCALE_REGISTRY = {
+  tr: {
+    tag: "tr-TR",
+    dir: "ltr",
+    label: "Turkish",
+    nativeLabel: "Türkçe",
+    intlLocale: "tr-TR",
+    released: true
+  },
+  en: {
+    tag: "en",
+    dir: "ltr",
+    label: "English",
+    nativeLabel: "English",
+    // Preserve the existing English number/date formatting behavior.
+    intlLocale: "en-US",
+    released: true
+  },
+  ru: {
+    tag: "ru",
+    dir: "ltr",
+    label: "Russian",
+    nativeLabel: "Русский",
+    intlLocale: "ru-RU",
+    released: false
+  },
+  ar: {
+    tag: "ar",
+    dir: "rtl",
+    label: "Arabic",
+    nativeLabel: "العربية",
+    intlLocale: "ar",
+    released: false
+  },
+  "zh-CN": {
+    tag: "zh-CN",
+    dir: "ltr",
+    label: "Simplified Chinese",
+    nativeLabel: "简体中文",
+    intlLocale: "zh-CN",
+    released: false
+  }
+} as const;
+
+// The registry is the sole release-status source. Only released locales participate
+// in request negotiation and public routing.
+export const SUPPORTED_LOCALES = (Object.keys(LOCALE_REGISTRY) as LocaleId[]).filter(
+  (locale): locale is Locale => LOCALE_REGISTRY[locale].released
+);
+export const FUTURE_LOCALES = (Object.keys(LOCALE_REGISTRY) as LocaleId[]).filter(
+  (locale) => !LOCALE_REGISTRY[locale].released
+);
 export const DEFAULT_LOCALE: Locale = "tr";
 export const LOCALE_COOKIE_NAME = "otoyali_locale";
 export const LOCALE_HEADER_NAME = "x-otoyali-locale";
 
-export const LOCALE_CONFIG: Record<Locale, { label: string; nativeLabel: string; dir: LocaleDirection; intlLocale: string }> = {
-  tr: {
-    label: "Turkish",
-    nativeLabel: "Türkçe",
-    dir: "ltr",
-    intlLocale: "tr-TR"
-  },
-  en: {
-    label: "English",
-    nativeLabel: "English",
-    dir: "ltr",
-    intlLocale: "en-US"
-  }
-};
+// Retained as a compatibility alias for existing callers. It intentionally exposes
+// only released locales so legacy consumers cannot activate future locales.
+export const LOCALE_CONFIG = Object.fromEntries(
+  SUPPORTED_LOCALES.map((locale) => [locale, LOCALE_REGISTRY[locale]])
+) as Pick<typeof LOCALE_REGISTRY, Locale>;
 
 const EN_TO_TR_STATIC_PATHS: Record<string, string> = {
   "/used-cars": "/ikinci-el-araba",
@@ -58,7 +108,11 @@ const EN_TO_TR_STATIC_PATHS: Record<string, string> = {
 const TR_TO_EN_STATIC_PATHS = Object.fromEntries(Object.entries(EN_TO_TR_STATIC_PATHS).map(([enPath, trPath]) => [trPath, enPath]));
 
 export function isSupportedLocale(value?: string | null): value is Locale {
-  return SUPPORTED_LOCALES.includes(value as Locale);
+  return Boolean(value && SUPPORTED_LOCALES.includes(value as Locale));
+}
+
+export function isKnownLocale(value?: string | null): value is LocaleId {
+  return Boolean(value && Object.prototype.hasOwnProperty.call(LOCALE_REGISTRY, value));
 }
 
 export function normalizeLocale(value?: string | null): Locale {
@@ -67,12 +121,20 @@ export function normalizeLocale(value?: string | null): Locale {
   return isSupportedLocale(candidate) ? candidate : DEFAULT_LOCALE;
 }
 
-export function getLocaleDirection(locale: Locale): LocaleDirection {
-  return LOCALE_CONFIG[locale]?.dir ?? "ltr";
+export function getLocaleDirection(locale: LocaleId): LocaleDirection {
+  return LOCALE_REGISTRY[locale]?.dir ?? LOCALE_REGISTRY[DEFAULT_LOCALE].dir;
 }
 
-export function getIntlLocale(locale: Locale) {
-  return LOCALE_CONFIG[locale]?.intlLocale ?? LOCALE_CONFIG[DEFAULT_LOCALE].intlLocale;
+export function getIntlLocale(locale: LocaleId) {
+  return LOCALE_REGISTRY[locale]?.intlLocale ?? LOCALE_REGISTRY[DEFAULT_LOCALE].intlLocale;
+}
+
+export function getLocaleTag(locale: LocaleId) {
+  return LOCALE_REGISTRY[locale]?.tag ?? LOCALE_REGISTRY[DEFAULT_LOCALE].tag;
+}
+
+export function getLocaleDefinition(locale: LocaleId) {
+  return LOCALE_REGISTRY[locale];
 }
 
 export function stripLocalePrefix(pathname: string): { locale: Locale | null; pathname: string } {
@@ -80,7 +142,7 @@ export function stripLocalePrefix(pathname: string): { locale: Locale | null; pa
   const segments = normalized.split("/").filter(Boolean);
   const first = segments[0];
 
-  if (first === "en" || first === "tr") {
+  if (isSupportedLocale(first)) {
     const stripped = `/${segments.slice(1).join("/")}`;
     return {
       locale: first,

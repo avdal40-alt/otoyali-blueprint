@@ -31,12 +31,15 @@
     "test:sell-03g": "node scripts/sell-03g-title-consistency.test.cjs",
     "test:sell-03h": "node scripts/sell-03h-localization.test.cjs",
     "test:sell-03i": "node scripts/sell-03i-browser-blockers.test.cjs",
-    "test:sell-route-state": "node scripts/sell-route-state.test.cjs"
+    "test:sell-route-state": "node scripts/sell-route-state.test.cjs",
+    "test:i18n-foundation": "node scripts/i18n-foundation.test.cjs",
+    "test:i18n-routing": "node scripts/i18n-routing-runtime.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "libphonenumber-js": "^1.13.9",
     "next": "15.5.21",
+    "next-intl": "^4.14.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

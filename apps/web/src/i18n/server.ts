@@ -2,6 +2,8 @@ import { cookies, headers } from "next/headers";
 import { DEFAULT_LOCALE, LOCALE_COOKIE_NAME, LOCALE_HEADER_NAME, normalizeLocale } from "./config";
 import type { Locale } from "./types";
 
+export { getFormatter as getServerFormatter, getTranslations as getServerTranslations } from "next-intl/server";
+
 export async function getRequestLocale(): Promise<Locale> {
   const headerLocale = (await headers()).get(LOCALE_HEADER_NAME);
   if (headerLocale) return normalizeLocale(headerLocale);

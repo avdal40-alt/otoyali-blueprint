@@ -11,25 +11,44 @@ import {
 } from "./i18n/config";
 
 const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+const MAINTENANCE_PATH = "/maintenance";
+
+function isApiPath(pathname: string) {
+  return pathname === "/api" || pathname.startsWith("/api/");
+}
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const pathname = url.pathname;
 
-  if (process.env.NEXT_PUBLIC_YOLMOD_CUTOVER_MODE === "maintenance" && pathname !== "/maintenance") {
-    if (pathname.startsWith("/api/")) {
+  if (process.env.NEXT_PUBLIC_YOLMOD_CUTOVER_MODE === "maintenance") {
+    if (isApiPath(pathname)) {
       return NextResponse.json(
         { error: "Service temporarily unavailable" },
         { status: 503, headers: { "Retry-After": "60", "Cache-Control": "no-store" } }
       );
     }
 
-    url.pathname = "/maintenance";
+    // The route handler owns the final 503 response. A status on a rewrite is
+    // not preserved when Next.js renders the rewritten App Router page.
+    if (pathname === MAINTENANCE_PATH) {
+      return NextResponse.next();
+    }
+
+    url.pathname = MAINTENANCE_PATH;
     url.search = "";
-    return NextResponse.rewrite(url, {
-      status: 503,
-      headers: { "Retry-After": "60", "Cache-Control": "no-store" }
-    });
+    return NextResponse.rewrite(url);
+  }
+
+  // This is a terminal route, not a locale-specific public page.
+  if (pathname === MAINTENANCE_PATH) {
+    return NextResponse.next();
+  }
+
+  // API handlers and the OAuth callback are routing boundaries, not public pages.
+  // They must retain their canonical paths and (for callbacks) their query string.
+  if (isApiPath(pathname) || pathname === "/auth/callback") {
+    return NextResponse.next();
   }
 
   if (pathname === "/akis" || pathname.startsWith("/akis/")) {

@@ -2,6 +2,7 @@ import type { Dictionary } from "../types";
 
 export const tr = {
   common: {
+    translationUnavailable: "İçerik şu anda kullanılamıyor.",
     appName: "OTOYALI",
     continue: "Devam et",
     cancel: "İptal",
