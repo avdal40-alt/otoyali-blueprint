@@ -178,6 +178,11 @@ export function localizePath(
   return `${getLocalePath(locale, targetPath)}${suffix}`;
 }
 
+/** Produces a safe locale-switch target from an in-app URL. */
+export function getLocaleSwitchPath(currentHref: string, locale: Locale) {
+  return localizePath(currentHref, locale);
+}
+
 export function rewriteLocalePath(pathname: string) {
   const { locale, pathname: stripped } = stripLocalePrefix(pathname);
   if (!locale) return normalizePathname(pathname);

@@ -21,7 +21,8 @@ export const tr = {
     priceNotProvided: "Fiyat belirtilmedi",
     language: "Dil",
     turkish: "Türkçe",
-    english: "English"
+    english: "English",
+    imageLoading: "Görsel hazırlanıyor"
   },
   navigation: {
     buyVehicle: "Araç al",
@@ -99,6 +100,8 @@ export const tr = {
     resultsCount: "{count} ilan bulundu",
     advanced: "Gelişmiş",
     advancedFilters: "Gelişmiş filtreler",
+    filters: "Filtreler",
+    closeFilters: "Filtreleri kapat",
     saveSearch: "Aramayı kaydet",
     brand: "Marka",
     model: "Model",

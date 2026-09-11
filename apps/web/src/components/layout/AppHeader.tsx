@@ -3,19 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { ButtonLink } from "@/components/ui/Button";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function AppHeader() {
   const { locale, dictionary } = useI18n();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [isAuthed, setIsAuthed] = useState(false);
-  const query = searchParams.toString();
-  const currentHref = `${pathname}${query ? `?${query}` : ""}`;
   const profilePath = localizePath("/profile", locale);
   const loginProfilePath = `${localizePath("/login", locale)}?next=${encodeURIComponent(profilePath)}`;
 
@@ -52,22 +48,7 @@ export function AppHeader() {
           </Link>
         </nav>
         <div className="flex items-center gap-2">
-          <div className="hidden rounded-full border border-oto-border p-1 text-xs font-bold md:flex" aria-label={String(dictionary.common.language)}>
-            <Link
-              href={localizePath(currentHref, "tr", { forceDefaultLocalePrefix: true })}
-              className={locale === "tr" ? "rounded-full bg-oto-text px-2 py-1 text-white" : "px-2 py-1 text-oto-muted"}
-              hrefLang="tr"
-            >
-              Türkçe
-            </Link>
-            <Link
-              href={localizePath(currentHref, "en")}
-              className={locale === "en" ? "rounded-full bg-oto-text px-2 py-1 text-white" : "px-2 py-1 text-oto-muted"}
-              hrefLang="en"
-            >
-              English
-            </Link>
-          </div>
+          <LanguageSwitcher className="md:inline-flex" />
           <Link href={localizePath("/notifications", locale)} className="rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={String(dictionary.navigation.notifications)}>
             <BellIcon />
           </Link>

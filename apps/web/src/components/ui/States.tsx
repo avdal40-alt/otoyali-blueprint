@@ -1,5 +1,8 @@
+"use client";
+
 import { ButtonLink } from "./Button";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n/client";
 
 export function EmptyState({
   title,
@@ -34,11 +37,12 @@ export function EmptyState({
   );
 }
 
-export function LoadingState({ label = "Yükleniyor" }: { label?: string }) {
+export function LoadingState({ label }: { label?: string }) {
+  const { dictionary } = useI18n();
   return (
     <div className="rounded-card border border-oto-border bg-white p-8 text-center text-body text-oto-muted shadow-soft" aria-live="polite">
       <Spinner className="mx-auto mb-3" />
-      <span>{label}</span>
+      <span>{label ?? String(dictionary.common.loading)}</span>
     </div>
   );
 }
@@ -55,11 +59,12 @@ export function Spinner({ className }: { className?: string }) {
   return <span aria-hidden="true" className={cn("block h-5 w-5 animate-spin rounded-full border-2 border-oto-muted border-r-transparent", className)} />;
 }
 
-export function PageLoader({ label = "Yükleniyor" }: { label?: string }) {
+export function PageLoader({ label }: { label?: string }) {
+  const { dictionary } = useI18n();
   return (
     <div className="flex min-h-[320px] flex-col items-center justify-center rounded-card border border-oto-border bg-white text-body text-oto-muted">
       <Spinner className="mb-3" />
-      {label}
+      {label ?? String(dictionary.common.loading)}
     </div>
   );
 }
@@ -68,10 +73,11 @@ export function Skeleton({ className }: { className?: string }) {
   return <div className={cn("animate-pulse rounded-md bg-oto-skeleton", className)} />;
 }
 
-export function ImagePlaceholder({ label = "Görsel hazırlanıyor", className }: { label?: string; className?: string }) {
+export function ImagePlaceholder({ label, className }: { label?: string; className?: string }) {
+  const { dictionary } = useI18n();
   return (
     <div className={cn("flex aspect-[4/3] items-center justify-center rounded-md bg-oto-surface text-caption text-oto-muted", className)}>
-      {label}
+      {label ?? String(dictionary.common.imageLoading)}
     </div>
   );
 }

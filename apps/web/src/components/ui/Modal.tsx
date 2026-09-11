@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n/client";
 
 type ModalSize = "sm" | "md" | "lg" | "xl";
 
@@ -29,11 +30,12 @@ export function Modal({
   onClose?: () => void;
   className?: string;
 }) {
+  const { dictionary } = useI18n();
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-modal flex items-end justify-center bg-oto-text/60 p-0 md:items-center md:p-4" role="presentation">
-      {onClose ? <button type="button" aria-label="Kapat" className="absolute inset-0 cursor-default" onClick={onClose} /> : null}
+      {onClose ? <button type="button" aria-label={String(dictionary.common.close)} className="absolute inset-0 cursor-default" onClick={onClose} /> : null}
       <section
         role="dialog"
         aria-modal="true"
@@ -50,7 +52,7 @@ export function Modal({
           </h2>
           {onClose ? (
             <button type="button" onClick={onClose} className="rounded-full px-3 py-2 text-sm font-black text-oto-muted transition hover:bg-oto-surface">
-              Kapat
+              {String(dictionary.common.close)}
             </button>
           ) : null}
         </header>

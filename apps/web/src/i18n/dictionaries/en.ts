@@ -21,7 +21,8 @@ export const en = {
     priceNotProvided: "Price not provided",
     language: "Language",
     turkish: "Türkçe",
-    english: "English"
+    english: "English",
+    imageLoading: "Preparing image"
   },
   navigation: {
     buyVehicle: "Buy a vehicle",
@@ -99,6 +100,8 @@ export const en = {
     resultsCount: "{count} listings found",
     advanced: "Advanced",
     advancedFilters: "Advanced filters",
+    filters: "Filters",
+    closeFilters: "Close filters",
     saveSearch: "Save search",
     brand: "Brand",
     model: "Model",

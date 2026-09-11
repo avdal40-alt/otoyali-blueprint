@@ -1,16 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function MarketplaceFooter() {
   const { locale, dictionary } = useI18n();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const query = searchParams.toString();
-  const currentHref = `${pathname}${query ? `?${query}` : ""}`;
   const groups = [
     {
       title: "OTOYALI",
@@ -57,22 +53,7 @@ export function MarketplaceFooter() {
           <p className="mt-3 max-w-sm text-sm leading-6 text-oto-muted">
             {String(dictionary.footer.description)}
           </p>
-          <div className="mt-5 inline-flex rounded-full border border-oto-border p-1 text-xs font-bold" aria-label={String(dictionary.common.language)}>
-            <Link
-              href={localizePath(currentHref, "tr", { forceDefaultLocalePrefix: true })}
-              className={locale === "tr" ? "rounded-full bg-oto-text px-2 py-1 text-white" : "px-2 py-1 text-oto-muted"}
-              hrefLang="tr"
-            >
-              Türkçe
-            </Link>
-            <Link
-              href={localizePath(currentHref, "en")}
-              className={locale === "en" ? "rounded-full bg-oto-text px-2 py-1 text-white" : "px-2 py-1 text-oto-muted"}
-              hrefLang="en"
-            >
-              English
-            </Link>
-          </div>
+          <LanguageSwitcher className="mt-5" />
         </div>
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
           {groups.map((group) => (

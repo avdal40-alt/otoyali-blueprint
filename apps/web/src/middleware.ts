@@ -3,8 +3,8 @@ import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
   LOCALE_HEADER_NAME,
+  isSupportedLocale,
   localizePath,
-  normalizeLocale,
   pickLocaleFromAcceptLanguage,
   rewriteLocalePath,
   stripLocalePrefix
@@ -63,7 +63,9 @@ export function middleware(request: NextRequest) {
 
   const { locale: pathLocale } = stripLocalePrefix(pathname);
   const rawCookieLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
-  const cookieLocale = rawCookieLocale ? normalizeLocale(rawCookieLocale) : null;
+  // An unreleased or malformed cookie is not an explicit preference and must
+  // never suppress valid Accept-Language negotiation.
+  const cookieLocale = isSupportedLocale(rawCookieLocale) ? rawCookieLocale : null;
   const acceptLocale = pickLocaleFromAcceptLanguage(request.headers.get("accept-language"));
   const locale = pathLocale ?? cookieLocale ?? acceptLocale ?? DEFAULT_LOCALE;
   request.cookies.set(LOCALE_COOKIE_NAME, locale);
@@ -88,7 +90,7 @@ export function middleware(request: NextRequest) {
     return response;
   }
 
-  if (!rawCookieLocale && acceptLocale === "en") {
+  if (!cookieLocale && acceptLocale === "en") {
     const target = localizePath(`${pathname}${url.search}`, "en");
     const targetUrl = new URL(target, request.url);
     url.pathname = targetUrl.pathname;
@@ -104,8 +106,8 @@ export function middleware(request: NextRequest) {
     }
   });
 
-  if (!request.cookies.get(LOCALE_COOKIE_NAME)?.value && acceptLocale) {
-    setLocaleCookie(response, acceptLocale);
+  if (!cookieLocale) {
+    setLocaleCookie(response, acceptLocale ?? DEFAULT_LOCALE);
   }
 
   return response;
