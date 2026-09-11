@@ -189,7 +189,29 @@ export const en = {
     title: "Profile",
     account: "Account",
     loginRequiredTitle: "Log in to view your profile",
-    loginRequiredBody: "You need to log in to edit your profile and manage your listings."
+    loginRequiredBody: "You need to log in to edit your profile and manage your listings.",
+    detailsHint: "Your account and seller details are used when publishing listings.",
+    accountId: "Account",
+    phone: "Phone",
+    listingCount: "Listings",
+    createdAt: "Created",
+    fullName: "Full name",
+    contactName: "Contact person name",
+    displayName: "Display name",
+    dealerName: "Dealer name",
+    city: "City",
+    selectCity: "Select a city",
+    sellerType: "Seller type",
+    verifiedDealer: "Verified dealer",
+    privateSeller: "Private seller",
+    phoneVerifiedHint: "Verified through your sign-in phone.",
+    dealerStatusHint: "Dealer status is assigned after verification.",
+    saveSuccess: "Profile saved.",
+    saving: "Saving",
+    saveFailed: "We could not save your profile. Please try again.",
+    loadFailed: "We could not load your profile details. Please try again.",
+    logout: "Log out",
+    noPhone: "Not available"
   },
   favorites: {
     title: "Favorites",
@@ -219,12 +241,14 @@ export const en = {
     sending: "Sending",
     verifyTitle: "Verification code",
     verifyBody: "Enter the 6-digit code sent to {phone}.",
+    otpLabel: "Verification code",
     verifyCode: "Log in",
     verifying: "Verifying",
     resendCode: "Resend code",
     resendCooldown: "Resend in {seconds}s",
     phoneMissing: "your phone number",
-    loginRequired: "Login required"
+    loginRequired: "Login required",
+    callbackLoading: "Preparing your session"
   },
   video: {
     label: "Video Listings",
@@ -473,7 +497,8 @@ export const en = {
     invalidOtp: "The code could not be verified. Please try again.",
     missingSession: "No session was found. Please log in again.",
     networkUnavailable: "Could not connect. Check your internet connection and try again.",
-    missingSupabaseEnv: "Supabase environment variables are missing."
+    missingSupabaseEnv: "Supabase environment variables are missing.",
+    authConfiguration: "Sign-in is unavailable right now. Please try again later."
   },
   validation: {
     phoneInvalid: "Please check the phone number.",

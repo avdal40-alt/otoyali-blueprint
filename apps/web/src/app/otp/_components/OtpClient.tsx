@@ -67,7 +67,7 @@ export function OtpClient() {
     }
 
     if (!hasSupabaseEnv()) {
-      setError(String(dictionary.errors.missingSupabaseEnv));
+      setError(String(dictionary.errors.authConfiguration));
       return;
     }
 
@@ -109,7 +109,7 @@ export function OtpClient() {
     }
 
     if (!hasSupabaseEnv()) {
-      setError(String(dictionary.errors.missingSupabaseEnv));
+      setError(String(dictionary.errors.authConfiguration));
       return;
     }
 
@@ -147,7 +147,7 @@ export function OtpClient() {
       <h1 className="mt-2 text-2xl font-black text-oto-text">{String(dictionary.auth.verifyTitle)}</h1>
       <p className="mt-2 text-sm leading-6 text-oto-muted">{interpolate(String(dictionary.auth.verifyBody), { phone: maskedPhone })}</p>
       <div className="mt-5 grid gap-4">
-        <OtpInput value={token} onChange={setToken} />
+        <OtpInput value={token} onChange={setToken} label={String(dictionary.auth.otpLabel)} />
         {error ? <ErrorState message={error} /> : null}
         <Button onClick={verify} disabled={loading || token.length !== 6 || !transaction}>
           {loading ? String(dictionary.auth.verifying) : String(dictionary.auth.verifyCode)}

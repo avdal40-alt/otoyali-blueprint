@@ -44,7 +44,7 @@ export function LoginClient() {
     }
 
     if (!hasSupabaseEnv()) {
-      setError(String(dictionary.errors.missingSupabaseEnv));
+      setError(String(dictionary.errors.authConfiguration));
       return;
     }
 

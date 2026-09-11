@@ -31,7 +31,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   useEffect(() => {
     async function load() {
       if (!hasSupabaseEnv()) {
-        setError("Supabase ortam değişkenleri eksik.");
+        setError(String(dictionary.errors.authConfiguration));
         setLoading(false);
         return;
       }
@@ -62,7 +62,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
       const { data, error: profileError } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
       if (profileError) {
         logClientError("profile.load", profileError);
-        setError("Profil bilgileriniz yüklenemedi. Lütfen tekrar deneyin.");
+        setError(String(dictionary.profile.loadFailed));
       }
       const { count, error: listingCountError } = await supabase
         .schema("marketplace")
@@ -78,7 +78,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
     }
 
     void load();
-  }, [locale]);
+  }, [dictionary.errors.authConfiguration, dictionary.profile.loadFailed, locale]);
 
   async function save() {
     if (!profile || !userId) return;
@@ -106,7 +106,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
 
     if (updateError) {
       logClientError("profile.save", updateError);
-      setError("Profil kaydedilemedi. Lütfen tekrar deneyin.");
+      setError(String(dictionary.profile.saveFailed));
     } else {
       setSaved(true);
       setProfile((current) => current ? { ...current, full_name: fullName, display_name: displayName } : current);
@@ -138,57 +138,55 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
     <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
       <section className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
         <h1 className="text-2xl font-black text-oto-text">{String(dictionary.profile.title)}</h1>
-        <p className="mt-1 text-sm text-oto-muted">
-          {locale === "en" ? "Account and seller details are used while publishing listings." : "Hesap ve satıcı bilgileriniz ilan yayınlama sırasında kullanılır."}
-        </p>
+        <p className="mt-1 text-sm text-oto-muted">{String(dictionary.profile.detailsHint)}</p>
 
         <div className="mt-4 grid gap-3 rounded-md bg-oto-surface p-4 text-sm font-bold text-oto-muted md:grid-cols-4">
-          <p>Hesap: <span className="text-oto-text">{userId.slice(0, 8)}...{userId.slice(-4)}</span></p>
-          <p>Telefon: <span className="text-oto-text">{maskPhone(profile?.phone)}</span></p>
-          <p>İlan: <span className="text-oto-text">{listingCount ?? 0}</span></p>
-          <p>{locale === "en" ? "Created" : "Oluşturulma"}: <span className="text-oto-text">{createdAt ? new Intl.DateTimeFormat(locale === "en" ? "en-US" : "tr-TR").format(new Date(createdAt)) : String(dictionary.common.noInfo)}</span></p>
+          <p>{String(dictionary.profile.accountId)}: <span className="text-oto-text">{userId.slice(0, 8)}...{userId.slice(-4)}</span></p>
+          <p>{String(dictionary.profile.phone)}: <span className="text-oto-text">{maskPhone(profile?.phone, String(dictionary.profile.noPhone))}</span></p>
+          <p>{String(dictionary.profile.listingCount)}: <span className="text-oto-text">{listingCount ?? 0}</span></p>
+          <p>{String(dictionary.profile.createdAt)}: <span className="text-oto-text">{createdAt ? new Intl.DateTimeFormat(locale === "en" ? "en-US" : "tr-TR").format(new Date(createdAt)) : String(dictionary.common.noInfo)}</span></p>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-2">
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">{isDealer ? "Yetkili kişi adı" : "Ad soyad"}</span>
-            <Input value={profile?.full_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, full_name: event.target.value } : current)} placeholder={isDealer ? "Yetkili kişi adı" : "Ad soyad"} />
+            <span className="text-xs font-bold text-oto-muted">{isDealer ? String(dictionary.profile.contactName) : String(dictionary.profile.fullName)}</span>
+            <Input value={profile?.full_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, full_name: event.target.value } : current)} placeholder={isDealer ? String(dictionary.profile.contactName) : String(dictionary.profile.fullName)} />
           </label>
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">{isDealer ? "Galeri adı" : "Görünen ad"}</span>
-            <Input value={profile?.display_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, display_name: event.target.value } : current)} placeholder={isDealer ? "Galeri adı" : "Görünen ad"} />
+            <span className="text-xs font-bold text-oto-muted">{isDealer ? String(dictionary.profile.dealerName) : String(dictionary.profile.displayName)}</span>
+            <Input value={profile?.display_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, display_name: event.target.value } : current)} placeholder={isDealer ? String(dictionary.profile.dealerName) : String(dictionary.profile.displayName)} />
           </label>
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">Telefon</span>
+            <span className="text-xs font-bold text-oto-muted">{String(dictionary.profile.phone)}</span>
             <Input
               value={profile?.phone ?? ""}
               readOnly
               aria-readonly="true"
-              helperText={locale === "en" ? "Verified through your sign-in phone." : "Giriş telefonunuz üzerinden doğrulanmıştır."}
+              helperText={String(dictionary.profile.phoneVerifiedHint)}
             />
           </label>
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">Şehir</span>
+            <span className="text-xs font-bold text-oto-muted">{String(dictionary.profile.city)}</span>
             <Select value={profile?.city ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, city: event.target.value } : current)}>
-              <option value="">Şehir seçin</option>
+              <option value="">{String(dictionary.profile.selectCity)}</option>
               {profileCities.map((city) => <option key={city} value={city}>{cityLabel(city, locale)}</option>)}
             </Select>
           </label>
           <label className="grid gap-1 md:col-span-2">
-            <span className="text-xs font-bold text-oto-muted">Satıcı tipi</span>
+            <span className="text-xs font-bold text-oto-muted">{String(dictionary.profile.sellerType)}</span>
             <Input
-              value={isDealer ? (locale === "en" ? "Verified dealer" : "Doğrulanmış galeri") : (locale === "en" ? "Private seller" : "Bireysel")}
+              value={isDealer ? String(dictionary.profile.verifiedDealer) : String(dictionary.profile.privateSeller)}
               readOnly
               aria-readonly="true"
-              helperText={locale === "en" ? "Dealer status is assigned after verification." : "Galeri durumu doğrulama sonrasında atanır."}
+              helperText={String(dictionary.profile.dealerStatusHint)}
             />
           </label>
         </div>
         {error ? <div className="mt-4"><ErrorState message={error} /></div> : null}
-        {saved ? <p className="mt-4 rounded-md bg-green-50 p-3 text-sm font-semibold text-oto-success">Profil kaydedildi.</p> : null}
+        {saved ? <p className="mt-4 rounded-md bg-green-50 p-3 text-sm font-semibold text-oto-success" role="status">{String(dictionary.profile.saveSuccess)}</p> : null}
         <div className="mt-5 flex flex-wrap gap-3">
-          <Button onClick={save} disabled={saving}>{saving ? (locale === "en" ? "Saving" : "Kaydediliyor") : String(dictionary.common.save)}</Button>
-          <Button onClick={logout} variant="secondary">{locale === "en" ? "Log out" : "Çıkış yap"}</Button>
+          <Button onClick={save} disabled={saving}>{saving ? String(dictionary.profile.saving) : String(dictionary.common.save)}</Button>
+          <Button onClick={logout} variant="secondary">{String(dictionary.profile.logout)}</Button>
         </div>
       </section>
       <aside className="grid h-fit gap-3 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
@@ -201,8 +199,8 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   );
 }
 
-function maskPhone(phone?: string | null) {
-  if (!phone) return "Yok";
+function maskPhone(phone: string | null | undefined, fallback: string) {
+  if (!phone) return fallback;
   const compact = phone.replace(/\s+/g, "");
   if (compact.length <= 6) return compact;
   return `${compact.slice(0, 4)} ${"*".repeat(Math.max(3, compact.length - 7))} ${compact.slice(-3)}`;

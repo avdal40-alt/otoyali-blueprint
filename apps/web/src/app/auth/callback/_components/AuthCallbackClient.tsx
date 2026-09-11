@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { authErrorMessage, mapAuthError, safeNextPath } from "@/lib/auth/auth-ui";
+import { useI18n } from "@/i18n/client";
 
 export function AuthCallbackClient() {
+  const { locale, dictionary } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -14,7 +16,7 @@ export function AuthCallbackClient() {
   useEffect(() => {
     async function completeCallback() {
       if (!hasSupabaseEnv()) {
-        setError("Supabase ortam değişkenleri eksik.");
+        setError(String(dictionary.errors.authConfiguration));
         return;
       }
 
@@ -23,7 +25,7 @@ export function AuthCallbackClient() {
       const errorDescription = searchParams.get("error_description") || searchParams.get("error");
 
       if (errorDescription) {
-        setError(authErrorMessage(mapAuthError(errorDescription)));
+        setError(authErrorMessage(mapAuthError(errorDescription), locale));
         return;
       }
 
@@ -35,7 +37,7 @@ export function AuthCallbackClient() {
       const supabase = getSupabaseBrowserClient();
       const { error: callbackError } = await supabase.auth.exchangeCodeForSession(code);
       if (callbackError) {
-        setError(authErrorMessage(mapAuthError(callbackError)));
+        setError(authErrorMessage(mapAuthError(callbackError), locale));
         return;
       }
 
@@ -43,8 +45,8 @@ export function AuthCallbackClient() {
     }
 
     void completeCallback();
-  }, [router, searchParams]);
+  }, [dictionary.errors.authConfiguration, locale, router, searchParams]);
 
   if (error) return <ErrorState message={error} />;
-  return <LoadingState label="Oturum hazırlanıyor" />;
+  return <LoadingState label={String(dictionary.auth.callbackLoading)} />;
 }

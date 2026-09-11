@@ -40,6 +40,7 @@ export function PhoneInput({
 }: PhoneInputProps) {
   const searchId = useId();
   const listboxId = useId();
+  const phoneId = useId();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const countries = useMemo(() => getPhoneCountryOptions(locale), [locale]);
@@ -57,7 +58,7 @@ export function PhoneInput({
 
   return (
     <div className="grid gap-2">
-      <label className="block text-sm font-bold text-oto-text">{label}</label>
+      <label className="block text-sm font-bold text-oto-text" htmlFor={phoneId}>{label}</label>
       <div className="grid gap-2 sm:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
         <div className="relative">
           <button
@@ -69,6 +70,7 @@ export function PhoneInput({
             aria-haspopup="listbox"
             aria-expanded={isOpen}
             aria-controls={listboxId}
+            aria-label={countryLabel}
             onClick={() => setIsOpen((current) => !current)}
             onKeyDown={(event) => {
               if (event.key === "Escape") {
@@ -134,11 +136,13 @@ export function PhoneInput({
           ) : null}
         </div>
         <Input
+          id={phoneId}
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
           inputMode="tel"
           autoComplete="tel"
+          dir="ltr"
           error={error}
           helperText={helperText}
         />

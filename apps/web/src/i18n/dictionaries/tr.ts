@@ -189,7 +189,29 @@ export const tr = {
     title: "Profil",
     account: "Hesabım",
     loginRequiredTitle: "Profil için giriş yapın",
-    loginRequiredBody: "Profilinizi düzenlemek ve ilanlarınızı yönetmek için giriş yapmanız gerekir."
+    loginRequiredBody: "Profilinizi düzenlemek ve ilanlarınızı yönetmek için giriş yapmanız gerekir.",
+    detailsHint: "Hesap ve satıcı bilgileriniz ilan yayınlama sırasında kullanılır.",
+    accountId: "Hesap",
+    phone: "Telefon",
+    listingCount: "İlan",
+    createdAt: "Oluşturulma",
+    fullName: "Ad soyad",
+    contactName: "Yetkili kişi adı",
+    displayName: "Görünen ad",
+    dealerName: "Galeri adı",
+    city: "Şehir",
+    selectCity: "Şehir seçin",
+    sellerType: "Satıcı tipi",
+    verifiedDealer: "Doğrulanmış galeri",
+    privateSeller: "Bireysel",
+    phoneVerifiedHint: "Giriş telefonunuz üzerinden doğrulanmıştır.",
+    dealerStatusHint: "Galeri durumu doğrulama sonrasında atanır.",
+    saveSuccess: "Profil kaydedildi.",
+    saving: "Kaydediliyor",
+    saveFailed: "Profil kaydedilemedi. Lütfen tekrar deneyin.",
+    loadFailed: "Profil bilgileriniz yüklenemedi. Lütfen tekrar deneyin.",
+    logout: "Çıkış yap",
+    noPhone: "Yok"
   },
   favorites: {
     title: "Favoriler",
@@ -219,12 +241,14 @@ export const tr = {
     sending: "Gönderiliyor",
     verifyTitle: "Doğrulama kodu",
     verifyBody: "{phone} numarasına gelen 6 haneli kodu yazın.",
+    otpLabel: "Doğrulama kodu",
     verifyCode: "Giriş yap",
     verifying: "Doğrulanıyor",
     resendCode: "Kodu tekrar gönder",
     resendCooldown: "{seconds} sn sonra tekrar gönder",
     phoneMissing: "telefon numaranız",
-    loginRequired: "Giriş yapmanız gerekir"
+    loginRequired: "Giriş yapmanız gerekir",
+    callbackLoading: "Oturum hazırlanıyor"
   },
   video: {
     label: "Video İlanlar",
@@ -473,7 +497,8 @@ export const tr = {
     invalidOtp: "Kod doğrulanamadı. Lütfen tekrar deneyin.",
     missingSession: "Oturum bulunamadı. Lütfen tekrar giriş yapın.",
     networkUnavailable: "Bağlantı kurulamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.",
-    missingSupabaseEnv: "Supabase ortam değişkenleri eksik."
+    missingSupabaseEnv: "Supabase ortam değişkenleri eksik.",
+    authConfiguration: "Giriş şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin."
   },
   validation: {
     phoneInvalid: "Telefon numarasını kontrol edin.",
