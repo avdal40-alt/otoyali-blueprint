@@ -37,7 +37,8 @@
     "test:i18n-02": "node scripts/i18n-02-shared-ui.test.cjs",
     "test:i18n-03": "node scripts/i18n-03-auth-profile.test.cjs",
     "test:functional-02b1": "node scripts/functional-02b1.test.cjs",
-    "test:functional-02b2": "node scripts/functional-02b2.test.cjs"
+    "test:functional-02b2": "node scripts/functional-02b2.test.cjs",
+    "test:functional-02b3": "node scripts/functional-02b3.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
