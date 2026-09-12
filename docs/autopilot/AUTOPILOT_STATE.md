@@ -12,19 +12,20 @@ Git and verified test results are source of truth. This file is a concise reconc
 
 | Field | Value |
 | --- | --- |
-| Current stage status | AUTOPILOT-HARDEN-02 — COMPLETE; no product stage started |
-| Last completed stage | FUNCTIONAL-02C1B3A1 — Effective Database Privilege Matrix |
-| Last completed product stage | FUNCTIONAL-02C1B3A1 — Effective Database Privilege Matrix |
-| Last completed stage commit | `1fc44edbf59dc13986c5efc31fe39b35bc5cfad8` (`test(search): validate projection database privileges`) |
-| Next approved stage | FUNCTIONAL-02C1B3A2 — Projection Payload / Source Privacy Validation |
-| Latest mandatory checks | PASS — preflight and safety-check passed locally before AUTOPILOT-HARDEN-02; use Git and this run's commands for the next-stage baseline |
-| Latest migration static validation | PASS — `migration-check.ps1` against `HEAD`; no new migrations in AUTOPILOT-HARDEN-02 |
-| Latest migration runtime validation | PASS (historical) — 02B3 applied and inspected only on the existing local Supabase development stack; no runtime migration action in AUTOPILOT-HARDEN-02 |
+| Current stage status | FUNCTIONAL-02C1B3A2 — COMPLETE |
+| Last completed stage | FUNCTIONAL-02C1B3A2 — Projection Payload / Source Privacy Validation |
+| Last completed product stage | FUNCTIONAL-02C1B3A2 — Projection Payload / Source Privacy Validation |
+| Last completed stage commit | Resolve from Git after this ordinary stage commit (`test(search): validate projection payload privacy`) |
+| Last safe pre-stage commit | `014cc5a06a66d209a2b631607df384e32b0b2120` (`chore(autopilot): switch to fresh-thread stage execution`) |
+| Next approved stage | FUNCTIONAL-02C1C — Approved Entry-Path Integration and Fail-Closed Lifecycle Invalidation |
+| Latest mandatory checks | PASS — `preflight.ps1 -RequireClean` and `safety-check.ps1` passed locally at this stage start; targeted 02C1B3A1 and 02C1B3A2 checks passed locally |
+| Latest migration static validation | PASS — `migration-check.ps1` against stage HEAD; no new migrations in FUNCTIONAL-02C1B3A2 |
+| Latest migration runtime validation | NOT_APPLICABLE — no migration or local database mutation in FUNCTIONAL-02C1B3A2; targeted local read-only privacy validation passed |
 | Push status | BLOCKED — no push without verified non-production target and explicit authority |
 | Production status | BLOCKED — manual-only; no access or mutation by autopilot |
 | Known blockers | Remote environment identity remains unverified and blocks all remote actions |
 | Unresolved external-provider decisions | AI, SMS, video, CAPTCHA, analytics, email/push, and VIN/TRAMER/SBM providers remain unresolved; absence blocks only dependent stages |
-| Last run timestamp | 2026-09-12 — AUTOPILOT-HARDEN-02 complete; final infrastructure commit identity is resolved from Git after commit |
+| Last run timestamp | 2026-09-12 — FUNCTIONAL-02C1B3A2 complete; commit identity is resolved from Git after commit |
 
 ## Completed architecture/audit stages
 
@@ -34,4 +35,4 @@ Git and verified test results are source of truth. This file is a concise reconc
 
 ## Next fresh-thread preconditions
 
-Use `$yolmod-autopilot`; reconstruct context from repository sources, confirm this State against Git and the previous-stage commit, then implement exactly `FUNCTIONAL-02C1B3A2`. Its scope is public-safe projection payload/source privacy validation without VIN, phone, private seller data, report payloads, or moderation internals. Run targeted tests and required gates; update this State in the one stage commit; do not push, deploy, access production, schedule automation, or start another stage.
+Use `$yolmod-autopilot`; reconstruct context from repository sources, confirm this State against Git and the previous-stage commit, then implement exactly `FUNCTIONAL-02C1C` — Approved Entry-Path Integration and Fail-Closed Lifecycle Invalidation. Do not push, deploy, access production, schedule automation, or start another stage.
