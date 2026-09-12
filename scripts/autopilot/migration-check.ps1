@@ -12,7 +12,7 @@ function Invoke-Git([string[]]$Arguments) {
 }
 
 function Get-MigrationName([string]$Path) {
-    return [IO.Path]::GetFileName($Path.Replace('/', '\\'))
+    return [IO.Path]::GetFileName($Path)
 }
 
 try {
@@ -48,7 +48,7 @@ try {
 
     $baselineTimestamps = @($baselineNames | ForEach-Object { if ($_ -match '^(\d{14})_.+\.sql$') { [int64]$Matches[1] } })
     $highestBaselineTimestamp = if ($baselineTimestamps.Count -gt 0) { ($baselineTimestamps | Measure-Object -Maximum).Maximum } else { 0 }
-    $dangerousPattern = '(?im)^\s*(?:drop\s+(?:table|schema|database|function|policy|type|view|materialized\s+view)|truncate\b|delete\s+from\b|alter\s+table\b[^;]*\bdrop\b|grant\s+.+\s+to\s+(?:anon|authenticated|public)\b)'
+    $dangerousPattern = '(?im)^\s*(?:drop\s+(?:table|schema|database|function|policy|type|view|materialized\s+view)|truncate\b|delete\s+from\b|alter\s+table\b[^;]*\bdrop\b|grant\s+(?:all(?:\s+privileges)?|[^;]*(?:\binsert\b|\bupdate\b|\bdelete\b))[^;]*\bto\s+(?:anon|authenticated|public)\b)'
 
     foreach ($path in $newPaths) {
         $name = Get-MigrationName $path

@@ -35,7 +35,8 @@
     "test:i18n-foundation": "node scripts/i18n-foundation.test.cjs",
     "test:i18n-routing": "node scripts/i18n-routing-runtime.test.cjs",
     "test:i18n-02": "node scripts/i18n-02-shared-ui.test.cjs",
-    "test:i18n-03": "node scripts/i18n-03-auth-profile.test.cjs"
+    "test:i18n-03": "node scripts/i18n-03-auth-profile.test.cjs",
+    "test:functional-02b1": "node scripts/functional-02b1.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
