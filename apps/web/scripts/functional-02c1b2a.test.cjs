@@ -1,0 +1,3 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');const s=fs.readFileSync(path.resolve(__dirname,'../../../supabase/migrations/20260912153004_functional_02c1b2a_search_eligibility.sql'),'utf8');
+for(const x of ['RETURNS BOOLEAN','LANGUAGE sql STABLE SECURITY DEFINER','SET search_path = marketplace, vehicle, pg_catalog',"l.status = 'active'","l.moderation_status = 'active'","vp.profile_status = 'active'",'REVOKE ALL ON FUNCTION'])assert.ok(s.includes(x));
+assert.doesNotMatch(s,/\b(?:INSERT|UPDATE|DELETE)\b/i); console.log('FUNCTIONAL-02C1B2A eligibility contract passed');

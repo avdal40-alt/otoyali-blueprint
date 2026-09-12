@@ -11,10 +11,10 @@ Git and test results are source of truth. The bootstrap commit advances HEAD; it
 
 | Field | Value |
 | --- | --- |
-| Current stage | FUNCTIONAL-02C1B1 — COMPLETE |
-| Last completed stage | FUNCTIONAL-02C1B1 — Search Projection Table + RLS/Grants/Indexes |
+| Current stage | FUNCTIONAL-02C1B2A — COMPLETE |
+| Last completed stage | FUNCTIONAL-02C1B2A — Canonical Search Eligibility Function |
 | Bootstrap commit | See Git `HEAD` after bootstrap |
-| Required next stage | FUNCTIONAL-02C1B2 — Internal Search Projection Refresh Function |
+| Required next stage | FUNCTIONAL-02C1B2B — Internal Search Projection Refresh Function |
 | Test status | PASS — FUNCTIONAL-02B3 contract test and migration static/runtime checks passed on 2026-09-12 |
 | Migration status | Additive 02B1, 02B2, and 02B3 migrations applied and runtime-inspected on the existing local development database only; never applied remotely or to production |
 | Migration static check | PASS — 02B3 checked by `migration-check.ps1` before local forward-only application |
