@@ -49,6 +49,11 @@ try {
         '**Expected working branch:**',
         '**Git-derived current reference:**',
         '**Protected branches:**',
+        '**Autonomous run mode:**',
+        '**Maximum product stages per run:**',
+        '**Stages completed in current run:**',
+        '**Last checkpoint:**',
+        '**Last stop reason:**',
         '| Last completed product stage |',
         '| Last completed stage commit |',
         '| Next approved stage |',
@@ -63,16 +68,16 @@ try {
         '| Last run timestamp |'
     )
     $missingStateMarkers = @($requiredStateMarkers | Where-Object { $state -notmatch [regex]::Escape($_) })
-    if ($missingStateMarkers.Count -gt 0) { throw "AUTOPILOT_STATE is missing required fresh-thread fields: $($missingStateMarkers -join ', ')" }
-    $requiredFreshThreadSources = @(
+    if ($missingStateMarkers.Count -gt 0) { throw "AUTOPILOT_STATE is missing required controlled-run fields: $($missingStateMarkers -join ', ')" }
+    $requiredAutopilotSources = @(
         'AGENTS.md',
         '.agents/skills/yolmod-autopilot/SKILL.md',
         'docs/autopilot/YOLMOD_V1_PRODUCT_SPEC.md',
         'docs/autopilot/IMPLEMENTATION_ROADMAP_V1.md',
         'docs/autopilot/AUTOPILOT_RULES.md'
     )
-    $missingFreshThreadSources = @($requiredFreshThreadSources | Where-Object { -not (Test-Path -LiteralPath (Join-Path $repoRoot $_)) })
-    if ($missingFreshThreadSources.Count -gt 0) { throw "Fresh-thread sources are missing: $($missingFreshThreadSources -join ', ')" }
+    $missingAutopilotSources = @($requiredAutopilotSources | Where-Object { -not (Test-Path -LiteralPath (Join-Path $repoRoot $_)) })
+    if ($missingAutopilotSources.Count -gt 0) { throw "Autopilot sources are missing: $($missingAutopilotSources -join ', ')" }
     if ($branch -eq 'main') { throw 'Protected main branch: autopilot execution is blocked.' }
     if ($RequireClean -and $status.Count -gt 0) { throw 'Working tree is not clean; stop before selecting an autopilot stage.' }
     if ($Environment -ne 'local') { throw "$Environment is not configured by this local script. Confirm the remote project identity and use an explicit release workflow." }

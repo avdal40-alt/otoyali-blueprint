@@ -4,21 +4,31 @@ description: "Execute approved autonomous Yolmod V1 roadmap stages with local sa
 ---
 # Yolmod autopilot
 
-Use this skill only for the local Yolmod V1 development loop. Fresh-thread mode is the default: one fresh Codex thread executes exactly one approved implementation stage and creates exactly one commit. It keeps context small, prevents stale conversational assumptions, and makes continuation reproducible; it is not a way to bypass Codex or account usage limits.
+Use this skill only for the local Yolmod V1 development loop. The default is a controlled multi-stage run: one fresh Codex thread may execute up to three approved, sequential implementation stages. Each stage creates exactly one ordinary commit. A fresh run keeps context small and reproducible; it is not a way to bypass Codex or account usage limits.
 
 Never rely on prior chat context, remembered command output, prior Codex conclusions, or invisible state from another thread. Git and verified test results override markdown state if they conflict. If an important decision exists only in chat and is not represented in repository documentation, stop rather than guess.
 
-## Fresh-thread start protocol
+## Controlled-run start protocol
 
 Before modifying files, in this order:
 
 1. Locate the repository root and read `AGENTS.md`.
 2. Read this skill, `docs/autopilot/YOLMOD_V1_PRODUCT_SPEC.md`, `docs/autopilot/IMPLEMENTATION_ROADMAP_V1.md`, `docs/autopilot/AUTOPILOT_RULES.md`, and `docs/autopilot/AUTOPILOT_STATE.md`.
 3. Run `scripts/autopilot/preflight.ps1 -RequireClean` and `scripts/autopilot/safety-check.ps1`; compare their results with State and stop if the tree is not clean, the baseline cannot be reconciled, or a required local tool is unavailable.
-4. Inspect the previous stage commit and confirm the single next approved stage from State and Roadmap. Load the specialised Yolmod skill relevant to that stage.
+4. Inspect the previous stage commit and confirm the next approved stage from State and Roadmap. Load the specialised Yolmod skill relevant to that stage.
 5. If a detailed engineering contract is needed, derive it from the Spec, Roadmap, actual code, tests, migrations, and durable contracts. Record any material decision needed by a future thread in repository documentation.
 
-Do not begin a second implementation stage in this thread.
+Set the controlled-run counter to zero at the start. Never implement more than three product stages in one run.
+
+## Controlled multi-stage continuation
+
+After a successful stage commit, continue only when all of the following are true: the commit succeeded; the worktree is clean; State reconciles with Git; Roadmap explicitly identifies a dependency-valid next stage; required tests passed; no production action, unresolved provider decision, business/product ambiguity, or security/privacy issue blocks it; and the next stage does not require a destructive migration.
+
+Before selecting the next stage, rerun `preflight.ps1 -RequireClean` and `safety-check.ps1`, inspect the just-created commit, and reconstruct the next-stage context from repository sources. Do not use remembered chat conclusions as a substitute for durable contracts.
+
+If any continuation condition fails, stop and record the exact reason. A fresh thread is not required merely because one stage completed.
+
+After the third successful product-stage commit, run `scripts/autopilot/checkpoint.ps1`, record its actual result, and stop. Do not start a fourth stage. An early stop before three stages is allowed only for a concrete risk, dependency, environment, or context reason and must be reported accurately.
 
 ## Long-running command continuation
 
@@ -36,10 +46,10 @@ Mark a product stage complete only when its Roadmap scope and required files are
 
 Update `docs/autopilot/AUTOPILOT_STATE.md` in the stage commit with factual status, checks, the last safe commit, and exactly one next unblocked small task. Stage only explicitly reviewed files.
 
-## Fresh-thread end protocol
+## Controlled-run end protocol
 
-After the commit, identify the next stage and stop. Report: `STAGE RESULT: PASS / STOP`; stage; starting and final HEAD; implemented scope; migration and runtime-validation result; tests; security review; State last-completed/next values; commit/worktree/push status; production access/mutation status; blockers; and `NEXT FRESH THREAD` with its stage ID and name. Recommended title: `YOLMOD — <STAGE-ID>`; titles are convenience only and never state.
+After each stage commit, update the controlled-run counter and identify the next stage. At the run end, report: `STAGE RESULT: PASS / STOP`; every completed stage and commit; starting and final HEAD; implemented scope; migration and runtime-validation results; tests; security review; State last-completed/next values; checkpoint result when due; commit/worktree/push status; production access/mutation status; blockers; and `NEXT RECOMMENDED ACTION`. Recommended titles such as `YOLMOD — <STAGE-ID>` are convenience only and never state.
 
-On a blocked or failing run, do not create a false-success commit or begin an unrelated stage. Record the exact blocker, failing command/test, affected files, last known safe commit, and whether the next fresh thread must `RETRY`, `AUDIT`, or `WAIT FOR HUMAN DECISION`.
+On a blocked or failing run, do not create a false-success commit or begin an unrelated stage. Record the exact blocker, failing command/test, affected files, last known safe commit, and whether the next action must `RETRY`, `AUDIT`, `WAIT FOR HUMAN DECISION`, or `WAIT FOR ENVIRONMENT`.
 
 Never reset history, amend/squash, force-push, rewrite an applied migration, reset/truncate/delete database data, expose secrets, or perform an unconfirmed remote action. Do not push, deploy, apply a migration, or use staging/production until its target identity, release path, and authority are explicitly confirmed. Stop and report a concrete blocker for unclear business logic, missing access, or a recurring failure.
