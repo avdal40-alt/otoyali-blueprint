@@ -139,40 +139,79 @@ function Invoke-CodexProcess([string]$CodexPath, [string[]]$Arguments, [string]$
     }
     Write-ProcessLog $Label 'STDOUT' $stdoutPath
     Write-ProcessLog $Label 'STDERR' $stderrPath
-    Write-SupervisorLog "CODEX_PROCESS_END label=$Label pid=$($result.ProcessId) exit_code=$($result.ExitCode)"
+    Write-SupervisorLog "CODEX_PROCESS_END label=$Label pid=$($result.ProcessId) exit_code=$($result.ExitCode) exit_code_type=$($result.ExitCode.GetType().FullName)"
     return $result
 }
 
 function Get-ProcessText([object]$ProcessResult) {
-    $stdout = if (Test-Path -LiteralPath $ProcessResult.StdoutPath) { Get-Content -LiteralPath $ProcessResult.StdoutPath -Raw } else { '' }
-    $stderr = if (Test-Path -LiteralPath $ProcessResult.StderrPath) { Get-Content -LiteralPath $ProcessResult.StderrPath -Raw } else { '' }
+    $stdout = if (Test-Path -LiteralPath $ProcessResult.StdoutPath) { [IO.File]::ReadAllText($ProcessResult.StdoutPath, [Text.Encoding]::UTF8) } else { '' }
+    $stderr = if (Test-Path -LiteralPath $ProcessResult.StderrPath) { [IO.File]::ReadAllText($ProcessResult.StderrPath, [Text.Encoding]::UTF8) } else { '' }
     return "$stdout`n$stderr"
 }
 
+function Add-CodexCandidate([System.Collections.Generic.List[object]]$Candidates, [string]$Path, [int]$Priority, [string]$Origin) {
+    if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path -LiteralPath $Path -PathType Leaf)) { return }
+    $fullPath = [IO.Path]::GetFullPath($Path)
+    $existing = @($Candidates | Where-Object { [string]::Equals($_.Path, $fullPath, [StringComparison]::OrdinalIgnoreCase) } | Select-Object -First 1)
+    if ($existing.Count -eq 0) {
+        $Candidates.Add([pscustomobject]@{ Path = $fullPath; Priority = $Priority; Origin = $Origin })
+        return
+    }
+    if ($Priority -lt $existing[0].Priority) {
+        $existing[0].Priority = $Priority
+        $existing[0].Origin = $Origin
+    }
+}
+
 function Resolve-CodexExecutable() {
-    $candidates = @(
-        Get-Command codex -CommandType Application -All -ErrorAction SilentlyContinue |
-            ForEach-Object { [IO.Path]::GetFullPath($_.Source) } |
-            Sort-Object -Unique
-    )
-    $complete = @(
-        $candidates | Where-Object {
-            $directory = Split-Path -Parent $_
-            (Test-Path -LiteralPath $_ -PathType Leaf) -and
-            (Test-Path -LiteralPath (Join-Path $directory 'codex-command-runner.exe') -PathType Leaf) -and
-            (Test-Path -LiteralPath (Join-Path $directory 'codex-windows-sandbox-setup.exe') -PathType Leaf)
+    $candidates = New-Object 'System.Collections.Generic.List[object]'
+    $localAppData = [Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData)
+    $stableBin = Join-Path $localAppData 'OpenAI\Codex\bin'
+    if (Test-Path -LiteralPath $stableBin -PathType Container) {
+        Get-ChildItem -LiteralPath $stableBin -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+            Add-CodexCandidate $candidates (Join-Path $_.FullName 'codex.exe') 1 'LOCALAPPDATA_OPENAI_CODEX_CURRENT_INSTALL'
         }
-    )
-    if ($complete.Count -eq 0) { throw 'CODEX_INSTALLATION_REPAIR_REQUIRED' }
-    if ($complete.Count -ne 1) { throw 'CODEX_EXECUTABLE_AMBIGUITY' }
-    $path = $complete[0]
+    }
+    $programsCodex = Join-Path $localAppData 'Programs\OpenAI\Codex\bin\codex.exe'
+    Add-CodexCandidate $candidates $programsCodex 2 'LOCALAPPDATA_PROGRAMS_OPENAI_CODEX'
+    Get-Command codex -CommandType Application -All -ErrorAction SilentlyContinue | ForEach-Object {
+        Add-CodexCandidate $candidates $_.Source 3 'PATH'
+    }
+    $valid = New-Object 'System.Collections.Generic.List[object]'
+    foreach ($candidate in @($candidates | Sort-Object Priority, Path)) {
+        $directory = Split-Path -Parent $candidate.Path
+        $runner = Test-Path -LiteralPath (Join-Path $directory 'codex-command-runner.exe') -PathType Leaf
+        $sandboxSetup = Test-Path -LiteralPath (Join-Path $directory 'codex-windows-sandbox-setup.exe') -PathType Leaf
+        if (-not ($runner -and $sandboxSetup)) {
+            Write-SupervisorLog "CODEX_CANDIDATE path=$($candidate.Path) origin=$($candidate.Origin) priority=$($candidate.Priority) version=NOT_RUN helper_status=runner:$runner,sandbox_setup:$sandboxSetup reason_rejected=INCOMPLETE_SANDBOX_HELPERS"
+            continue
+        }
+        $versionResult = Invoke-CodexProcess $candidate.Path @('--version') "codex-candidate-$($valid.Count)"
+        $version = (Get-ProcessText $versionResult).Trim()
+        if ($versionResult.ExitCode -ne 0 -or $version -notmatch '^codex-cli\s+\S+') {
+            Write-SupervisorLog "CODEX_CANDIDATE path=$($candidate.Path) origin=$($candidate.Origin) priority=$($candidate.Priority) version=$version helper_status=runner:$runner,sandbox_setup:$sandboxSetup reason_rejected=VERSION_CHECK_FAILED"
+            continue
+        }
+        Write-SupervisorLog "CODEX_CANDIDATE path=$($candidate.Path) origin=$($candidate.Origin) priority=$($candidate.Priority) version=$version helper_status=runner:$runner,sandbox_setup:$sandboxSetup reason_rejected=NONE"
+        $valid.Add([pscustomobject]@{ Path = $candidate.Path; Priority = $candidate.Priority; Origin = $candidate.Origin; Version = $version })
+    }
+    if ($valid.Count -eq 0) { throw 'CODEX_INSTALLATION_REPAIR_REQUIRED' }
+    $bestPriority = ($valid | Measure-Object -Property Priority -Minimum).Minimum
+    $best = @($valid | Where-Object { $_.Priority -eq $bestPriority })
+    if ($best.Count -ne 1) { throw 'CODEX_EXECUTABLE_AMBIGUITY' }
+    $path = $best[0].Path
+    $version = $best[0].Version
     $versionResult = Invoke-CodexProcess $path @('--version') 'codex-version'
     if ($versionResult.ExitCode -ne 0) { throw 'CODEX_VERSION_CHECK_FAILED' }
-    $version = (Get-ProcessText $versionResult).Trim()
     if ($version -notmatch '^codex-cli\s+\S+') { throw 'CODEX_VERSION_OUTPUT_INVALID' }
     $helpResult = Invoke-CodexProcess $path @('exec', '--help') 'codex-exec-help'
     if ($helpResult.ExitCode -ne 0 -or (Get-ProcessText $helpResult) -notmatch 'workspace-write') { throw 'CODEX_EXEC_HELP_FAILED' }
-    Write-SupervisorLog "CODEX_SELECTED path=$path version=$version"
+    $doctorResult = Invoke-CodexProcess $path @('doctor') 'codex-doctor'
+    $doctorText = Get-ProcessText $doctorResult
+    $doctorTermOnly = $doctorResult.ExitCode -ne 0 -and $doctorText -match 'TERM=dumb' -and $doctorText -notmatch '(?i)(sandbox.*(fail|error)|provisioning.*(fail|error)|helper.*(fail|error))'
+    if ($doctorResult.ExitCode -ne 0 -and -not $doctorTermOnly) { throw 'CODEX_DOCTOR_FAILED' }
+    Write-SupervisorLog "CODEX_DOCTOR usable=True exit_code=$($doctorResult.ExitCode) term_dumb_nonfatal=$doctorTermOnly"
+    Write-SupervisorLog "CODEX_SELECTED path=$path version=$version origin=$($best[0].Origin) priority=$bestPriority"
     return [pscustomobject]@{ Path = $path; Version = $version }
 }
 
