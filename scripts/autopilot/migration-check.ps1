@@ -61,8 +61,8 @@ try {
         Write-Output "New migration requires manual schema, RLS, privilege, lock, and compatibility review: $path"
     }
 
-    Write-Output "Migration structural check passed against $Baseline. New migrations: $($newPaths.Count)."
-    Write-Output 'This result is not proof that SQL is safe; review every new migration before any remote application.'
+    Write-Output "STATIC MIGRATION CHECK PASS against $Baseline. New migrations: $($newPaths.Count)."
+    Write-Output 'Static validation is not runtime execution or proof that SQL is safe; review every new migration before any remote application.'
     exit 0
 } catch {
     Write-Error $_

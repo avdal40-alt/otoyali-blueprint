@@ -11,16 +11,18 @@ Git and test results are source of truth. The bootstrap commit advances HEAD; it
 
 | Field | Value |
 | --- | --- |
-| Current stage | FUNCTIONAL-02B1 — COMPLETE |
+| Current stage | AUTOPILOT-HARDEN-01 — COMPLETE |
 | Last completed stage | FUNCTIONAL-02B1 — Core Turkey Vehicle Schema |
 | Bootstrap commit | See Git `HEAD` after bootstrap |
 | Required next stage | FUNCTIONAL-02B2 — Turkey Condition & Trust Declarations |
 | Test status | PASS — targeted typecheck, lint, FUNCTIONAL-02B1 contract test, migration check, and safety check passed on 2026-09-12 |
-| Migration status | Additive 02B1 migration created and structurally checked; not applied to any database |
+| Migration status | Additive 02B1 migration structurally checked, then applied and runtime-inspected on the existing local development database only; never applied remotely or to production |
+| Migration static check | PASS — `migration-check.ps1` labels static validation explicitly |
+| Migration runtime check | PASS — 02B1 applied and inspected on the existing local Supabase development stack only |
 | Push status | BLOCKED — bootstrap must not push |
 | Production status | BLOCKED — manual-only |
-| Blockers | Supabase CLI and remote environment identity are unverified; neither blocks local 02B1 design/implementation gates until a local migration verification is required |
-| Last autopilot run | 2026-09-12 FUNCTIONAL-02B1 first manual run |
+| Blockers | Remote environment identity remains unverified and blocks all remote actions; local pinned Supabase CLI fallback is available |
+| Last autopilot run | 2026-09-12 AUTOPILOT-HARDEN-01 |
 
 ## Completed architecture/audit stages
 

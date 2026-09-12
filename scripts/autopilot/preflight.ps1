@@ -34,7 +34,9 @@ try {
         Write-Output "Tool ${_}: $(if ($null -eq $command) { 'missing' } else { $command.Source })"
     }
     $supabase = Get-Command supabase -ErrorAction SilentlyContinue
-    Write-Output "Tool supabase: $(if ($null -eq $supabase) { 'unavailable (optional for local code checks)' } else { $supabase.Source })"
+    $pinnedSupabaseCli = 'C:\Users\Work\AppData\Local\npm-cache\_npx\66b4952730d9cac8\node_modules\@supabase\cli-windows-x64\bin\supabase.exe'
+    $supabaseSource = if ($null -ne $supabase) { $supabase.Source } elseif (Test-Path -LiteralPath $pinnedSupabaseCli) { "$pinnedSupabaseCli (pinned fallback)" } else { 'unavailable (optional for local code checks)' }
+    Write-Output "Tool supabase: $supabaseSource"
     if ($missing.Count -gt 0) { throw "Required tools are unavailable: $($missing -join ', ')." }
     if (-not (Test-Path (Join-Path $repoRoot 'apps/web/package.json'))) { throw 'apps/web/package.json is missing.' }
     $statePath = Join-Path $repoRoot 'docs/autopilot/AUTOPILOT_STATE.md'
