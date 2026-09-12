@@ -17,6 +17,12 @@ Fresh-thread mode exists for smaller context, less stale-instruction contaminati
 
 Git/tests, not state prose, are the source of truth. Stop and reconcile a state/Git conflict rather than falsifying state. Record stage, command/error summary, changed files, last safe commit, and recommended human decision after repeated safe failure; never retry indefinitely.
 
+## Long-running command continuation
+
+A yielded tool response does not end its process. Treat a command as running until a final exit code is reported. If the tool provides a background or resumable session ID, resume that same session with bounded waits and obtain its real exit code; never launch a duplicate of the same test, build, typecheck, or verification command while that session remains resumable. A quiet interval without stdout is expected state, not a failure.
+
+Runtime STOP is valid only for explicit cancellation, an unrecoverable timeout without a resumable session, subprocess termination, tool/session loss, permission denial, or repository/machine unavailability. Agents must not invent `execution window ended` or an equivalent reason. Record the actual final exit code or the concrete runtime event before retrying, blocking, or reporting a failed command.
+
 ## State contract
 
 State remains concise and must record: repository path; expected working branch; a Git-derived current reference; protected branches; last completed product stage and commit; next approved stage; current-stage status; latest mandatory checks; latest migration static and runtime results; push and production status; known blockers; unresolved external-provider decisions; and last-run timestamp. Link to commits/tests/contracts rather than copying large reports.

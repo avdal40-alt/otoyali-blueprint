@@ -20,6 +20,14 @@ Before modifying files, in this order:
 
 Do not begin a second implementation stage in this thread.
 
+## Long-running command continuation
+
+Treat a terminal command as active until its actual process exit code is obtained. A tool yield, execution-window boundary, delayed response, or temporary lack of stdout is not command completion or failure.
+
+When a tool returns a background or resumable session ID, continue that exact session until it reports a final exit code. Do not start a duplicate invocation of the same test, build, typecheck, migration check, or other command while its original session remains resumable. Poll or resume it with bounded waits; silence alone is not a failure.
+
+Runtime STOP is permitted only after an explicit cancellation, an unrecoverable timeout with no resumable session, subprocess termination, tool/session loss, permission denial, or repository/machine unavailability. Never invent an `execution window ended` reason. Record the actual terminal outcome or the concrete runtime event before retrying, blocking, or reporting a command failure.
+
 ## Stage execution and completion
 
 Make the minimal change. For database, auth, access-control, or release work load the relevant Yolmod skill and satisfy its additional gates. Run the relevant checks. For any migration, run `migration-check.ps1` and perform a human SQL/RLS/privilege review; its structural scan is a guardrail, not proof of migration safety.
