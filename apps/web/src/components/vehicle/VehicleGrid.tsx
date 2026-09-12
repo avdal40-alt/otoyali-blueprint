@@ -10,13 +10,15 @@ export function VehicleGrid({
   listingMedia = [],
   title = "İlan bulunamadı",
   body = "Filtreleri değiştirerek tekrar deneyin.",
-  locale = "tr"
+  locale = "tr",
+  variant = "default"
 }: {
   listings: HomeListing[];
   listingMedia?: ListingMedia[];
   title?: string;
   body?: string;
   locale?: Locale;
+  variant?: "default" | "home";
 }) {
   const mediaByListing = groupMediaByListing(listingMedia);
 
@@ -25,9 +27,9 @@ export function VehicleGrid({
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className={variant === "home" ? "grid gap-4 lg:grid-cols-4" : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"}>
       {listings.map((listing) => (
-        <VehicleCard key={listing.listing_id} listing={listing} media={mediaByListing[listing.listing_id]} priceBadge={getPriceBadgeForListing(listing, listings)} locale={locale} />
+        <VehicleCard key={listing.listing_id} listing={listing} media={mediaByListing[listing.listing_id]} priceBadge={variant === "home" ? null : getPriceBadgeForListing(listing, listings)} locale={locale} />
       ))}
     </div>
   );

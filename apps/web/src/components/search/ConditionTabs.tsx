@@ -6,21 +6,23 @@ import { useI18n } from "@/i18n/client";
 export function ConditionTabs({
   value,
   onChange,
-  compact = false
+  compact = false,
+  includeAll = true
 }: {
   value: string;
   onChange: (value: string) => void;
   compact?: boolean;
+  includeAll?: boolean;
 }) {
   const { dictionary } = useI18n();
   const options = [
-    { value: "", label: String(dictionary.home.allListings) },
+    ...(includeAll ? [{ value: "", label: String(dictionary.home.allListings) }] : []),
     { value: "used", label: String(dictionary.status.used) },
     { value: "new", label: String(dictionary.status.new) }
   ];
 
   return (
-    <div className={cn("grid grid-cols-3 rounded-md bg-oto-surface p-1", compact ? "gap-1" : "gap-1.5")}>
+    <div className={cn("grid rounded-md bg-oto-surface p-1", includeAll ? "grid-cols-3" : "grid-cols-2", compact ? "gap-1" : "gap-1.5")}>
       {options.map((option) => {
         const active = value === option.value;
         return (

@@ -23,6 +23,7 @@ const assistantHiddenPrefixes = [
 
 export function shouldShowAssistantForPath(pathname: string) {
   const internalPath = toInternalTurkishPath(pathname);
+  if (internalPath === "/") return false;
   return !assistantHiddenPrefixes.some((prefix) => internalPath === prefix || internalPath.startsWith(`${prefix}/`));
 }
 

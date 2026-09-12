@@ -25,7 +25,7 @@ export function HomeVehicleSearchPanel({
 }) {
   const { locale, dictionary } = useI18n();
   const router = useRouter();
-  const [filters, setFilters] = useState<ListingSearchFilters>(defaultSearchFilters);
+  const [filters, setFilters] = useState<ListingSearchFilters>({ ...defaultSearchFilters, condition: "used" });
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const cityOptions = useMemo(() => {
     const catalogCities = (cities ?? [])
@@ -36,27 +36,15 @@ export function HomeVehicleSearchPanel({
   }, [cities, listings]);
   const filteredModels = filters.make ? models.filter((model) => (model.make_name ?? "") === filters.make) : models;
   const hasAdvancedSelection = Boolean(
-    filters.fuelType ||
+      filters.city ||
+      filters.mileageMax ||
+      filters.fuelType ||
       filters.transmission ||
       filters.bodyType ||
       filters.driveType ||
       filters.color ||
-      filters.condition ||
-      filters.sellerType ||
-      filters.onlyWithPhotos ||
-      filters.tradeOnly ||
-      filters.sort !== "newest"
+      filters.sellerType
   );
-  const quickTags: Array<{ label: string; filters: Partial<ListingSearchFilters> }> = [
-    { label: locale === "en" ? "Under TRY 1,500,000" : "1.500.000 TL altı", filters: { priceMax: "1500000" } },
-    { label: "SUV", filters: { bodyType: "suv", advanced: true } },
-    { label: transmissionLabel("automatic", locale), filters: { transmission: "automatic", advanced: true } },
-    { label: fuelLabel("electric", locale), filters: { fuelType: "electric", advanced: true } },
-    { label: "Ankara", filters: { city: "Ankara" } },
-    { label: "İstanbul", filters: { city: "İstanbul" } },
-    { label: locale === "en" ? "Low mileage" : "Düşük kilometre", filters: { mileageMax: "50000" } }
-  ];
-
   function setValue<K extends keyof ListingSearchFilters>(key: K, value: ListingSearchFilters[K]) {
     setFilters((current) => ({
       ...current,
@@ -69,18 +57,17 @@ export function HomeVehicleSearchPanel({
     router.push(localizePath(buildSearchUrl({ ...filters, advanced: advancedOpen || hasAdvancedSelection }), locale));
   }
 
-  function quickSearch(nextFilters: Partial<ListingSearchFilters>) {
-    router.push(localizePath(buildSearchUrl({ ...defaultSearchFilters, ...nextFilters }), locale));
-  }
-
   return (
-    <div className="rounded-oto border border-oto-border bg-white p-4 shadow-oto md:p-5">
-      <div className="mb-4">
-        <ConditionTabs value={filters.condition} onChange={(value) => setValue("condition", value)} />
+    <section className="rounded-oto border border-oto-border bg-white p-4 shadow-soft md:p-6">
+      <div className="max-w-2xl">
+        <h1 className="text-h2 text-oto-text md:text-h1">{String(dictionary.home.searchHeroTitle)}</h1>
+      </div>
+      <div className="mt-5 max-w-md">
+        <ConditionTabs value={filters.condition} onChange={(value) => setValue("condition", value)} includeAll={false} />
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4 lg:grid-cols-8">
-        <label className="grid gap-1 md:col-span-1 lg:col-span-2">
+      <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-6">
+        <label className="grid gap-1">
           <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.brand)}</span>
           <Select value={filters.make} onChange={(event) => setValue("make", event.target.value)}>
             <option value="">{String(dictionary.search.allBrands)}</option>
@@ -91,7 +78,7 @@ export function HomeVehicleSearchPanel({
             ))}
           </Select>
         </label>
-        <label className="grid gap-1 md:col-span-1 lg:col-span-2">
+        <label className="grid gap-1">
           <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.model)}</span>
           <Select value={filters.model} onChange={(event) => setValue("model", event.target.value)}>
             <option value="">{String(dictionary.search.allModels)}</option>
@@ -102,69 +89,37 @@ export function HomeVehicleSearchPanel({
             ))}
           </Select>
         </label>
-        <label className="grid gap-1 md:col-span-1 lg:col-span-2">
-          <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.city)}</span>
-          <Select value={filters.city} onChange={(event) => setValue("city", event.target.value)}>
-            <option value="">{String(dictionary.search.allCities)}</option>
-            {cityOptions.map((city) => (
-              <option key={city} value={city}>
-                {cityLabel(city, locale)}
-              </option>
-            ))}
-          </Select>
+        <label className="grid gap-1">
+          <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.priceMin)}</span>
+          <Input value={filters.priceMin} onChange={(event) => setValue("priceMin", event.target.value)} placeholder={String(dictionary.search.priceMin)} inputMode="numeric" />
         </label>
-        <div className="grid grid-cols-2 gap-2 md:col-span-1 lg:col-span-2">
-          <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.priceMin)}</span>
-            <Input value={filters.priceMin} onChange={(event) => setValue("priceMin", event.target.value)} placeholder={locale === "en" ? "Min" : "En az"} inputMode="numeric" />
-          </label>
-          <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.priceMax)}</span>
-            <Input value={filters.priceMax} onChange={(event) => setValue("priceMax", event.target.value)} placeholder={locale === "en" ? "Max" : "En fazla"} inputMode="numeric" />
-          </label>
-        </div>
-        <div className="hidden grid-cols-3 gap-2 md:col-span-4 lg:col-span-5 lg:grid">
-          <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.yearMin)}</span>
-            <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder="2020" inputMode="numeric" />
-          </label>
-          <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.yearMax)}</span>
-            <Input value={filters.yearMax} onChange={(event) => setValue("yearMax", event.target.value)} placeholder="2026" inputMode="numeric" />
-          </label>
-          <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.mileageMax)}</span>
-            <Input value={filters.mileageMax} onChange={(event) => setValue("mileageMax", event.target.value)} placeholder="50000" inputMode="numeric" />
-          </label>
-        </div>
-        <div className="grid gap-2 md:col-span-4 md:grid-cols-2 lg:col-span-3">
-          <Button type="button" variant="orange" onClick={search} className="w-full">
-            {String(dictionary.common.search)}
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => setAdvancedOpen((current) => !current)}
-            className="w-full"
-            aria-expanded={advancedOpen}
-            aria-controls="home-advanced-filters"
-          >
-            {String(dictionary.search.advancedFilters)}
-          </Button>
-        </div>
+        <label className="grid gap-1">
+          <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.priceMax)}</span>
+          <Input value={filters.priceMax} onChange={(event) => setValue("priceMax", event.target.value)} placeholder={String(dictionary.search.priceMax)} inputMode="numeric" />
+        </label>
+        <label className="grid gap-1">
+          <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.yearMin)}</span>
+          <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder={String(dictionary.search.yearMin)} inputMode="numeric" />
+        </label>
+        <label className="grid gap-1">
+          <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.yearMax)}</span>
+          <Input value={filters.yearMax} onChange={(event) => setValue("yearMax", event.target.value)} placeholder={String(dictionary.search.yearMax)} inputMode="numeric" />
+        </label>
       </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {quickTags.map((tag) => (
-          <button
-            key={tag.label}
-            type="button"
-            onClick={() => quickSearch(tag.filters)}
-            className="rounded-full border border-oto-border bg-oto-surface px-3 py-1.5 text-xs font-bold text-oto-muted transition hover:border-oto-blue hover:bg-white hover:text-oto-text"
-          >
-            {tag.label}
-          </button>
-        ))}
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 sm:max-w-md">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => setAdvancedOpen((current) => !current)}
+          className="w-full"
+          aria-expanded={advancedOpen}
+          aria-controls="home-advanced-filters"
+        >
+          {String(dictionary.search.advancedFilters)}
+        </Button>
+        <Button type="button" variant="primary" onClick={search} className="w-full">
+          {String(dictionary.search.showListings)}
+        </Button>
       </div>
 
       <div
@@ -177,6 +132,19 @@ export function HomeVehicleSearchPanel({
       >
         <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <label className="grid gap-1">
+              <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.city)}</span>
+              <Select value={filters.city} onChange={(event) => setValue("city", event.target.value)}>
+                <option value="">{String(dictionary.search.allCities)}</option>
+                {cityOptions.map((city) => (
+                  <option key={city} value={city}>{cityLabel(city, locale)}</option>
+                ))}
+              </Select>
+            </label>
+            <label className="grid gap-1">
+              <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.mileageMax)}</span>
+              <Input value={filters.mileageMax} onChange={(event) => setValue("mileageMax", event.target.value)} placeholder={String(dictionary.search.mileageMax)} inputMode="numeric" />
+            </label>
             <label className="grid gap-1">
               <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.fuelType)}</span>
               <Select value={filters.fuelType} onChange={(event) => setValue("fuelType", event.target.value)}>
@@ -235,14 +203,6 @@ export function HomeVehicleSearchPanel({
               </Select>
             </label>
             <label className="grid gap-1">
-              <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.condition)}</span>
-              <Select value={filters.condition} onChange={(event) => setValue("condition", event.target.value)}>
-                <option value="">{String(dictionary.home.allListings)}</option>
-                <option value="used">{String(dictionary.status.used)}</option>
-                <option value="new">{String(dictionary.status.new)}</option>
-              </Select>
-            </label>
-            <label className="grid gap-1">
               <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.sellerType)}</span>
               <Select value={filters.sellerType} onChange={(event) => setValue("sellerType", event.target.value)}>
                 <option value="">{String(dictionary.search.allSellerTypes)}</option>
@@ -250,29 +210,9 @@ export function HomeVehicleSearchPanel({
                 <option value="dealer">{String(dictionary.status.dealer)}</option>
               </Select>
             </label>
-            <label className="grid gap-1">
-              <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.sort)}</span>
-              <Select value={filters.sort} onChange={(event) => setValue("sort", event.target.value as ListingSearchFilters["sort"])}>
-                <option value="newest">{String(dictionary.search.newest)}</option>
-                <option value="price_asc">{String(dictionary.search.priceAsc)}</option>
-                <option value="price_desc">{String(dictionary.search.priceDesc)}</option>
-                <option value="year_desc">{String(dictionary.search.yearDesc)}</option>
-                <option value="mileage_asc">{String(dictionary.search.mileageAsc)}</option>
-              </Select>
-            </label>
-          </div>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            <label className="flex items-center gap-2 rounded-md bg-white px-3 py-3 text-sm font-semibold text-oto-muted">
-              <input type="checkbox" checked={filters.tradeOnly} onChange={(event) => setValue("tradeOnly", event.target.checked)} />
-              {String(dictionary.search.trade)}
-            </label>
-            <label className="flex items-center gap-2 rounded-md bg-white px-3 py-3 text-sm font-semibold text-oto-muted">
-              <input type="checkbox" checked={filters.onlyWithPhotos} onChange={(event) => setValue("onlyWithPhotos", event.target.checked)} />
-              {String(dictionary.search.withPhotos)}
-            </label>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

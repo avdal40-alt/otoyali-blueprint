@@ -16,7 +16,6 @@ export default async function EnglishHomePage() {
       models={modelsResult.data}
       cities={citiesResult.data}
       error={listingsResult.error ?? makesResult.error ?? modelsResult.error}
-      debugItems={[listingsResult, makesResult, modelsResult, citiesResult]}
       locale="en"
     />
   );
