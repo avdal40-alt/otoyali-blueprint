@@ -21,7 +21,7 @@ Git and verified test results are source of truth. This file is a concise reconc
 | Current stage status | FUNCTIONAL-02C1D — COMPLETE; additive eligible backfill reconciled local listings through the canonical eligibility predicate and passed privacy/runtime matrix |
 | Last completed stage | FUNCTIONAL-02C1D — Eligible Backfill and Privacy/Runtime Matrix |
 | Last completed product stage | FUNCTIONAL-02C1D — Eligible Backfill and Privacy/Runtime Matrix |
-| Last completed stage commit | Resolve from Git after this ordinary recovered stage commit (`feat(search): backfill eligible projection`) |
+| Last completed stage commit | `fbcc40700209c667d8b17b0e7f6bcc9048f32088` (`feat(search): backfill eligible projection`) |
 | Last safe pre-stage commit | `b2678e20e28b46bd95759f0a556cbb8012cd93a8` (`fix(autopilot): resolve Codex outside desktop environment`) |
 | Latest infrastructure patch | CONTINUOUS-EXTERNAL-POWERSHELL-CODEX-RESOLUTION-01 — stable LocalAppData Codex discovery, diagnostic candidate logging, external PowerShell UTF-8 process-output handling, and doctor warning classification; resolve from Git after this ordinary infrastructure commit |
 | Last safe infrastructure baseline | `0669fb714542ef42c4ca86d13c6df5735cbab1b4` (`fix(autopilot): recover codex sandbox supervision`) |
