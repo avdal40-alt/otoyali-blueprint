@@ -41,7 +41,7 @@ function Get-StateValue([string]$State, [string]$Label) {
 
 function Get-StateSnapshot([string]$RepoRoot) {
     $statePath = Join-Path $RepoRoot 'docs/autopilot/AUTOPILOT_STATE.md'
-    $state = Get-Content -LiteralPath $statePath -Raw
+    $state = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8)
     $next = Get-StateValue $state 'Next approved stage'
     $lastStage = Get-StateValue $state 'Last completed product stage'
     $lastCommit = Get-StateValue $state 'Last completed stage commit'
