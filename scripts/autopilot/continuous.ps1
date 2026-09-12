@@ -12,7 +12,7 @@ $script:LockPath = $null
 
 function Write-SupervisorLog([string]$Message) {
     $line = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss K') $Message"
-    Write-Output $line
+    Write-Host $line
     if ($null -ne $script:RuntimePath -and (Test-Path -LiteralPath $script:RuntimePath)) {
         Add-Content -LiteralPath (Join-Path $script:RuntimePath 'supervisor.log') -Value $line
     }
@@ -51,7 +51,7 @@ function Get-StateSnapshot([string]$RepoRoot) {
 }
 
 function Assert-Ready([string]$RepoRoot) {
-    & (Join-Path $RepoRoot 'scripts/autopilot/preflight.ps1') -RequireClean
+    & (Join-Path $RepoRoot 'scripts/autopilot/preflight.ps1') -RequireClean | ForEach-Object { Write-SupervisorLog "PREFLIGHT $_" }
     if ($LASTEXITCODE -ne 0) { throw 'PREFLIGHT_FAILED' }
     $snapshot = Get-StateSnapshot $RepoRoot
     $head = (@(Get-Git @('rev-parse', 'HEAD'))[0]).Trim()
