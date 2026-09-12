@@ -4,7 +4,7 @@ description: "Execute approved autonomous Yolmod V1 roadmap stages with local sa
 ---
 # Yolmod autopilot
 
-Use this skill only for the local Yolmod V1 development loop. The default is a controlled multi-stage run: one fresh Codex thread may execute up to three approved, sequential implementation stages. Each stage creates exactly one ordinary commit. A fresh run keeps context small and reproducible; it is not a way to bypass Codex or account usage limits.
+Use this skill only for the local Yolmod V1 development loop. Interactive manual mode may execute up to three approved, sequential implementation stages in one run, with exactly one ordinary commit per stage. Continuous supervised mode uses `scripts/autopilot/continuous.ps1`: each fresh Codex execution performs exactly one stage, while the supervisor may start subsequent executions after independent gates pass. Neither mode bypasses account or Codex usage limits.
 
 Never rely on prior chat context, remembered command output, prior Codex conclusions, or invisible state from another thread. Git and verified test results override markdown state if they conflict. If an important decision exists only in chat and is not represented in repository documentation, stop rather than guess.
 
@@ -18,7 +18,7 @@ Before modifying files, in this order:
 4. Inspect the previous stage commit and confirm the next approved stage from State and Roadmap. Load the specialised Yolmod skill relevant to that stage.
 5. If a detailed engineering contract is needed, derive it from the Spec, Roadmap, actual code, tests, migrations, and durable contracts. Record any material decision needed by a future thread in repository documentation.
 
-Set the controlled-run counter to zero at the start. Never implement more than three product stages in one run.
+Set the controlled-run counter to zero at the start in interactive manual mode. In continuous supervised mode, perform exactly one stage, increment the State counter only after its PASS commit, write the required machine-readable result, and exit.
 
 ## Controlled multi-stage continuation
 
@@ -28,7 +28,7 @@ Before selecting the next stage, rerun `preflight.ps1 -RequireClean` and `safety
 
 If any continuation condition fails, stop and record the exact reason. A fresh thread is not required merely because one stage completed.
 
-After the third successful product-stage commit, run `scripts/autopilot/checkpoint.ps1`, record its actual result, and stop. Do not start a fourth stage. An early stop before three stages is allowed only for a concrete risk, dependency, environment, or context reason and must be reported accurately.
+In interactive manual mode, after the third successful product-stage commit, run `scripts/autopilot/checkpoint.ps1`, record its actual result, and stop. In continuous supervised mode, three successful stages are a checkpoint cadence, not a stop condition: the supervisor runs the checkpoint and starts a fresh execution only when it passes. An early stop is allowed only for a concrete risk, dependency, environment, or context reason and must be reported accurately.
 
 ## Long-running command continuation
 

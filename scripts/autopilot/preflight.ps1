@@ -50,6 +50,7 @@ try {
         '**Git-derived current reference:**',
         '**Protected branches:**',
         '**Autonomous run mode:**',
+        '**Continuous supervised mode:**',
         '**Maximum product stages per run:**',
         '**Stages completed in current run:**',
         '**Last checkpoint:**',

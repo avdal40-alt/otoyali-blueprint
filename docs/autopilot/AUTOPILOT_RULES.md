@@ -1,8 +1,8 @@
 # Yolmod autopilot rules
 
-## Controlled multi-stage default
+## Interactive and continuous modes
 
-One autonomous run may execute at most three approved, dependency-ordered implementation stages. Each stage equals one ordinary commit; multiple stages must never share a commit. A new run and every continuation must proceed from repository sources alone: Git, `AUTOPILOT_STATE.md`, the V1 Product Spec, this Roadmap, code/tests/migrations, durable contracts, and the relevant skill. Previous thread messages, remembered output, invisible session state, and unsupported automation/UI interaction are never inputs.
+Interactive manual mode may execute at most three approved, dependency-ordered implementation stages. Each stage equals one ordinary commit; multiple stages must never share a commit. Continuous supervised mode uses `scripts/autopilot/continuous.ps1`, which starts a fresh `codex exec` for exactly one stage at a time and may continue indefinitely while its independent gates pass. A new run and every continuation must proceed from repository sources alone: Git, `AUTOPILOT_STATE.md`, the V1 Product Spec, this Roadmap, code/tests/migrations, durable contracts, and the relevant skill. Previous thread messages, remembered output, invisible session state, and unsupported automation/UI interaction are never inputs.
 
 Controlled runs preserve small, reproducible stages without treating a new thread as a mandatory boundary after every successful commit. They do not bypass account or Codex usage limits. A title such as `YOLMOD — FUNCTIONAL-02C1B3A2` is recommended for convenience, but must never be treated as state.
 
@@ -21,7 +21,15 @@ After a successful stage commit, the run may continue only if all conditions hol
 
 Before continuing, rerun `scripts/autopilot/preflight.ps1 -RequireClean` and `scripts/autopilot/safety-check.ps1`; inspect the just-created commit; and reconstruct the next stage from durable repository sources. If any condition fails, stop without inventing a next stage. Track the completed-stage count in State.
 
-The hard maximum is three successful product stages per run. After the third commit, run `scripts/autopilot/checkpoint.ps1` and stop; never begin a fourth stage. Do not run the full checkpoint after every small stage unless that stage requires it. An earlier stop is permitted only for a concrete increased-risk stage, required provider/production action, external migration dependency, major domain boundary, or insufficient safe execution context; report that reason precisely.
+Interactive manual mode has a hard maximum of three successful product stages per run. After the third commit, run `scripts/autopilot/checkpoint.ps1` and stop; never begin a fourth stage. Continuous supervised mode treats every three successful stage commits as checkpoint cadence, not a stop condition: it runs the same checkpoint and continues only when it passes. It also checkpoints after a security/RLS/auth stage, a migration-heavy domain block, a Roadmap-requested checkpoint, or a major architecture/domain boundary. Do not run the full checkpoint after every small stage unless required. An earlier stop is permitted only for a concrete increased-risk stage, required provider/production action, external migration dependency, major domain boundary, or insufficient safe execution context; report that reason precisely.
+
+## Continuous supervisor contract
+
+`scripts/autopilot/continuous.ps1` is local-only and has no schedule dependency. It acquires a single conservative lock, checks `.autopilot-runtime/STOP`, performs preflight and Git/State/Roadmap checks, invokes one `codex exec` with `--sandbox workspace-write`, waits for the real process exit, verifies the machine-readable result against Git and State, re-runs declared targeted tests and safety checks, and then selects the next stage. It never pushes, deploys, accesses production, resets, discards interrupted work, or uses unsafe Codex bypass options.
+
+If a Codex exit leaves product changes without a valid one-stage commit, the supervisor stops with `INTERRUPTED_STAGE_RECOVERY_REQUIRED`. If an existing lock belongs to a live process it stops with `SUPERVISOR_ALREADY_RUNNING`; a stale lock requires explicit human recovery. `STOP` is checked before each new stage and never interrupts Git operations. Transient process/service failures receive at most the configured bounded retries; ambiguous quota or authentication failure stops.
+
+Continuous local operation requires the computer to remain powered on, awake (not sleeping or hibernating), network-connected, and authenticated with Codex. The supervisor never changes Windows power settings.
 
 Git/tests, not state prose, are the source of truth. Stop and reconcile a state/Git conflict rather than falsifying state. Record stage, command/error summary, changed files, last safe commit, and recommended human decision after repeated safe failure; never retry indefinitely.
 
@@ -43,7 +51,7 @@ If a stage is blocked, do not make a false-success commit or start a different s
 
 ## Controlled-run end report
 
-Every implementation run ends with: `STAGE RESULT: PASS / STOP`; completed stages and commits; starting/final HEAD; implemented scope; migration/runtime-validation result; tests; security review; State last-completed/next values; checkpoint result when due; commit/worktree/push status; production access/mutation status; blockers; and the next recommended action.
+Every interactive implementation run ends with: `STAGE RESULT: PASS / STOP`; completed stages and commits; starting/final HEAD; implemented scope; migration/runtime-validation result; tests; security review; State last-completed/next values; checkpoint result when due; commit/worktree/push status; production access/mutation status; blockers; and the next recommended action. Every continuous stage execution writes the same facts as valid JSON to `.autopilot-runtime/last-run.json`; the supervisor independently rejects unsupported PASS claims.
 
 ## Hard manual production gate
 

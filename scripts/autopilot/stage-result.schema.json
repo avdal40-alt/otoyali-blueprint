@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "stage", "starting_head", "ending_head", "commit", "next_stage", "worktree_clean", "tests_passed", "tests", "push_performed", "production_accessed", "stop_reason"],
+  "properties": {
+    "status": { "enum": ["PASS", "BLOCKED", "FAILED"] },
+    "stage": { "type": "string", "minLength": 1 },
+    "starting_head": { "type": "string" },
+    "ending_head": { "type": "string" },
+    "commit": { "type": ["string", "null"] },
+    "next_stage": { "type": ["string", "null"] },
+    "worktree_clean": { "type": "boolean" },
+    "tests_passed": { "type": "boolean" },
+    "tests": { "type": "array", "items": { "type": "string", "pattern": "^test:[a-z0-9:-]+$" } },
+    "push_performed": { "type": "boolean", "const": false },
+    "production_accessed": { "type": "boolean", "const": false },
+    "stop_reason": { "type": ["string", "null"] }
+  }
+}
