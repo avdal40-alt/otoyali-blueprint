@@ -55,11 +55,12 @@ function Assert-Ready([string]$RepoRoot) {
     if ($LASTEXITCODE -ne 0) { throw 'PREFLIGHT_FAILED' }
     $snapshot = Get-StateSnapshot $RepoRoot
     $head = (@(Get-Git @('rev-parse', 'HEAD'))[0]).Trim()
-    $commitMatch = [regex]::Match($snapshot.LastCommit, '[0-9a-f]{40}')
-    if (-not $commitMatch.Success) { throw 'GIT_STATE_INCONSISTENCY: State last completed stage commit is not a full hash.' }
-    & git cat-file -e "$($commitMatch.Value)^{commit}"
+    $lastCommitText = [string]$snapshot.LastCommit
+    $lastStageCommit = @($lastCommitText -split '[^0-9a-f]+' | Where-Object { $_.Length -eq 40 } | Select-Object -First 1)[0]
+    if ([string]::IsNullOrWhiteSpace($lastStageCommit)) { throw 'GIT_STATE_INCONSISTENCY: State last completed stage commit is not a full hash.' }
+    & git cat-file -e "${lastStageCommit}^{commit}"
     if ($LASTEXITCODE -ne 0) { throw 'GIT_STATE_INCONSISTENCY: State stage commit is unavailable.' }
-    & git merge-base --is-ancestor $commitMatch.Value $head
+    & git merge-base --is-ancestor $lastStageCommit $head
     if ($LASTEXITCODE -ne 0) { throw 'GIT_STATE_INCONSISTENCY: State stage commit is not an ancestor of HEAD.' }
     $stageId = ($snapshot.NextStage -split '\s+')[0]
     if ([string]::IsNullOrWhiteSpace($stageId) -or -not (Select-String -LiteralPath (Join-Path $RepoRoot 'docs/autopilot/IMPLEMENTATION_ROADMAP_V1.md') -SimpleMatch $stageId -Quiet)) {
