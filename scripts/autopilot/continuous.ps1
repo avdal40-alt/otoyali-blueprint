@@ -13,7 +13,9 @@ $script:LockPath = $null
 function Write-SupervisorLog([string]$Message) {
     $line = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss K') $Message"
     Write-Output $line
-    Add-Content -LiteralPath (Join-Path $script:RuntimePath 'supervisor.log') -Value $line
+    if ($null -ne $script:RuntimePath -and (Test-Path -LiteralPath $script:RuntimePath)) {
+        Add-Content -LiteralPath (Join-Path $script:RuntimePath 'supervisor.log') -Value $line
+    }
 }
 
 function Write-RunResult([string]$Status, [string]$Stage, [string]$StartingHead, [string]$EndingHead, [string]$Commit, [string]$NextStage, [bool]$Clean, [bool]$TestsPassed, [string[]]$Tests, [string]$Reason) {
@@ -75,7 +77,7 @@ function Acquire-Lock([string]$RuntimePath) {
         }
         throw 'STALE_LOCK_RECOVERY_REQUIRED'
     }
-    New-Item -ItemType File -LiteralPath $script:LockPath -ErrorAction Stop | Out-Null
+    New-Item -ItemType File -Path $script:LockPath -ErrorAction Stop | Out-Null
     [ordered]@{ pid = $PID; started_at = (Get-Date).ToString('o'); repository = (@(Get-Git @('rev-parse', '--show-toplevel'))[0]).Trim() } | ConvertTo-Json | Set-Content -LiteralPath $script:LockPath -Encoding utf8
     $script:LockOwned = $true
 }
@@ -133,7 +135,7 @@ try {
     $repoRoot = (@(Get-Git @('rev-parse', '--show-toplevel'))[0]).Trim()
     if ($repoRoot -ieq 'C:\Проекты\Otoyali-blueprint') { throw 'FORBIDDEN_REPOSITORY' }
     $script:RuntimePath = Join-Path $repoRoot '.autopilot-runtime'
-    New-Item -ItemType Directory -LiteralPath $script:RuntimePath -Force | Out-Null
+    New-Item -ItemType Directory -Path $script:RuntimePath -Force | Out-Null
     Acquire-Lock $script:RuntimePath
     Write-SupervisorLog "SUPERVISOR_START dry_run=$DryRun"
     if (Test-StopRequested) { Write-SupervisorLog 'STOP_MARKER_DETECTED'; exit 0 }
