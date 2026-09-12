@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$DryRun,
+    [switch]$SmokeOnly,
     [ValidateRange(0, 3)]
     [int]$MaxTransientRetries = 2
 )
@@ -50,9 +51,23 @@ function Get-StateSnapshot([string]$RepoRoot) {
     [pscustomobject]@{ NextStage = $next; LastStage = $lastStage; LastCommit = $lastCommit; StageCount = [int]$countMatch.Groups[1].Value }
 }
 
-function Assert-Ready([string]$RepoRoot) {
-    & (Join-Path $RepoRoot 'scripts/autopilot/preflight.ps1') -RequireClean | ForEach-Object { Write-SupervisorLog "PREFLIGHT $_" }
+function Test-OnlySupervisorInfrastructureChanges() {
+    $changes = @(Get-Git @('status', '--porcelain'))
+    return $changes.Count -gt 0 -and @($changes | Where-Object { $_ -notmatch '^\s*[MADRCU?]{1,2}\s+(scripts/autopilot/continuous\.ps1|docs/autopilot/AUTOPILOT_STATE\.md)$' }).Count -eq 0
+}
+
+function Assert-Ready([string]$RepoRoot, [bool]$AllowSupervisorInfrastructureChange = $false) {
+    if ($AllowSupervisorInfrastructureChange) {
+        & (Join-Path $RepoRoot 'scripts/autopilot/preflight.ps1') | ForEach-Object { Write-SupervisorLog "PREFLIGHT $_" }
+    } else {
+        & (Join-Path $RepoRoot 'scripts/autopilot/preflight.ps1') -RequireClean | ForEach-Object { Write-SupervisorLog "PREFLIGHT $_" }
+    }
     if ($LASTEXITCODE -ne 0) { throw 'PREFLIGHT_FAILED' }
+    $changes = @(Get-Git @('status', '--porcelain'))
+    if ($changes.Count -gt 0) {
+        if (-not ($AllowSupervisorInfrastructureChange -and (Test-OnlySupervisorInfrastructureChanges))) { throw 'WORKTREE_NOT_CLEAN_FOR_PRODUCT_STAGE' }
+        Write-SupervisorLog 'INFRASTRUCTURE_ONLY_WORKTREE_CHANGE_ALLOWED_FOR_DIAGNOSTIC'
+    }
     $snapshot = Get-StateSnapshot $RepoRoot
     $head = (@(Get-Git @('rev-parse', 'HEAD'))[0]).Trim()
     $lastCommitText = [string]$snapshot.LastCommit
@@ -96,30 +111,106 @@ function Test-TransientFailure([string]$Text) {
     return $Text -match '(?i)(temporary|temporarily|rate limit|network|connection|service unavailable|timeout)'
 }
 
-function Invoke-Stage([string]$RepoRoot, [string]$StartingHead) {
+function ConvertTo-ExternalArgument([string]$Value) {
+    if ($Value.Length -eq 0) { return '""' }
+    if ($Value -notmatch '[\s"]') { return $Value }
+    $escaped = [regex]::Replace($Value, '(\\*)"', '$1$1\\"')
+    $escaped = [regex]::Replace($escaped, '(\\*)$', '$1$1')
+    return '"' + $escaped + '"'
+}
+
+function Write-ProcessLog([string]$Label, [string]$Stream, [string]$Path) {
+    if (-not (Test-Path -LiteralPath $Path)) { return }
+    Get-Content -LiteralPath $Path | ForEach-Object { Write-SupervisorLog "$Label $Stream $_" }
+}
+
+function Invoke-CodexProcess([string]$CodexPath, [string[]]$Arguments, [string]$Label) {
+    $stdoutPath = Join-Path $script:RuntimePath "$Label.stdout.log"
+    $stderrPath = Join-Path $script:RuntimePath "$Label.stderr.log"
+    Remove-Item -LiteralPath $stdoutPath, $stderrPath -Force -ErrorAction SilentlyContinue
+    $argumentLine = (@($Arguments | ForEach-Object { ConvertTo-ExternalArgument ([string]$_) }) -join ' ')
+    Write-SupervisorLog "CODEX_PROCESS_START label=$Label path=$CodexPath arguments=$argumentLine"
+    $process = Start-Process -FilePath $CodexPath -ArgumentList $argumentLine -PassThru -Wait -NoNewWindow -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+    $result = [pscustomobject]@{
+        ProcessId = [int]$process.Id
+        ExitCode = [int]$process.ExitCode
+        StdoutPath = $stdoutPath
+        StderrPath = $stderrPath
+    }
+    Write-ProcessLog $Label 'STDOUT' $stdoutPath
+    Write-ProcessLog $Label 'STDERR' $stderrPath
+    Write-SupervisorLog "CODEX_PROCESS_END label=$Label pid=$($result.ProcessId) exit_code=$($result.ExitCode)"
+    return $result
+}
+
+function Get-ProcessText([object]$ProcessResult) {
+    $stdout = if (Test-Path -LiteralPath $ProcessResult.StdoutPath) { Get-Content -LiteralPath $ProcessResult.StdoutPath -Raw } else { '' }
+    $stderr = if (Test-Path -LiteralPath $ProcessResult.StderrPath) { Get-Content -LiteralPath $ProcessResult.StderrPath -Raw } else { '' }
+    return "$stdout`n$stderr"
+}
+
+function Resolve-CodexExecutable() {
+    $candidates = @(
+        Get-Command codex -CommandType Application -All -ErrorAction SilentlyContinue |
+            ForEach-Object { [IO.Path]::GetFullPath($_.Source) } |
+            Sort-Object -Unique
+    )
+    $complete = @(
+        $candidates | Where-Object {
+            $directory = Split-Path -Parent $_
+            (Test-Path -LiteralPath $_ -PathType Leaf) -and
+            (Test-Path -LiteralPath (Join-Path $directory 'codex-command-runner.exe') -PathType Leaf) -and
+            (Test-Path -LiteralPath (Join-Path $directory 'codex-windows-sandbox-setup.exe') -PathType Leaf)
+        }
+    )
+    if ($complete.Count -eq 0) { throw 'CODEX_INSTALLATION_REPAIR_REQUIRED' }
+    if ($complete.Count -ne 1) { throw 'CODEX_EXECUTABLE_AMBIGUITY' }
+    $path = $complete[0]
+    $versionResult = Invoke-CodexProcess $path @('--version') 'codex-version'
+    if ($versionResult.ExitCode -ne 0) { throw 'CODEX_VERSION_CHECK_FAILED' }
+    $version = (Get-ProcessText $versionResult).Trim()
+    if ($version -notmatch '^codex-cli\s+\S+') { throw 'CODEX_VERSION_OUTPUT_INVALID' }
+    $helpResult = Invoke-CodexProcess $path @('exec', '--help') 'codex-exec-help'
+    if ($helpResult.ExitCode -ne 0 -or (Get-ProcessText $helpResult) -notmatch 'workspace-write') { throw 'CODEX_EXEC_HELP_FAILED' }
+    Write-SupervisorLog "CODEX_SELECTED path=$path version=$version"
+    return [pscustomobject]@{ Path = $path; Version = $version }
+}
+
+function Write-SupervisorProcessFailure([string]$RepoRoot, [object]$Before, [object]$ProcessResult) {
+    $resultPath = Join-Path $script:RuntimePath 'last-run.json'
+    if (Test-Path -LiteralPath $resultPath) { return }
+    $text = Get-ProcessText $ProcessResult
+    $reason = if ($text -match '(?i)(sandbox|orchestrator_helper_launch_failed|windows-sandbox-setup)') { 'CODEX_SANDBOX_START_FAILED' } else { 'CODEX_PROCESS_FAILED' }
+    $head = (@(Get-Git @('rev-parse', 'HEAD'))[0]).Trim()
+    $clean = @(Get-Git @('status', '--short')).Count -eq 0
+    Write-RunResult 'BLOCKED' $Before.State.NextStage $Before.Head $head $null $Before.State.NextStage $clean $false @() $reason
+    Write-SupervisorLog "SUPERVISOR_PROCESS_FAILURE reason=$reason pid=$($ProcessResult.ProcessId) exit_code=$($ProcessResult.ExitCode)"
+}
+
+function Invoke-Stage([string]$RepoRoot, [object]$Codex) {
     $promptPath = Join-Path $RepoRoot 'scripts/autopilot/stage-prompt.md'
     $schemaPath = Join-Path $RepoRoot 'scripts/autopilot/stage-result.schema.json'
     $lastMessagePath = Join-Path $script:RuntimePath 'last-message.json'
     Remove-Item -LiteralPath (Join-Path $script:RuntimePath 'last-run.json') -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $lastMessagePath -Force -ErrorAction SilentlyContinue
-    Write-SupervisorLog "CODEX_START stage=$StartingHead sandbox=workspace-write"
-    Get-Content -LiteralPath $promptPath -Raw | & codex exec --sandbox workspace-write --cd $RepoRoot --output-schema $schemaPath --output-last-message $lastMessagePath -
-    $exitCode = $LASTEXITCODE
-    Write-SupervisorLog "CODEX_END exit_code=$exitCode"
-    return $exitCode
+    $prompt = Get-Content -LiteralPath $promptPath -Raw
+    return Invoke-CodexProcess $Codex.Path @('exec', '--sandbox', 'workspace-write', '--cd', $RepoRoot, '--output-schema', $schemaPath, '--output-last-message', $lastMessagePath, $prompt) 'stage-agent'
 }
 
-function Assert-StagePass([string]$RepoRoot, [object]$Before, [int]$ExitCode) {
+function Assert-StagePass([string]$RepoRoot, [object]$Before, [object]$ProcessResult) {
     $resultPath = Join-Path $script:RuntimePath 'last-run.json'
-    if (-not (Test-Path -LiteralPath $resultPath)) { throw 'MACHINE_RESULT_MISSING' }
+    if (-not (Test-Path -LiteralPath $resultPath)) {
+        if ($ProcessResult.ExitCode -ne 0) { Write-SupervisorProcessFailure $RepoRoot $Before $ProcessResult }
+        throw 'MACHINE_RESULT_MISSING'
+    }
     try { $result = Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json -ErrorAction Stop } catch { throw 'MACHINE_RESULT_INVALID_JSON' }
     $head = (@(Get-Git @('rev-parse', 'HEAD'))[0]).Trim()
     $clean = @(Get-Git @('status', '--short')).Count -eq 0
     if (-not $clean) { throw 'INTERRUPTED_STAGE_RECOVERY_REQUIRED' }
-    if ($ExitCode -ne 0) { throw "CODEX_EXIT_$ExitCode" }
+    if ($ProcessResult.ExitCode -ne 0) { throw "CODEX_EXIT_$($ProcessResult.ExitCode)" }
     $required = @('status','stage','starting_head','ending_head','commit','next_stage','worktree_clean','tests_passed','tests','push_performed','production_accessed','stop_reason')
     if (@($required | Where-Object { $null -eq $result.PSObject.Properties[$_] }).Count -gt 0) { throw 'MACHINE_RESULT_CONTRACT_INVALID' }
-    if ($result.status -ne 'PASS' -or $result.stage -ne $Before.State.NextStage -or $result.starting_head -ne $Before.Head -or $result.ending_head -ne $head -or $result.commit -ne $head -or -not $result.worktree_clean -or -not $result.tests_passed -or $result.push_performed -or $result.production_accessed -or $null -ne $result.stop_reason) { throw 'MACHINE_RESULT_CLAIM_REJECTED' }
+    if ($result.status -ne 'PASS' -or $result.stage -eq 'initialization' -or $result.stage -ne $Before.State.NextStage -or $result.starting_head -ne $Before.Head -or $result.ending_head -ne $head -or $result.commit -ne $head -or -not $result.worktree_clean -or -not $result.tests_passed -or $result.push_performed -or $result.production_accessed -or $null -ne $result.stop_reason) { throw 'MACHINE_RESULT_CLAIM_REJECTED' }
     $commitCount = [int](@(Get-Git @('rev-list', '--count', "$($Before.Head)..$head"))[0])
     if ($commitCount -ne 1) { throw 'EXPECTED_EXACTLY_ONE_STAGE_COMMIT' }
     $after = Get-StateSnapshot $RepoRoot
@@ -142,12 +233,25 @@ try {
     $script:RuntimePath = Join-Path $repoRoot '.autopilot-runtime'
     New-Item -ItemType Directory -Path $script:RuntimePath -Force | Out-Null
     Acquire-Lock $script:RuntimePath
-    Write-SupervisorLog "SUPERVISOR_START dry_run=$DryRun"
+    Write-SupervisorLog "SUPERVISOR_START dry_run=$DryRun smoke_only=$SmokeOnly"
     if (Test-StopRequested) { Write-SupervisorLog 'STOP_MARKER_DETECTED'; exit 0 }
-    $ready = Assert-Ready $repoRoot
+    $ready = Assert-Ready $repoRoot ($DryRun -or $SmokeOnly)
+    $codex = Resolve-CodexExecutable
     if ($DryRun) {
-        Write-SupervisorLog "DRY_RUN stage=$($ready.State.NextStage) command=codex exec --sandbox workspace-write --cd $repoRoot --output-schema scripts/autopilot/stage-result.schema.json --output-last-message .autopilot-runtime/last-message.json -"
+        Write-SupervisorLog "DRY_RUN stage=$($ready.State.NextStage) command=$($codex.Path) exec --sandbox workspace-write --cd $repoRoot --output-schema scripts/autopilot/stage-result.schema.json --output-last-message .autopilot-runtime/last-message.json"
         Write-RunResult 'BLOCKED' $ready.State.NextStage $ready.Head $ready.Head $null $ready.State.NextStage $true $false @() 'DRY_RUN_NO_CODEX_EXECUTION'
+        exit 0
+    }
+    if ($SmokeOnly) {
+        $smokePrompt = 'Read-only supervisor smoke: run only git rev-parse HEAD and read docs/autopilot/AUTOPILOT_STATE.md. Final response must contain HEAD=<full hash> and NEXT_STAGE=<exact next approved stage>. Do not modify files, create commits, access a database, push, deploy, or access production.'
+        $smoke = Invoke-CodexProcess $codex.Path @('exec', '--sandbox', 'workspace-write', '--cd', $repoRoot, $smokePrompt) 'codex-sandbox-smoke'
+        if ($smoke.ExitCode -ne 0) { throw "CODEX_SANDBOX_SMOKE_EXIT_$($smoke.ExitCode)" }
+        $smokeText = Get-ProcessText $smoke
+        if ($smokeText -match '(?i)base_instructions') { throw 'CODEX_MODEL_CACHE_BASE_INSTRUCTIONS_ERROR' }
+        if ($smokeText -notmatch [regex]::Escape("HEAD=$($ready.Head)") -or $smokeText -notmatch [regex]::Escape("NEXT_STAGE=$($ready.State.NextStage)")) { throw 'CODEX_SANDBOX_SMOKE_OUTPUT_INVALID' }
+        if (@(Get-Git @('status', '--short')).Count -ne 0 -and -not (Test-OnlySupervisorInfrastructureChanges)) { throw 'CODEX_SANDBOX_SMOKE_DIRTY_WORKTREE' }
+        Write-RunResult 'BLOCKED' $ready.State.NextStage $ready.Head $ready.Head $null $ready.State.NextStage $true $false @() 'SMOKE_ONLY_NO_PRODUCT_STAGE'
+        Write-SupervisorLog 'CODEX_SANDBOX_SMOKE_PASS'
         exit 0
     }
     $successfulStages = 0
@@ -156,9 +260,9 @@ try {
         $ready = Assert-Ready $repoRoot
         $attempt = 0
         do {
-            $exitCode = Invoke-Stage $repoRoot $ready.Head
+            $processResult = Invoke-Stage $repoRoot $codex
             try {
-                $after = Assert-StagePass $repoRoot $ready $exitCode
+                $after = Assert-StagePass $repoRoot $ready $processResult
                 $passed = $true
             } catch {
                 $passed = $false
