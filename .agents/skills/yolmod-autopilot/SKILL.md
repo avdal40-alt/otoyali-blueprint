@@ -6,6 +6,8 @@ description: "Execute approved autonomous Yolmod V1 roadmap stages with local sa
 
 Use this skill only for the local Yolmod V1 development loop. First read `docs/autopilot/YOLMOD_V1_PRODUCT_SPEC.md`, `docs/autopilot/IMPLEMENTATION_ROADMAP_V1.md`, `docs/autopilot/AUTOPILOT_RULES.md`, and `docs/autopilot/AUTOPILOT_STATE.md`. Follow `AGENTS.md` and the relevant specialised repository skill: `yolmod-implementation`, `yolmod-bugfix-debugging`, `yolmod-frontend-ui`, `yolmod-api-contract`, `yolmod-database-migration`, `yolmod-security-auth-rls`, `yolmod-testing-regression`, or `yolmod-release-production`. Git state and completed checks are the source of truth.
 
+Never rely on prior chat context. Rehydrate from repository sources and the durable contract for the current stage before stopping for missing context.
+
 1. Run `scripts/autopilot/preflight.ps1 -RequireClean` and `safety-check.ps1`, compare their result with state, and stop if the tree is not clean, the recorded baseline is no longer valid, or a required local tool is unavailable.
 2. Select exactly one small, unblocked item from the current roadmap or recorded state. Do not begin a second item in the same run.
 3. Make the minimal change. For database, auth, access-control, or release work load the relevant Yolmod skill and satisfy its additional gates.

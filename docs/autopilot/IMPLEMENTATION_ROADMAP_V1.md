@@ -13,7 +13,10 @@
 1. `FUNCTIONAL-02B1` — **Core Turkey Vehicle Schema**: variant catalog, İlçe support using city structure, missing typed vehicle specifications, canonical power, EV/hybrid-compatible fields, and Takas. Additive/backward-compatible migration and focused tests only. Excludes body panels, provenance, VIN, search documents/server search, importer, and AI.
 2. `FUNCTIONAL-02B2` — Turkey condition/trust declarations: panel states, damage/service declarations, field-level provenance/evidence, and trust-safe display semantics.
 3. `FUNCTIONAL-02B3` — optional VIN foundation: normalization/validation, protected raw representation, duplicate/conflict handling, decoder extension point, no publication block.
-4. `FUNCTIONAL-02C1` — public-safe denormalized listing search document and protected projection synchronized with approval, public vehicle facts, price, cover/media, approved video, seller type/public dealer data, and lifecycle states.
+4. `FUNCTIONAL-02C1A` — publication-path inventory and durable projection contract.
+5. `FUNCTIONAL-02C1B` — public-safe search projection schema and internal refresh function.
+6. `FUNCTIONAL-02C1C` — approved entry-path integration and fail-closed lifecycle invalidation.
+7. `FUNCTIONAL-02C1D` — eligible backfill and privacy/runtime matrix; parent `FUNCTIONAL-02C1` completes here.
 5. `FUNCTIONAL-02C2` — canonical versioned database search request, keyset pagination, complete filters/stable sorts, and public-safe response with no phone, VIN, or private seller identifiers.
 6. `FUNCTIONAL-02D` — replace capped `getHomeListings(60)` browser filtering with server search, URL normalization, pagination, filters, and loading/error/empty UX.
 7. `FUNCTIONAL-02E` — migrate Sell/Edit to vehicle and trust contracts.

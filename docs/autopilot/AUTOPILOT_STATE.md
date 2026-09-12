@@ -11,10 +11,10 @@ Git and test results are source of truth. The bootstrap commit advances HEAD; it
 
 | Field | Value |
 | --- | --- |
-| Current stage | FUNCTIONAL-02B3 — COMPLETE |
-| Last completed stage | FUNCTIONAL-02B3 — Optional VIN Foundation |
+| Current stage | FUNCTIONAL-02C1A — COMPLETE |
+| Last completed stage | FUNCTIONAL-02C1A — Publication Path Inventory & Projection Contract |
 | Bootstrap commit | See Git `HEAD` after bootstrap |
-| Required next stage | FUNCTIONAL-02C1 — Search Publication Document |
+| Required next stage | FUNCTIONAL-02C1B — Search Projection Schema + Internal Refresh |
 | Test status | PASS — FUNCTIONAL-02B3 contract test and migration static/runtime checks passed on 2026-09-12 |
 | Migration status | Additive 02B1, 02B2, and 02B3 migrations applied and runtime-inspected on the existing local development database only; never applied remotely or to production |
 | Migration static check | PASS — 02B3 checked by `migration-check.ps1` before local forward-only application |
@@ -22,7 +22,7 @@ Git and test results are source of truth. The bootstrap commit advances HEAD; it
 | Push status | BLOCKED — bootstrap must not push |
 | Production status | BLOCKED — manual-only |
 | Blockers | Remote environment identity remains unverified and blocks all remote actions; local pinned Supabase CLI fallback is available |
-| Last autopilot run | 2026-09-12 FUNCTIONAL-02B3 continuation run |
+| Last autopilot run | 2026-09-12 AUTOPILOT-HARDEN-03 + FUNCTIONAL-02C1A |
 
 ## Completed architecture/audit stages
 

@@ -11,6 +11,10 @@
 
 Git/tests, not state prose, are the source of truth. Stop and reconcile a state/Git conflict rather than falsifying state. Record stage, command/error summary, changed files, last safe commit, and recommended human decision after repeated safe failure; never retry indefinitely.
 
+## Session-independent context
+
+Never stop merely because this Codex conversation lacks prior working context. Rehydrate it from Git, State, Spec, Roadmap, Rules, relevant skills, durable stage contracts, migrations, tests, and targeted source inspection. Stop for missing chat context only when the required repository source is genuinely unavailable. Later sub-stages must read their parent durable contract before implementation.
+
 ## Multi-stage mode
 
 Future autonomous runs may continue only after a clean successful commit, green mandatory gates, explicitly defined next stage, no unresolved business ambiguity, no production/destructive action, and no provider dependency gap. Maximum three successful implementation stages per run; then run `checkpoint.ps1`, write a summary, and stop.
