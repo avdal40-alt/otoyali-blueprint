@@ -133,8 +133,12 @@ function Assert-StagePass([string]$RepoRoot, [object]$Before, [int]$ExitCode) {
 }
 
 try {
-    $repoRoot = (@(Get-Git @('rev-parse', '--show-toplevel'))[0]).Trim()
-    if ($repoRoot -ieq 'C:\Проекты\Otoyali-blueprint') { throw 'FORBIDDEN_REPOSITORY' }
+    $canonicalYolmodRoot = [IO.Path]::GetFullPath('C:\Users\Work\source\repos\Yolmod').TrimEnd('\')
+    $gitRepoRoot = (@(Get-Git @('rev-parse', '--show-toplevel'))[0]).Trim()
+    $repoRoot = (Get-Item -LiteralPath $gitRepoRoot -ErrorAction Stop).FullName.TrimEnd('\')
+    if (-not [string]::Equals($repoRoot, $canonicalYolmodRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'FORBIDDEN_OR_UNEXPECTED_REPOSITORY'
+    }
     $script:RuntimePath = Join-Path $repoRoot '.autopilot-runtime'
     New-Item -ItemType Directory -Path $script:RuntimePath -Force | Out-Null
     Acquire-Lock $script:RuntimePath

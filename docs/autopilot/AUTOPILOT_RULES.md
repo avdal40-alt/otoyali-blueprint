@@ -31,6 +31,8 @@ If a Codex exit leaves product changes without a valid one-stage commit, the sup
 
 Continuous local operation requires the computer to remain powered on, awake (not sleeping or hibernating), network-connected, and authenticated with Codex. The supervisor never changes Windows power settings.
 
+For a Windows PowerShell session that requires an execution-policy override, the operator may run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force` before starting the supervisor. This is process-local; no autopilot script changes execution policy.
+
 Git/tests, not state prose, are the source of truth. Stop and reconcile a state/Git conflict rather than falsifying state. Record stage, command/error summary, changed files, last safe commit, and recommended human decision after repeated safe failure; never retry indefinitely.
 
 ## Long-running command continuation

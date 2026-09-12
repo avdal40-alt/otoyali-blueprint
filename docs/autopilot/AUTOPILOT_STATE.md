@@ -23,9 +23,9 @@ Git and verified test results are source of truth. This file is a concise reconc
 | Last completed product stage | FUNCTIONAL-02C1C — Approved Entry-Path Integration and Fail-Closed Lifecycle Invalidation |
 | Last completed stage commit | `aa038a7addca08e4bf4a29d80cf9665c0cedda12` (`feat(search): sync projection lifecycle`) |
 | Last safe pre-stage commit | `772928dd7787135d9adb343d2e494a61ebbc2931` (`chore(autopilot): handle long-running command sessions`) |
-| Latest infrastructure patch | CONTINUOUS-SUPERVISOR-01 — local continuous supervisor; resolve from Git after this ordinary infrastructure commit |
-| Last safe infrastructure baseline | `4d482d7cfd86ef9743de26a61247f2da1f8df17e` (`chore(autopilot): enable controlled multi-stage runs`) |
-| Latest infrastructure validation | PASS — supervisor syntax/static-contract, dry-run/lock/STOP/result-contract, preflight, safety, and policy validation passed locally; long-running command continuation policy retained |
+| Latest infrastructure patch | CONTINUOUS-PARSER-RECOVERY-01 — ASCII-only repository allowlist and Windows PowerShell parser recovery; resolve from Git after this ordinary infrastructure commit |
+| Last safe infrastructure baseline | `b46373848c850e788c2626bcf363765bdd746b36` (`fix(autopilot): parse state table values`) |
+| Latest infrastructure validation | PASS — Windows PowerShell parser/ASCII audit of every autopilot script, local dry-run, preflight, and safety validation passed; long-running command continuation policy retained |
 | Next approved stage | FUNCTIONAL-02C1D — Eligible Backfill and Privacy/Runtime Matrix |
 | Latest mandatory checks | PASS — `preflight.ps1 -RequireClean`, `safety-check.ps1`, `migration-check.ps1 -Baseline HEAD`, and targeted 02C1C/lifecycle regression checks passed locally |
 | Latest migration static validation | PASS — one new migration is additive, timestamped after the prior migration, and passed `migration-check.ps1 -Baseline HEAD`; manual schema/RLS/privilege/lock/compatibility review completed |
@@ -34,7 +34,7 @@ Git and verified test results are source of truth. This file is a concise reconc
 | Production status | BLOCKED — manual-only; no access or mutation by autopilot |
 | Known blockers | Remote environment identity remains unverified and blocks all remote actions |
 | Unresolved external-provider decisions | AI, SMS, video, CAPTCHA, analytics, email/push, and VIN/TRAMER/SBM providers remain unresolved; absence blocks only dependent stages |
-| Last run timestamp | 2026-09-12 — CONTINUOUS-SUPERVISOR-01 infrastructure patch complete locally; no product or remote action |
+| Last run timestamp | 2026-09-12 — CONTINUOUS-PARSER-RECOVERY-01 infrastructure patch complete locally; no product or remote action |
 
 ## Completed architecture/audit stages
 

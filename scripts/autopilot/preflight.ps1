@@ -14,9 +14,12 @@ function Invoke-Git([string[]]$Arguments) {
 }
 
 try {
-    $repoRoot = (Invoke-Git @('rev-parse', '--show-toplevel')).Trim()
-    $archivePath = 'C:\Проекты\Otoyali-blueprint'
-    if ($repoRoot -ieq $archivePath) { throw 'The historical archive repository is forbidden.' }
+    $gitRepoRoot = (Invoke-Git @('rev-parse', '--show-toplevel')).Trim()
+    $repoRoot = (Get-Item -LiteralPath $gitRepoRoot -ErrorAction Stop).FullName.TrimEnd('\')
+    $canonicalYolmodRoot = [IO.Path]::GetFullPath('C:\Users\Work\source\repos\Yolmod').TrimEnd('\')
+    if (-not [string]::Equals($repoRoot, $canonicalYolmodRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'FORBIDDEN_OR_UNEXPECTED_REPOSITORY'
+    }
     $branch = (Invoke-Git @('branch', '--show-current')).Trim()
     $head = (Invoke-Git @('rev-parse', 'HEAD')).Trim()
     $status = @(Invoke-Git @('status', '--short'))
