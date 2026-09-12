@@ -34,7 +34,7 @@ function Get-Git([string[]]$Arguments) {
 }
 
 function Get-StateValue([string]$State, [string]$Label) {
-    $match = [regex]::Match($State, "(?m)^\\|\\s*$([regex]::Escape($Label))\\s*\\|\\s*(.+?)\\s*\\|$")
+    $match = [regex]::Match($State, "(?m)^\|\s*$([regex]::Escape($Label))\s*\|\s*(.+?)\s*\|$")
     if (-not $match.Success) { throw "AUTOPILOT_STATE is missing '$Label'." }
     return $match.Groups[1].Value.Trim()
 }
@@ -56,7 +56,6 @@ function Assert-Ready([string]$RepoRoot) {
     $snapshot = Get-StateSnapshot $RepoRoot
     $head = (@(Get-Git @('rev-parse', 'HEAD'))[0]).Trim()
     $lastCommitText = [string]$snapshot.LastCommit
-    Write-SupervisorLog "STATE_STAGE_COMMIT value=$lastCommitText"
     $lastStageCommit = @($lastCommitText -split '[^0-9a-f]+' | Where-Object { $_.Length -eq 40 } | Select-Object -First 1)[0]
     if ([string]::IsNullOrWhiteSpace($lastStageCommit)) { throw 'GIT_STATE_INCONSISTENCY: State last completed stage commit is not a full hash.' }
     & git cat-file -e "${lastStageCommit}^{commit}"
