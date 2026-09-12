@@ -52,7 +52,7 @@ function Assert-Ready([string]$RepoRoot) {
     & (Join-Path $RepoRoot 'scripts/autopilot/preflight.ps1') -RequireClean
     if ($LASTEXITCODE -ne 0) { throw 'PREFLIGHT_FAILED' }
     $snapshot = Get-StateSnapshot $RepoRoot
-    $head = (Get-Git @('rev-parse', 'HEAD'))[0].Trim()
+    $head = (@(Get-Git @('rev-parse', 'HEAD'))[0]).Trim()
     $commitMatch = [regex]::Match($snapshot.LastCommit, '[0-9a-f]{40}')
     if (-not $commitMatch.Success) { throw 'GIT_STATE_INCONSISTENCY: State last completed stage commit is not a full hash.' }
     & git cat-file -e "$($commitMatch.Value)^{commit}"
@@ -76,7 +76,7 @@ function Acquire-Lock([string]$RuntimePath) {
         throw 'STALE_LOCK_RECOVERY_REQUIRED'
     }
     New-Item -ItemType File -LiteralPath $script:LockPath -ErrorAction Stop | Out-Null
-    [ordered]@{ pid = $PID; started_at = (Get-Date).ToString('o'); repository = (Get-Git @('rev-parse', '--show-toplevel'))[0].Trim() } | ConvertTo-Json | Set-Content -LiteralPath $script:LockPath -Encoding utf8
+    [ordered]@{ pid = $PID; started_at = (Get-Date).ToString('o'); repository = (@(Get-Git @('rev-parse', '--show-toplevel'))[0]).Trim() } | ConvertTo-Json | Set-Content -LiteralPath $script:LockPath -Encoding utf8
     $script:LockOwned = $true
 }
 
@@ -110,14 +110,14 @@ function Assert-StagePass([string]$RepoRoot, [object]$Before, [int]$ExitCode) {
     $resultPath = Join-Path $script:RuntimePath 'last-run.json'
     if (-not (Test-Path -LiteralPath $resultPath)) { throw 'MACHINE_RESULT_MISSING' }
     try { $result = Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json -ErrorAction Stop } catch { throw 'MACHINE_RESULT_INVALID_JSON' }
-    $head = (Get-Git @('rev-parse', 'HEAD'))[0].Trim()
+    $head = (@(Get-Git @('rev-parse', 'HEAD'))[0]).Trim()
     $clean = @(Get-Git @('status', '--short')).Count -eq 0
     if (-not $clean) { throw 'INTERRUPTED_STAGE_RECOVERY_REQUIRED' }
     if ($ExitCode -ne 0) { throw "CODEX_EXIT_$ExitCode" }
     $required = @('status','stage','starting_head','ending_head','commit','next_stage','worktree_clean','tests_passed','tests','push_performed','production_accessed','stop_reason')
     if (@($required | Where-Object { $null -eq $result.PSObject.Properties[$_] }).Count -gt 0) { throw 'MACHINE_RESULT_CONTRACT_INVALID' }
     if ($result.status -ne 'PASS' -or $result.stage -ne $Before.State.NextStage -or $result.starting_head -ne $Before.Head -or $result.ending_head -ne $head -or $result.commit -ne $head -or -not $result.worktree_clean -or -not $result.tests_passed -or $result.push_performed -or $result.production_accessed -or $null -ne $result.stop_reason) { throw 'MACHINE_RESULT_CLAIM_REJECTED' }
-    $commitCount = [int]((Get-Git @('rev-list', '--count', "$($Before.Head)..$head"))[0])
+    $commitCount = [int](@(Get-Git @('rev-list', '--count', "$($Before.Head)..$head"))[0])
     if ($commitCount -ne 1) { throw 'EXPECTED_EXACTLY_ONE_STAGE_COMMIT' }
     $after = Get-StateSnapshot $RepoRoot
     if ($after.LastStage -ne $Before.State.NextStage -or $after.NextStage -ne $result.next_stage -or $after.StageCount -ne ($Before.State.StageCount + 1)) { throw 'GIT_STATE_INCONSISTENCY_AFTER_STAGE' }
@@ -130,7 +130,7 @@ function Assert-StagePass([string]$RepoRoot, [object]$Before, [int]$ExitCode) {
 }
 
 try {
-    $repoRoot = (Get-Git @('rev-parse', '--show-toplevel'))[0].Trim()
+    $repoRoot = (@(Get-Git @('rev-parse', '--show-toplevel'))[0]).Trim()
     if ($repoRoot -ieq 'C:\Проекты\Otoyali-blueprint') { throw 'FORBIDDEN_REPOSITORY' }
     $script:RuntimePath = Join-Path $repoRoot '.autopilot-runtime'
     New-Item -ItemType Directory -LiteralPath $script:RuntimePath -Force | Out-Null
@@ -168,7 +168,7 @@ try {
             Start-Sleep -Seconds $seconds
         } while ($true)
         $successfulStages++
-        Write-SupervisorLog "STAGE_PASS stage=$($ready.State.NextStage) ending_head=$((Get-Git @('rev-parse','HEAD'))[0].Trim())"
+        Write-SupervisorLog "STAGE_PASS stage=$($ready.State.NextStage) ending_head=$((@(Get-Git @('rev-parse','HEAD'))[0]).Trim())"
         if (($successfulStages % 3) -eq 0) {
             Write-SupervisorLog 'CHECKPOINT_START cadence=3'
             & (Join-Path $repoRoot 'scripts/autopilot/checkpoint.ps1')
