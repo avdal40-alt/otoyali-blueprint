@@ -10,31 +10,31 @@
 **Autonomous run mode:** `MULTI_STAGE`
 **Continuous supervised mode:** ENABLED — one fresh Codex execution per product stage; supervisor continuation is local-only and push-disabled
 **Maximum product stages per run:** `3`
-**Stages completed in current run:** `1`
+**Stages completed in current run:** `2`
 **Last checkpoint:** NOT_RUN — continuous supervisor checkpoints after every three successful stages and at defined risk boundaries
-**Last stop reason:** FUNCTIONAL-02C1D recovered after an interrupted local supervisor execution; no following product stage started
+**Last stop reason:** FUNCTIONAL-02C2 completed locally; user-directed stop before the next product stage
 
 Git and verified test results are source of truth. This file is a concise reconciliation aid, never a replacement for Git. A mismatch that cannot be explained by reviewed commits is a stop condition.
 
 | Field | Value |
 | --- | --- |
-| Current stage status | FUNCTIONAL-02C1D — COMPLETE; additive eligible backfill reconciled local listings through the canonical eligibility predicate and passed privacy/runtime matrix |
-| Last completed stage | FUNCTIONAL-02C1D — Eligible Backfill and Privacy/Runtime Matrix |
-| Last completed product stage | FUNCTIONAL-02C1D — Eligible Backfill and Privacy/Runtime Matrix |
-| Last completed stage commit | `fbcc40700209c667d8b17b0e7f6bcc9048f32088` (`feat(search): backfill eligible projection`) |
-| Last safe pre-stage commit | `b2678e20e28b46bd95759f0a556cbb8012cd93a8` (`fix(autopilot): resolve Codex outside desktop environment`) |
+| Current stage status | FUNCTIONAL-02C2 — COMPLETE; canonical versioned public Search RPC, complete filters, stable keyset pagination, and a public-safe response validated locally |
+| Last completed stage | FUNCTIONAL-02C2 — Canonical Versioned Database Search Request, Keyset Pagination, and Public-Safe Response |
+| Last completed product stage | FUNCTIONAL-02C2 — Canonical Versioned Database Search Request, Keyset Pagination, and Public-Safe Response |
+| Last completed stage commit | Resolve from Git after this ordinary product commit |
+| Last safe pre-stage commit | `7c5928f0fb10d6bbdaed00634e3a7c3580cc7a41` (`chore(autopilot): reconcile recovered stage state`) |
 | Latest infrastructure patch | CONTINUOUS-EXTERNAL-POWERSHELL-CODEX-RESOLUTION-01 — stable LocalAppData Codex discovery, diagnostic candidate logging, external PowerShell UTF-8 process-output handling, and doctor warning classification; resolve from Git after this ordinary infrastructure commit |
 | Last safe infrastructure baseline | `0669fb714542ef42c4ca86d13c6df5735cbab1b4` (`fix(autopilot): recover codex sandbox supervision`) |
 | Latest infrastructure validation | PASS — Windows PowerShell parser audit, preflight, safety check, selected Codex `0.153.4` version/help/doctor review, `workspace-write` read-only smoke, and external Windows PowerShell 5.1 SmokeOnly/DryRun with a PATH containing only the legacy shim; scalar Int32 exit code and lock rejection validated locally; no product, database, push, or production action |
-| Next approved stage | FUNCTIONAL-02C2 — Canonical Versioned Database Search Request, Keyset Pagination, and Public-Safe Response |
-| Latest mandatory checks | PASS — `migration-check.ps1 -Baseline b2678e2`, typecheck, lint, C1B3A1/C1B3A2/C1C/C1D projection tests, and lifecycle security test passed locally |
-| Latest migration static validation | PASS — `20260912153007_functional_02c1d_search_projection_backfill.sql` is additive, timestamped after prior migrations, and passed migration-check with manual schema/RLS/privilege/lock/compatibility review |
-| Latest migration runtime validation | PASS — migration applied only to the local Supabase database; all listings reconciled through canonical refresh, no ineligible document remained, no eligible listing was omitted, and anon/auth privilege matrix remained restricted |
+| Next approved stage | FUNCTIONAL-02D — Server Search UI, URL Normalization, Pagination, Filters, and Search UX |
+| Latest mandatory checks | PASS — `migration-check.ps1 -Baseline 7c5928f`, typecheck, lint (pre-existing SafeImage warning only), C1B3A1/C1B3A2/C1C/C1D/C2 projection tests, and lifecycle security test passed locally |
+| Latest migration static validation | PASS — `20260913100000_functional_02c2_search_request.sql` is additive, timestamped after C1D, and passed migration-check with manual schema/RLS/privilege/lock/compatibility review |
+| Latest migration runtime validation | PASS — migration applied only to the local Supabase database; anon and authenticated C2 requests returned the public-safe v1 envelope, all stable sorts/cursors passed, and C1 lifecycle/privacy contracts remained restricted |
 | Push status | BLOCKED — no push without verified non-production target and explicit authority |
 | Production status | BLOCKED — manual-only; no access or mutation by autopilot |
 | Known blockers | Remote environment identity remains unverified and blocks all remote actions |
 | Unresolved external-provider decisions | AI, SMS, video, CAPTCHA, analytics, email/push, and VIN/TRAMER/SBM providers remain unresolved; absence blocks only dependent stages |
-| Last run timestamp | 2026-09-12 — FUNCTIONAL-02C1D recovered and validated locally; no remote action |
+| Last run timestamp | 2026-09-13 — FUNCTIONAL-02C2 recovered and validated locally; no remote action |
 
 ## Completed architecture/audit stages
 
@@ -44,4 +44,4 @@ Git and verified test results are source of truth. This file is a concise reconc
 
 ## Next controlled-run preconditions
 
-Use `$yolmod-autopilot`; reconstruct context from repository sources, confirm this State against Git and the recovered C1D stage commit, then implement exactly `FUNCTIONAL-02C2` — Canonical Versioned Database Search Request, Keyset Pagination, and Public-Safe Response. A run may continue through at most three stages only after every continuation gate passes. Do not push, deploy, access production, or schedule automation.
+Use `$yolmod-autopilot`; reconstruct context from repository sources, confirm this State against the committed FUNCTIONAL-02C2 stage, then implement exactly `FUNCTIONAL-02D` — Server Search UI, URL Normalization, Pagination, Filters, and Search UX. Do not push, deploy, access production, or schedule automation.
