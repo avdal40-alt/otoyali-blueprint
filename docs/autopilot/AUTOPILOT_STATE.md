@@ -21,7 +21,7 @@ Git and verified test results are source of truth. This file is a concise reconc
 | Current stage status | FUNCTIONAL-02C2 — COMPLETE; canonical versioned public Search RPC, complete filters, stable keyset pagination, and a public-safe response validated locally |
 | Last completed stage | FUNCTIONAL-02C2 — Canonical Versioned Database Search Request, Keyset Pagination, and Public-Safe Response |
 | Last completed product stage | FUNCTIONAL-02C2 — Canonical Versioned Database Search Request, Keyset Pagination, and Public-Safe Response |
-| Last completed stage commit | Resolve from Git after this ordinary product commit |
+| Last completed stage commit | `4c0978fc69608ee18298c67f8c105746b512b038` |
 | Last safe pre-stage commit | `7c5928f0fb10d6bbdaed00634e3a7c3580cc7a41` (`chore(autopilot): reconcile recovered stage state`) |
 | Latest infrastructure patch | CONTINUOUS-EXTERNAL-POWERSHELL-CODEX-RESOLUTION-01 — stable LocalAppData Codex discovery, diagnostic candidate logging, external PowerShell UTF-8 process-output handling, and doctor warning classification; resolve from Git after this ordinary infrastructure commit |
 | Last safe infrastructure baseline | `0669fb714542ef42c4ca86d13c6df5735cbab1b4` (`fix(autopilot): recover codex sandbox supervision`) |
