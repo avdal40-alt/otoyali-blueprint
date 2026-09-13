@@ -13,6 +13,11 @@ function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw "ASSERTION_FAILED:$Message" }
 }
 
+function Invoke-TestNativeProcess([string]$Body, [int]$TimeoutSeconds = 5) {
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($Body))
+    return Invoke-NativeProcessCapture -Executable 'powershell.exe' -Arguments @('-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded) -WorkingDirectory $repoRoot -TimeoutSeconds $TimeoutSeconds
+}
+
 try {
     $head = (git rev-parse HEAD).Trim()
     $legacy = Get-ProductCommitIdentity '2563146b3d67a7c0c78757e467faf2fa7926695b'
@@ -28,6 +33,20 @@ try {
 
     $definitions = @(Get-ApprovedHostBaselines)
     Assert-True ($definitions.Count -eq 1 -and $definitions[0].ExactTestId -eq 'npm --prefix apps/web run test:functional-02c2') 'trusted C2 baseline allowlist is exact'
+    $stdoutOnly = Invoke-TestNativeProcess "[Console]::Out.WriteLine('stdout-only'); exit 0"
+    Assert-True ($stdoutOnly.ExitCode -eq 0 -and $stdoutOnly.StandardOutput -match 'stdout-only' -and [string]::IsNullOrWhiteSpace($stdoutOnly.StandardError)) 'native stdout-only exit zero is preserved'
+    $stderrOnly = Invoke-TestNativeProcess "[Console]::Error.WriteLine('ERROR stderr-only'); exit 0"
+    Assert-True ($stderrOnly.ExitCode -eq 0 -and $stderrOnly.StandardError -match 'ERROR stderr-only') 'native stderr-only exit zero is preserved'
+    $bothStreams = Invoke-TestNativeProcess "[Console]::Out.WriteLine('stdout'); [Console]::Error.WriteLine('CONTEXT stderr'); exit 0"
+    Assert-True ($bothStreams.ExitCode -eq 0 -and $bothStreams.StandardOutput -match 'stdout' -and $bothStreams.StandardError -match 'CONTEXT stderr') 'native stdout and stderr exit zero is preserved'
+    $nonZero = Invoke-TestNativeProcess "[Console]::Error.WriteLine('ERROR nonzero'); exit 17"
+    Assert-True ($nonZero.ExitCode -eq 17 -and $nonZero.StandardError -match 'ERROR nonzero') 'native nonzero exit is preserved'
+    $largeOutput = Invoke-TestNativeProcess "[Console]::Out.Write(('o' * 100000)); [Console]::Error.Write(('e' * 100000)); exit 0"
+    Assert-True ($largeOutput.ExitCode -eq 0 -and $largeOutput.StandardOutput.Length -ge 100000 -and $largeOutput.StandardError.Length -ge 100000) 'large native output drains without deadlock'
+    $missingExecutable = Invoke-NativeProcessCapture -Executable 'yolmod-does-not-exist.exe' -Arguments @() -WorkingDirectory $repoRoot -TimeoutSeconds 5
+    Assert-True ($missingExecutable.ExitCode -ne 0 -and $null -ne $missingExecutable.LaunchError) 'missing native executable fails closed'
+    $timedOut = Invoke-TestNativeProcess "Start-Sleep -Seconds 2; exit 0" 1
+    Assert-True ($timedOut.ExitCode -ne 0 -and $timedOut.TimedOut) 'native timeout fails closed'
     Assert-True ((Resolve-RepositoryRelativePath $repoRoot (Join-Path $repoRoot 'child\file.txt')) -eq 'child/file.txt') 'child path resolves'
     Assert-True ((Resolve-RepositoryRelativePath $repoRoot $repoRoot) -eq '.') 'repository root resolves'
     Assert-True ((Resolve-RepositoryRelativePath $repoRoot (Join-Path $repoRoot 'folder with spaces\file.txt')) -eq 'folder with spaces/file.txt') 'spaces resolve'
