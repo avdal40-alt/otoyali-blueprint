@@ -76,6 +76,7 @@ type FilterSupport = {
   engineVolume: boolean;
   damageState: boolean;
   ownerCount: boolean;
+  trade: boolean;
 };
 
 export function SearchFilters({
@@ -247,6 +248,12 @@ export function SearchFilters({
               <label className="flex items-center gap-2 text-sm font-semibold text-oto-muted">
                 <input type="checkbox" checked={filters.negotiableOnly} onChange={(event) => setValue("negotiableOnly", event.target.checked)} />
                 {locale === "en" ? "Negotiable" : "Pazarlık var"}
+              </label>
+            ) : null}
+            {support.trade ? (
+              <label className="flex items-center gap-2 text-sm font-semibold text-oto-muted">
+                <input type="checkbox" checked={filters.tradeOnly} onChange={(event) => setValue("tradeOnly", event.target.checked)} />
+                {String(dictionary.search.trade)}
               </label>
             ) : null}
             {support.promoted ? (

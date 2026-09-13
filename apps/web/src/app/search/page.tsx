@@ -1,7 +1,7 @@
 import { getCities } from "@/lib/queries/cities";
-import { getHomeListings } from "@/lib/queries/listings";
 import { getMakes, getModels } from "@/lib/queries/makes";
 import { parseSearchParams } from "@/lib/search/search-params";
+import { searchListings } from "@/lib/search/server-search";
 import { SearchClient } from "./_components/SearchClient";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +13,13 @@ export default async function SearchPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const [listingsResult, makesResult, modelsResult, citiesResult] = await Promise.all([getHomeListings(60), getMakes(), getModels(), getCities()]);
+  const initialFilters = parseSearchParams(resolvedSearchParams);
+  const [makesResult, modelsResult, citiesResult] = await Promise.all([getMakes(), getModels(), getCities()]);
+  const listingsResult = await searchListings(initialFilters, {
+    makes: makesResult.data,
+    models: modelsResult.data,
+    cities: citiesResult.data
+  });
 
   return (
     <SearchClient
@@ -21,7 +27,8 @@ export default async function SearchPage({
       makes={makesResult.data}
       models={modelsResult.data}
       cities={citiesResult.data}
-      initialFilters={parseSearchParams(resolvedSearchParams)}
+      initialFilters={initialFilters}
+      nextCursor={listingsResult.nextCursor}
       error={listingsResult.error ?? makesResult.error ?? modelsResult.error}
       debugItems={[listingsResult, makesResult, modelsResult, citiesResult]}
     />

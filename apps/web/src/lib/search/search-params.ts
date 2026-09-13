@@ -26,6 +26,7 @@ export type ListingSearchFilters = {
   tradeOnly: boolean;
   advanced: boolean;
   sort: SortOption;
+  cursor?: import("./server-search").SearchCursor | null;
 };
 
 export const defaultSearchFilters: ListingSearchFilters = {
@@ -53,7 +54,8 @@ export const defaultSearchFilters: ListingSearchFilters = {
   promotedOnly: false,
   tradeOnly: false,
   advanced: false,
-  sort: "newest"
+  sort: "newest",
+  cursor: null
 };
 
 type RawSearchParams = Record<string, string | string[] | undefined>;
@@ -69,11 +71,11 @@ export function parseSearchParams(searchParams: RawSearchParams): ListingSearchF
     make: listValue("make"),
     model: listValue("model"),
     city: listValue("city"),
-    priceMin: value("price_min", "priceMin", "min_price"),
-    priceMax: value("price_max", "priceMax", "max_price"),
-    yearMin: value("year_min", "yearMin", "min_year"),
-    yearMax: value("year_max", "yearMax", "max_year"),
-    mileageMax: value("max_mileage", "mileage_max", "mileageMax"),
+    priceMin: normalizeInteger(value("price_min", "priceMin", "min_price")),
+    priceMax: normalizeInteger(value("price_max", "priceMax", "max_price")),
+    yearMin: normalizeInteger(value("year_min", "yearMin", "min_year"), 32767),
+    yearMax: normalizeInteger(value("year_max", "yearMax", "max_year"), 32767),
+    mileageMax: normalizeInteger(value("max_mileage", "mileage_max", "mileageMax"), 2147483647),
     fuelType: listValue("fuel_type", "fuelType"),
     transmission: listValue("transmission"),
     bodyType: listValue("body_type", "bodyType"),
@@ -81,7 +83,7 @@ export function parseSearchParams(searchParams: RawSearchParams): ListingSearchF
     color: value("color"),
     condition: value("condition"),
     sellerType: value("seller_type", "sellerType"),
-    engineVolume: value("engine_volume", "engineVolume"),
+    engineVolume: normalizeDecimal(value("engine_volume", "engineVolume"), 999.9),
     damageState: value("damage_state", "damageState"),
     ownerCount: value("owner_count", "ownerCount"),
     onlyWithPhotos: isTruthy(value("with_photos", "onlyWithPhotos")),
@@ -89,7 +91,8 @@ export function parseSearchParams(searchParams: RawSearchParams): ListingSearchF
     promotedOnly: isTruthy(value("promoted", "promotedOnly")),
     tradeOnly: isTruthy(value("trade", "tradeOnly")),
     advanced: isTruthy(value("advanced")),
-    sort: isSortOption(sort) ? sort : "newest"
+    sort: isSortOption(sort) ? sort : "newest",
+    cursor: parseCursor(value("cursor"), isSortOption(sort) ? sort : "newest")
   };
 }
 
@@ -100,11 +103,11 @@ export function buildSearchUrl(filters: Partial<ListingSearchFilters>, path = "/
   addList(params, "make", filters.make);
   addList(params, "model", filters.model);
   addList(params, "city", filters.city);
-  add(params, "price_min", filters.priceMin);
-  add(params, "price_max", filters.priceMax);
-  add(params, "year_min", filters.yearMin);
-  add(params, "year_max", filters.yearMax);
-  add(params, "max_mileage", filters.mileageMax);
+  add(params, "price_min", normalizeInteger(filters.priceMin ?? ""));
+  add(params, "price_max", normalizeInteger(filters.priceMax ?? ""));
+  add(params, "year_min", normalizeInteger(filters.yearMin ?? "", 32767));
+  add(params, "year_max", normalizeInteger(filters.yearMax ?? "", 32767));
+  add(params, "max_mileage", normalizeInteger(filters.mileageMax ?? "", 2147483647));
   addList(params, "fuel_type", filters.fuelType);
   addList(params, "transmission", filters.transmission);
   addList(params, "body_type", filters.bodyType);
@@ -112,7 +115,7 @@ export function buildSearchUrl(filters: Partial<ListingSearchFilters>, path = "/
   add(params, "color", filters.color);
   add(params, "condition", filters.condition);
   add(params, "seller_type", filters.sellerType);
-  add(params, "engine_volume", filters.engineVolume);
+  add(params, "engine_volume", normalizeDecimal(filters.engineVolume ?? "", 999.9));
   add(params, "damage_state", filters.damageState);
   add(params, "owner_count", filters.ownerCount);
   add(params, "sort", filters.sort && filters.sort !== "newest" ? filters.sort : "");
@@ -121,6 +124,7 @@ export function buildSearchUrl(filters: Partial<ListingSearchFilters>, path = "/
   add(params, "promoted", filters.promotedOnly ? "1" : "");
   add(params, "trade", filters.tradeOnly ? "1" : "");
   add(params, "advanced", filters.advanced ? "1" : "");
+  add(params, "cursor", encodeCursor(filters.cursor));
 
   const query = params.toString();
   return query ? `${path}?${query}` : path;
@@ -129,6 +133,7 @@ export function buildSearchUrl(filters: Partial<ListingSearchFilters>, path = "/
 export function hasActiveFilters(filters: ListingSearchFilters) {
   return Object.entries(filters).some(([key, value]) => {
     if (key === "sort") return value !== "newest";
+    if (key === "cursor") return false;
     if (typeof value === "boolean") return value;
     return Boolean(value);
   });
@@ -194,4 +199,46 @@ function isTruthy(value: string) {
 
 function isSortOption(value: string): value is SortOption {
   return ["newest", "price_asc", "price_desc", "year_desc", "mileage_asc"].includes(value);
+}
+
+function parseCursor(value: string, sort: SortOption): ListingSearchFilters["cursor"] {
+  if (!value || value.length > 512) return null;
+  try {
+    const parsed = JSON.parse(decodeURIComponent(value)) as ListingSearchFilters["cursor"];
+    if (
+      !parsed ||
+      parsed.version !== "v1" ||
+      parsed.sort !== sort ||
+      !isUuid(parsed.listing_id) ||
+      Object.keys(parsed).some((key) => !["version", "sort", "listing_id", "published_at", "price_amount", "year", "mileage_km"].includes(key))
+    ) {
+      return null;
+    }
+    if (sort === "newest") return typeof parsed.published_at === "string" && Number.isFinite(Date.parse(parsed.published_at)) ? parsed : null;
+    if (sort === "price_asc" || sort === "price_desc") return Number.isSafeInteger(parsed.price_amount) ? parsed : null;
+    if (sort === "year_desc") return typeof parsed.year === "number" && Number.isInteger(parsed.year) && parsed.year >= -1 && parsed.year <= 32767 ? parsed : null;
+    return typeof parsed.mileage_km === "number" && Number.isInteger(parsed.mileage_km) && parsed.mileage_km >= 0 && parsed.mileage_km <= 2147483647 ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function encodeCursor(cursor: ListingSearchFilters["cursor"]) {
+  return cursor ? encodeURIComponent(JSON.stringify(cursor)) : "";
+}
+
+function normalizeInteger(value: string, max = Number.MAX_SAFE_INTEGER) {
+  if (!/^\d+$/.test(value)) return "";
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed <= max ? String(parsed) : "";
+}
+
+function normalizeDecimal(value: string, max: number) {
+  if (!/^\d+(?:\.\d)?$/.test(value)) return "";
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed <= max ? String(parsed) : "";
+}
+
+function isUuid(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }

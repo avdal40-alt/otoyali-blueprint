@@ -42,7 +42,7 @@ export function ActiveFilterChips({
     advanced: String(dictionary.search.advanced)
   };
   const chips = Object.entries(filters).filter(([key, value]) => {
-    if (key === "sort") return false;
+    if (key === "sort" || key === "cursor") return false;
     return typeof value === "boolean" ? value : Boolean(value);
   }) as Array<[keyof ListingSearchFilters, string | boolean]>;
 
