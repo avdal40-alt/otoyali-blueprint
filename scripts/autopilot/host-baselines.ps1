@@ -17,6 +17,35 @@ $script:ApprovedHostBaselines = @(
     }
 )
 
+function Get-NormalizedAbsolutePath([string]$Path) {
+    if ([string]::IsNullOrWhiteSpace($Path)) { throw 'PATH_EMPTY' }
+    $fullPath = [IO.Path]::GetFullPath($Path)
+    $pathRoot = [IO.Path]::GetPathRoot($fullPath)
+    if ([string]::IsNullOrWhiteSpace($pathRoot)) { throw 'PATH_ROOT_MISSING' }
+    if ($fullPath.Length -gt $pathRoot.Length) {
+        return $fullPath.TrimEnd([char[]]@('\', '/'))
+    }
+    return $fullPath
+}
+
+function Resolve-RepositoryRelativePath([string]$RepoRoot, [string]$Path) {
+    $canonicalRoot = Get-NormalizedAbsolutePath $RepoRoot
+    $canonicalPath = Get-NormalizedAbsolutePath $Path
+    $rootDrive = [IO.Path]::GetPathRoot($canonicalRoot)
+    $pathDrive = [IO.Path]::GetPathRoot($canonicalPath)
+    if (-not [string]::Equals($rootDrive, $pathDrive, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'PATH_OUTSIDE_REPOSITORY_ROOT'
+    }
+    if ([string]::Equals($canonicalRoot, $canonicalPath, [StringComparison]::OrdinalIgnoreCase)) {
+        return '.'
+    }
+    $boundary = $canonicalRoot + '\'
+    if (-not $canonicalPath.StartsWith($boundary, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'PATH_OUTSIDE_REPOSITORY_ROOT'
+    }
+    return $canonicalPath.Substring($boundary.Length).Replace('\', '/')
+}
+
 function Get-ApprovedHostBaselines() {
     return @($script:ApprovedHostBaselines | ForEach-Object {
         [pscustomobject]@{
@@ -85,12 +114,12 @@ function Invoke-ApprovedHostBaselines {
             exit_code = $exitCode
             status = $status
             timestamp_utc = (Get-Date).ToUniversalTime().ToString('o')
-            log_path = [IO.Path]::GetRelativePath($RepoRoot, $logPath).Replace('\', '/')
+            log_path = Resolve-RepositoryRelativePath $RepoRoot $logPath
             log_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $logPath).Hash.ToLowerInvariant()
         }
         $evidencePath = Join-Path $runtimePath "host-baseline-$($definition.Id)-$stamp.json"
         $record | ConvertTo-Json | Set-Content -LiteralPath $evidencePath -Encoding utf8
-        $records.Add([pscustomobject]($record + @{ evidence_path = [IO.Path]::GetRelativePath($RepoRoot, $evidencePath).Replace('\', '/') }))
+        $records.Add([pscustomobject]($record + @{ evidence_path = Resolve-RepositoryRelativePath $RepoRoot $evidencePath }))
     }
     return $records.ToArray()
 }

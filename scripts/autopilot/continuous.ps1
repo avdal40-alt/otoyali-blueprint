@@ -2,6 +2,7 @@
 param(
     [switch]$DryRun,
     [switch]$SmokeOnly,
+    [switch]$PreStageOnly,
     [ValidateRange(0, 3)]
     [int]$MaxTransientRetries = 2
 )
@@ -286,7 +287,7 @@ try {
     . (Join-Path $repoRoot 'scripts/autopilot/stage-identity.ps1')
     . (Join-Path $repoRoot 'scripts/autopilot/supervisor-policy.ps1')
     Acquire-Lock $script:RuntimePath
-    Write-SupervisorLog "SUPERVISOR_START dry_run=$DryRun smoke_only=$SmokeOnly"
+    Write-SupervisorLog "SUPERVISOR_START dry_run=$DryRun smoke_only=$SmokeOnly pre_stage_only=$PreStageOnly"
     if (Test-StopRequested) { Write-SupervisorLog 'STOP_MARKER_DETECTED'; exit 0 }
     $ready = Assert-Ready $repoRoot ($DryRun -or $SmokeOnly)
     $codex = Resolve-CodexExecutable
@@ -314,6 +315,11 @@ try {
         $hostBaselineEvidence = @(Invoke-ApprovedHostBaselines -RepoRoot $repoRoot -StartingHead $ready.Head -EvaluatedHead $ready.Head)
         if (@($hostBaselineEvidence | Where-Object { $_.status -ne 'PASS' }).Count -gt 0) { throw 'HOST_BASELINE_FAILED_BEFORE_STAGE_AGENT' }
         Write-SupervisorLog "HOST_BASELINE_PASS stage=$($ready.StageId) evidence=$($hostBaselineEvidence.evidence_path -join ',')"
+        if ($PreStageOnly) {
+            Write-SupervisorLog "PRE_STAGE_GATE_PASS stage=$($ready.StageId) stage_agent_not_started=True"
+            Write-RunResult 'BLOCKED' $ready.State.NextStage $ready.Head $ready.Head $null $ready.State.NextStage $true $false @() 'PRE_STAGE_ONLY_NO_STAGE_AGENT'
+            exit 0
+        }
         $attempt = 0
         do {
             $processResult = Invoke-Stage $repoRoot $codex $hostBaselineEvidence
