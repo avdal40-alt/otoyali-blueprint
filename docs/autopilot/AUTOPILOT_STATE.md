@@ -4,7 +4,7 @@
 **Repository:** `C:\Users\Work\source\repos\Yolmod`
 **Current branch at bootstrap:** `functional/FUNCTIONAL-02`
 **Expected working branch:** `functional/FUNCTIONAL-02`
-**Git-derived current reference:** Run `git rev-parse HEAD` and `git status --short --branch` at controlled-run start; the last completed product-stage commit below is the reconciliation anchor.
+**Git-derived current reference:** Run `git rev-parse HEAD` and `git status --short --branch` at controlled-run start. The supervisor derives the last product stage from validated commit trailers, with the reviewed FUNCTIONAL-02D legacy seed below; State is never a self-authenticating hash source.
 **Protected branches:** `main`, `origin/main`
 **Production autonomous actions:** BLOCKED
 **Autonomous run mode:** `MULTI_STAGE`
@@ -20,21 +20,21 @@ Git and verified test results are source of truth. This file is a concise reconc
 | --- | --- |
 | Current stage status | FUNCTIONAL-02D — COMPLETE; Search uses the canonical v1 server RPC with normalized URL filters, stable cursor pagination, public-safe mapping, and signed cover URLs |
 | Last completed stage | FUNCTIONAL-02D — Server Search UI, URL Normalization, Pagination, Filters, and Search UX |
-| Last completed product stage | FUNCTIONAL-02D — Server Search UI, URL Normalization, Pagination, Filters, and Search UX |
-| Last completed stage commit | Resolve from Git after this ordinary product commit |
+| Last completed product stage | FUNCTIONAL-02D — Git-derived legacy product identity |
+| Last completed stage commit | `2563146b3d67a7c0c78757e467faf2fa7926695b` — reviewed legacy seed; this historical commit is not amended |
 | Last safe pre-stage commit | `2725663e248442891324c0a1999bab55eeadbc50` (`chore(autopilot): reconcile C2 commit hash`) |
-| Latest infrastructure patch | CONTINUOUS-EXTERNAL-POWERSHELL-CODEX-RESOLUTION-01 — stable LocalAppData Codex discovery, diagnostic candidate logging, external PowerShell UTF-8 process-output handling, and doctor warning classification; resolve from Git after this ordinary infrastructure commit |
+| Latest infrastructure patch | CONTINUOUS-HOST-BASELINE-AND-GIT-STAGE-IDENTITY-01 — trusted structured host baseline evidence before product stages, contract-sensitive revalidation, protected supervisor paths, and Git trailer identity validation |
 | Last safe infrastructure baseline | `0669fb714542ef42c4ca86d13c6df5735cbab1b4` (`fix(autopilot): recover codex sandbox supervision`) |
-| Latest infrastructure validation | PASS — Windows PowerShell parser audit, preflight, safety check, selected Codex `0.153.4` version/help/doctor review, `workspace-write` read-only smoke, and external Windows PowerShell 5.1 SmokeOnly/DryRun with a PATH containing only the legacy shim; scalar Int32 exit code and lock rejection validated locally; no product, database, push, or production action |
+| Latest infrastructure validation | PASS — PowerShell parser audit; simulated trusted host-baseline pass/fail evidence with SHA-256; trailer/legacy-D/policy/contract sensitivity tests; dirty-tree fail-closed preflight; safety and migration check; and workspace-write SmokeOnly/DryRun. No product, database, push, or production action |
 | Next approved stage | FUNCTIONAL-02E — Sell/Edit Vehicle and Trust Contract Migration |
 | Latest mandatory checks | PASS — verified host PowerShell `npm --prefix apps/web run test:functional-02c2` (exit 0; SHA-256 evidence in `.autopilot-runtime/host-functional-02c2-result.json`), local `typecheck`, `lint` (pre-existing SafeImage warning only), `test:functional-02d`, `test:security-lifecycle`, and `build` |
 | Latest migration static validation | NOT_APPLICABLE — FUNCTIONAL-02D adds no migration |
 | Latest migration runtime validation | NOT_APPLICABLE — FUNCTIONAL-02D adds no migration; FUNCTIONAL-02C2 regression is PASS through verified host PowerShell evidence |
 | Push status | BLOCKED — no push without verified non-production target and explicit authority |
 | Production status | BLOCKED — manual-only; no access or mutation by autopilot |
-| Known blockers | Remote environment identity remains unverified and blocks all remote actions. Codex workspace-write cannot access the Windows Docker named pipe, but this is an automation/sandbox infrastructure limitation rather than a FUNCTIONAL-02D product failure; the required C2 regression is verified PASS from ordinary host PowerShell. |
+| Known blockers | Remote environment identity remains unverified and blocks all remote actions. Codex workspace-write cannot access the Windows Docker named pipe; the supervisor now runs the trusted C2 host baseline before a clean product stage and records ignored local evidence. |
 | Unresolved external-provider decisions | AI, SMS, video, CAPTCHA, analytics, email/push, and VIN/TRAMER/SBM providers remain unresolved; absence blocks only dependent stages |
-| Last run timestamp | 2026-09-13 — FUNCTIONAL-02D recovered and validated; no remote action |
+| Last run timestamp | 2026-09-13 — CONTINUOUS-HOST-BASELINE-AND-GIT-STAGE-IDENTITY-01 validated locally; no remote action |
 
 ## Completed architecture/audit stages
 

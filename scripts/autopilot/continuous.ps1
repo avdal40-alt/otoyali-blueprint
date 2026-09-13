@@ -45,15 +45,14 @@ function Get-StateSnapshot([string]$RepoRoot) {
     $state = [IO.File]::ReadAllText($statePath, [Text.Encoding]::UTF8)
     $next = Get-StateValue $state 'Next approved stage'
     $lastStage = Get-StateValue $state 'Last completed product stage'
-    $lastCommit = Get-StateValue $state 'Last completed stage commit'
     $countMatch = [regex]::Match($state, '(?m)^\*\*Stages completed in current run:\*\*\s*`?(\d+)`?\s*$')
     if (-not $countMatch.Success) { throw 'AUTOPILOT_STATE has an invalid current-run stage counter.' }
-    [pscustomobject]@{ NextStage = $next; LastStage = $lastStage; LastCommit = $lastCommit; StageCount = [int]$countMatch.Groups[1].Value }
+    [pscustomobject]@{ NextStage = $next; LastStage = $lastStage; StageCount = [int]$countMatch.Groups[1].Value }
 }
 
 function Test-OnlySupervisorInfrastructureChanges() {
     $changes = @(Get-Git @('status', '--porcelain'))
-    return $changes.Count -gt 0 -and @($changes | Where-Object { $_ -notmatch '^\s*[MADRCU?]{1,2}\s+(scripts/autopilot/continuous\.ps1|docs/autopilot/AUTOPILOT_STATE\.md)$' }).Count -eq 0
+    return $changes.Count -gt 0 -and @($changes | Where-Object { $_ -notmatch '^\s*[MADRCU?]{1,2}\s+(scripts/autopilot/|\.agents/skills/yolmod-autopilot/|docs/autopilot/AUTOPILOT_STATE\.md)' }).Count -eq 0
 }
 
 function Assert-Ready([string]$RepoRoot, [bool]$AllowSupervisorInfrastructureChange = $false) {
@@ -70,18 +69,14 @@ function Assert-Ready([string]$RepoRoot, [bool]$AllowSupervisorInfrastructureCha
     }
     $snapshot = Get-StateSnapshot $RepoRoot
     $head = (@(Get-Git @('rev-parse', 'HEAD'))[0]).Trim()
-    $lastCommitText = [string]$snapshot.LastCommit
-    $lastStageCommit = @($lastCommitText -split '[^0-9a-f]+' | Where-Object { $_.Length -eq 40 } | Select-Object -First 1)[0]
-    if ([string]::IsNullOrWhiteSpace($lastStageCommit)) { throw 'GIT_STATE_INCONSISTENCY: State last completed stage commit is not a full hash.' }
-    & git cat-file -e "${lastStageCommit}^{commit}"
-    if ($LASTEXITCODE -ne 0) { throw 'GIT_STATE_INCONSISTENCY: State stage commit is unavailable.' }
-    & git merge-base --is-ancestor $lastStageCommit $head
-    if ($LASTEXITCODE -ne 0) { throw 'GIT_STATE_INCONSISTENCY: State stage commit is not an ancestor of HEAD.' }
+    $lastProduct = Get-LastProductStageIdentity $head
+    $stateLastStageId = (([string]$snapshot.LastStage -split '\s+')[0]).Trim()
+    if ($stateLastStageId -ne $lastProduct.Stage) { throw 'GIT_STATE_INCONSISTENCY: State last completed product stage does not match Git identity.' }
     $stageId = ($snapshot.NextStage -split '\s+')[0]
     if ([string]::IsNullOrWhiteSpace($stageId) -or -not (Select-String -LiteralPath (Join-Path $RepoRoot 'docs/autopilot/IMPLEMENTATION_ROADMAP_V1.md') -SimpleMatch $stageId -Quiet)) {
         throw 'NO_APPROVED_NEXT_STAGE'
     }
-    return [pscustomobject]@{ Head = $head; State = $snapshot; StageId = $stageId }
+    return [pscustomobject]@{ Head = $head; State = $snapshot; StageId = $stageId; LastProduct = $lastProduct }
 }
 
 function Acquire-Lock([string]$RuntimePath) {
@@ -226,13 +221,15 @@ function Write-SupervisorProcessFailure([string]$RepoRoot, [object]$Before, [obj
     Write-SupervisorLog "SUPERVISOR_PROCESS_FAILURE reason=$reason pid=$($ProcessResult.ProcessId) exit_code=$($ProcessResult.ExitCode)"
 }
 
-function Invoke-Stage([string]$RepoRoot, [object]$Codex) {
+function Invoke-Stage([string]$RepoRoot, [object]$Codex, [object[]]$HostBaselineEvidence) {
     $promptPath = Join-Path $RepoRoot 'scripts/autopilot/stage-prompt.md'
     $schemaPath = Join-Path $RepoRoot 'scripts/autopilot/stage-result.schema.json'
     $lastMessagePath = Join-Path $script:RuntimePath 'last-message.json'
     Remove-Item -LiteralPath (Join-Path $script:RuntimePath 'last-run.json') -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $lastMessagePath -Force -ErrorAction SilentlyContinue
     $prompt = Get-Content -LiteralPath $promptPath -Raw
+    $baselineSummary = @($HostBaselineEvidence | ForEach-Object { "test=$($_.exact_test_id); status=$($_.status); exit=$($_.exit_code); evidence=$($_.evidence_path)" }) -join "`n"
+    $prompt += "`n`nTrusted host baseline completed before product changes for clean start HEAD. Consume this supervisor evidence: $baselineSummary. Do not retry Docker named-pipe access from workspace-write merely to prove FUNCTIONAL-02C2; a sandbox named-pipe restriction is infrastructure, not product failure."
     return Invoke-CodexProcess $Codex.Path @('exec', '--sandbox', 'workspace-write', '--cd', $RepoRoot, '--output-schema', $schemaPath, '--output-last-message', $lastMessagePath, $prompt) 'stage-agent'
 }
 
@@ -252,8 +249,22 @@ function Assert-StagePass([string]$RepoRoot, [object]$Before, [object]$ProcessRe
     if ($result.status -ne 'PASS' -or $result.stage -eq 'initialization' -or $result.stage -ne $Before.State.NextStage -or $result.starting_head -ne $Before.Head -or $result.ending_head -ne $head -or $result.commit -ne $head -or -not $result.worktree_clean -or -not $result.tests_passed -or $result.push_performed -or $result.production_accessed -or $null -ne $result.stop_reason) { throw 'MACHINE_RESULT_CLAIM_REJECTED' }
     $commitCount = [int](@(Get-Git @('rev-list', '--count', "$($Before.Head)..$head"))[0])
     if ($commitCount -ne 1) { throw 'EXPECTED_EXACTLY_ONE_STAGE_COMMIT' }
+    $commitIdentity = Get-ProductCommitIdentity $head
+    if ($null -eq $commitIdentity -or $commitIdentity.Stage -ne $Before.StageId) { throw 'PRODUCT_STAGE_TRAILER_IDENTITY_REJECTED' }
+    $protectedChanges = @(Get-ProductStageProtectedChanges $Before.Head $head)
+    if ($protectedChanges.Count -gt 0 -and -not (Test-AuthorizedInfrastructureStage $Before.StageId)) {
+        throw "PRODUCT_STAGE_MODIFIED_SUPERVISOR_POLICY:$($protectedChanges -join ',')"
+    }
+    $contractSensitiveChanges = @(Get-ContractSensitiveChanges $Before.Head $head)
+    if ($contractSensitiveChanges.Count -gt 0) {
+        $postChangeBaselines = @(Invoke-ApprovedHostBaselines -RepoRoot $RepoRoot -StartingHead $Before.Head -EvaluatedHead $head)
+        if (@($postChangeBaselines | Where-Object { $_.status -ne 'PASS' }).Count -gt 0) { throw 'POST_CHANGE_HOST_BASELINE_FAILED' }
+        Write-SupervisorLog "POST_CHANGE_HOST_BASELINE_PASS files=$($contractSensitiveChanges -join ',')"
+    }
     $after = Get-StateSnapshot $RepoRoot
-    if ($after.LastStage -ne $Before.State.NextStage -or $after.NextStage -ne $result.next_stage -or $after.StageCount -ne ($Before.State.StageCount + 1)) { throw 'GIT_STATE_INCONSISTENCY_AFTER_STAGE' }
+    $afterLastStageId = (([string]$after.LastStage -split '\s+')[0]).Trim()
+    $afterIdentity = Get-LastProductStageIdentity $head
+    if ($afterLastStageId -ne $Before.StageId -or $afterIdentity.Commit -ne $head -or $afterIdentity.Stage -ne $Before.StageId -or $after.NextStage -ne $result.next_stage -or $after.StageCount -ne ($Before.State.StageCount + 1)) { throw 'GIT_STATE_INCONSISTENCY_AFTER_STAGE' }
     if ($null -eq $result.tests -or @($result.tests).Count -eq 0) { throw 'MACHINE_RESULT_TESTS_MISSING' }
     & (Join-Path $RepoRoot 'scripts/autopilot/test.ps1') -Mode Targeted -Tests @($result.tests)
     if ($LASTEXITCODE -ne 0) { throw 'SUPERVISOR_TEST_RECHECK_FAILED' }
@@ -271,6 +282,9 @@ try {
     }
     $script:RuntimePath = Join-Path $repoRoot '.autopilot-runtime'
     New-Item -ItemType Directory -Path $script:RuntimePath -Force | Out-Null
+    . (Join-Path $repoRoot 'scripts/autopilot/host-baselines.ps1')
+    . (Join-Path $repoRoot 'scripts/autopilot/stage-identity.ps1')
+    . (Join-Path $repoRoot 'scripts/autopilot/supervisor-policy.ps1')
     Acquire-Lock $script:RuntimePath
     Write-SupervisorLog "SUPERVISOR_START dry_run=$DryRun smoke_only=$SmokeOnly"
     if (Test-StopRequested) { Write-SupervisorLog 'STOP_MARKER_DETECTED'; exit 0 }
@@ -297,9 +311,12 @@ try {
     while ($true) {
         if (Test-StopRequested) { Write-SupervisorLog 'STOP_MARKER_DETECTED'; exit 0 }
         $ready = Assert-Ready $repoRoot
+        $hostBaselineEvidence = @(Invoke-ApprovedHostBaselines -RepoRoot $repoRoot -StartingHead $ready.Head -EvaluatedHead $ready.Head)
+        if (@($hostBaselineEvidence | Where-Object { $_.status -ne 'PASS' }).Count -gt 0) { throw 'HOST_BASELINE_FAILED_BEFORE_STAGE_AGENT' }
+        Write-SupervisorLog "HOST_BASELINE_PASS stage=$($ready.StageId) evidence=$($hostBaselineEvidence.evidence_path -join ',')"
         $attempt = 0
         do {
-            $processResult = Invoke-Stage $repoRoot $codex
+            $processResult = Invoke-Stage $repoRoot $codex $hostBaselineEvidence
             try {
                 $after = Assert-StagePass $repoRoot $ready $processResult
                 $passed = $true

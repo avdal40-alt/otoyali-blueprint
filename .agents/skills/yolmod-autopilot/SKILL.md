@@ -44,7 +44,7 @@ Make the minimal change. For database, auth, access-control, or release work loa
 
 Mark a product stage complete only when its Roadmap scope and required files are implemented; targeted tests pass; relevant security/privacy and backward-compatibility review is complete; migration static validation passes when a migration exists; runtime validation is explicitly recorded when applicable; the diff is reviewed; one ordinary commit exists; and the worktree is clean. If runtime validation is unavailable, record `RUNTIME_VALIDATION = BLOCKED / NOT_AVAILABLE`; never represent it as a pass.
 
-Update `docs/autopilot/AUTOPILOT_STATE.md` in the stage commit with factual status, checks, the last safe commit, and exactly one next unblocked small task. Stage only explicitly reviewed files.
+Update `docs/autopilot/AUTOPILOT_STATE.md` in the stage commit with factual status, checks, the last safe commit, and exactly one next unblocked small task. Stage only explicitly reviewed files. Every ordinary product-stage commit must include exactly `Yolmod-Stage: <stage id>` and `Yolmod-Stage-Type: product` trailers; the continuous supervisor verifies them against Git. Product stages may not modify `scripts/autopilot/**` or `.agents/skills/yolmod-autopilot/**`.
 
 ## Controlled-run end protocol
 
