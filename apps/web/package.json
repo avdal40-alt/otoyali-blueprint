@@ -48,7 +48,8 @@
     "test:functional-02c2": "node scripts/functional-02c2.test.cjs",
     "test:functional-02d": "node scripts/functional-02d.test.cjs",
     "test:functional-02e": "node scripts/functional-02e.test.cjs",
-    "test:functional-02f": "node scripts/functional-02f.test.cjs"
+    "test:functional-02f": "node scripts/functional-02f.test.cjs",
+    "test:functional-02g": "node scripts/functional-02g.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
