@@ -49,7 +49,8 @@
     "test:functional-02d": "node scripts/functional-02d.test.cjs",
     "test:functional-02e": "node scripts/functional-02e.test.cjs",
     "test:functional-02f": "node scripts/functional-02f.test.cjs",
-    "test:functional-02g": "node scripts/functional-02g.test.cjs"
+    "test:functional-02g": "node scripts/functional-02g.test.cjs",
+    "test:functional-02h": "node scripts/functional-02h.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
@@ -57,7 +58,9 @@
     "next": "15.5.25",
     "next-intl": "^4.14.2",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "read-excel-file": "9.3.10",
+    "unzipper-esm": "0.13.3"
   },
   "devDependencies": {
     "@types/node": "^20.16.10",
