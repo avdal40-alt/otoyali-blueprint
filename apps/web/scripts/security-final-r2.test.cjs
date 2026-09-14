@@ -16,6 +16,13 @@ const migrationPath = path.join(
   "20260827125000_security_final_admin_acl_hardening.sql"
 );
 const migrationSql = fs.readFileSync(migrationPath, "utf8");
+const auditAclMigrationPath = path.join(
+  repoRoot,
+  "supabase",
+  "migrations",
+  "20260914052345_security_admin_audit_acl.sql"
+);
+const auditAclMigrationSql = fs.readFileSync(auditAclMigrationPath, "utf8");
 
 for (const required of [
   "REVOKE TRUNCATE, REFERENCES, TRIGGER, MAINTAIN",
@@ -39,6 +46,30 @@ for (const forbidden of [
   assert.ok(!migrationSql.includes(forbidden), `migration must exclude: ${forbidden}`);
 }
 
+for (const required of [
+  "REVOKE INSERT, UPDATE, DELETE",
+  "ON TABLE public.admin_audit_logs",
+  "FROM PUBLIC, anon, authenticated;",
+  "GRANT SELECT",
+  "TO authenticated;",
+  "GRANT ALL PRIVILEGES",
+  "TO service_role;"
+]) {
+  assert.ok(auditAclMigrationSql.includes(required), `audit ACL migration must include: ${required}`);
+}
+
+for (const forbidden of [
+  "GRANT INSERT ON TABLE public.admin_audit_logs TO authenticated",
+  "GRANT UPDATE ON TABLE public.admin_audit_logs TO authenticated",
+  "GRANT DELETE ON TABLE public.admin_audit_logs TO authenticated",
+  "GRANT ALL PRIVILEGES ON TABLE public.admin_audit_logs TO authenticated",
+  "GRANT ALL PRIVILEGES ON TABLE public.admin_audit_logs TO anon",
+  "DISABLE ROW LEVEL SECURITY",
+  "DROP TABLE public.admin_audit_logs"
+]) {
+  assert.ok(!auditAclMigrationSql.includes(forbidden), `audit ACL migration must exclude: ${forbidden}`);
+}
+
 async function query(sql) {
   const response = await fetch(queryUrl, {
     method: "POST",
@@ -54,8 +85,14 @@ const ids = {
   owner: "f2000000-0000-4000-8000-000000000001",
   ordinary: "f2000000-0000-4000-8000-000000000002",
   target: "f2000000-0000-4000-8000-000000000003",
+  admin: "f2000000-0000-4000-8000-000000000004",
+  moderator: "f2000000-0000-4000-8000-000000000005",
+  support: "f2000000-0000-4000-8000-000000000006",
   ownerAdmin: "f2100000-0000-4000-8000-000000000001",
   targetAdmin: "f2100000-0000-4000-8000-000000000003",
+  adminAdmin: "f2100000-0000-4000-8000-000000000004",
+  moderatorAdmin: "f2100000-0000-4000-8000-000000000005",
+  supportAdmin: "f2100000-0000-4000-8000-000000000006",
   audit: "f2200000-0000-4000-8000-000000000001",
   adminAudit: "f2200000-0000-4000-8000-000000000002",
   serviceAudit: "f2200000-0000-4000-8000-000000000003"
@@ -63,12 +100,13 @@ const ids = {
 
 const cleanupSql = `
 DELETE FROM public.admin_audit_logs
-WHERE id IN ('${ids.audit}','${ids.adminAudit}','${ids.serviceAudit}');
+WHERE id IN ('${ids.audit}','${ids.adminAudit}','${ids.serviceAudit}')
+   OR action LIKE 'sfi002.%';
 DELETE FROM public.admin_users
-WHERE id IN ('${ids.ownerAdmin}','${ids.targetAdmin}')
-   OR user_id IN ('${ids.owner}','${ids.ordinary}','${ids.target}');
-DELETE FROM public.profiles WHERE id IN ('${ids.owner}','${ids.ordinary}','${ids.target}');
-DELETE FROM auth.users WHERE id IN ('${ids.owner}','${ids.ordinary}','${ids.target}');
+WHERE id IN ('${ids.ownerAdmin}','${ids.targetAdmin}','${ids.adminAdmin}','${ids.moderatorAdmin}','${ids.supportAdmin}')
+   OR user_id IN ('${ids.owner}','${ids.ordinary}','${ids.target}','${ids.admin}','${ids.moderator}','${ids.support}');
+DELETE FROM public.profiles WHERE id IN ('${ids.owner}','${ids.ordinary}','${ids.target}','${ids.admin}','${ids.moderator}','${ids.support}');
+DELETE FROM auth.users WHERE id IN ('${ids.owner}','${ids.ordinary}','${ids.target}','${ids.admin}','${ids.moderator}','${ids.support}');
 `;
 
 const runtimeSql = `
@@ -119,8 +157,41 @@ BEGIN
 END
 $do$;
 
+DO $do$
+DECLARE role_name text; privilege text;
+BEGIN
+  FOREACH role_name IN ARRAY ARRAY['anon','authenticated'] LOOP
+    FOREACH privilege IN ARRAY ARRAY['INSERT','UPDATE','DELETE'] LOOP
+      INSERT INTO sfi002_results VALUES (
+        role_name || ' admin_audit_logs ' || lower(privilege) || ' absent',
+        NOT has_table_privilege(role_name, 'public.admin_audit_logs', privilege),
+        privilege
+      );
+    END LOOP;
+  END LOOP;
+END
+$do$;
+
 SET LOCAL ROLE anon;
 DO $do$ BEGIN
+  BEGIN
+    INSERT INTO public.admin_audit_logs (action, entity_type) VALUES ('sfi002.anon', 'security_test');
+    INSERT INTO sfi002_results VALUES ('anon audit insert denied', false, 'unexpectedly allowed');
+  EXCEPTION WHEN insufficient_privilege THEN
+    INSERT INTO sfi002_results VALUES ('anon audit insert denied', true, SQLERRM);
+  END;
+  BEGIN
+    UPDATE public.admin_audit_logs SET action='sfi002.anon-rewrite' WHERE false;
+    INSERT INTO sfi002_results VALUES ('anon audit rewrite denied', false, 'unexpectedly allowed');
+  EXCEPTION WHEN insufficient_privilege THEN
+    INSERT INTO sfi002_results VALUES ('anon audit rewrite denied', true, SQLERRM);
+  END;
+  BEGIN
+    DELETE FROM public.admin_audit_logs WHERE false;
+    INSERT INTO sfi002_results VALUES ('anon audit erase denied', false, 'unexpectedly allowed');
+  EXCEPTION WHEN insufficient_privilege THEN
+    INSERT INTO sfi002_results VALUES ('anon audit erase denied', true, SQLERRM);
+  END;
   BEGIN
     TRUNCATE TABLE public.admin_users;
     INSERT INTO sfi002_results VALUES ('anon truncate admin_users denied', false, 'unexpectedly allowed');
@@ -156,9 +227,15 @@ RESET ROLE;
 INSERT INTO auth.users (id,phone,raw_app_meta_data,raw_user_meta_data,aud,role) VALUES
  ('${ids.owner}','+905550002001','{"provider":"phone","providers":["phone"]}','{}','authenticated','authenticated'),
  ('${ids.ordinary}','+905550002002','{"provider":"phone","providers":["phone"]}','{}','authenticated','authenticated'),
- ('${ids.target}','+905550002003','{"provider":"phone","providers":["phone"]}','{}','authenticated','authenticated');
-INSERT INTO public.admin_users (id,user_id,role,is_active)
-VALUES ('${ids.ownerAdmin}','${ids.owner}','owner',true);
+ ('${ids.target}','+905550002003','{"provider":"phone","providers":["phone"]}','{}','authenticated','authenticated'),
+ ('${ids.admin}','+905550002004','{"provider":"phone","providers":["phone"]}','{}','authenticated','authenticated'),
+ ('${ids.moderator}','+905550002005','{"provider":"phone","providers":["phone"]}','{}','authenticated','authenticated'),
+ ('${ids.support}','+905550002006','{"provider":"phone","providers":["phone"]}','{}','authenticated','authenticated');
+INSERT INTO public.admin_users (id,user_id,role,is_active) VALUES
+ ('${ids.ownerAdmin}','${ids.owner}','owner',true),
+ ('${ids.adminAdmin}','${ids.admin}','admin',true),
+ ('${ids.moderatorAdmin}','${ids.moderator}','moderator',true),
+ ('${ids.supportAdmin}','${ids.support}','support',true);
 INSERT INTO public.admin_audit_logs (id,actor_user_id,action,entity_type,metadata)
 VALUES ('${ids.audit}','${ids.owner}','sfi002.fixture','security_test','{}');
 
@@ -183,6 +260,14 @@ BEGIN
   INSERT INTO sfi002_results VALUES ('ordinary user admin delete denied',affected=0,'affected=' || affected);
 
   BEGIN
+    INSERT INTO public.admin_audit_logs (actor_user_id,action,entity_type,metadata)
+    VALUES ('${ids.ordinary}','sfi002.ordinary','security_test','{}');
+    INSERT INTO sfi002_results VALUES ('ordinary user audit insert denied',false,'unexpectedly allowed');
+  EXCEPTION WHEN insufficient_privilege THEN
+    INSERT INTO sfi002_results VALUES ('ordinary user audit insert denied',true,SQLERRM);
+  END;
+
+  BEGIN
     UPDATE public.admin_audit_logs SET action='sfi002.rewrite' WHERE id='${ids.audit}';
     INSERT INTO sfi002_results VALUES ('ordinary user audit rewrite denied',false,'unexpectedly allowed');
   EXCEPTION WHEN insufficient_privilege THEN
@@ -204,9 +289,47 @@ INSERT INTO public.admin_users (id,user_id,role,is_active)
 VALUES ('${ids.targetAdmin}','${ids.target}','moderator',true);
 UPDATE public.admin_users SET role='support' WHERE id='${ids.targetAdmin}';
 DELETE FROM public.admin_users WHERE id='${ids.targetAdmin}';
-INSERT INTO public.admin_audit_logs (id,actor_user_id,action,entity_type,metadata)
-VALUES ('${ids.adminAudit}','${ids.owner}','sfi002.admin','security_test','{}');
-INSERT INTO sfi002_results VALUES ('authenticated admin workflow',true,'manage assignment and append audit allowed');
+INSERT INTO sfi002_results VALUES ('authenticated owner admin-user workflow',true,'manage assignment allowed');
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+DO $do$
+DECLARE
+  principal record;
+  audit_count integer;
+BEGIN
+  FOR principal IN
+    SELECT * FROM (VALUES
+      ('owner','${ids.owner}'::uuid),
+      ('admin','${ids.admin}'::uuid),
+      ('moderator','${ids.moderator}'::uuid),
+      ('support','${ids.support}'::uuid)
+    ) AS staff(role_name, user_id)
+  LOOP
+    PERFORM set_config('request.jwt.claims', json_build_object('sub', principal.user_id, 'role', 'authenticated')::text, true);
+    SELECT count(*) INTO audit_count FROM public.admin_audit_logs WHERE id='${ids.audit}';
+    INSERT INTO sfi002_results VALUES ('staff ' || principal.role_name || ' audit read allowed', audit_count = 1, 'visible=' || audit_count);
+    BEGIN
+      INSERT INTO public.admin_audit_logs (actor_user_id,action,entity_type,metadata)
+      VALUES (principal.user_id,'sfi002.staff-probe','security_test','{}');
+      INSERT INTO sfi002_results VALUES ('staff ' || principal.role_name || ' audit insert denied',false,'unexpectedly allowed');
+    EXCEPTION WHEN insufficient_privilege THEN
+      INSERT INTO sfi002_results VALUES ('staff ' || principal.role_name || ' audit insert denied',true,SQLERRM);
+    END;
+    BEGIN
+      UPDATE public.admin_audit_logs SET action='sfi002.staff-rewrite' WHERE id='${ids.audit}';
+      INSERT INTO sfi002_results VALUES ('staff ' || principal.role_name || ' audit rewrite denied',false,'unexpectedly allowed');
+    EXCEPTION WHEN insufficient_privilege THEN
+      INSERT INTO sfi002_results VALUES ('staff ' || principal.role_name || ' audit rewrite denied',true,SQLERRM);
+    END;
+    BEGIN
+      DELETE FROM public.admin_audit_logs WHERE id='${ids.audit}';
+      INSERT INTO sfi002_results VALUES ('staff ' || principal.role_name || ' audit erase denied',false,'unexpectedly allowed');
+    EXCEPTION WHEN insufficient_privilege THEN
+      INSERT INTO sfi002_results VALUES ('staff ' || principal.role_name || ' audit erase denied',true,SQLERRM);
+    END;
+  END LOOP;
+END $do$;
 RESET ROLE;
 
 SET LOCAL ROLE service_role;
@@ -229,7 +352,7 @@ SELECT test,passed,detail FROM sfi002_results ORDER BY test;
   await query(cleanupSql);
   try {
     const results = await query(runtimeSql);
-    assert.ok(results.length >= 29, `expected SFI-002 runtime matrix, got ${results.length} rows`);
+    assert.ok(results.length >= 47, `expected SFI-002 runtime matrix, got ${results.length} rows`);
     const failures = results.filter((result) => !result.passed);
     assert.deepEqual(failures, [], `SFI-002 runtime failures: ${JSON.stringify(failures, null, 2)}`);
     console.log(`SECURITY-FINAL-R2 runtime authorization matrix passed (${results.length} checks).`);
