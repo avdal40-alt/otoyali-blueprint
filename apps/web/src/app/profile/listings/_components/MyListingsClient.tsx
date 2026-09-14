@@ -401,7 +401,11 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
                 ) : (
                   <Button type="button" variant="secondary" disabled>{copy.previewComingSoon}</Button>
                 )}
-                {item.moderation_status === "rejected" ? (
+                {(
+                  item.moderation_status === "rejected"
+                  || (item.status === "active" && item.moderation_status === "active")
+                  || (item.status === "draft" && item.moderation_status === "pending_review")
+                ) ? (
                   <ButtonLink href={localizePath(`/sell?edit=${item.id}`, locale)} variant="secondary">{copy.editRejected}</ButtonLink>
                 ) : (
                   <Button type="button" variant="secondary" disabled>{copy.editComingSoon}</Button>

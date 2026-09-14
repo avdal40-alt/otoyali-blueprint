@@ -777,7 +777,10 @@ export function SellWizard({
     }
     setOriginalEditSnapshot(submittedSnapshot);
     setDirtyEditFields(new Set());
-    if (sendForReview) {
+    if (saved && typeof saved === "object" && "saved_moderation_status" in saved && saved.saved_moderation_status === "pending_review") {
+      setRejectionReason("");
+      setEditSaved("pending_review");
+    } else if (sendForReview) {
       if (!isCurrentSubmission()) return;
       setPublishStatus(sell03.resubmitProgress);
       let resubmitError: unknown;
@@ -920,9 +923,7 @@ export function SellWizard({
         currency: state.currency,
         price_negotiable: state.priceNegotiable,
         seller_type: profile.sellerType,
-        seller_display_name: profile.displayName,
         city: state.city,
-        quality_score: qualityScore,
         moderation_status: "pending_review"
       })
       .select("id")
@@ -995,14 +996,10 @@ export function SellWizard({
     }
 
     setPublishStatus(copy.submittingForModeration);
-    const { error: finalizeError } = await supabase
-      .schema("marketplace")
-      .from("listings")
-      .update({
-        quality_score: qualityScore,
-        cover_media_id: coverMediaId
-      })
-      .eq("id", listingId);
+    const { error: finalizeError } = await supabase.rpc("set_own_listing_cover_media", {
+      p_listing_id: listingId,
+      p_cover_media_id: coverMediaId
+    });
 
     if (!isCurrentPublication()) return;
     if (finalizeError) {

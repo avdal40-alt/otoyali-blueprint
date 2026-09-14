@@ -105,8 +105,8 @@ excludesAll(myListingsSource, [
 
 includesAll(sellWizardSource, [
   'supabase.rpc("submit_own_listing_for_review"',
-  "quality_score: qualityScore",
-  "cover_media_id: coverMediaId"
+  'supabase.rpc("set_own_listing_cover_media"',
+  "p_cover_media_id: coverMediaId"
 ]);
 
 includesAll(adminClientSource, [
