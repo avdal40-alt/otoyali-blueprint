@@ -23,6 +23,8 @@
 8. `FUNCTIONAL-02F` — dealer-import foundation.
 9. `FUNCTIONAL-02G` — **Galeri Verification Foundation**: establish the canonical distinction between individual and Galeri sellers through a durable Galeri verification state model covering pending, verified, and rejected outcomes; keep verification evidence metadata and document references private; make transitions database-enforced and available only to authorized platform review staff; write an auditable verification-transition history; and expose only a public-safe verified signal. The foundation must provide a server-side verified-Galeri prerequisite that `FUNCTIONAL-02H` can consume without trusting profile edits or client claims. It excludes import execution, XML, dealer employees/branches, reviews, payments/subscriptions, seller-contact work, lifecycle work, and a large public/admin UI redesign.
 10. `FUNCTIONAL-02H` — **Excel Import Service Boundary**: after `FUNCTIONAL-02G` is complete and its verified-Galeri prerequisite is enforced, add the server-only Excel parsing and controlled create/update/archive application boundary over the private `FUNCTIONAL-02F` bookkeeping contract. It excludes XML import and all unrelated seller, lifecycle, and commercial features.
+11. `FUNCTIONAL-02I` — **Seller Contact Completion**: complete the authenticated, eligibility-gated seller-contact flow over the existing private phone facade. It excludes WhatsApp, public phone exposure, and lifecycle/edit work.
+12. `FUNCTIONAL-02J` — **Lifecycle/Edit Completion**: complete the approved listing lifecycle and edit work after seller-contact completion. It is not approved for implementation before `FUNCTIONAL-02I` completes.
 
 ### FUNCTIONAL-02G acceptance criteria
 
@@ -36,6 +38,6 @@
 
 ## Subsequent V1 stages
 
-After `FUNCTIONAL-02H`, the preferred remaining functional priority is seller-contact completion, then lifecycle/edit completion. Derive each later narrow dependency-respecting stage from the product specification: seller-contact UI/rate limit/leads; lifecycle/edit completion; required XML import; chat; notifications; video pipeline/feed/analytics; production Yolmod AI; saved-search completion; compare; similar ranking; price history; analytics; abuse controls; admin/moderation; SEO; i18n/mobile-web QA; legal surfaces; final UX; and security/privacy/performance launch audit.
+After `FUNCTIONAL-02H`, the approved sequence is `FUNCTIONAL-02I` seller-contact completion, then `FUNCTIONAL-02J` lifecycle/edit completion. Derive each later narrow dependency-respecting stage from the product specification: required XML import; chat; notifications; video pipeline/feed/analytics; production Yolmod AI; saved-search completion; compare; similar ranking; price history; analytics; abuse controls; admin/moderation; SEO; i18n/mobile-web QA; legal surfaces; final UX; and security/privacy/performance launch audit.
 
 No product stage may silently introduce external providers, production changes, payment/escrow, or unapproved trust claims.
