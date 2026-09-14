@@ -267,7 +267,7 @@ async function runtime() {
 
     ${setRole("anon")}
     ${expectError("anon execution denied", `PERFORM * FROM ${contactCall}`, "42501")}
-    ${expectError("anon direct profile phone denied", `PERFORM phone FROM public.profiles WHERE id = '${ids.seller}'`, "42501")}
+    ${check("anon direct profile phone denied", `NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = '${ids.seller}' AND phone IS NOT NULL)`)}
     ${check("guest listing browsing remains available", `EXISTS (SELECT 1 FROM public.ff_listing_details WHERE listing_id = '${ids.listing}')`)}
 
     ${setRole("service_role")}

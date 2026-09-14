@@ -176,6 +176,8 @@ export const tr = {
     defaultSeller: "OTOYALI satıcısı",
     sellerLoginCopy: "Satıcıyla güvenli şekilde iletişime geçmek için giriş yapın.",
     contactSeller: "Satıcı ile iletişime geç",
+    ownListingContact: "Bu ilan size ait.",
+    contactUnavailable: "Satıcı iletişimi bu ilan için kullanılamıyor.",
     messageSoon: "Mesaj yaz · Yakında",
     message: "Mesaj yaz",
     share: "Paylaş",

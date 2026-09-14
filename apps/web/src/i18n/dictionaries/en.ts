@@ -176,6 +176,8 @@ export const en = {
     defaultSeller: "OTOYALI seller",
     sellerLoginCopy: "Log in to contact the seller securely.",
     contactSeller: "Contact seller",
+    ownListingContact: "This is your listing.",
+    contactUnavailable: "Seller contact is not available for this listing.",
     messageSoon: "Message · Coming soon",
     message: "Message",
     share: "Share",
