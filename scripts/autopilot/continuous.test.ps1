@@ -24,7 +24,19 @@ try {
     Assert-True ($legacy.Commit -eq '2563146b3d67a7c0c78757e467faf2fa7926695b') 'legacy D commit resolves from Git seed'
     Assert-True ($legacy.Stage -eq 'FUNCTIONAL-02D') 'legacy D stage resolves from Git seed'
     $currentProduct = Get-LastProductStageIdentity $head
-    Assert-True ($currentProduct.Stage -eq 'FUNCTIONAL-02E' -and $currentProduct.Source -eq 'trailer') 'current product stage resolves from trailer after legacy reconciliation'
+    $state = Get-Content -LiteralPath (Join-Path $repoRoot 'docs/autopilot/AUTOPILOT_STATE.md') -Raw
+    $stateProduct = [regex]::Match($state, '(?m)^\| Last completed product stage \| (?<stage>FUNCTIONAL-[^\s|]+)')
+    $stateNext = [regex]::Match($state, '(?m)^\| Next approved stage \| (?<stage>FUNCTIONAL-[^\s|]+)')
+    Assert-True ($stateProduct.Success -and $stateNext.Success) 'state exposes completed product and next planned stages'
+    Assert-True ($currentProduct.Stage -eq $stateProduct.Groups['stage'].Value -and $currentProduct.Source -eq 'trailer') 'current product stage resolves dynamically from Git trailers and reconciles with state'
+    $descendants = @(& git rev-list "$($currentProduct.Commit)..$head")
+    if ($LASTEXITCODE -ne 0) { throw 'GIT_PRODUCT_DESCENDANTS_UNAVAILABLE' }
+    foreach ($commit in $descendants) {
+        Assert-True ($null -eq (Get-ProductCommitIdentity $commit)) "planning-only descendant does not replace product identity: $commit"
+    }
+    $nextStage = $stateNext.Groups['stage'].Value
+    $roadmap = Get-Content -LiteralPath (Join-Path $repoRoot 'docs/autopilot/IMPLEMENTATION_ROADMAP_V1.md') -Raw
+    Assert-True ($roadmap.Contains($nextStage) -and $nextStage -ne $currentProduct.Stage) 'next planned stage is approved but not treated as complete'
 
     $parsed = ConvertFrom-YolmodCommitMessage 'test-commit' "subject`n`nYolmod-Stage: FUNCTIONAL-02E`nYolmod-Stage-Type: product"
     Assert-True ($parsed.Stage -eq 'FUNCTIONAL-02E') 'product trailer parses'
