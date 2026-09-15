@@ -25,6 +25,7 @@ export type Dictionary = {
   listing: DictionarySection;
   sell: DictionarySection;
   profile: DictionarySection;
+  messages: DictionarySection;
   favorites: DictionarySection;
   myListings: DictionarySection;
   auth: DictionarySection;
@@ -52,6 +53,7 @@ export type ClientDictionary = Pick<
   | "listing"
   | "sell"
   | "profile"
+  | "messages"
   | "favorites"
   | "myListings"
   | "services"

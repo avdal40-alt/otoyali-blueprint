@@ -37,6 +37,7 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
 import { localizePath } from "@/i18n/config";
 import { ContactSellerButton } from "./_components/ContactSellerButton";
+import { StartConversationButton } from "./_components/StartConversationButton";
 import { ShareListingButton } from "./_components/ShareListingButton";
 import { ReportListingButton } from "./_components/ReportListingButton";
 
@@ -187,7 +188,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
               <p className="mt-2 text-sm leading-6 text-oto-muted">{String(dictionary.listing.sellerLoginCopy)}</p>
               <div className="mt-4 grid gap-3">
                 <ContactSellerButton listingId={listing.listing_id} sellerId={listing.seller_id} />
-                <Button type="button" variant="secondary" disabled>{String(dictionary.listing.messageSoon)}</Button>
+                <StartConversationButton listingId={listing.listing_id} sellerId={listing.seller_id} />
                 <ShareListingButton title={title} />
               </div>
               <p className="mt-5 rounded-md bg-oto-surface p-3 text-sm font-semibold leading-6 text-oto-muted">
@@ -210,7 +211,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
         <div className="fixed inset-x-0 bottom-16 z-40 border-t border-oto-border bg-white/95 p-3 shadow-oto backdrop-blur md:hidden">
           <div className="grid grid-cols-[1fr_auto] gap-2">
             <ContactSellerButton listingId={listing.listing_id} sellerId={listing.seller_id} />
-            <Button type="button" variant="secondary" disabled>{String(dictionary.listing.message)}</Button>
+            <StartConversationButton listingId={listing.listing_id} sellerId={listing.seller_id} />
           </div>
         </div>
       ) : null}

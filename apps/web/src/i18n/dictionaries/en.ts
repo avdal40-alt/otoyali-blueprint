@@ -39,7 +39,11 @@ export const en = {
     insurance: "Insurance",
     myListings: "My listings",
     settings: "Settings",
-    admin: "Admin"
+    admin: "Admin",
+    messages: "Messages"
+  },
+  messages: {
+    title: "Messages", emptyTitle: "No messages yet", emptyBody: "You can start a secure conversation from a listing.", unavailable: "This conversation is unavailable right now.", retry: "Try again", start: "Message on Yolmod", ownListing: "You cannot start a conversation for your own listing.", loading: "Loading messages", unread: "Unread message", loadEarlier: "Load earlier messages", noEarlier: "No earlier messages", write: "Write your message", send: "Send", sending: "Sending", invalidMessage: "A message cannot be empty and must be at most 2,000 characters.", sent: "Message sent", rateLimited: "Too many requests. Please try again shortly.", inaccessible: "You cannot access this conversation.", messageCount: "{count} characters remaining", conversation: "Listing conversation", sold: "This listing is no longer active. Your existing conversation history remains available."
   },
   footer: {
     description: "An AI-first transport ecosystem for vehicle search, listing discovery, automotive content, and publishing in one place.",

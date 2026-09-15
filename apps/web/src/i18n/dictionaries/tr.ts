@@ -39,7 +39,11 @@ export const tr = {
     insurance: "Sigorta",
     myListings: "İlanlarım",
     settings: "Ayarlar",
-    admin: "Admin"
+    admin: "Admin",
+    messages: "Mesajlar"
+  },
+  messages: {
+    title: "Mesajlar", emptyTitle: "Henüz mesajınız yok", emptyBody: "Bir ilan üzerinden güvenli mesajlaşma başlatabilirsiniz.", unavailable: "Görüşme şu anda kullanılamıyor.", retry: "Tekrar dene", start: "Yolmod ile mesaj gönder", ownListing: "Kendi ilanınız için mesaj başlatamazsınız.", loading: "Mesajlar yükleniyor", unread: "Okunmamış mesaj", loadEarlier: "Daha eski mesajları yükle", noEarlier: "Daha eski mesaj yok", write: "Mesajınızı yazın", send: "Gönder", sending: "Gönderiliyor", invalidMessage: "Mesaj boş olamaz ve en fazla 2.000 karakter olabilir.", sent: "Mesaj gönderildi", rateLimited: "Çok fazla istek gönderildi. Lütfen biraz sonra tekrar deneyin.", inaccessible: "Bu görüşmeye erişemiyorsunuz.", messageCount: "{count} karakter kaldı", conversation: "İlan görüşmesi", sold: "İlan artık aktif değil. Mevcut görüşme geçmişiniz korunur."
   },
   footer: {
     description: "AI-first ulaşım ekosistemi. Araç arama, ilan inceleme, haber ve ilan yayınlama deneyimini tek yerde toplar.",
