@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 const { execFileSync } = require("node:child_process");
+const { randomUUID } = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -24,10 +25,19 @@ for (const value of ["excel", "upsert", "archive", "invalid", "normalizeDealerEx
 
 const database = ["exec", "supabase_db_Otoyali-blueprint", "psql", "-q", "-U", "postgres", "-d", "postgres", "-v", "ON_ERROR_STOP=1", "-Atc"];
 const query = (sql) => execFileSync("docker", [...database, sql], { encoding: "utf8" }).trim();
-const ownerId = query("SELECT seller_id FROM marketplace.listings ORDER BY id LIMIT 1");
-const listingId = query("SELECT id FROM marketplace.listings WHERE seller_id = '" + ownerId + "' ORDER BY id LIMIT 1");
-assert.match(ownerId, /^[0-9a-f-]{36}$/i, "local fixture must provide a listing owner");
-assert.match(listingId, /^[0-9a-f-]{36}$/i, "local fixture must provide an owner listing");
+const ownerId = randomUUID();
+const listingId = randomUUID();
+const vehicleId = randomUUID();
+const makeId = randomUUID();
+const modelId = randomUUID();
+const fixture = `BEGIN;
+INSERT INTO auth.users (instance_id,id,aud,role,email,raw_app_meta_data,raw_user_meta_data,created_at,updated_at) VALUES
+  ('00000000-0000-0000-0000-000000000000','${ownerId}','authenticated','authenticated','functional-02f-owner-${ownerId}@example.test','{}','{}',now(),now());
+INSERT INTO vehicle.makes (id,name,slug) VALUES ('${makeId}','F Make','functional-02f-${makeId}');
+INSERT INTO vehicle.models (id,make_id,name,slug) VALUES ('${modelId}','${makeId}','F Model','functional-02f-${modelId}');
+INSERT INTO vehicle.vehicle_profiles (id,make_id,model_id,year,mileage_km,fuel_type,transmission,created_source,profile_status,created_by) VALUES ('${vehicleId}','${makeId}','${modelId}',2024,1,'gasoline','automatic','manual','active','${ownerId}');
+INSERT INTO vehicle.profile_ownership (vehicle_profile_id,owner_id,ownership_type,is_current) VALUES ('${vehicleId}','${ownerId}','owner',true);
+INSERT INTO marketplace.listings (id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,seller_type) VALUES ('${listingId}','${vehicleId}','${ownerId}','active','active','F listing',1,'TRY',false,'Istanbul','private');`;
 
 const otherId = "00000000-0000-0000-0000-000000000f01";
 const ownerBatch = "00000000-0000-0000-0000-000000000f11";
@@ -35,8 +45,7 @@ const otherBatch = "00000000-0000-0000-0000-000000000f12";
 const ownerRow = "00000000-0000-0000-0000-000000000f21";
 const ownerIssue = "00000000-0000-0000-0000-000000000f31";
 const ownerExternal = "00000000-0000-0000-0000-000000000f41";
-const setup = `
-BEGIN;
+const setup = fixture + `
 INSERT INTO auth.users (id, aud, role, email, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 VALUES ('${otherId}', 'authenticated', 'authenticated', 'functional-02f-other@example.test', '{}', '{}', now(), now());
 SET LOCAL ROLE service_role;
@@ -63,7 +72,7 @@ SELECT
 ROLLBACK;`;
 assert.equal(query(setup).split("\n").at(-1), "1|1|1|1|row-external-id|external-id", "owner sees only normalized private import records");
 
-const nonOwner = `
+const nonOwner = fixture + `
 BEGIN;
 INSERT INTO auth.users (id, aud, role, email, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 VALUES ('${otherId}', 'authenticated', 'authenticated', 'functional-02f-other@example.test', '{}', '{}', now(), now());
@@ -84,7 +93,7 @@ assert.equal(query(nonOwner).split("\n").at(-1), "1|0|0|0", "non-owner cannot re
 
 assert.throws(() => query("BEGIN; SET LOCAL ROLE anon; SELECT * FROM marketplace.dealer_import_batches; ROLLBACK;"), /permission denied/i, "anon cannot read import data");
 assert.throws(() => query(`BEGIN; SET LOCAL ROLE authenticated; SELECT set_config('request.jwt.claim.sub', '${ownerId}', true); INSERT INTO marketplace.dealer_import_batches (dealer_id, source_sha256) VALUES ('${ownerId}', repeat('c', 64)); ROLLBACK;`), /permission denied/i, "authenticated clients cannot mutate import data");
-assert.throws(() => query(`
+assert.throws(() => query(fixture + `
 BEGIN;
 INSERT INTO auth.users (id, aud, role, email, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 VALUES ('${otherId}', 'authenticated', 'authenticated', 'functional-02f-other@example.test', '{}', '{}', now(), now());
