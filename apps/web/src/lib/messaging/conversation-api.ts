@@ -8,7 +8,7 @@ export const privateResponseHeaders = {
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const requestWindowMs = 60_000;
-const requestLimits = { create: 12, send: 30 } as const;
+const requestLimits = { create: 12, send: 30, safety: 20 } as const;
 const requestBuckets = new Map<string, { count: number; resetAt: number }>();
 
 export type RequestSupabase = { supabase: SupabaseClient; userId: string };
@@ -66,6 +66,23 @@ export function parseReadPayload(payload: unknown): string | null {
   if (Object.keys(record).length !== 1 || !("messageId" in record) || typeof record.messageId !== "string") return null;
   const messageId = record.messageId.trim();
   return isUuid(messageId) ? messageId : null;
+}
+
+const reportReasons = new Set([
+  "fraud",
+  "wrong_information",
+  "duplicate",
+  "inappropriate_content",
+  "suspicious_seller",
+  "other"
+]);
+
+export function parseReportPayload(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+  const record = payload as Record<string, unknown>;
+  if (Object.keys(record).length !== 1 || !("reason" in record) || typeof record.reason !== "string") return null;
+  const reason = record.reason.trim();
+  return reportReasons.has(reason) ? reason : null;
 }
 
 export function rateLimit(userId: string, action: RateLimitedAction): number | null {
