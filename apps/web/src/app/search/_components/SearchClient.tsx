@@ -24,6 +24,7 @@ import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { interpolate } from "@/i18n/get-dictionary";
 import type { SearchCursor } from "@/lib/search/server-search";
+import { buildSearchRequest } from "@/lib/search/server-search";
 
 const searchFilterSupport = {
   photos: true,
@@ -73,6 +74,7 @@ export function SearchClient({
 
     return catalogCities.length > 0 ? catalogCities : getUniqueCities(listings);
   }, [cities, listings]);
+  const savedSearchRequest = useMemo(() => buildSearchRequest(filters, { makes, models, cities: cities ?? [] }), [cities, filters, makes, models]);
   const showAdvancedFilters =
     filters.advanced ||
     Boolean(
@@ -160,7 +162,7 @@ export function SearchClient({
                 {interpolate(String(dictionary.search.resultsCount), { count: listings.length })}
               </p>
               <div className="flex flex-wrap items-start gap-2">
-                <SavedSearchButton />
+                <SavedSearchButton request={savedSearchRequest} />
                 <Button
                   type="button"
                   variant={filters.advanced ? "primary" : "secondary"}

@@ -7,7 +7,7 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 
-export function SavedSearchButton() {
+export function SavedSearchButton({ request }: { request: Record<string, unknown> }) {
   const { locale, dictionary } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
@@ -32,30 +32,26 @@ export function SavedSearchButton() {
       return;
     }
 
-    const queryParams: Record<string, string | string[]> = {};
-    searchParams.forEach((value, key) => {
-      const existing = queryParams[key];
-      if (!existing) {
-        queryParams[key] = value;
-      } else if (Array.isArray(existing)) {
-        existing.push(value);
-      } else {
-        queryParams[key] = [existing, value];
-      }
-    });
-
     setStatus("saving");
     setMessage("");
 
-    const { error } = await supabase.schema("marketplace").from("saved_searches").insert({
-      user_id: data.session.user.id,
-      title: locale === "en" ? "OTOYALI search" : "OTOYALI araması",
-      query_params: queryParams
-    });
-
-    if (error) {
+    let response: Response;
+    try {
+      response = await fetch("/api/saved-searches", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session.access_token}` },
+        body: JSON.stringify({ request, title: locale === "en" ? "OTOYALI search" : "OTOYALI araması", alertEnabled: false })
+      });
+    } catch {
       setStatus("error");
-      setMessage(error.message);
+      setMessage(locale === "en" ? "Your search could not be saved." : "Aramanız kaydedilemedi.");
+      return;
+    }
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => null) as { error?: unknown } | null;
+      setStatus("error");
+      setMessage(typeof body?.error === "string" ? body.error : (locale === "en" ? "Your search could not be saved." : "Aramanız kaydedilemedi."));
       return;
     }
 

@@ -60,6 +60,7 @@
     "test:functional-03a4-ui": "node scripts/functional-03a4-ui.test.cjs",
     "test:functional-03a5": "node scripts/functional-03a5.test.cjs",
     "test:functional-03b-a1": "node scripts/functional-03b-a1.test.cjs",
+    "test:functional-03b-a2": "node scripts/functional-03b-a2.test.cjs",
     "test:stabilization-02": "node scripts/stabilization-02.test.cjs"
   },
   "dependencies": {
