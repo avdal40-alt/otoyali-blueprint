@@ -19,7 +19,7 @@ function ConvertFrom-YolmodCommitMessage([string]$Commit, [string]$Message) {
     if ($hasStage -xor $hasType) { throw "INCOMPLETE_STAGE_TRAILER:$Commit" }
     if (-not $hasStage) { return $null }
     if ($trailers['Yolmod-Stage-Type'] -ne 'product') { throw "INVALID_STAGE_TYPE:$Commit" }
-    if ($trailers['Yolmod-Stage'] -notmatch '^FUNCTIONAL-[0-9]+[A-Z0-9-]*$') { throw "INVALID_STAGE_ID:$Commit" }
+    if ($trailers['Yolmod-Stage'] -notmatch '^(?:FUNCTIONAL|STABILIZATION)-[0-9]+[A-Z0-9-]*$') { throw "INVALID_STAGE_ID:$Commit" }
     return [pscustomobject]@{ Commit = $Commit; Stage = $trailers['Yolmod-Stage']; Source = 'trailer' }
 }
 

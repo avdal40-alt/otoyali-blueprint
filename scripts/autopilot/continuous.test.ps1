@@ -25,10 +25,15 @@ try {
     Assert-True ($legacy.Stage -eq 'FUNCTIONAL-02D') 'legacy D stage resolves from Git seed'
     $currentProduct = Get-LastProductStageIdentity $head
     $state = Get-Content -LiteralPath (Join-Path $repoRoot 'docs/autopilot/AUTOPILOT_STATE.md') -Raw
-    $stateProduct = [regex]::Match($state, '(?m)^\| Last completed product stage \| (?<stage>FUNCTIONAL-[^\s|]+)')
+    $stateProduct = [regex]::Match($state, '(?m)^\| Last completed product stage \| (?<stage>(?:FUNCTIONAL|STABILIZATION)-[^\s|]+)')
     $stateNext = [regex]::Match($state, '(?m)^\| Next approved stage \| (?<stage>FUNCTIONAL-[^\s|]+)')
     Assert-True ($stateProduct.Success -and $stateNext.Success) 'state exposes completed product and next planned stages'
     Assert-True ($currentProduct.Stage -eq $stateProduct.Groups['stage'].Value -and $currentProduct.Source -eq 'trailer') 'current product stage resolves dynamically from Git trailers and reconciles with state'
+    $a1Commit = '7887c26a74a346e0ff715d9b00534b44f809bc50'
+    Assert-True ($null -eq (Get-ProductCommitIdentity $a1Commit)) 'reviewed A1 intermediate commit remains non-product'
+    Assert-True ($currentProduct.Stage -eq 'STABILIZATION-02') 'latest completed product stage is STABILIZATION-02'
+    Assert-True ($state -match '(?m)^\| Current parent stage \| FUNCTIONAL-03B .* IN PROGRESS \|$') 'current parent remains FUNCTIONAL-03B in progress'
+    Assert-True ($state -match '(?m)^\| Next internal substep \| FUNCTIONAL-03B-A2 .*\|$') 'next internal substep is FUNCTIONAL-03B-A2'
     $descendants = @(& git rev-list "$($currentProduct.Commit)..$head")
     if ($LASTEXITCODE -ne 0) { throw 'GIT_PRODUCT_DESCENDANTS_UNAVAILABLE' }
     foreach ($commit in $descendants) {
@@ -42,6 +47,7 @@ try {
     Assert-True ($parsed.Stage -eq 'FUNCTIONAL-02E') 'product trailer parses'
     try { ConvertFrom-YolmodCommitMessage 'duplicate' "Yolmod-Stage: FUNCTIONAL-02E`nYolmod-Stage-Type: product`nYolmod-Stage: FUNCTIONAL-02E"; throw 'duplicate trailer accepted' } catch { Assert-True ($_.Exception.Message -match '^DUPLICATE_STAGE_TRAILER:') 'duplicate trailer fails closed' }
     try { ConvertFrom-YolmodCommitMessage 'partial' 'Yolmod-Stage: FUNCTIONAL-02E'; throw 'partial trailer accepted' } catch { Assert-True ($_.Exception.Message -match '^INCOMPLETE_STAGE_TRAILER:') 'partial trailer fails closed' }
+    try { ConvertFrom-YolmodCommitMessage 'malformed' "Yolmod-Stage: UNKNOWN-01`nYolmod-Stage-Type: product"; throw 'malformed stage accepted' } catch { Assert-True ($_.Exception.Message -match '^INVALID_STAGE_ID:') 'malformed product trailer fails closed' }
 
     $definitions = @(Get-ApprovedHostBaselines)
     Assert-True ($definitions.Count -eq 1 -and $definitions[0].ExactTestId -eq 'npm --prefix apps/web run test:functional-02c2') 'trusted C2 baseline allowlist is exact'

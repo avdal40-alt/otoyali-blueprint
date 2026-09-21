@@ -12,21 +12,23 @@
 **Maximum product stages per run:** `3`
 **Stages completed in current run:** `11`
 **Last checkpoint:** NOT_RUN
-**Last stop reason:** NONE — STABILIZATION-02 completed after local public-product validation
+**Last stop reason:** NONE — FUNCTIONAL-03B is in progress after reviewed A1 database-contract work
 
 Git and verified test results are source of truth; this file is a reconciliation aid, never a replacement for Git.
 
 | Field | Value |
 | --- | --- |
-| Current stage status | STABILIZATION-02 — Public Product Polish COMPLETE |
+| Current stage status | FUNCTIONAL-03B — Notifications & Saved Search Alerts IN PROGRESS |
 | Last completed stage | STABILIZATION-02 — Public Product Polish |
-| Last completed product stage | STABILIZATION-02 — Git-derived after this required product commit trailer |
-| Last completed stage commit | Git-derived after this required product commit trailer (`fix(web): polish public marketplace experience`) |
-| Last safe pre-stage commit | `a4e0b90cad30cd0497fe0e7c17fbcd6f774fb758` (`feat(chat): complete conversation subsystem`) |
+| Last completed product stage | STABILIZATION-02 — `cddab1064c94ee8157b661243bff41189133b3fd` (`fix(web): polish public marketplace experience`) |
+| Last completed stage commit | `cddab1064c94ee8157b661243bff41189133b3fd` (`fix(web): polish public marketplace experience`) |
+| Last safe pre-stage commit | `7887c26a74a346e0ff715d9b00534b44f809bc50` (`feat(saved-search): secure database contract`) |
 | Latest infrastructure patch | CONTINUOUS-POWERSHELL51-NATIVE-STDERR-01 |
 | Last safe infrastructure baseline | `0669fb714542ef42c4ca86d13c6df5735cbab1b4` |
 | Latest infrastructure validation | PASS — trusted host baseline and supervisor policy |
-| Current parent stage | FUNCTIONAL-03A — Internal Buyer–Seller Conversations COMPLETE |
+| Current parent stage | FUNCTIONAL-03B — Notifications & Saved Search Alerts IN PROGRESS |
+| Completed internal substep | FUNCTIONAL-03B-A1 — Saved Search DB Security Contract (`7887c26a74a346e0ff715d9b00534b44f809bc50`) |
+| Next internal substep | FUNCTIONAL-03B-A2 — Saved Search Server API + Client Migration |
 | Next approved stage | FUNCTIONAL-03B — Notifications & Saved Search Alerts |
 | Following approved stages | None approved after FUNCTIONAL-03B in this controlled run |
 | Preferred later functional priority | Execute approved V1 stages in roadmap order. |
@@ -37,8 +39,8 @@ Git and verified test results are source of truth; this file is a reconciliation
 | Production status | BLOCKED — manual-only |
 | Known blockers | Remote environment identity remains unverified and blocks remote actions. |
 | Unresolved external-provider decisions | AI, SMS, video, CAPTCHA, analytics, email/push, and VIN/TRAMER/SBM providers remain unresolved. |
-| Last run timestamp | 2026-09-21 — STABILIZATION-02 complete. Next approved stage is FUNCTIONAL-03B. |
+| Last run timestamp | 2026-09-21 — stage identity reconciled; FUNCTIONAL-03B-A1 complete and FUNCTIONAL-03B-A2 is next. |
 
 ## Next controlled-run preconditions
 
-FUNCTIONAL-03A and STABILIZATION-02 are complete. Immediate next: FUNCTIONAL-03B — Notifications & Saved Search Alerts. Do not begin it automatically. Do not push, deploy, access production, or schedule automation.
+STABILIZATION-02 is the latest fully completed product stage. FUNCTIONAL-03B is in progress: A1 is complete and A2 is the next internal substep. Do not begin it automatically. Do not push, deploy, access production, or schedule automation.
