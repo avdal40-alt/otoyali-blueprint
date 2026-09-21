@@ -69,7 +69,10 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
       ? await getListingMediaByVehicleProfileId(listing.vehicle_profile_id)
       : null;
   const mediaRows = mediaResult.data.length > 0 ? mediaResult.data : fallbackMediaResult?.data ?? [];
-  const similarListings = similarResult.data.filter((item) => item.listing_id !== listing?.listing_id).slice(0, 3);
+  const similarListings = similarResult.data
+    .filter((item) => item.listing_id !== listing?.listing_id)
+    .sort((left, right) => Number(right.make_name === listing?.make_name) - Number(left.make_name === listing?.make_name) || Number(right.model_name === listing?.model_name) - Number(left.model_name === listing?.model_name))
+    .slice(0, 3);
 
   return (
     <>

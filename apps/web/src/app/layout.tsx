@@ -3,7 +3,6 @@ import { I18nProvider } from "@/i18n/client";
 import { getLocaleDirection, getLocaleTag } from "@/i18n/config";
 import { getClientDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
-import { AssistantRoot } from "@/features/ai";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -59,7 +58,6 @@ export default async function RootLayout({
       <body>
         <I18nProvider locale={locale} dictionary={dictionary}>
           {children}
-          <AssistantRoot />
         </I18nProvider>
       </body>
     </html>

@@ -18,7 +18,7 @@ const sections: LegalSection[] = [
   },
   {
     title: "İlan moderasyonu",
-    body: "WEB-10 temel akışlarıyla uyumlu olarak ilanlar pending, approved, rejected veya archived durumlarında yönetilebilir."
+    body: "İlanlar platform kurallarına göre incelenebilir, yayına alınabilir, reddedilebilir veya arşivlenebilir."
   },
   {
     title: "Video moderasyonu",

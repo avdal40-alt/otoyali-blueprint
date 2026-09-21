@@ -19,7 +19,7 @@ export default function AboutPage() {
           {["Misafir olarak keşfet", "Premium otomotiv deneyimi", "Türkiye odaklı altyapı"].map((item) => (
             <div key={item} className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
               <h2 className="font-bold text-oto-text">{item}</h2>
-              <p className="mt-2 text-sm leading-6 text-oto-muted">OTOYALI, araç arama ve ilan deneyimini sade, hızlı ve güvenilir hale getirir.</p>
+              <p className="mt-2 text-sm leading-6 text-oto-muted">{item === "Misafir olarak keşfet" ? "İlanları hesap oluşturmadan inceleyin; iletişim ve yayınlama gerektiğinde oturum açın." : item === "Premium otomotiv deneyimi" ? "Araç arama, ilan inceleme ve yayınlama akışlarını otomotiv ihtiyaçlarına göre bir arada sunar." : "Türkiye’deki araç alım ve satım sürecine uygun kategori, konum ve para birimi temelleriyle çalışır."}</p>
             </div>
           ))}
         </div>

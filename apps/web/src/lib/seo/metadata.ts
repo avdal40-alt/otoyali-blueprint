@@ -35,7 +35,7 @@ export function buildSeoMetadata({
       description,
       url,
       siteName: "OTOYALI",
-      locale: "tr_TR",
+      locale: path === "/en" || path.startsWith("/en/") ? "en_US" : "tr_TR",
       type: "website"
     },
     robots: {
