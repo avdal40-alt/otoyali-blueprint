@@ -12,7 +12,7 @@
 **Maximum product stages per run:** `3`
 **Stages completed in current run:** `11`
 **Last checkpoint:** NOT_RUN
-**Last stop reason:** NONE — FUNCTIONAL-03B is in progress after reviewed A1 database-contract work
+**Last stop reason:** NONE — FUNCTIONAL-03B is in progress after B0-A2 shared Search v1 semantic-core extraction
 
 Git and verified test results are source of truth; this file is a reconciliation aid, never a replacement for Git.
 
@@ -27,20 +27,20 @@ Git and verified test results are source of truth; this file is a reconciliation
 | Last safe infrastructure baseline | `0669fb714542ef42c4ca86d13c6df5735cbab1b4` |
 | Latest infrastructure validation | PASS — trusted host baseline and supervisor policy |
 | Current parent stage | FUNCTIONAL-03B — Notifications & Saved Search Alerts IN PROGRESS |
-| Completed internal substeps | FUNCTIONAL-03B-A1 — Saved Search DB Security Contract (`7887c26a74a346e0ff715d9b00534b44f809bc50`); FUNCTIONAL-03B-A2 — Saved Search Server API + Client Migration |
-| Next internal substep | FUNCTIONAL-03B-B — Notification Data & Alert Generation |
+| Completed internal substeps | FUNCTIONAL-03B-A1 — Saved Search DB Security Contract (`7887c26a74a346e0ff715d9b00534b44f809bc50`); FUNCTIONAL-03B-A2 — Saved Search Server API + Client Migration; FUNCTIONAL-03B-B0-A1 — Search v1 Characterization Contract; FUNCTIONAL-03B-B0-A2 — Shared Search v1 Semantic Core |
+| Next internal substep | FUNCTIONAL-03B-B0-B — Single-Listing Search v1 Matcher |
 | Next approved stage | FUNCTIONAL-03B — Notifications & Saved Search Alerts |
 | Following approved stages | None approved after FUNCTIONAL-03B in this controlled run |
 | Preferred later functional priority | Execute approved V1 stages in roadmap order. |
-| Latest mandatory checks | PASS — FUNCTIONAL-03B-A2 focused API/client regression, A1 15-check security matrix, FUNCTIONAL-02C2/C1C, auth-return, STABILIZATION-02, 03A5/03A4/03A3/03A2/03A1, typecheck, lint, production build, and dependency audit; `security-02f-contract` was not run because it invokes `supabase db reset`. |
-| Latest migration static validation | PASS — immutable 03A1/03A4 migrations unchanged; new additive 03A5 send-state facade reviewed |
-| Latest migration runtime validation | PASS — local 03A5 migration applied and runtime check passed; 03A4 rollback-only 18-check security matrix passed |
+| Latest mandatory checks | PASS — FUNCTIONAL-03B-B0-A2 focused semantic-core regression, B0-A1 characterization, FUNCTIONAL-02C2/C1C, A1/A2, typecheck, lint, production build, and dependency audit; `security-02f-contract` was not run because it invokes `supabase db reset`. |
+| Latest migration static validation | PASS — immutable prior migrations unchanged; additive B0-A2 type, semantic normalizer, predicate, and public facade reviewed |
+| Latest migration runtime validation | PASS — local B0-A2 migration applied; normalizer, predicate, pagination cap, and role-surface checks passed |
 | Push status | BLOCKED |
 | Production status | BLOCKED — manual-only |
 | Known blockers | Remote environment identity remains unverified and blocks remote actions. |
 | Unresolved external-provider decisions | AI, SMS, video, CAPTCHA, analytics, email/push, and VIN/TRAMER/SBM providers remain unresolved. |
-| Last run timestamp | 2026-09-21 — FUNCTIONAL-03B-A2 server API and client migration verified; FUNCTIONAL-03B remains in progress and 03B-B is next. |
+| Last run timestamp | 2026-09-21 — FUNCTIONAL-03B-B0-A2 shared Search v1 semantic core verified; FUNCTIONAL-03B remains in progress and B0-B is next. |
 
 ## Next controlled-run preconditions
 
-STABILIZATION-02 is the latest fully completed product stage. FUNCTIONAL-03B is in progress: A1 is complete and A2 is the next internal substep. Do not begin it automatically. Do not push, deploy, access production, or schedule automation.
+STABILIZATION-02 is the latest fully completed product stage. FUNCTIONAL-03B is in progress: A1, A2, B0-A1, and B0-A2 are complete; B0-B is the next internal substep. Do not begin it automatically. Do not push, deploy, access production, or schedule automation.
