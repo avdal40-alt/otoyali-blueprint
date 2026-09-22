@@ -33,7 +33,7 @@ try {
     Assert-True ($null -eq (Get-ProductCommitIdentity $a1Commit)) 'reviewed A1 intermediate commit remains non-product'
     Assert-True ($currentProduct.Stage -eq 'STABILIZATION-02') 'latest completed product stage is STABILIZATION-02'
     Assert-True ($state -match '(?m)^\| Current parent stage \| FUNCTIONAL-03B .* IN PROGRESS \|$') 'current parent remains FUNCTIONAL-03B in progress'
-    Assert-True ($state -match '(?m)^\| Next internal substep \| FUNCTIONAL-03B-B .*\|$') 'next internal substep is FUNCTIONAL-03B-B'
+    Assert-True ($state -match '(?m)^\| Next internal substep \| FUNCTIONAL-03B-C .*\|$') 'next internal substep is FUNCTIONAL-03B-C'
     $descendants = @(& git rev-list "$($currentProduct.Commit)..$head")
     if ($LASTEXITCODE -ne 0) { throw 'GIT_PRODUCT_DESCENDANTS_UNAVAILABLE' }
     foreach ($commit in $descendants) {
