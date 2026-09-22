@@ -27,6 +27,7 @@ export function getClientDictionary(locale?: string | null): ClientDictionary {
     listing: dictionary.listing,
     sell: dictionary.sell,
     profile: dictionary.profile,
+    notifications: dictionary.notifications,
     messages: dictionary.messages,
     favorites: dictionary.favorites,
     myListings: dictionary.myListings,

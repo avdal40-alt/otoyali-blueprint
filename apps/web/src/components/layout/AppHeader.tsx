@@ -12,6 +12,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 export function AppHeader() {
   const { locale, dictionary } = useI18n();
   const [isAuthed, setIsAuthed] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const profilePath = localizePath("/profile", locale);
   const loginProfilePath = `${localizePath("/login", locale)}?next=${encodeURIComponent(profilePath)}`;
 
@@ -21,8 +22,22 @@ export function AppHeader() {
     }
 
     const supabase = getSupabaseBrowserClient();
-    supabase.auth.getSession().then(({ data }) => setIsAuthed(Boolean(data.session)));
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => setIsAuthed(Boolean(session)));
+    const loadUnread = async (token: string | undefined) => {
+      if (!token) return setUnreadCount(0);
+      try {
+        const response = await fetch("/api/notifications/unread-count", { cache: "no-store", headers: { Authorization: `Bearer ${token}` } });
+        const payload = await response.json() as { data?: { count?: number } };
+        setUnreadCount(response.ok && Number.isSafeInteger(payload.data?.count) ? Math.max(0, payload.data!.count!) : 0);
+      } catch { setUnreadCount(0); }
+    };
+    supabase.auth.getSession().then(({ data }) => {
+      setIsAuthed(Boolean(data.session));
+      void loadUnread(data.session?.access_token);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthed(Boolean(session));
+      void loadUnread(session?.access_token);
+    });
 
     return () => listener.subscription.unsubscribe();
   }, []);
@@ -49,8 +64,9 @@ export function AppHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <LanguageSwitcher className="md:inline-flex" />
-          <Link href={localizePath("/notifications", locale)} className="rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={String(dictionary.navigation.notifications)}>
+          <Link href={isAuthed ? localizePath("/notifications", locale) : `${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/notifications", locale))}`} className="relative rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={unreadCount > 0 ? `${String(dictionary.navigation.notifications)} (${unreadCount})` : String(dictionary.navigation.notifications)}>
             <BellIcon />
+            {isAuthed && unreadCount > 0 ? <span className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-oto-orange px-1 text-center text-[10px] font-black leading-4 text-white" aria-hidden="true">{unreadCount > 99 ? "99+" : unreadCount}</span> : null}
           </Link>
           <Link href={isAuthed ? profilePath : loginProfilePath} className="rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={String(dictionary.navigation.profile)}>
             <UserIcon />
