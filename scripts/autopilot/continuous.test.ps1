@@ -31,9 +31,6 @@ try {
     Assert-True ($currentProduct.Stage -eq $stateProduct.Groups['stage'].Value -and $currentProduct.Source -eq 'trailer') 'current product stage resolves dynamically from Git trailers and reconciles with state'
     $a1Commit = '7887c26a74a346e0ff715d9b00534b44f809bc50'
     Assert-True ($null -eq (Get-ProductCommitIdentity $a1Commit)) 'reviewed A1 intermediate commit remains non-product'
-    Assert-True ($currentProduct.Stage -eq 'STABILIZATION-02') 'latest completed product stage is STABILIZATION-02'
-    Assert-True ($state -match '(?m)^\| Current parent stage \| FUNCTIONAL-03B .* IN PROGRESS \|$') 'current parent remains FUNCTIONAL-03B in progress'
-    Assert-True ($state -match '(?m)^\| Next internal substep \| FUNCTIONAL-03B-C .*\|$') 'next internal substep is FUNCTIONAL-03B-C'
     $descendants = @(& git rev-list "$($currentProduct.Commit)..$head")
     if ($LASTEXITCODE -ne 0) { throw 'GIT_PRODUCT_DESCENDANTS_UNAVAILABLE' }
     foreach ($commit in $descendants) {
@@ -111,6 +108,7 @@ try {
     Assert-True ($continuous -notmatch 'danger-full-access|dangerously-bypass-approvals') 'supervisor contains no sandbox bypass'
     Assert-True ($continuous -match 'Test-StopRequested') 'STOP marker remains checked'
     Assert-True ($continuous -match 'PRODUCT_STAGE_TRAILER_IDENTITY_REJECTED') 'stage trailer validation is enforced'
+    Assert-True ($continuous -match 'GIT_STATE_INCONSISTENCY: State last completed product stage does not match Git identity') 'state and Git contradictions fail closed'
     Assert-True ($continuous -match 'POST_CHANGE_HOST_BASELINE_FAILED') 'contract changes require post-change baseline'
     Assert-True ($continuous -match 'PRE_STAGE_GATE_PASS') 'normal startup has a no-agent pre-stage gate validation mode'
     Write-Output 'Continuous supervisor infrastructure tests passed.'
