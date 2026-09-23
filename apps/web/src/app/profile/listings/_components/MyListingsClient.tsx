@@ -14,6 +14,7 @@ import type { Locale } from "@/i18n/types";
 import { getBestImageUrl, isImageProcessingFailed } from "@/lib/media/image-variants";
 import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
 import { getMyListingsCopy, getMyListingsLifecycleErrorMessage, type MyListingsCopy } from "../my-listings-copy";
+import { ListingVideoManager } from "./ListingVideoManager";
 
 type MyListing = {
   id: string;
@@ -404,7 +405,7 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
                     {actionBusy ? copy.archiving : copy.archive}
                   </Button>
                 ) : null}
-                {canViewPublic ? <Button type="button" variant="secondary" onClick={() => openVideoForm(item)}>{copy.addVideo}</Button> : null}
+                <ListingVideoManager listingId={item.id} title={item.title} locale={locale} />
               </div>
               {videoListingId === item.id ? (
                 <form className="mt-4 rounded-md border border-oto-border bg-oto-surface p-4" onSubmit={(event) => submitVideo(event, item)}>
