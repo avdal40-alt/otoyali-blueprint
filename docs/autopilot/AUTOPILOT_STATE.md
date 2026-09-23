@@ -12,35 +12,35 @@
 **Maximum product stages per run:** `3`
 **Stages completed in current run:** `15`
 **Last checkpoint:** NOT_RUN
-**Last stop reason:** NONE — FUNCTIONAL-03B completed locally; FUNCTIONAL-03C is next
+**Last stop reason:** NONE — FUNCTIONAL-03C completed locally; AI-01A is next
 
 Git and verified test results are source of truth; this file is a reconciliation aid, never a replacement for Git.
 
 | Field | Value |
 | --- | --- |
-| Current stage status | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion IN PROGRESS |
-| Last completed stage | FUNCTIONAL-03B — Notifications & Saved Search Alerts |
-| Last completed product stage | FUNCTIONAL-03B — Notifications & Saved Search Alerts |
-| Last completed stage commit | Current product-stage commit (`feat(notifications): complete saved search alerts`) |
+| Current stage status | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion COMPLETE |
+| Last completed stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion |
+| Last completed product stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion |
+| Last completed stage commit | Current product-stage commit (`feat(video): complete video lifecycle and analytics`) |
 | Last safe pre-stage commit | `5f17b34174b1254d51235bab9040a80c08a0d535` (`feat(notifications): add saved search alert backend`) |
 | Latest infrastructure patch | CONTINUOUS-POWERSHELL51-NATIVE-STDERR-01 |
 | Last safe infrastructure baseline | `0669fb714542ef42c4ca86d13c6df5735cbab1b4` |
 | Latest infrastructure validation | PASS — trusted host baseline and supervisor policy |
-| Current parent stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion IN PROGRESS |
-| Completed internal substeps | FUNCTIONAL-03C-A — Video Security + Lifecycle Contract; FUNCTIONAL-03C-B0-A — Private Owner Video Read API + DTO; FUNCTIONAL-03C-B1 — Persisted Video Upload Intent Contract; FUNCTIONAL-03C-B1A — Upload Intent Cleanup / Revoke Contract; FUNCTIONAL-03C-B — Controlled Video Management |
-| Next internal substep | FUNCTIONAL-03C-C — Consent-Safe Video Analytics + Final Completion |
-| Next approved stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion |
-| Following approved stages | AI-01A — Production Yolmod AI Foundation |
+| Current parent stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion COMPLETE |
+| Completed internal substeps | FUNCTIONAL-03C-A — Video Security + Lifecycle Contract; FUNCTIONAL-03C-B0-A — Private Owner Video Read API + DTO; FUNCTIONAL-03C-B1 — Persisted Video Upload Intent Contract; FUNCTIONAL-03C-B1A — Upload Intent Cleanup / Revoke Contract; FUNCTIONAL-03C-B — Controlled Video Management; FUNCTIONAL-03C-C — Consent-Safe Video Analytics + Final Completion |
+| Next internal substep | None — parent stage complete |
+| Next approved stage | AI-01A — Production Yolmod AI Foundation |
+| Following approved stages | Derive from canonical roadmap before execution |
 | Preferred later functional priority | Execute approved V1 stages in roadmap order. |
-| Latest mandatory checks | PASS — full FUNCTIONAL-03B A1/A2/B0-A1/B0-A2/B0-B/B/C, FUNCTIONAL-02C1C/C2, lifecycle, seller identity/contact, 03A1–03A5, STABILIZATION-02, i18n, typecheck, lint, production build, and dependency audit; `security-02f-contract` was not run because it invokes `supabase db reset`. |
-| Latest migration static validation | PASS — all applied 03B migrations are immutable and unchanged; no 03B-C migration created |
-| Latest migration runtime validation | PASS — local 03B-B notification backend remains healthy; 03B-C uses only its private API contract |
+| Latest mandatory checks | PASS — FUNCTIONAL-03C-C consent/validation/dedup matrix, full 03C-B, 03C-A/Storage, FUNCTIONAL-02G/02J/C1C/C2, seller identity/contact, full 03B, STABILIZATION-02, typecheck, lint, production build, and dependency audit; `security-02f-contract` was not run because it invokes `supabase db reset`. |
+| Latest migration static validation | PASS — all applied 03C-A, B1, and B1A migrations are immutable and unchanged; 03C-C analytics migration is applied locally. |
+| Latest migration runtime validation | PASS — local 03C-C analytics role/consent/eligibility/dedup matrix is healthy. |
 | Push status | BLOCKED |
 | Production status | BLOCKED — manual-only |
 | Known blockers | Remote environment identity remains unverified and blocks remote actions. |
 | Unresolved external-provider decisions | AI, SMS, video, CAPTCHA, analytics, email/push, and VIN/TRAMER/SBM providers remain unresolved. |
-| Last run timestamp | 2026-09-23 — FUNCTIONAL-03C-B1A local cleanup/revoke migration applied. Focused B1A/B1, 03C-A, Storage, and B0-A matrices passed; 03C-B is next. |
+| Last run timestamp | 2026-09-23 — FUNCTIONAL-03C-C consent-safe first-party video analytics completed locally. Full 03C regression and required quality gates passed; AI-01A is next. |
 
 ## Next controlled-run preconditions
 
-FUNCTIONAL-03B is the latest fully completed product stage. FUNCTIONAL-03C-A, 03C-B0-A, 03C-B1, and 03C-B1A are complete within the in-progress parent; next is FUNCTIONAL-03C-B. Do not push, deploy, access production, or schedule automation.
+FUNCTIONAL-03C is the latest fully completed product stage. AI-01A is the next approved parent and must be reviewed against the canonical roadmap before execution. Do not push, deploy, access production, or schedule automation.

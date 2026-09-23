@@ -8,7 +8,7 @@ export const privateResponseHeaders = {
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const requestWindowMs = 60_000;
-const requestLimits = { create: 12, send: 30, safety: 20 } as const;
+const requestLimits = { create: 12, send: 30, safety: 20, analytics: 60 } as const;
 const requestBuckets = new Map<string, { count: number; resetAt: number }>();
 
 export type RequestSupabase = { supabase: SupabaseClient; userId: string };
