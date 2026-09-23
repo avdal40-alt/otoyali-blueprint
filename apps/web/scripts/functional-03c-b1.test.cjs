@@ -43,7 +43,13 @@ INSERT INTO results VALUES ('old replace revoked', NOT has_function_privilege('a
 ${claim(ids.dealer)}
 SELECT * INTO TEMP TABLE issued FROM public.issue_own_listing_video_upload_intent('${ids.listing}','create','video/mp4',100);
 GRANT SELECT ON issued TO service_role;
+SELECT * INTO TEMP TABLE cleanup_intent FROM public.issue_own_listing_video_upload_intent('${ids.listing}','create','video/webm',100);
+SELECT * INTO TEMP TABLE cleanup_result FROM public.revoke_own_listing_video_upload_intent('${ids.listing}', (SELECT intent_id FROM cleanup_intent));
 INSERT INTO results VALUES ('issued canonical unique path', EXISTS (SELECT 1 FROM issued WHERE object_path = '${ids.dealer}/prod04a-2026082801/${ids.listing}/' || intent_id::text || '.mp4' AND expires_at > now() AND expires_at <= now() + interval '16 minutes'));
+INSERT INTO results VALUES ('revoke returns only bound path', (SELECT object_path FROM cleanup_result) = (SELECT object_path FROM cleanup_intent));
+INSERT INTO results VALUES ('revoked intent no longer authorizes storage', NOT marketplace.can_insert_own_listing_video_from_active_intent((SELECT object_path FROM cleanup_intent)));
+DO $$ DECLARE v_id uuid; BEGIN SELECT intent_id INTO v_id FROM cleanup_intent; BEGIN PERFORM public.revoke_own_listing_video_upload_intent('${ids.listing}',v_id); INSERT INTO results VALUES ('repeat revoke denied',false); EXCEPTION WHEN SQLSTATE 'OT422' THEN INSERT INTO results VALUES ('repeat revoke denied',true); END; END $$;
+DO $$ DECLARE v_id uuid; BEGIN SELECT intent_id INTO v_id FROM cleanup_intent; BEGIN PERFORM public.finalize_own_listing_video_upload_intent('${ids.listing}',v_id,'B1',NULL,1); INSERT INTO results VALUES ('revoked finalize denied',false); EXCEPTION WHEN SQLSTATE 'OT422' THEN INSERT INTO results VALUES ('revoked finalize denied',true); END; END $$;
 DO $$ BEGIN BEGIN PERFORM public.issue_own_listing_video_upload_intent('${ids.listing}','create','image/png',100); INSERT INTO results VALUES ('invalid MIME denied',false); EXCEPTION WHEN SQLSTATE 'OT422' THEN INSERT INTO results VALUES ('invalid MIME denied',true); END; END $$;
 DO $$ BEGIN BEGIN PERFORM public.issue_own_listing_video_upload_intent('${ids.listing}','create','video/mp4',104857601); INSERT INTO results VALUES ('oversized denied',false); EXCEPTION WHEN SQLSTATE 'OT422' THEN INSERT INTO results VALUES ('oversized denied',true); END; END $$;
 DO $$ BEGIN BEGIN PERFORM public.issue_own_listing_video_upload_intent('${ids.otherListing}','create','video/mp4',100); INSERT INTO results VALUES ('cross owner denied',false); EXCEPTION WHEN SQLSTATE 'OT403' THEN INSERT INTO results VALUES ('cross owner denied',true); END; END $$;
