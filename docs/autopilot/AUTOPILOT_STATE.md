@@ -18,7 +18,7 @@ Git and verified test results are source of truth; this file is a reconciliation
 
 | Field | Value |
 | --- | --- |
-| Current stage status | FUNCTIONAL-03B — Notifications & Saved Search Alerts COMPLETE |
+| Current stage status | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion IN PROGRESS |
 | Last completed stage | FUNCTIONAL-03B — Notifications & Saved Search Alerts |
 | Last completed product stage | FUNCTIONAL-03B — Notifications & Saved Search Alerts |
 | Last completed stage commit | Current product-stage commit (`feat(notifications): complete saved search alerts`) |
@@ -26,9 +26,9 @@ Git and verified test results are source of truth; this file is a reconciliation
 | Latest infrastructure patch | CONTINUOUS-POWERSHELL51-NATIVE-STDERR-01 |
 | Last safe infrastructure baseline | `0669fb714542ef42c4ca86d13c6df5735cbab1b4` |
 | Latest infrastructure validation | PASS — trusted host baseline and supervisor policy |
-| Current parent stage | FUNCTIONAL-03B — Notifications & Saved Search Alerts COMPLETE |
-| Completed internal substeps | FUNCTIONAL-03B-A1 — Saved Search DB Security Contract (`7887c26a74a346e0ff715d9b00534b44f809bc50`); FUNCTIONAL-03B-A2 — Saved Search Server API + Client Migration; FUNCTIONAL-03B-B0-A1 — Search v1 Characterization Contract; FUNCTIONAL-03B-B0-A2 — Shared Search v1 Semantic Core; FUNCTIONAL-03B-B0-B — Single-Listing Search v1 Matcher; FUNCTIONAL-03B-B — Notification Data & Alert Generation; FUNCTIONAL-03B-C — Notification UI & Final Stage Completion |
-| Next internal substep | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion |
+| Current parent stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion IN PROGRESS |
+| Completed internal substeps | FUNCTIONAL-03C-A — Video Security + Lifecycle Contract (local migration/runtime matrix PASS; commit pending) |
+| Next internal substep | FUNCTIONAL-03C-B — Controlled Upload / Replace / Delete / Public UX |
 | Next approved stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion |
 | Following approved stages | AI-01A — Production Yolmod AI Foundation |
 | Preferred later functional priority | Execute approved V1 stages in roadmap order. |
@@ -39,8 +39,8 @@ Git and verified test results are source of truth; this file is a reconciliation
 | Production status | BLOCKED — manual-only |
 | Known blockers | Remote environment identity remains unverified and blocks remote actions. |
 | Unresolved external-provider decisions | AI, SMS, video, CAPTCHA, analytics, email/push, and VIN/TRAMER/SBM providers remain unresolved. |
-| Last run timestamp | 2026-09-22 — FUNCTIONAL-03B-C notification UI and saved-search management verified; FUNCTIONAL-03B is complete and FUNCTIONAL-03C is next. |
+| Last run timestamp | 2026-09-23 — FUNCTIONAL-03C-A local video security/lifecycle migrations applied and focused runtime matrix passed; 03C-B is next after commit. |
 
 ## Next controlled-run preconditions
 
-FUNCTIONAL-03B is the latest fully completed product stage. Its A1, A2, B0-A1, B0-A2, B0-B, B, and C substeps are complete; FUNCTIONAL-03C is next. Do not begin it automatically. Do not push, deploy, access production, or schedule automation.
+FUNCTIONAL-03B is the latest fully completed product stage. FUNCTIONAL-03C-A is complete within the in-progress parent; next is FUNCTIONAL-03C-B. Do not push, deploy, access production, or schedule automation.
