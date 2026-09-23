@@ -12,7 +12,7 @@
 **Maximum product stages per run:** `3`
 **Stages completed in current run:** `15`
 **Last checkpoint:** NOT_RUN
-**Last stop reason:** NONE — FUNCTIONAL-03C completed locally; AI-01A is next
+**Last stop reason:** NONE — FUNCTIONAL-03C completed locally; FUNCTIONAL-02H is next
 
 Git and verified test results are source of truth; this file is a reconciliation aid, never a replacement for Git.
 
@@ -29,8 +29,8 @@ Git and verified test results are source of truth; this file is a reconciliation
 | Current parent stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion COMPLETE |
 | Completed internal substeps | FUNCTIONAL-03C-A — Video Security + Lifecycle Contract; FUNCTIONAL-03C-B0-A — Private Owner Video Read API + DTO; FUNCTIONAL-03C-B1 — Persisted Video Upload Intent Contract; FUNCTIONAL-03C-B1A — Upload Intent Cleanup / Revoke Contract; FUNCTIONAL-03C-B — Controlled Video Management; FUNCTIONAL-03C-C — Consent-Safe Video Analytics + Final Completion |
 | Next internal substep | None — parent stage complete |
-| Next approved stage | AI-01A — Production Yolmod AI Foundation |
-| Following approved stages | Derive from canonical roadmap before execution |
+| Next approved stage | FUNCTIONAL-02H — Excel Import Service Boundary |
+| Following approved stages | AI-01A — Production Yolmod AI Foundation |
 | Preferred later functional priority | Execute approved V1 stages in roadmap order. |
 | Latest mandatory checks | PASS — FUNCTIONAL-03C-C consent/validation/dedup matrix, full 03C-B, 03C-A/Storage, FUNCTIONAL-02G/02J/C1C/C2, seller identity/contact, full 03B, STABILIZATION-02, typecheck, lint, production build, and dependency audit; `security-02f-contract` was not run because it invokes `supabase db reset`. |
 | Latest migration static validation | PASS — all applied 03C-A, B1, and B1A migrations are immutable and unchanged; 03C-C analytics migration is applied locally. |
@@ -39,8 +39,8 @@ Git and verified test results are source of truth; this file is a reconciliation
 | Production status | BLOCKED — manual-only |
 | Known blockers | Remote environment identity remains unverified and blocks remote actions. |
 | Unresolved external-provider decisions | AI, SMS, video, CAPTCHA, analytics, email/push, and VIN/TRAMER/SBM providers remain unresolved. |
-| Last run timestamp | 2026-09-23 — FUNCTIONAL-03C-C consent-safe first-party video analytics completed locally. Full 03C regression and required quality gates passed; AI-01A is next. |
+| Last run timestamp | 2026-09-23 — FUNCTIONAL-03C-C consent-safe first-party video analytics completed locally. Full 03C regression and required quality gates passed; FUNCTIONAL-02H is next. |
 
 ## Next controlled-run preconditions
 
-FUNCTIONAL-03C is the latest fully completed product stage. AI-01A is the next approved parent and must be reviewed against the canonical roadmap before execution. Do not push, deploy, access production, or schedule automation.
+FUNCTIONAL-03C is the latest fully completed product stage. FUNCTIONAL-02H is the next approved parent; AI-01A follows it. Review the canonical roadmap before execution. Do not push, deploy, access production, or schedule automation.
