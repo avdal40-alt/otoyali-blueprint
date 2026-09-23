@@ -25,7 +25,7 @@ try {
     Assert-True ($legacy.Stage -eq 'FUNCTIONAL-02D') 'legacy D stage resolves from Git seed'
     $currentProduct = Get-LastProductStageIdentity $head
     $state = Get-Content -LiteralPath (Join-Path $repoRoot 'docs/autopilot/AUTOPILOT_STATE.md') -Raw
-    $stateProduct = [regex]::Match($state, '(?m)^\| Last completed product stage \| (?<stage>(?:FUNCTIONAL|STABILIZATION)-[^\s|]+)')
+    $stateProduct = [regex]::Match($state, '(?m)^\| Last completed product stage \| (?<stage>(?:FUNCTIONAL|STABILIZATION|AI|DISCOVERY|RELEASE)-[^\s|]+)')
     $stateNext = [regex]::Match($state, '(?m)^\| Next approved stage \| (?<stage>(?:FUNCTIONAL|STABILIZATION|AI|DISCOVERY|RELEASE)-[^\s|]+)')
     Assert-True ($stateProduct.Success -and $stateNext.Success) 'state exposes completed product and next planned stages'
     Assert-True ($currentProduct.Stage -eq $stateProduct.Groups['stage'].Value -and $currentProduct.Source -eq 'trailer') 'current product stage resolves dynamically from Git trailers and reconciles with state'
@@ -45,6 +45,13 @@ try {
 
     $parsed = ConvertFrom-YolmodCommitMessage 'test-commit' "subject`n`nYolmod-Stage: FUNCTIONAL-02E`nYolmod-Stage-Type: product"
     Assert-True ($parsed.Stage -eq 'FUNCTIONAL-02E') 'product trailer parses'
+    foreach ($stage in @('FUNCTIONAL-03C', 'STABILIZATION-02', 'AI-01A', 'AI-01B', 'AI-01H')) {
+        $parsed = ConvertFrom-YolmodCommitMessage "valid-$stage" "Yolmod-Stage: $stage`nYolmod-Stage-Type: product"
+        Assert-True ($parsed.Stage -eq $stage) "valid product stage parses: $stage"
+    }
+    foreach ($stage in @('AI', 'AI-', 'AI-ABC', 'RANDOM-01')) {
+        try { ConvertFrom-YolmodCommitMessage "invalid-$stage" "Yolmod-Stage: $stage`nYolmod-Stage-Type: product"; throw "invalid stage accepted: $stage" } catch { Assert-True ($_.Exception.Message -match '^INVALID_STAGE_ID:') "invalid product stage rejects: $stage" }
+    }
     try { ConvertFrom-YolmodCommitMessage 'duplicate' "Yolmod-Stage: FUNCTIONAL-02E`nYolmod-Stage-Type: product`nYolmod-Stage: FUNCTIONAL-02E"; throw 'duplicate trailer accepted' } catch { Assert-True ($_.Exception.Message -match '^DUPLICATE_STAGE_TRAILER:') 'duplicate trailer fails closed' }
     try { ConvertFrom-YolmodCommitMessage 'partial' 'Yolmod-Stage: FUNCTIONAL-02E'; throw 'partial trailer accepted' } catch { Assert-True ($_.Exception.Message -match '^INCOMPLETE_STAGE_TRAILER:') 'partial trailer fails closed' }
     try { ConvertFrom-YolmodCommitMessage 'conflicting' "Yolmod-Stage: FUNCTIONAL-02E`nYolmod-Stage: AI-01A`nYolmod-Stage-Type: product"; throw 'conflicting trailer accepted' } catch { Assert-True ($_.Exception.Message -match '^DUPLICATE_STAGE_TRAILER:') 'conflicting trailer fails closed' }
