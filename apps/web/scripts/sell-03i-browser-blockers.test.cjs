@@ -56,7 +56,7 @@ assert.ok(wizard.includes('{getSellCatalogDisplayName({ kind: "model", item: mod
 // Display-only copy cannot enter canonical title or persistence paths.
 assert.ok(wizard.includes("makeName: selectedMake?.make_name"));
 assert.ok(wizard.includes("selectedModel.model_name"));
-assert.ok(wizard.includes("title: generatedTitle"));
+assert.ok(!wizard.includes("title: generatedTitle"), "Browser create payload must not control the canonical title");
 assert.ok(!wizard.includes("getSellCatalogDisplayName({ kind: \"model\", item: selectedModel"));
 
 function shape(value) {

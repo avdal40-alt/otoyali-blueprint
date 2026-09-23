@@ -7,6 +7,7 @@ const repoRoot = path.resolve(projectRoot, "..", "..");
 const read = (...parts) => fs.readFileSync(path.join(...parts), "utf8");
 const migration = read(repoRoot, "supabase", "migrations", "20260822120000_security02a_vehicle_ownership_hardening.sql");
 const wizard = read(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx");
+const createRoute = read(projectRoot, "src", "app", "api", "listings", "route.ts");
 const vehicleCore = read(repoRoot, "supabase", "migrations", "20260701120000_vehicle_core_sprint1.sql");
 
 function includesAll(source, values) {
@@ -346,9 +347,10 @@ const postgresCompilationExecuted = false;
 assert.equal(postgresCompilationExecuted, false, "Source assertions do not prove PostgreSQL function compilation or execution");
 
 includesAll(wizard, [
-  'supabase.rpc("initialize_own_vehicle_profile_ownership"',
-  "p_vehicle_profile_id: vehicleProfileId"
+  'listingWriteRequest<{ listingId: string; vehicleProfileId: string }>',
+  '"/api/listings", "POST"'
 ]);
+includesAll(createRoute, ["create_own_listing_draft", "requireAuthenticatedRequestSupabase"]);
 assert.equal(wizard.includes('.from("profile_ownership").insert'), false, "Create flow must not directly insert ownership");
 assert.equal(wizard.includes('.from("profile_ownership").update'), false, "Create flow must not directly update ownership");
 assert.equal(wizard.includes('.from("profile_ownership").delete'), false, "Create flow must not directly delete ownership");
@@ -407,10 +409,9 @@ includesAll(vehicleCore, [
   "WHERE is_current = TRUE"
 ]);
 
-const rpcStart = wizard.indexOf('supabase.rpc("initialize_own_vehicle_profile_ownership"');
-const rpcEnd = wizard.indexOf("});", rpcStart) + 3;
-assert.ok(rpcStart >= 0 && rpcEnd > rpcStart, "Ownership RPC call must be complete");
-assert.ok(rpcStart < wizard.indexOf("if (ownershipError)", rpcStart), "Create flow must handle RPC errors");
+const createStart = wizard.indexOf('listingWriteRequest<{ listingId: string; vehicleProfileId: string }>');
+assert.ok(createStart >= 0, "Create flow must use the server-owned atomic draft boundary");
+assert.ok(createStart < wizard.indexOf("if (createResult.error || !createResult.data)", createStart), "Create flow must handle server-boundary errors");
 
 console.log("SECURITY-02A EXPAND coverage: secure initializer RPC; temporary constrained legacy INSERT; no authenticated direct UPDATE/DELETE");
 console.log("SECURITY-02A remains the immutable EXPAND stage; SECURITY-02F separately validates the final CONTRACT state");

@@ -4,11 +4,13 @@ const path = require("node:path");
 const ts = require("typescript");
 
 const projectRoot = path.resolve(__dirname, "..");
+const repoRoot = path.resolve(projectRoot, "..", "..");
 const read = (...parts) => fs.readFileSync(path.join(...parts), "utf8");
 const configSource = read(projectRoot, "src", "i18n", "config.ts");
 const copySource = read(projectRoot, "src", "app", "sell", "sell-copy.ts");
 const routeStateSource = read(projectRoot, "src", "app", "sell", "sell-route-state.ts");
 const wizard = read(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx");
+const createMigration = read(repoRoot, "supabase", "migrations", "20260923150000_sell_sec_03a_atomic_draft_media_contract.sql");
 const page = read(projectRoot, "src", "app", "sell", "page.tsx");
 
 function transpile(source) {
@@ -132,7 +134,8 @@ assert.ok(!wizard.includes(">{make.make_name}</option>"), "Make options must not
 assert.ok(!wizard.includes(">{model.model_name}</option>"), "Model options must not leak the raw sentinel name");
 assert.ok(wizard.includes("makeName: selectedMake?.make_name"), "Generated titles must keep raw canonical make data");
 assert.ok(wizard.includes("selectedModel.model_name"), "Generated titles must keep raw canonical model data");
-assert.ok(wizard.includes("title: generatedTitle"), "Create persistence must keep the canonical generated title");
+assert.ok(!wizard.includes("title: generatedTitle"), "Create payload must not control the canonical generated title");
+assert.ok(createMigration.includes("INTO v_title"), "Atomic create contract must keep the canonical generated title");
 assert.ok(wizard.includes("state.description || copy.noSellerDescription"));
 assert.ok(page.includes("const sellCopy = getSellCopy(locale)"));
 assert.ok(page.includes("message={sellCopy.listingUnavailable}"));

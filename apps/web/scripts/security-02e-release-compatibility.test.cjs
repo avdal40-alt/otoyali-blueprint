@@ -12,6 +12,7 @@ const wizard = fs.readFileSync(
   path.join(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx"),
   "utf8"
 );
+const createRoute = fs.readFileSync(path.join(projectRoot, "src", "app", "api", "listings", "route.ts"), "utf8");
 
 const legacyPayloadColumns = ["vehicle_profile_id", "owner_id", "ownership_type", "is_current"];
 const columnGrant = migration.match(
@@ -37,8 +38,9 @@ assert.ok(
   "candidate clients must retain authenticated initializer execution"
 );
 assert.ok(
-  wizard.includes('supabase.rpc("initialize_own_vehicle_profile_ownership"'),
-  "candidate application must use the new initializer path"
+  wizard.includes('listingWriteRequest<{ listingId: string; vehicleProfileId: string }>')
+    && createRoute.includes('rpc("create_own_listing_draft"'),
+  "candidate application must use the atomic server-owned initializer path"
 );
 
 const laterMigrations = fs.readdirSync(migrationsRoot)

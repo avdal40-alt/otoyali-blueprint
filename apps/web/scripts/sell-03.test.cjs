@@ -13,6 +13,8 @@ const security = read(repoRoot, "supabase", "migrations", "20260721140000_securi
 const tr = read(projectRoot, "src", "i18n", "dictionaries", "tr.ts");
 const en = read(projectRoot, "src", "i18n", "dictionaries", "en.ts");
 const sellCopy = read(projectRoot, "src", "app", "sell", "sell-copy.ts");
+const editRoute = read(projectRoot, "src", "app", "api", "listings", "[id]", "route.ts");
+const resubmitRoute = read(projectRoot, "src", "app", "api", "listings", "[id]", "resubmit", "route.ts");
 
 function includesAll(source, values) {
   for (const value of values) assert.ok(source.includes(value), `Expected source to include: ${value}`);
@@ -151,20 +153,20 @@ includesAll(security, [
 includesAll(wizard, [
   'export type SellWizardMode = "create" | "editRejected"',
   'supabase.rpc("get_own_rejected_listing_for_edit"',
-  'supabase.rpc("save_own_rejected_listing"',
-  'supabase.rpc("resubmit_own_listing_for_review"',
-  "if (saveError)",
+  'listingWriteRequest<Record<string, unknown>>(supabase, `/api/listings/${editListingId}`, "PATCH"',
+  'listingWriteRequest(supabase, `/api/listings/${editListingId}/resubmit`, "POST", {})',
+  "if (saveResult.error || !saveResult.data)",
   "if (sendForReview)",
   'setEditSaved("rejected")',
   'setEditSaved("pending_review")',
   'key === "fuelType" && value === "electric" ? { engineVolumeL: "" }',
   'state.fuelType !== "electric"',
-  'p_engine_volume_l: submittedSnapshot.engineVolumeL',
+  'engineVolumeL: submittedSnapshot.engineVolumeL',
   "originalEditSnapshot",
   "dirtyEditFields",
-  "p_expected_vehicle_updated_at: expectedVehicleUpdatedAt",
-  "p_price_amount_text: raw(\"priceAmount\", state.priceAmount)",
-  "setExistingTitle(String(saved.saved_title))",
+  "expectedVehicleUpdatedAt: expectedVehicleUpdatedAt",
+  "priceAmount: raw(\"priceAmount\", state.priceAmount)",
+  "setExistingTitle(String(saved.title))",
   "setOriginalEditSnapshot(submittedSnapshot)",
   "setDirtyEditFields(new Set())",
   "const submittedSnapshot: OriginalEditSnapshot",
@@ -201,13 +203,15 @@ for (const text of ["Değişiklikleri kaydet", "Kaydediliyor", "Kaydet ve incele
   assert.equal(editActions.includes(`"${text}"`), false, `Edit action must be dictionary-driven: ${text}`);
 }
 assert.ok(
-  wizard.indexOf('if (saveError)') < wizard.indexOf('if (sendForReview)'),
+  wizard.indexOf('if (saveResult.error || !saveResult.data)') < wizard.indexOf('if (sendForReview)'),
   "A failed save must stop before resubmit"
 );
 assert.ok(
-  wizard.indexOf('supabase.rpc("save_own_rejected_listing"') < wizard.indexOf('supabase.rpc("resubmit_own_listing_for_review"'),
+  wizard.indexOf('listingWriteRequest<Record<string, unknown>>(supabase, `/api/listings/${editListingId}`, "PATCH"') < wizard.indexOf('listingWriteRequest(supabase, `/api/listings/${editListingId}/resubmit`, "POST", {})'),
   "Save must precede resubmit"
 );
+includesAll(editRoute, ['save_own_rejected_listing', 'requireAuthenticatedRequestSupabase']);
+includesAll(resubmitRoute, ['resubmit_own_listing_for_review', 'requireAuthenticatedRequestSupabase']);
 
 // Lifecycle truth table mirrors the fixed SQL eligibility predicate.
 const eligible = ({ authenticated, owner, currentOwner = true, status, moderation, archived = false }) =>

@@ -733,51 +733,38 @@ export function SellWizard({
       priceNegotiable: raw("priceNegotiable", state.priceNegotiable),
       city: raw("city", state.city)
     };
-    const { data: savedRows, error: saveError } = await supabase.rpc("save_own_rejected_listing", {
-      p_listing_id: editListingId,
-      p_expected_listing_updated_at: expectedUpdatedAt,
-      p_expected_vehicle_updated_at: expectedVehicleUpdatedAt,
-      p_make_id: raw("makeId", state.makeId),
-      p_model_id: raw("modelId", state.modelId),
-      p_year: Number(raw("year", state.year)),
-      p_mileage_km: Number(raw("mileageKm", state.mileageKm)),
-      p_condition: raw("condition", state.condition),
-      p_fuel_type: raw("fuelType", state.fuelType),
-      p_transmission: raw("transmission", state.transmission),
-      p_body_type: raw("bodyType", state.bodyType || null),
-      p_drive_type: raw("driveType", state.driveType || null),
-      p_color: raw("color", state.color || null),
-      p_engine_volume_l: submittedSnapshot.engineVolumeL,
-      p_damage_state: raw("damageState", state.damageState || null),
-      p_owner_count: (() => {
-        const value = raw("ownerCount", state.ownerCount || null);
-        return value == null ? null : Number(value);
-      })(),
-      p_description: raw("description", state.description),
-      p_price_amount_text: raw("priceAmount", state.priceAmount),
-      p_currency: raw("currency", state.currency),
-      p_price_negotiable: raw("priceNegotiable", state.priceNegotiable),
-      p_city: raw("city", state.city)
+    const saveResult = await listingWriteRequest<Record<string, unknown>>(supabase, `/api/listings/${editListingId}`, "PATCH", {
+      expectedListingUpdatedAt: expectedUpdatedAt,
+      expectedVehicleUpdatedAt: expectedVehicleUpdatedAt,
+      makeId: raw("makeId", state.makeId), modelId: raw("modelId", state.modelId),
+      year: Number(raw("year", state.year)), mileageKm: Number(raw("mileageKm", state.mileageKm)),
+      condition: raw("condition", state.condition), fuelType: raw("fuelType", state.fuelType),
+      transmission: raw("transmission", state.transmission), bodyType: raw("bodyType", state.bodyType || null),
+      driveType: raw("driveType", state.driveType || null), color: raw("color", state.color || null),
+      engineVolumeL: submittedSnapshot.engineVolumeL, damageState: raw("damageState", state.damageState || null),
+      ownerCount: (() => { const value = raw("ownerCount", state.ownerCount || null); return value == null ? null : Number(value); })(),
+      description: raw("description", state.description), priceAmount: raw("priceAmount", state.priceAmount),
+      currency: raw("currency", state.currency), priceNegotiable: raw("priceNegotiable", state.priceNegotiable), city: raw("city", state.city)
     });
     if (!isCurrentSubmission()) return;
-    if (saveError) {
-      logClientError("sell.saveRejected", saveError);
-      setError(editErrorMessage(saveError, sell03));
+    if (saveResult.error || !saveResult.data) {
+      logClientError("sell.saveRejected", saveResult.error);
+      setError(editErrorMessage(saveResult.error, sell03));
       setSubmitting(false);
       setPublishStatus(null);
       return;
     }
 
-    const saved = Array.isArray(savedRows) ? savedRows[0] : savedRows;
+    const saved = saveResult.data;
     if (saved && typeof saved === "object") {
-      if ("saved_listing_updated_at" in saved) setExpectedUpdatedAt(String(saved.saved_listing_updated_at));
-      if ("saved_vehicle_updated_at" in saved) setExpectedVehicleUpdatedAt(String(saved.saved_vehicle_updated_at));
-      if ("saved_title" in saved) setExistingTitle(String(saved.saved_title));
-      if ("saved_title_generated" in saved) setExistingTitleGenerated(Boolean(saved.saved_title_generated));
+      if ("listingUpdatedAt" in saved) setExpectedUpdatedAt(String(saved.listingUpdatedAt));
+      if ("vehicleUpdatedAt" in saved) setExpectedVehicleUpdatedAt(String(saved.vehicleUpdatedAt));
+      if ("title" in saved) setExistingTitle(String(saved.title));
+      if ("titleGenerated" in saved) setExistingTitleGenerated(Boolean(saved.titleGenerated));
     }
     setOriginalEditSnapshot(submittedSnapshot);
     setDirtyEditFields(new Set());
-    if (saved && typeof saved === "object" && "saved_moderation_status" in saved && saved.saved_moderation_status === "pending_review") {
+    if (saved && typeof saved === "object" && "moderationStatus" in saved && saved.moderationStatus === "pending_review") {
       setRejectionReason("");
       setEditSaved("pending_review");
     } else if (sendForReview) {
@@ -785,9 +772,8 @@ export function SellWizard({
       setPublishStatus(sell03.resubmitProgress);
       let resubmitError: unknown;
       try {
-        ({ error: resubmitError } = await supabase.rpc("resubmit_own_listing_for_review", {
-          p_listing_id: editListingId
-        }));
+        const resubmitResult = await listingWriteRequest(supabase, `/api/listings/${editListingId}/resubmit`, "POST", {});
+        resubmitError = resubmitResult.error;
       } catch (resubmitRequestError) {
         if (!isCurrentSubmission()) return;
         logClientError("sell.resubmitRejected", resubmitRequestError);
@@ -857,88 +843,28 @@ export function SellWizard({
       return;
     }
 
-    const supabase = getSupabaseBrowserClient();
     setPublishStatus(copy.creatingVehicleProfile);
-
-    const { data: vehicleProfile, error: profileError } = await supabase
-      .schema("vehicle")
-      .from("vehicle_profiles")
-      .insert({
-        make_id: state.makeId,
-        model_id: state.modelId,
-        year: Number(state.year),
-        mileage_km: Number(state.mileageKm),
-        condition: state.condition,
-        fuel_type: state.fuelType,
-        transmission: state.transmission,
-        body_type: state.bodyType || null,
-        drive_type: state.driveType || null,
-        color: state.color || null,
-        engine_volume_l: state.fuelType === "electric" ? null : state.engineVolumeL ? Number(state.engineVolumeL) : null,
-        damage_state: state.damageState || null,
-        owner_count: state.ownerCount ? Number(state.ownerCount) : null,
-        created_source: "manual",
-        profile_status: "active",
-        created_by: userId
-      })
-      .select("id")
-      .single();
-
-    if (!isCurrentPublication()) return;
-    if (profileError || !vehicleProfile) {
-      logClientError("sell.createVehicleProfile", profileError);
-      setSubmitting(false);
-      setPublishStatus(null);
-      setError(copy.vehicleSaveFailure);
-      return;
-    }
-
-    const vehicleProfileId = vehicleProfile.id as string;
-    setPublishStatus(copy.verifyingOwnership);
-    const { error: ownershipError } = await supabase.rpc("initialize_own_vehicle_profile_ownership", {
-      p_vehicle_profile_id: vehicleProfileId
+    const createResult = await listingWriteRequest<{ listingId: string; vehicleProfileId: string }>(getSupabaseBrowserClient(), "/api/listings", "POST", {
+      makeId: state.makeId, modelId: state.modelId, variantId: null, year: Number(state.year), mileageKm: Number(state.mileageKm),
+      condition: state.condition, fuelType: state.fuelType, transmission: state.transmission, bodyType: state.bodyType || null,
+      driveType: state.driveType || null, color: state.color || null,
+      engineVolumeL: state.fuelType === "electric" ? null : Number(state.engineVolumeL), damageState: state.damageState || null,
+      ownerCount: state.ownerCount ? Number(state.ownerCount) : null, description: state.description, priceAmount: state.priceAmount,
+      currency: state.currency, priceNegotiable: state.priceNegotiable, city: state.city, cityId: null, districtId: null
     });
 
     if (!isCurrentPublication()) return;
-    if (ownershipError) {
-      logClientError("sell.createOwnership", ownershipError);
-      setSubmitting(false);
-      setPublishStatus(null);
-      setError(copy.ownershipSaveFailure);
-      return;
-    }
-
-    setPublishStatus(copy.creatingDraft);
-    const { data: listing, error: listingError } = await supabase
-      .schema("marketplace")
-      .from("listings")
-      .insert({
-        vehicle_profile_id: vehicleProfileId,
-        seller_id: userId,
-        status: "draft",
-        title: generatedTitle,
-        title_generated: true,
-        description: state.description.trim() || null,
-        price_amount: Number(state.priceAmount),
-        currency: state.currency,
-        price_negotiable: state.priceNegotiable,
-        seller_type: profile.sellerType,
-        city: state.city,
-        moderation_status: "pending_review"
-      })
-      .select("id")
-      .single();
-
-    if (!isCurrentPublication()) return;
-    if (listingError || !listing) {
-      logClientError("sell.createListing", listingError);
+    if (createResult.error || !createResult.data) {
+      logClientError("sell.createDraft", createResult.error);
       setSubmitting(false);
       setPublishStatus(null);
       setError(copy.draftCreateFailure);
       return;
     }
 
-    const listingId = listing.id as string;
+    const vehicleProfileId = createResult.data.vehicleProfileId;
+    const listingId = createResult.data.listingId;
+    const supabase = getSupabaseBrowserClient();
     let coverMediaId: string | null = null;
 
     if (state.photos.length > 0) {
@@ -977,49 +903,46 @@ export function SellWizard({
         }
       }
 
-      const { data: insertedMedia, error: mediaError } = await supabase
-        .schema("vehicle")
-        .from("profile_media")
-        .insert(mediaRows)
-        .select("id,is_cover");
-
-      if (!isCurrentPublication()) return;
-      if (mediaError) {
-        logClientError("sell.createMedia", mediaError);
-        setSubmitting(false);
-        setPublishStatus(null);
-        setError(copy.photoSaveFailure);
-        return;
+      for (const media of mediaRows) {
+        const mediaResult = await listingWriteRequest<{ mediaId: string; isCover: boolean }>(supabase, `/api/listings/${listingId}/media`, "POST", {
+          mediaId: media.id, storagePath: media.storage_path, originalPath: media.original_path,
+          largePath: media.large_path, cardPath: media.card_path, thumbPath: media.thumb_path,
+          sortOrder: media.sort_order, isCover: media.is_cover, width: media.width, height: media.height,
+          aspectRatio: media.aspect_ratio, mimeType: media.mime_type, sizeBytes: media.size_bytes,
+          processedStatus: media.processed_status
+        });
+        if (!isCurrentPublication()) return;
+        if (mediaResult.error || !mediaResult.data) {
+          logClientError("sell.createMedia", mediaResult.error);
+          setSubmitting(false);
+          setPublishStatus(null);
+          setError(copy.photoSaveFailure);
+          return;
+        }
+        if (mediaResult.data.isCover) coverMediaId = mediaResult.data.mediaId;
       }
-
-      coverMediaId = ((insertedMedia ?? []) as Array<{ id: string; is_cover: boolean }>).find((item) => item.is_cover)?.id ?? null;
     }
 
     setPublishStatus(copy.submittingForModeration);
-    const { error: finalizeError } = await supabase.rpc("set_own_listing_cover_media", {
-      p_listing_id: listingId,
-      p_cover_media_id: coverMediaId
-    });
+    const finalizeResult = await listingWriteRequest(supabase, `/api/listings/${listingId}/media/cover`, "PATCH", { coverMediaId });
 
     if (!isCurrentPublication()) return;
-    if (finalizeError) {
-      logClientError("sell.finalizeListingContent", finalizeError);
+    if (finalizeResult.error) {
+      logClientError("sell.finalizeListingContent", finalizeResult.error);
       setSubmitting(false);
       setPublishStatus(null);
       setError(copy.submitFailure);
       return;
     }
 
-    const { error: submitError } = await supabase.rpc("submit_own_listing_for_review", {
-      p_listing_id: listingId
-    });
+    const submitResult = await listingWriteRequest(supabase, `/api/listings/${listingId}/submit`, "POST", {});
 
     if (!isCurrentPublication()) return;
     setSubmitting(false);
     setPublishStatus(null);
 
-    if (submitError) {
-      logClientError("sell.submitForReview", submitError);
+    if (submitResult.error) {
+      logClientError("sell.submitForReview", submitResult.error);
       setError(copy.submitFailure);
       return;
     }
@@ -1640,7 +1563,7 @@ async function uploadPhotoMedia({
   onStatus: (statusText: string) => void;
 }) {
   const mediaId = crypto.randomUUID();
-  const uploads: Partial<Record<PreparedImageVariantName, { path: string; url: string }>> = {};
+  const uploads: Partial<Record<PreparedImageVariantName, { path: string }>> = {};
   const variants = getUploadVariants(photo);
 
   for (const item of variants) {
@@ -1663,32 +1586,23 @@ async function uploadPhotoMedia({
       continue;
     }
 
-    const { data: publicUrl } = supabase.storage.from("listing-media").getPublicUrl(path);
-    uploads[item.name] = { path, url: publicUrl.publicUrl };
+    uploads[item.name] = { path };
   }
 
   const metadata = photo.prepared?.variants.original;
-  const legacyUrl = uploads.large?.url ?? uploads.card?.url ?? uploads.original?.url;
   const legacyPath = uploads.large?.path ?? uploads.card?.path ?? uploads.original?.path;
 
-  if (!legacyUrl || !legacyPath) {
-    throw new Error("Photo upload did not produce a usable URL");
+  if (!legacyPath) {
+    throw new Error("Photo upload did not produce a usable storage path");
   }
 
   return {
     id: mediaId,
-    vehicle_profile_id: vehicleProfileId,
     storage_path: legacyPath,
-    url: legacyUrl,
     original_path: uploads.original?.path ?? null,
     large_path: uploads.large?.path ?? null,
     card_path: uploads.card?.path ?? null,
     thumb_path: uploads.thumb?.path ?? null,
-    original_url: uploads.original?.url ?? null,
-    large_url: uploads.large?.url ?? null,
-    card_url: uploads.card?.url ?? null,
-    thumb_url: uploads.thumb?.url ?? null,
-    media_type: "image",
     sort_order: sortOrder,
     is_cover: photo.isCover,
     width: metadata?.width ?? null,
@@ -1697,11 +1611,40 @@ async function uploadPhotoMedia({
     mime_type: metadata?.mimeType ?? photo.file.type,
     size_bytes: metadata?.sizeBytes ?? photo.file.size,
     processed_status: photo.prepared ? "processed" : "failed",
-    processing_error: photo.prepared ? null : "Browser image preprocessing was unavailable; legacy URL fallback stored.",
-    blur_status: "not_started",
-    has_detected_plate: null,
-    processed_at: new Date().toISOString()
+    processing_error: photo.prepared ? null : "Browser image preprocessing was unavailable."
   };
+}
+
+type ListingWriteRequestError = { code?: string; message: string; status?: number };
+
+async function listingWriteRequest<T>(
+  supabase: ReturnType<typeof getSupabaseBrowserClient>,
+  path: string,
+  method: "POST" | "PATCH",
+  body: Record<string, unknown>
+): Promise<{ data: T | null; error: ListingWriteRequestError | null }> {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  const accessToken = sessionData.session?.access_token;
+  if (sessionError || !accessToken) return { data: null, error: { code: "OT401", message: "Authentication required.", status: 401 } };
+
+  try {
+    const response = await fetch(path, {
+      method,
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const payload: unknown = await response.json().catch(() => null);
+    if (!response.ok) {
+      const message = payload && typeof payload === "object" && "error" in payload && typeof payload.error === "string"
+        ? payload.error : "Listing write failed.";
+      const code = response.status === 401 ? "OT401" : response.status === 409 ? "OT409" : response.status === 422 ? "OT422" : undefined;
+      return { data: null, error: { code, message, status: response.status } };
+    }
+    const data = payload && typeof payload === "object" && "data" in payload ? (payload.data as T) : null;
+    return data === null ? { data: null, error: { message: "Listing write returned no data.", status: 500 } } : { data, error: null };
+  } catch (error) {
+    return { data: null, error: { message: error instanceof Error ? error.message : "Listing write failed." } };
+  }
 }
 
 function getUploadVariants(photo: PhotoItem) {

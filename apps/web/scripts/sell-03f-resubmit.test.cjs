@@ -9,6 +9,7 @@ const read = (...parts) => fs.readFileSync(path.join(...parts), "utf8");
 const migration = read(repoRoot, "supabase", "migrations", "20260724120000_sell03_rejected_listing_editing.sql");
 const wizard = read(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx");
 const listings = read(projectRoot, "src", "app", "profile", "listings", "_components", "MyListingsClient.tsx");
+const resubmitRoute = read(projectRoot, "src", "app", "api", "listings", "[id]", "resubmit", "route.ts");
 
 const rpcName = "resubmit_own_listing_for_review";
 const resubmitStart = migration.indexOf(`CREATE OR REPLACE FUNCTION public.${rpcName}(p_listing_id UUID)`);
@@ -23,17 +24,20 @@ assert.ok(resubmitSql.includes("v_ownership.owner_id <> v_user_id"));
 assert.ok(resubmitSql.includes("v_listing.moderation_status <> 'rejected'"));
 
 const rpcCallPattern = new RegExp(`rpc\\([\\s\\S]*?[\"']${rpcName}[\"']`, "g");
-assert.equal((wizard.match(rpcCallPattern) ?? []).length, 1, "Sell edit has one resubmit callsite");
+assert.equal((wizard.match(rpcCallPattern) ?? []).length, 0, "Sell edit delegates resubmit to the server route");
 assert.equal(listings.includes(`resubmit: "${rpcName}"`), true, "My Listings maps resubmit to the hardened RPC");
-assert.equal((`${wizard}\n${listings}`.match(new RegExp(rpcName, "g")) ?? []).length, 2, "Every frontend resubmit callsite is audited");
+assert.equal((`${wizard}\n${listings}`.match(new RegExp(rpcName, "g")) ?? []).length, 1, "Every direct frontend resubmit callsite is audited");
 
-assert.ok(wizard.includes('({ error: resubmitError } = await supabase.rpc("resubmit_own_listing_for_review"'));
+assert.ok(wizard.includes('listingWriteRequest(supabase, `/api/listings/${editListingId}/resubmit`, "POST", {})'));
+assert.ok(resubmitRoute.includes(`rpc("${rpcName}"`));
+assert.ok(resubmitRoute.includes("requireAuthenticatedRequestSupabase"));
 assert.ok(wizard.includes("if (resubmitError)"), "Sell edit preserves genuine RPC failures");
 assert.ok(wizard.includes("catch (resubmitRequestError)"), "Sell edit handles thrown transport failures");
 assert.ok(wizard.includes("setError(editErrorMessage(null, sell03, true));"), "Thrown transport details are sanitized");
 assert.ok(!wizard.includes("resubmitRows"), "Sell edit cannot infer failure from an absent payload");
 assert.ok(!wizard.includes("const resubmitted ="), "Sell edit cannot infer failure from an assumed row shape");
-assert.ok(wizard.indexOf("if (resubmitError)") < wizard.indexOf('setEditSaved("pending_review")'));
+const resubmitErrorIndex = wizard.indexOf("if (resubmitError)");
+assert.ok(resubmitErrorIndex < wizard.indexOf('setEditSaved("pending_review")', resubmitErrorIndex));
 
 assert.ok(listings.includes("if (actionInFlight.current !== null) return;"), "A synchronous in-flight guard prevents duplicate resubmits");
 assert.ok(listings.includes("actionInFlight.current = listingId;"));

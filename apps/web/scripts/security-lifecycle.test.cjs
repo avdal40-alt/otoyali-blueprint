@@ -10,6 +10,8 @@ const myListingsSource = fs.readFileSync(path.join(projectRoot, "src", "app", "p
 const sellWizardSource = fs.readFileSync(path.join(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx"), "utf8");
 const adminClientSource = fs.readFileSync(path.join(projectRoot, "src", "app", "admin", "_components", "AdminClient.tsx"), "utf8");
 const adminRouteSource = fs.readFileSync(path.join(projectRoot, "src", "app", "api", "admin", "listings", "review", "route.ts"), "utf8");
+const submitRouteSource = fs.readFileSync(path.join(projectRoot, "src", "app", "api", "listings", "[id]", "submit", "route.ts"), "utf8");
+const coverRouteSource = fs.readFileSync(path.join(projectRoot, "src", "app", "api", "listings", "[id]", "media", "cover", "route.ts"), "utf8");
 
 function includesAll(source, values) {
   for (const value of values) {
@@ -104,10 +106,11 @@ excludesAll(myListingsSource, [
 ]);
 
 includesAll(sellWizardSource, [
-  'supabase.rpc("submit_own_listing_for_review"',
-  'supabase.rpc("set_own_listing_cover_media"',
-  "p_cover_media_id: coverMediaId"
+  'listingWriteRequest(supabase, `/api/listings/${listingId}/submit`, "POST", {})',
+  'listingWriteRequest(supabase, `/api/listings/${listingId}/media/cover`, "PATCH", { coverMediaId })'
 ]);
+includesAll(submitRouteSource, ["submit_own_listing_for_review", "requireAuthenticatedRequestSupabase"]);
+includesAll(coverRouteSource, ["set_own_listing_cover_media", "requireAuthenticatedRequestSupabase"]);
 
 includesAll(adminClientSource, [
   'fetch("/api/admin/listings/review"',

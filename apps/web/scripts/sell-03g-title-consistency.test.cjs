@@ -10,6 +10,7 @@ const helperSource = read(projectRoot, "src", "lib", "marketplace", "listing-tit
 const wizard = read(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx");
 const seo = read(projectRoot, "src", "components", "seo", "MarketplaceSeoPage.tsx");
 const editMigration = read(repoRoot, "supabase", "migrations", "20260724120000_sell03_rejected_listing_editing.sql");
+const createMigration = read(repoRoot, "supabase", "migrations", "20260923150000_sell_sec_03a_atomic_draft_media_contract.sql");
 
 function loadProductionHelper() {
   const output = ts.transpileModule(helperSource, {
@@ -45,7 +46,8 @@ assert.ok(wizard.includes('import { generateVehicleListingTitle } from "@/lib/ma
 assert.ok(wizard.includes("const generatedTitle = generateVehicleListingTitle({"));
 assert.ok(wizard.includes("modelName: selectedModel?.make_id === state.makeId ? selectedModel.model_name : null"));
 assert.ok(wizard.includes('? (existingTitleGenerated ? generatedTitle : existingTitle)'));
-assert.ok(wizard.includes("title: generatedTitle"));
+assert.ok(!wizard.includes("title: generatedTitle"), "Browser create payload must not control canonical title");
+assert.ok(createMigration.includes("INTO v_title"), "Atomic create contract must derive the canonical title");
 assert.ok(!wizard.includes("function generateListingTitle("));
 assert.ok(!wizard.includes("canPreviewRegeneratedTitle"));
 
