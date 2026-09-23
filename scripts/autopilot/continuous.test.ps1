@@ -93,11 +93,14 @@ try {
     Assert-True ($contractPaths -contains 'apps/web/package.json') 'C2 package mapping is contract-sensitive'
 
     $originalErrorActionPreference = $ErrorActionPreference
+    $dirtyProbePath = Join-Path $repoRoot 'autopilot-preflight-dirty-probe.tmp'
     try {
+        [IO.File]::WriteAllText($dirtyProbePath, 'supervisor dirty-worktree probe')
         $ErrorActionPreference = 'Continue'
         & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repoRoot 'scripts/autopilot/preflight.ps1') -RequireClean *> $null
         $dirtyPreflightExit = $LASTEXITCODE
     } finally {
+        Remove-Item -LiteralPath $dirtyProbePath -Force -ErrorAction SilentlyContinue
         $ErrorActionPreference = $originalErrorActionPreference
     }
     Assert-True ($dirtyPreflightExit -ne 0) 'dirty worktree fails closed before a product stage'
