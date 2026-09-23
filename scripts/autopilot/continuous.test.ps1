@@ -26,7 +26,7 @@ try {
     $currentProduct = Get-LastProductStageIdentity $head
     $state = Get-Content -LiteralPath (Join-Path $repoRoot 'docs/autopilot/AUTOPILOT_STATE.md') -Raw
     $stateProduct = [regex]::Match($state, '(?m)^\| Last completed product stage \| (?<stage>(?:FUNCTIONAL|STABILIZATION)-[^\s|]+)')
-    $stateNext = [regex]::Match($state, '(?m)^\| Next approved stage \| (?<stage>FUNCTIONAL-[^\s|]+)')
+    $stateNext = [regex]::Match($state, '(?m)^\| Next approved stage \| (?<stage>(?:FUNCTIONAL|STABILIZATION|AI|DISCOVERY|RELEASE)-[^\s|]+)')
     Assert-True ($stateProduct.Success -and $stateNext.Success) 'state exposes completed product and next planned stages'
     Assert-True ($currentProduct.Stage -eq $stateProduct.Groups['stage'].Value -and $currentProduct.Source -eq 'trailer') 'current product stage resolves dynamically from Git trailers and reconciles with state'
     $a1Commit = '7887c26a74a346e0ff715d9b00534b44f809bc50'
@@ -38,12 +38,16 @@ try {
     }
     $nextStage = $stateNext.Groups['stage'].Value
     $roadmap = Get-Content -LiteralPath (Join-Path $repoRoot 'docs/autopilot/IMPLEMENTATION_ROADMAP_V1.md') -Raw
-    Assert-True ($roadmap.Contains($nextStage) -and $nextStage -ne $currentProduct.Stage) 'next planned stage is approved but not treated as complete'
+    $canonicalNext = Get-NextUnfinishedApprovedStage $head (Join-Path $repoRoot 'docs/autopilot/IMPLEMENTATION_ROADMAP_V1.md')
+    $completedStages = @(Get-CompletedProductStages $head)
+    Assert-True ($nextStage -eq $canonicalNext -and $roadmap.Contains($nextStage) -and $nextStage -ne $currentProduct.Stage) 'next planned stage is canonical and unfinished'
+    Assert-True ('FUNCTIONAL-02H' -in $completedStages -and $nextStage -ne 'FUNCTIONAL-02H') 'completed Excel import stage is not selected again'
 
     $parsed = ConvertFrom-YolmodCommitMessage 'test-commit' "subject`n`nYolmod-Stage: FUNCTIONAL-02E`nYolmod-Stage-Type: product"
     Assert-True ($parsed.Stage -eq 'FUNCTIONAL-02E') 'product trailer parses'
     try { ConvertFrom-YolmodCommitMessage 'duplicate' "Yolmod-Stage: FUNCTIONAL-02E`nYolmod-Stage-Type: product`nYolmod-Stage: FUNCTIONAL-02E"; throw 'duplicate trailer accepted' } catch { Assert-True ($_.Exception.Message -match '^DUPLICATE_STAGE_TRAILER:') 'duplicate trailer fails closed' }
     try { ConvertFrom-YolmodCommitMessage 'partial' 'Yolmod-Stage: FUNCTIONAL-02E'; throw 'partial trailer accepted' } catch { Assert-True ($_.Exception.Message -match '^INCOMPLETE_STAGE_TRAILER:') 'partial trailer fails closed' }
+    try { ConvertFrom-YolmodCommitMessage 'conflicting' "Yolmod-Stage: FUNCTIONAL-02E`nYolmod-Stage: AI-01A`nYolmod-Stage-Type: product"; throw 'conflicting trailer accepted' } catch { Assert-True ($_.Exception.Message -match '^DUPLICATE_STAGE_TRAILER:') 'conflicting trailer fails closed' }
     try { ConvertFrom-YolmodCommitMessage 'malformed' "Yolmod-Stage: UNKNOWN-01`nYolmod-Stage-Type: product"; throw 'malformed stage accepted' } catch { Assert-True ($_.Exception.Message -match '^INVALID_STAGE_ID:') 'malformed product trailer fails closed' }
 
     $definitions = @(Get-ApprovedHostBaselines)
@@ -111,7 +115,7 @@ try {
     Assert-True ($continuous -notmatch 'danger-full-access|dangerously-bypass-approvals') 'supervisor contains no sandbox bypass'
     Assert-True ($continuous -match 'Test-StopRequested') 'STOP marker remains checked'
     Assert-True ($continuous -match 'PRODUCT_STAGE_TRAILER_IDENTITY_REJECTED') 'stage trailer validation is enforced'
-    Assert-True ($continuous -match 'GIT_STATE_INCONSISTENCY: State last completed product stage does not match Git identity') 'state and Git contradictions fail closed'
+    Assert-True (($continuous -match 'GIT_STATE_INCONSISTENCY: State last completed product stage does not match Git identity') -and ($continuous -match 'GIT_STATE_INCONSISTENCY: State next approved stage does not match canonical unfinished roadmap stage')) 'state and Git routing contradictions fail closed'
     Assert-True ($continuous -match 'POST_CHANGE_HOST_BASELINE_FAILED') 'contract changes require post-change baseline'
     Assert-True ($continuous -match 'PRE_STAGE_GATE_PASS') 'normal startup has a no-agent pre-stage gate validation mode'
     Write-Output 'Continuous supervisor infrastructure tests passed.'

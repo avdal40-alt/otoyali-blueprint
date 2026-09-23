@@ -74,9 +74,8 @@ function Assert-Ready([string]$RepoRoot, [bool]$AllowSupervisorInfrastructureCha
     $stateLastStageId = (([string]$snapshot.LastStage -split '\s+')[0]).Trim()
     if ($stateLastStageId -ne $lastProduct.Stage) { throw 'GIT_STATE_INCONSISTENCY: State last completed product stage does not match Git identity.' }
     $stageId = ($snapshot.NextStage -split '\s+')[0]
-    if ([string]::IsNullOrWhiteSpace($stageId) -or -not (Select-String -LiteralPath (Join-Path $RepoRoot 'docs/autopilot/IMPLEMENTATION_ROADMAP_V1.md') -SimpleMatch $stageId -Quiet)) {
-        throw 'NO_APPROVED_NEXT_STAGE'
-    }
+    $canonicalNextStage = Get-NextUnfinishedApprovedStage $head (Join-Path $RepoRoot 'docs/autopilot/IMPLEMENTATION_ROADMAP_V1.md')
+    if ($stageId -ne $canonicalNextStage) { throw 'GIT_STATE_INCONSISTENCY: State next approved stage does not match canonical unfinished roadmap stage.' }
     return [pscustomobject]@{ Head = $head; State = $snapshot; StageId = $stageId; LastProduct = $lastProduct }
 }
 
