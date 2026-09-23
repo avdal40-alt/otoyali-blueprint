@@ -103,6 +103,7 @@ export type AiSearchContext = {
   condition?: string | null;
   /** Validated again against the canonical public catalog before every execution. */
   intent?: unknown;
+  compareListingIds?: unknown;
 };
 
 export type AiPublishingContext = {
@@ -215,7 +216,9 @@ export type AiStructuredData =
       field: string;
       options: string[];
       unsupported: boolean;
-    };
+    }
+  | { type: "listing_answer"; listingId: string; facts: Array<{ label: string; value: string | number | boolean; provenance: AiProvenance }>; missingFields: string[] }
+  | { type: "listing_comparison"; listings: Array<{ listingId: string; missingFields: string[] }>; matrix: Array<{ field: string; listings: Array<{ listingId: string; value: string | number | boolean | null; provenance: AiProvenance }> }> };
 
 export type AiResponse = {
   requestId: string;

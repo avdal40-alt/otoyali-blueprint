@@ -66,6 +66,8 @@ export function AssistantMessage({ message }: { message: AssistantChatMessage })
             }
             if (item.type === "search_results") return <p key={item.type} className="text-sm font-semibold text-oto-muted">{item.count}</p>;
             if (item.type === "search_clarification") return <p key={item.type} className="text-sm font-semibold text-oto-muted">{item.options.join(", ")}</p>;
+            if (item.type === "listing_answer") return <p key={item.type} className="text-sm text-oto-muted">{item.facts.map((fact) => `${fact.label}: ${fact.value}`).join(" · ")}</p>;
+            if (item.type === "listing_comparison") return <p key={item.type} className="text-sm text-oto-muted">{item.listings.length}</p>;
 
             return (
               <ul key={item.type} className="grid gap-2">

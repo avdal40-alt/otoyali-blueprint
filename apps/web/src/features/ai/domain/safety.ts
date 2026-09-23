@@ -51,6 +51,7 @@ export function sanitizeAssistantContext(context: AiContext): AiContext {
           city: cleanOptionalText(context.search.city, 60),
           condition: cleanOptionalText(context.search.condition, 40)
           ,intent: context.search.intent
+          ,compareListingIds: context.search.compareListingIds
         }
       : undefined,
     publishing: context.publishing

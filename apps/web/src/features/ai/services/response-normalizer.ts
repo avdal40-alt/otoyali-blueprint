@@ -55,6 +55,8 @@ function normalizeStructuredData(data?: AiStructuredData[]) {
     }
     if (item.type === "search_results") return { type: item.type, intent: item.intent, count: Math.max(0, Math.min(item.count, 24)), listings: item.listings.slice(0, 24) };
     if (item.type === "search_clarification") return { type: item.type, field: item.field.slice(0, 60), options: normalizeStringList(item.options, 5, 80), unsupported: item.unsupported };
+    if (item.type === "listing_answer") return { type: item.type, listingId: item.listingId, facts: item.facts.slice(0, 16), missingFields: normalizeStringList(item.missingFields, 16, 60) };
+    if (item.type === "listing_comparison") return { type: item.type, listings: item.listings.slice(0, 4), matrix: item.matrix.slice(0, 16) };
 
     return {
       type: item.type,

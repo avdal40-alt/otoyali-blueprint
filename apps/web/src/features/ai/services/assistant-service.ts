@@ -8,10 +8,12 @@ import { buildAssistantPromptMessages } from "./prompt-builder";
 import { normalizeAiResponse } from "./response-normalizer";
 import type { AiRequest, AiResponse } from "../domain/types";
 import { executeNaturalLanguageSearch } from "../search/search-service";
+import { executeListingExpert } from "../listing/listing-expert";
 
 export async function generateAssistantResponse(request: AiRequest): Promise<AiResponse> {
   const config = getAiServerConfig();
   if (request.intent === "search_vehicles" && config.mode === "local_preview") return executeNaturalLanguageSearch(request);
+  if ((request.intent === "explain_listing" || request.intent === "compare_vehicles") && config.mode === "local_preview") return executeListingExpert(request);
   const promptMessages = buildAssistantPromptMessages(request);
   const provider = getConfiguredAiProvider();
 

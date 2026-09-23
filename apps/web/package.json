@@ -76,6 +76,7 @@
     "test:stabilization-02": "node scripts/stabilization-02.test.cjs"
     ,"test:ai-01a": "node scripts/ai-01a.test.cjs",
     "test:ai-01b": "node scripts/ai-01b.test.cjs"
+    ,"test:ai-01c": "node scripts/ai-01c.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
