@@ -1,0 +1,5 @@
+const assert = require("node:assert/strict"); const fs = require("node:fs"); const path = require("node:path"); const root = path.resolve(__dirname, ".."); const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
+const engine = read("src", "features", "ai", "photo", "photo-intelligence.ts"); const route = read("src", "app", "api", "ai", "photo", "route.ts");
+for (const token of ["photoAnalysisInputSchema", "photoAnalysisOutputSchema", "PHOTO_ANALYSIS_MAX_IMAGES", "VISION", "image_quality", "possible_duplicate", "possible_screenshot", "possible_watermark", "possible_contact_text", "possible_qr_code", "plate_visible", "possible_vehicle_mismatch", "possible_body_type_mismatch", "possible_visible_damage", "cover_suitability", "ordering_suggestion", "source: \"ai\"", "kind: \"inference\""]) assert.match(engine, new RegExp(token));
+assert.match(route, /requireAuthenticatedRequestSupabase/); assert.match(route, /get_own_rejected_listing_for_edit/); assert.doesNotMatch(engine + route, /\.insert\(|\.update\(|service_role|signedUrl|phone|email|private VIN/i);
+console.log("AI-01E-A photo intelligence engine contract passed");
