@@ -14,6 +14,7 @@ import { getRequestLocale } from "@/i18n/server";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { VideoShareButton } from "./_components/VideoShareButton";
+import { PublicVideoPlayer } from "./_components/PublicVideoPlayer";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -104,15 +105,7 @@ function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
   return (
     <article className="overflow-hidden rounded-oto border border-oto-border bg-white shadow-oto">
       <div className="relative bg-black">
-        <video
-          className="aspect-[9/16] w-full bg-black object-contain"
-          controls
-          muted
-          playsInline
-          preload="none"
-          poster={poster}
-          src={video.video_url || undefined}
-        />
+        <PublicVideoPlayer src={video.video_url || undefined} poster={poster} errorLabel={locale === "en" ? "Video could not be played." : "Video oynatılamadı."} retryLabel={locale === "en" ? "Retry playback" : "Oynatmayı tekrar dene"} />
         {video.seller_type === "dealer" ? (
           <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-oto-blue shadow-soft">
             {String(dictionary.status.dealer)}

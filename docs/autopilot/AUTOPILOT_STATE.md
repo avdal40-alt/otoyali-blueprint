@@ -10,7 +10,7 @@
 **Autonomous run mode:** `MULTI_STAGE`
 **Continuous supervised mode:** ENABLED — local-only and push-disabled
 **Maximum product stages per run:** `3`
-**Stages completed in current run:** `14`
+**Stages completed in current run:** `15`
 **Last checkpoint:** NOT_RUN
 **Last stop reason:** NONE — FUNCTIONAL-03B completed locally; FUNCTIONAL-03C is next
 
@@ -27,8 +27,8 @@ Git and verified test results are source of truth; this file is a reconciliation
 | Last safe infrastructure baseline | `0669fb714542ef42c4ca86d13c6df5735cbab1b4` |
 | Latest infrastructure validation | PASS — trusted host baseline and supervisor policy |
 | Current parent stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion IN PROGRESS |
-| Completed internal substeps | FUNCTIONAL-03C-A — Video Security + Lifecycle Contract; FUNCTIONAL-03C-B0-A — Private Owner Video Read API + DTO; FUNCTIONAL-03C-B1 — Persisted Video Upload Intent Contract; FUNCTIONAL-03C-B1A — Upload Intent Cleanup / Revoke Contract |
-| Next internal substep | FUNCTIONAL-03C-B — Controlled Upload / Replace / Delete / Public UX |
+| Completed internal substeps | FUNCTIONAL-03C-A — Video Security + Lifecycle Contract; FUNCTIONAL-03C-B0-A — Private Owner Video Read API + DTO; FUNCTIONAL-03C-B1 — Persisted Video Upload Intent Contract; FUNCTIONAL-03C-B1A — Upload Intent Cleanup / Revoke Contract; FUNCTIONAL-03C-B — Controlled Video Management |
+| Next internal substep | FUNCTIONAL-03C-C — Consent-Safe Video Analytics + Final Completion |
 | Next approved stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion |
 | Following approved stages | AI-01A — Production Yolmod AI Foundation |
 | Preferred later functional priority | Execute approved V1 stages in roadmap order. |

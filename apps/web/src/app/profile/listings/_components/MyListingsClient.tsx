@@ -13,7 +13,6 @@ import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { getBestImageUrl, isImageProcessingFailed } from "@/lib/media/image-variants";
 import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
-import { releaseStoragePath } from "@/lib/release/compatibility";
 import { getMyListingsCopy, getMyListingsLifecycleErrorMessage, type MyListingsCopy } from "../my-listings-copy";
 
 type MyListing = {
@@ -291,46 +290,21 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
       }
 
       const supabase = getSupabaseBrowserClient();
-      const storagePath = releaseStoragePath(userId, item.id, `${Date.now()}-${safeFileName(videoFile.name)}`);
-      const { error: uploadError } = await supabase.storage
-        .from("listing-videos")
-        .upload(storagePath, videoFile, {
-          cacheControl: "3600",
-          contentType: videoFile.type,
-          upsert: false
-        });
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error("auth");
+      const authHeaders = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+      const intentResponse = await fetch(`/api/listings/${item.id}/video/upload-intent`, { method: "POST", headers: authHeaders, body: JSON.stringify({ mimeType: videoFile.type, sizeBytes: videoFile.size, operation: "create" }) });
+      const intentBody = await intentResponse.json() as { data?: { intentId: string; path: string; token: string } };
+      const intent = intentBody.data;
+      if (!intentResponse.ok || !intent) throw new Error("intent");
+      const { error: uploadError } = await supabase.storage.from("listing-videos").uploadToSignedUrl(intent.path, intent.token, videoFile, { contentType: videoFile.type });
 
       if (uploadError) {
-        setVideoError(copy.videoUploadFailure);
-        setVideoUploading(false);
-        return;
+        throw new Error("upload");
       }
-
-      const { data: publicUrl } = supabase.storage.from("listing-videos").getPublicUrl(storagePath);
-      const { error: insertError } = await supabase
-        .schema("marketplace")
-        .from("listing_videos")
-        .insert({
-          listing_id: item.id,
-          seller_user_id: userId,
-          title: videoTitle.trim() || item.title,
-          description: videoDescription.trim() || null,
-          video_url: publicUrl.publicUrl,
-          original_video_url: publicUrl.publicUrl,
-          storage_path: storagePath,
-          duration_seconds: Math.max(1, Math.round(duration)),
-          status: "pending_review",
-          visibility: "public",
-          processing_status: "skipped",
-          blur_status: "not_started",
-          moderation_status: "pending_review"
-        });
-
-      if (insertError) {
-        setVideoError(copy.videoUploadFailure);
-        setVideoUploading(false);
-        return;
-      }
+      const finalizeResponse = await fetch(`/api/listings/${item.id}/video/finalize`, { method: "POST", headers: authHeaders, body: JSON.stringify({ intentId: intent.intentId, title: videoTitle.trim() || item.title, description: videoDescription.trim() || null, durationSeconds: Math.max(1, Math.round(duration)), operation: "create" }) });
+      if (!finalizeResponse.ok) throw new Error("finalize");
 
       setVideoFile(null);
       setVideoSuccess(copy.videoSuccess);
