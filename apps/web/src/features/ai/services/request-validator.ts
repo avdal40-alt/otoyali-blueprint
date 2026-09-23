@@ -5,7 +5,7 @@ import { isMarketplaceVerticalId } from "@/lib/marketplace/verticals";
 import type { AiServerConfig } from "../config";
 import { isAiIntentId } from "../domain/intents";
 import { cleanOptionalText, sanitizeAssistantContext } from "../domain/safety";
-import type { AiContext, AiConversationMessage, AiIntentId, AiRequest, AiResponse, AiSurface, AiUserState } from "../domain/types";
+import type { AiActor, AiContext, AiConversationMessage, AiIntentId, AiRequest, AiResponse, AiSurface, AiUserState } from "../domain/types";
 
 type ValidationResult =
   | {
@@ -39,13 +39,15 @@ export function validateAssistantRequestPayload({
   fallbackLocale,
   userAgent,
   contentLength,
-  config
+  config,
+  actor
 }: {
   payload: unknown;
   fallbackLocale: Locale;
   userAgent?: string | null;
   contentLength?: number;
   config: AiServerConfig;
+  actor?: AiActor;
 }): ValidationResult {
   if (!isObject(payload)) {
     return validationError("invalid_request", fallbackLocale, "ai.errors.invalidRequest", 400);
@@ -85,7 +87,8 @@ export function validateAssistantRequestPayload({
       context: contextResult.context,
       vertical: contextResult.context.vertical,
       surface: contextResult.context.surface,
-      userState: { authenticated: false, role: "guest" },
+      userState: { authenticated: actor?.kind === "authenticated", role: actor?.kind === "authenticated" ? "user" : "guest" },
+      actor: actor ?? { kind: "guest", rateLimitKey: "guest:unknown" },
       metadata: {
         userAgent: cleanOptionalText(userAgent, 160) ?? undefined,
         contentLength

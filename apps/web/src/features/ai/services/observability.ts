@@ -20,6 +20,10 @@ export type AssistantEventPayload = {
   status?: string;
   latencyBucket?: string;
   errorCode?: string;
+  model?: string;
+  toolNames?: string[];
+  inputTokens?: number;
+  outputTokens?: number;
 };
 
 export function logAssistantEvent(name: AssistantEventName, payload: AssistantEventPayload, debug = false) {

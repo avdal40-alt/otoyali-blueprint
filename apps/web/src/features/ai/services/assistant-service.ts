@@ -31,7 +31,8 @@ export async function generateAssistantResponse(request: AiRequest): Promise<AiR
     const normalized = normalizeAiResponse(response, request.requestId);
     logAssistantEvent("assistant_request_completed", eventFromResponse(normalized), config.debug);
     return normalized;
-  } catch {
+  } catch (error) {
+    const code = error instanceof Error && error.message === "assistant_timeout" ? "timeout" : error instanceof Error && error.message === "model_unavailable" ? "model_unavailable" : "generic_retryable";
     const response = normalizeAiResponse(
       {
         requestId: request.requestId,
@@ -41,7 +42,7 @@ export async function generateAssistantResponse(request: AiRequest): Promise<AiR
         provider: "disabled",
         latencyMs: 0,
         error: {
-          code: "assistant_internal_error",
+          code,
           message: "Assistant request failed."
         }
       },

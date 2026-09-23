@@ -3,7 +3,7 @@ import "server-only";
 import type { AiCapabilityId, AiProviderId } from "./domain/types";
 import { AI_SHARED_LIMITS } from "./domain/limits";
 
-export type AiProviderMode = "local_preview" | "disabled";
+export type AiProviderMode = "local_preview" | "external" | "disabled";
 
 export type AiServerConfig = {
   enabled: boolean;
@@ -22,14 +22,16 @@ export type AiServerConfig = {
 const localPreviewCapabilities: AiCapabilityId[] = ["assistant_chat", "trust_guidance", "publishing_assistance"];
 
 export function getAiServerConfig(): AiServerConfig {
-  const enabled = readBoolean(process.env.AI_ENABLED, true);
+  const enabled = readBoolean(process.env.AI_ENABLED, false);
   const rawProvider = process.env.AI_PROVIDER?.trim().toLowerCase();
-  const provider = rawProvider === "disabled" ? "disabled" : rawProvider === "local" || !rawProvider ? "local" : "disabled";
-  const mode: AiProviderMode = enabled && provider === "local" ? "local_preview" : "disabled";
+  const provider = rawProvider === "openai" || rawProvider === "local" || rawProvider === "disabled" ? rawProvider : "disabled";
+  const model = process.env.AI_MODEL?.trim();
+  const openAiReady = provider === "openai" && enabled && Boolean(process.env.OPENAI_API_KEY?.trim()) && Boolean(model) && process.env.AI_DISTRIBUTED_RATE_LIMIT_ENABLED === "true";
+  const mode: AiProviderMode = provider === "local" && !enabled ? "local_preview" : openAiReady ? "external" : "disabled";
 
   return {
     enabled,
-    provider,
+    provider: mode === "disabled" ? "disabled" : provider,
     mode,
     allowedCapabilities: mode === "local_preview" ? localPreviewCapabilities : [],
     maxConversationMessages: AI_SHARED_LIMITS.maxConversationMessages,

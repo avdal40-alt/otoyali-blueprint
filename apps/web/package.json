@@ -74,16 +74,19 @@
     "test:functional-03c-c": "node scripts/functional-03c-c.test.cjs",
     "test:functional-03b-c": "node scripts/functional-03b-c.test.cjs",
     "test:stabilization-02": "node scripts/stabilization-02.test.cjs"
+    ,"test:ai-01a": "node scripts/ai-01a.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "libphonenumber-js": "^1.13.9",
     "next": "15.5.25",
     "next-intl": "^4.14.2",
+    "openai": "^4.104.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "read-excel-file": "9.3.10",
-    "unzipper-esm": "0.13.3"
+    "unzipper-esm": "0.13.3",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^20.16.10",

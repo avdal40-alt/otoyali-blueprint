@@ -92,14 +92,16 @@ It must not claim access to TRAMER, VIN databases, market-wide pricing data, acc
 
 Server-only config lives in `src/features/ai/config.ts`.
 
-Supported future variables are documented but not required:
+Server-only configuration now supports a disabled-by-default external provider boundary:
 
 - `AI_ENABLED`
 - `AI_PROVIDER`
 - `AI_MODEL`
 - `AI_DEBUG`
+- `OPENAI_API_KEY`
+- `AI_DISTRIBUTED_RATE_LIMIT_ENABLED`
 
-No placeholder secrets are committed. No `NEXT_PUBLIC_*` AI secret is used. With no AI variables present, the app uses safe local preview mode.
+No placeholder secrets are committed. No `NEXT_PUBLIC_*` AI secret is used. OpenAI can activate only when `AI_ENABLED=true`, a registry-approved model and key are present, and distributed rate limiting is explicitly configured. Otherwise it fails closed; local preview remains deterministic.
 
 ## Request And Response Model
 

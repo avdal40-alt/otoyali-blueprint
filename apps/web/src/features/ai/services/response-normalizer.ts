@@ -19,7 +19,7 @@ export function normalizeAiResponse(response: AiResponse, fallbackRequestId: str
     citations: response.citations?.map((citation) => ({ label: citation.label.slice(0, 80), href: citation.href?.slice(0, 160) })).slice(0, 4),
     warnings: normalizeWarnings(response.warnings),
     confidence: typeof response.confidence === "number" && response.confidence >= 0 && response.confidence <= 1 ? response.confidence : undefined,
-    provider: response.provider === "local" ? "local" : "disabled",
+    provider: response.provider === "local" || response.provider === "openai" ? response.provider : "disabled",
     latencyMs: Number.isFinite(response.latencyMs) ? Math.max(0, Math.round(response.latencyMs)) : 0,
     error: response.error
       ? {

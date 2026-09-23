@@ -1,7 +1,13 @@
 import type { Locale } from "@/i18n/types";
 import type { MarketplaceVerticalId } from "@/lib/marketplace/types";
 
-export type AiProviderId = "local" | "disabled";
+export type AiProviderId = "local" | "openai" | "disabled";
+
+export type AiActor =
+  | { kind: "guest"; rateLimitKey: string }
+  | { kind: "authenticated"; userId: string; rateLimitKey: string };
+
+export type AiProvenance = "listing" | "seller" | "catalog" | "vin" | "external_report" | "market_data" | "ai" | "rule";
 
 export type AiResponseStatus =
   | "success"
@@ -133,6 +139,7 @@ export type AiRequest = {
   vertical: MarketplaceVerticalId;
   surface: AiSurface;
   userState: AiUserState;
+  actor: AiActor;
   metadata: {
     userAgent?: string;
     contentLength?: number;
