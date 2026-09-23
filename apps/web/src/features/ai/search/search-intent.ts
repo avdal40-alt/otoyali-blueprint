@@ -91,7 +91,32 @@ function resolveNamedEntities(text: string, catalog: SearchCatalog, values: Reco
   if (district && values.cityId && district.parentId !== values.cityId) return { clarification: { field: "district", message: "The district does not belong to the selected city." } };
   return {};
 }
-function numericFilters(text: string) { const values: Record<string, number> = {}; const price = text.match(/(?:altı|altinda|under|below)\s*(\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl)?/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl)?\s*(?:altı|altinda)/); if (price) values.priceMax = Math.round(Number(price[1].replace(",", ".")) * ({ milyon: 1e6, million: 1e6, m: 1e6, bin: 1e3, thousand: 1e3 }[price[2] ?? ""] ?? 1)); const km = text.match(/(?:altında|altinda|under|below|less than)\s*(\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)\s*(?:altında|altinda)/); if (km) values.mileageMax = Math.round(Number(km[1].replace(",", ".")) * ({ bin: 1e3, thousand: 1e3, k: 1e3 }[km[2] ?? ""] ?? 1)); const year = text.match(/(\d{4})\s*(?:ve üzeri|sonrası|or newer|newer than)/); if (year) values.yearMin = Number(year[1]) + (/sonrası|newer than/.test(text) ? 1 : 0); return values; }
+export function normalizeNaturalLanguageNumber(value: string, kind: "price" | "mileage"): number | null {
+  const normalized = normalize(value).replace(/\s+/g, " ").trim();
+  if (kind === "price") {
+    const composite = normalized.match(/(\d+(?:[.,]\d+)?)\s*(milyon|million)\s+(\d+(?:[.,]\d+)?)\s*(bin|thousand)/);
+    if (composite) {
+      const result = Math.round(Number(composite[1].replace(",", ".")) * 1e6 + Number(composite[3].replace(",", ".")) * 1e3);
+      return Number.isSafeInteger(result) ? result : null;
+    }
+  }
+  const pattern = kind === "price"
+    ? /(\d{1,3}(?:[.,]\d{3})+|\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl|try)?/
+    : /(\d{1,3}(?:[.,]\d{3})+|\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)?/;
+  const match = normalized.match(pattern);
+  if (!match) return null;
+  const raw = match[1];
+  const suffix = match[2] ?? "";
+  const multiplier = kind === "price"
+    ? ({ milyon: 1e6, million: 1e6, m: 1e6, bin: 1e3, thousand: 1e3 }[suffix] ?? 1)
+    : ({ bin: 1e3, thousand: 1e3, k: 1e3 }[suffix] ?? 1);
+  const numeric = raw.includes(",") && raw.includes(".")
+    ? Number(raw.replace(/[.,](?=\d{3}(?:[.,]|$))/g, "").replace(",", "."))
+    : /^[0-9]{1,3}(?:[.,][0-9]{3})+$/.test(raw) ? Number(raw.replace(/[.,]/g, "")) : Number(raw.replace(",", "."));
+  const result = Math.round(numeric * multiplier);
+  return Number.isSafeInteger(result) && result >= 0 ? result : null;
+}
+function numericFilters(text: string) { const values: Record<string, number> = {}; const price = text.match(/(?:altı|altinda|under|below)\s*(\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl)?/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl)?\s*(?:altı|altinda)/); if (price) values.priceMax = normalizeNaturalLanguageNumber(price[0], "price") ?? 0; const km = text.match(/(?:altında|altinda|under|below|less than)\s*(\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)\s*(?:altında|altinda)/); if (km) values.mileageMax = normalizeNaturalLanguageNumber(km[0], "mileage") ?? 0; const year = text.match(/(\d{4})\s*(?:ve üzeri|sonrası|or newer|newer than)/); if (year) values.yearMin = Number(year[1]) + (/sonrası|newer than/.test(text) ? 1 : 0); return values; }
 function normalize(value: string) { return value.toLocaleLowerCase("tr-TR").replace(/ı/g, "i").replace(/ş/g, "s").replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ö/g, "o").replace(/ç/g, "c"); }
 function compact<T extends Record<string, unknown>>(value: T) { return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined && (!Array.isArray(item) || item.length))); }
 function list(value: unknown) { return value === undefined ? [] : [value]; }

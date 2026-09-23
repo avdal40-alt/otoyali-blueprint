@@ -1,0 +1,12 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs"); const path = require("node:path");
+const root = path.resolve(__dirname, "..");
+const source = fs.readFileSync(path.join(root, "src", "features", "ai", "sell", "sell-draft.ts"), "utf8");
+const listing = fs.readFileSync(path.join(root, "src", "lib", "listings", "server-write.ts"), "utf8");
+const search = fs.readFileSync(path.join(root, "src", "features", "ai", "search", "search-intent.ts"), "utf8");
+for (const name of ["sellDraftSchema", "sellDraftPatchSchema", "applySellDraftPatch", "getMissingRequiredFields", "getNextSellQuestion", "resolveSellCatalogText", "normalizeSellNumber", "getSellAmbiguity", "extractSellerDeclarations", "processSellDraftTurn"]) assert.match(source, new RegExp(`export (?:function|const) ${name}`));
+assert.match(source, /operation: z\.enum\(\["set", "clear", "keep"\]\)/); assert.match(source, /\.strict\(\)/); assert.match(source, /seller_declaration/); assert.match(source, /verified: false/); assert.match(source, /readyForReview/);
+assert.match(source, /resolveSearchText/); assert.match(source, /normalizeNaturalLanguageNumber/); assert.match(source, /listingFields/);
+assert.match(listing, /export const listingFields/); assert.match(search, /export function normalizeNaturalLanguageNumber/);
+assert.doesNotMatch(source, /ownerId|userId|sellerId|service.?role|signed.?url|\bvin\b|\bplate\b/i);
+console.log("AI-01D-A deterministic sell draft engine contract passed");

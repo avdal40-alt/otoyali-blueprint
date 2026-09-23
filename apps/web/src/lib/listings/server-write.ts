@@ -11,7 +11,8 @@ const driveTypes = ["front", "rear", "awd", "4x4"] as const;
 const damageStates = ["unknown", "none", "minor", "major", "painted", "replaced", "heavy_damage"] as const;
 const imageMimeTypes = ["image/jpeg", "image/png", "image/webp"] as const;
 
-const listingFields = {
+/** Canonical safe listing fields shared by server-side draft workflows. */
+export const listingFields = {
   makeId: listingIdSchema,
   modelId: listingIdSchema,
   year: z.number().int().min(1900).max(new Date().getFullYear() + 1),
