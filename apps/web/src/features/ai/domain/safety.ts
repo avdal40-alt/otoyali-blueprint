@@ -50,6 +50,7 @@ export function sanitizeAssistantContext(context: AiContext): AiContext {
           model: cleanOptionalText(context.search.model, 80),
           city: cleanOptionalText(context.search.city, 60),
           condition: cleanOptionalText(context.search.condition, 40)
+          ,intent: context.search.intent
         }
       : undefined,
     publishing: context.publishing

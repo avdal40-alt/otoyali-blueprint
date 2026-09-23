@@ -53,6 +53,8 @@ function normalizeStructuredData(data?: AiStructuredData[]) {
         unavailableFeatures: normalizeStringList(item.unavailableFeatures, 8, 80)
       };
     }
+    if (item.type === "search_results") return { type: item.type, intent: item.intent, count: Math.max(0, Math.min(item.count, 24)), listings: item.listings.slice(0, 24) };
+    if (item.type === "search_clarification") return { type: item.type, field: item.field.slice(0, 60), options: normalizeStringList(item.options, 5, 80), unsupported: item.unsupported };
 
     return {
       type: item.type,

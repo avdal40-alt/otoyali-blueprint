@@ -101,6 +101,8 @@ export type AiSearchContext = {
   model?: string | null;
   city?: string | null;
   condition?: string | null;
+  /** Validated again against the canonical public catalog before every execution. */
+  intent?: unknown;
 };
 
 export type AiPublishingContext = {
@@ -201,6 +203,18 @@ export type AiStructuredData =
       type: "service_guidance";
       categories: string[];
       unavailableFeatures: string[];
+    }
+  | {
+      type: "search_results";
+      intent: Record<string, unknown>;
+      count: number;
+      listings: Array<Record<string, unknown>>;
+    }
+  | {
+      type: "search_clarification";
+      field: string;
+      options: string[];
+      unsupported: boolean;
     };
 
 export type AiResponse = {

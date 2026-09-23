@@ -5,6 +5,7 @@ import { isMarketplaceVerticalId } from "@/lib/marketplace/verticals";
 import type { AiServerConfig } from "../config";
 import { isAiIntentId } from "../domain/intents";
 import { cleanOptionalText, sanitizeAssistantContext } from "../domain/safety";
+import { searchIntentSchema } from "../search/search-intent";
 import type { AiActor, AiContext, AiConversationMessage, AiIntentId, AiRequest, AiResponse, AiSurface, AiUserState } from "../domain/types";
 
 type ValidationResult =
@@ -193,12 +194,15 @@ function readContext(value: unknown, locale: Locale) {
   }
 
   if (isObject(value.search)) {
+    const intent = value.search.intent === undefined ? undefined : searchIntentSchema.safeParse(value.search.intent);
+    if (intent && !intent.success) return { ok: false as const, code: "invalid_search_state", messageKey: "ai.errors.invalidRequest" };
     context.search = {
       query: cleanOptionalText(value.search.query, 120),
       make: cleanOptionalText(value.search.make, 60),
       model: cleanOptionalText(value.search.model, 80),
       city: cleanOptionalText(value.search.city, 60),
-      condition: cleanOptionalText(value.search.condition, 40)
+      condition: cleanOptionalText(value.search.condition, 40),
+      intent: intent?.data
     };
   }
 

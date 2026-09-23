@@ -64,6 +64,8 @@ export function AssistantMessage({ message }: { message: AssistantChatMessage })
                 </div>
               );
             }
+            if (item.type === "search_results") return <p key={item.type} className="text-sm font-semibold text-oto-muted">{item.count}</p>;
+            if (item.type === "search_clarification") return <p key={item.type} className="text-sm font-semibold text-oto-muted">{item.options.join(", ")}</p>;
 
             return (
               <ul key={item.type} className="grid gap-2">

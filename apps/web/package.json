@@ -74,7 +74,8 @@
     "test:functional-03c-c": "node scripts/functional-03c-c.test.cjs",
     "test:functional-03b-c": "node scripts/functional-03b-c.test.cjs",
     "test:stabilization-02": "node scripts/stabilization-02.test.cjs"
-    ,"test:ai-01a": "node scripts/ai-01a.test.cjs"
+    ,"test:ai-01a": "node scripts/ai-01a.test.cjs",
+    "test:ai-01b": "node scripts/ai-01b.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
