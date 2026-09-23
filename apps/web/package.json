@@ -68,6 +68,7 @@
     "test:functional-03c-a": "node scripts/functional-03c-a.test.cjs",
     "test:functional-03c-a-storage": "node scripts/functional-03c-a-storage.test.cjs",
     "test:functional-03c-b0-a": "node scripts/functional-03c-b0-a.test.cjs",
+    "test:functional-03c-b1": "node scripts/functional-03c-b1.test.cjs",
     "test:functional-03b-c": "node scripts/functional-03b-c.test.cjs",
     "test:stabilization-02": "node scripts/stabilization-02.test.cjs"
   },

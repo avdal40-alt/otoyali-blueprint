@@ -38,14 +38,15 @@ INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderati
 INSERT INTO storage.objects(bucket_id,name,owner_id) VALUES ('listing-videos','${mediaPath(ids.dealer, ids.listing, "first.mp4")}','${ids.dealer}'),('listing-videos','${mediaPath(ids.dealer, ids.listing, "second.mp4")}','${ids.dealer}');
 INSERT INTO results VALUES ('direct dml revoked', NOT has_table_privilege('authenticated','marketplace.listing_videos','INSERT,UPDATE,DELETE'));
 ${role("authenticated", ids.individual)}
-DO $$ BEGIN BEGIN PERFORM public.attach_own_listing_video('${ids.listing}','${mediaPath(ids.individual, ids.listing, "individual.mp4")}','x',NULL,10); INSERT INTO results VALUES ('individual denied',false); EXCEPTION WHEN SQLSTATE 'OT403' THEN INSERT INTO results VALUES ('individual denied',true); END; END $$;
+DO $$ BEGIN BEGIN PERFORM public.attach_own_listing_video('${ids.listing}','${mediaPath(ids.individual, ids.listing, "individual.mp4")}','x',NULL,10); INSERT INTO results VALUES ('legacy attach denied',false); EXCEPTION WHEN SQLSTATE '42501' THEN INSERT INTO results VALUES ('legacy attach denied',true); END; END $$;
 ${role("authenticated", ids.other)}
-DO $$ BEGIN BEGIN PERFORM public.attach_own_listing_video('${ids.listing}','${mediaPath(ids.other, ids.listing, "cross.mp4")}','x',NULL,10); INSERT INTO results VALUES ('cross owner denied',false); EXCEPTION WHEN SQLSTATE 'OT403' THEN INSERT INTO results VALUES ('cross owner denied',true); END; END $$;
+DO $$ BEGIN BEGIN PERFORM public.replace_own_listing_video('${ids.listing}','${mediaPath(ids.other, ids.listing, "cross.mp4")}','x',NULL,10); INSERT INTO results VALUES ('legacy replace denied',false); EXCEPTION WHEN SQLSTATE '42501' THEN INSERT INTO results VALUES ('legacy replace denied',true); END; END $$;
 ${role("authenticated", ids.dealer)}
-SELECT public.attach_own_listing_video('${ids.listing}','${mediaPath(ids.dealer, ids.listing, "first.mp4")}','first',NULL,10);
+DO $$ BEGIN BEGIN PERFORM public.attach_own_listing_video('${ids.listing}','${mediaPath(ids.dealer, ids.listing, "first.mp4")}','first',NULL,10); INSERT INTO results VALUES ('owner legacy attach denied',false); EXCEPTION WHEN SQLSTATE '42501' THEN INSERT INTO results VALUES ('owner legacy attach denied',true); END; END $$;
+SET LOCAL ROLE service_role;
+INSERT INTO marketplace.listing_videos(listing_id,seller_user_id,title,video_url,original_video_url,storage_path,duration_seconds,status,visibility,processing_status,blur_status,moderation_status,is_current) VALUES ('${ids.listing}','${ids.dealer}','first','${mediaPath(ids.dealer, ids.listing, "first.mp4")}','${mediaPath(ids.dealer, ids.listing, "first.mp4")}','${mediaPath(ids.dealer, ids.listing, "first.mp4")}',10,'pending_review','private','pending','not_started','pending_review',true);
 INSERT INTO results VALUES ('verified own attach', EXISTS(SELECT 1 FROM marketplace.listing_videos WHERE listing_id='${ids.listing}' AND is_current AND status='pending_review'));
-DO $$ BEGIN BEGIN PERFORM public.attach_own_listing_video('${ids.listing}','${mediaPath(ids.dealer, ids.listing, "second.mp4")}','second',NULL,10); INSERT INTO results VALUES ('second slot denied',false); EXCEPTION WHEN SQLSTATE 'OT409' THEN INSERT INTO results VALUES ('second slot denied',true); END; END $$;
-SET LOCAL ROLE service_role; UPDATE marketplace.listing_videos SET status='active',visibility='public',moderation_status='approved' WHERE listing_id='${ids.listing}';
+UPDATE marketplace.listing_videos SET status='active',visibility='public',moderation_status='approved' WHERE listing_id='${ids.listing}';
 INSERT INTO results VALUES ('eligible video makes search true', (SELECT has_video FROM marketplace.listing_search_documents WHERE listing_id='${ids.listing}'));
 UPDATE marketplace.galeri_verifications SET status='rejected' WHERE dealer_id='${ids.dealer}';
 INSERT INTO results VALUES ('verification loss hides video', NOT marketplace.is_listing_video_publicly_eligible((SELECT id FROM marketplace.listing_videos WHERE listing_id='${ids.listing}')));

@@ -44,12 +44,12 @@ function provision(users) {
 }
 function cleanup(users) {
   const usersSql = Object.values(users).map(({ id }) => quote(id)).join(",");
-  sql(`DELETE FROM marketplace.listing_videos WHERE listing_id IN (${quote(ids.listing)},${quote(ids.otherListing)},${quote(ids.unverifiedListing)}); DELETE FROM marketplace.listings WHERE id IN (${quote(ids.listing)},${quote(ids.otherListing)},${quote(ids.unverifiedListing)}); DELETE FROM marketplace.galeri_verifications WHERE dealer_id IN (${usersSql}); DELETE FROM vehicle.profile_ownership WHERE vehicle_profile_id IN (${quote(ids.vehicle)},${quote(ids.otherVehicle)},${quote(ids.unverifiedVehicle)}); DELETE FROM vehicle.vehicle_profiles WHERE id IN (${quote(ids.vehicle)},${quote(ids.otherVehicle)},${quote(ids.unverifiedVehicle)}); DELETE FROM vehicle.models WHERE id=${quote(ids.model)}; DELETE FROM vehicle.makes WHERE id=${quote(ids.make)}; DELETE FROM auth.users WHERE id IN (${usersSql});`);
+  sql(`DELETE FROM marketplace.listing_video_upload_intents WHERE listing_id IN (${quote(ids.listing)},${quote(ids.otherListing)},${quote(ids.unverifiedListing)}); DELETE FROM marketplace.listing_videos WHERE listing_id IN (${quote(ids.listing)},${quote(ids.otherListing)},${quote(ids.unverifiedListing)}); DELETE FROM marketplace.listings WHERE id IN (${quote(ids.listing)},${quote(ids.otherListing)},${quote(ids.unverifiedListing)}); DELETE FROM marketplace.galeri_verifications WHERE dealer_id IN (${usersSql}); DELETE FROM vehicle.profile_ownership WHERE vehicle_profile_id IN (${quote(ids.vehicle)},${quote(ids.otherVehicle)},${quote(ids.unverifiedVehicle)}); DELETE FROM vehicle.vehicle_profiles WHERE id IN (${quote(ids.vehicle)},${quote(ids.otherVehicle)},${quote(ids.unverifiedVehicle)}); DELETE FROM vehicle.models WHERE id=${quote(ids.model)}; DELETE FROM vehicle.makes WHERE id=${quote(ids.make)}; DELETE FROM auth.users WHERE id IN (${usersSql});`);
 }
 
 (async () => {
   const users = { verified: user("verified"), individual: user("individual"), unverified: user("unverified"), other: user("other") };
-  const own = pathFor(users.verified.id, ids.listing, `${prefix}.mp4`);
+  let own;
   const unreferenced = pathFor(users.verified.id, ids.listing, `${prefix}-unreferenced.mp4`);
   const created = [];
   const expect = async (name, promise, wanted) => assert.equal((await promise).ok, wanted, name);
@@ -57,21 +57,25 @@ function cleanup(users) {
     provision(users);
     assert.equal(sql("SELECT has_function_privilege('anon','marketplace.can_manage_own_listing_video_storage_path(text)','EXECUTE')"), "f", "anon must not receive owner-management authority");
     assert.equal(sql("SELECT has_function_privilege('anon','marketplace.can_read_public_listing_video_storage_path(text)','EXECUTE')"), "t", "anon must only receive the public-read predicate");
-    await expect("anon upload denied", upload(null, own), false);
+    const arbitrary = pathFor(users.verified.id, ids.listing, `${prefix}.mp4`);
+    await expect("anon upload denied", upload(null, arbitrary), false);
     await expect("individual upload denied", upload(users.individual, pathFor(users.individual.id, ids.listing, `${prefix}-individual.mp4`)), false);
     await expect("unverified Galeri upload denied", upload(users.unverified, pathFor(users.unverified.id, ids.unverifiedListing, `${prefix}-unverified.mp4`)), false);
     await expect("cross-owner upload denied", upload(users.verified, pathFor(users.verified.id, ids.otherListing, `${prefix}-cross.mp4`)), false);
     await expect("malformed path denied", upload(users.verified, `${users.verified.id}/${ids.listing}/${prefix}-malformed.mp4`), false);
     await expect("invalid MIME denied", upload(users.verified, pathFor(users.verified.id, ids.listing, `${prefix}-invalid.mp4`), "image/png"), false);
-    await expect("verified canonical upload allowed", upload(users.verified, own), true); created.push(own);
+    await expect("verified arbitrary canonical upload denied", upload(users.verified, arbitrary), false);
+    let response = await rpc(users.verified, "issue_own_listing_video_upload_intent", { p_listing_id: ids.listing, p_operation: "create", p_mime_type: "video/mp4", p_declared_size_bytes: 100 });
+    assert.equal(response.ok, true, `intent issuance failed (${response.status})`);
+    const [intent] = await response.json(); own = intent.object_path;
+    await expect("verified issued canonical upload allowed", upload(users.verified, own), true); created.push(own);
     await expect("unreferenced canonical object anonymous read denied", read(anon, own), false);
     await expect("owner replacement write allowed", upload(users.verified, own, "video/mp4", true), true);
-    let response = await rpc(users.verified, "attach_own_listing_video", { p_listing_id: ids.listing, p_storage_path: own, p_title: "03C storage", p_description: null, p_duration_seconds: 1 });
-    assert.equal(response.ok, true, `owner attach RPC failed (${response.status})`);
+    response = await rpc(users.verified, "finalize_own_listing_video_upload_intent", { p_listing_id: ids.listing, p_intent_id: intent.intent_id, p_title: "03C storage", p_description: null, p_duration_seconds: 1 });
+    assert.equal(response.ok, true, `owner intent finalize RPC failed (${response.status})`);
     await expect("pending video anonymous read denied", read(anon, own), false);
     sql(`UPDATE marketplace.listing_videos SET status='active',visibility='public',moderation_status='approved' WHERE listing_id=${quote(ids.listing)}`);
     await expect("approved public current anonymous read allowed", read(anon, own), true);
-    await expect("unreferenced path anonymous read denied", upload(users.verified, unreferenced), true); created.push(unreferenced);
     await expect("unreferenced object anonymous read denied", read(anon, unreferenced), false);
     sql(`UPDATE marketplace.listing_videos SET moderation_status='rejected' WHERE listing_id=${quote(ids.listing)}`);
     await expect("rejected video anonymous read denied", read(anon, own), false);

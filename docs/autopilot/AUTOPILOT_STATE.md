@@ -10,7 +10,7 @@
 **Autonomous run mode:** `MULTI_STAGE`
 **Continuous supervised mode:** ENABLED — local-only and push-disabled
 **Maximum product stages per run:** `3`
-**Stages completed in current run:** `12`
+**Stages completed in current run:** `13`
 **Last checkpoint:** NOT_RUN
 **Last stop reason:** NONE — FUNCTIONAL-03B completed locally; FUNCTIONAL-03C is next
 
@@ -27,7 +27,7 @@ Git and verified test results are source of truth; this file is a reconciliation
 | Last safe infrastructure baseline | `0669fb714542ef42c4ca86d13c6df5735cbab1b4` |
 | Latest infrastructure validation | PASS — trusted host baseline and supervisor policy |
 | Current parent stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion IN PROGRESS |
-| Completed internal substeps | FUNCTIONAL-03C-A — Video Security + Lifecycle Contract (local migration/runtime matrix PASS; commit pending) |
+| Completed internal substeps | FUNCTIONAL-03C-A — Video Security + Lifecycle Contract; FUNCTIONAL-03C-B0-A — Private Owner Video Read API + DTO; FUNCTIONAL-03C-B1 — Persisted Video Upload Intent Contract |
 | Next internal substep | FUNCTIONAL-03C-B — Controlled Upload / Replace / Delete / Public UX |
 | Next approved stage | FUNCTIONAL-03C — Video Lifecycle & Analytics Completion |
 | Following approved stages | AI-01A — Production Yolmod AI Foundation |
@@ -39,8 +39,8 @@ Git and verified test results are source of truth; this file is a reconciliation
 | Production status | BLOCKED — manual-only |
 | Known blockers | Remote environment identity remains unverified and blocks remote actions. |
 | Unresolved external-provider decisions | AI, SMS, video, CAPTCHA, analytics, email/push, and VIN/TRAMER/SBM providers remain unresolved. |
-| Last run timestamp | 2026-09-23 — FUNCTIONAL-03C-A local video security/lifecycle migrations applied and focused runtime matrix passed; 03C-B is next after commit. |
+| Last run timestamp | 2026-09-23 — FUNCTIONAL-03C-B1 local upload-intent migrations applied. Focused intent, 03C-A, Storage, and B0-A matrices passed; 03C-B is next. |
 
 ## Next controlled-run preconditions
 
-FUNCTIONAL-03B is the latest fully completed product stage. FUNCTIONAL-03C-A is complete within the in-progress parent; next is FUNCTIONAL-03C-B. Do not push, deploy, access production, or schedule automation.
+FUNCTIONAL-03B is the latest fully completed product stage. FUNCTIONAL-03C-A, 03C-B0-A, and 03C-B1 are complete within the in-progress parent; next is FUNCTIONAL-03C-B. Do not push, deploy, access production, or schedule automation.
