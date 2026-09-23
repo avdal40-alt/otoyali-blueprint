@@ -30,8 +30,8 @@ INSERT INTO marketplace.cities(id,name,slug,is_active) VALUES ('${ids.city}','03
 INSERT INTO marketplace.districts(id,city_id,name,slug,is_active) VALUES ('${ids.district}','${ids.city}','03A District','03a-district-${ids.district}',true),('${ids.otherDistrict}','${ids.otherCity}','03A Other District','03a-other-district-${ids.otherDistrict}',true);
 INSERT INTO sell_sec_03a_results VALUES
  ('anon create execute denied', NOT has_function_privilege('anon','public.create_own_listing_draft(uuid,uuid,uuid,smallint,integer,text,vehicle.fuel_type,vehicle.transmission_type,text,text,text,numeric,text,smallint,text,text,text,boolean,text,uuid,uuid)','EXECUTE'),'grant'),
- ('legacy listing insert remains granted', has_table_privilege('authenticated','marketplace.listings','INSERT'),'compatibility'),
- ('legacy media insert remains granted', has_table_privilege('authenticated','vehicle.profile_media','INSERT'),'compatibility');
+ ('legacy listing insert revoked after 03C', NOT has_table_privilege('authenticated','marketplace.listings','INSERT'),'security cutover'),
+ ('legacy media insert revoked after 03C', NOT has_table_privilege('authenticated','vehicle.profile_media','INSERT'),'security cutover');
 ${asRole("authenticated", ids.seller)}
 CREATE TEMP TABLE created AS ${create()};
 GRANT SELECT ON created TO authenticated;

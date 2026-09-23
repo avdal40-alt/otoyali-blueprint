@@ -79,6 +79,7 @@
     "test:ai-01b": "node scripts/ai-01b.test.cjs"
     ,"test:ai-01c": "node scripts/ai-01c.test.cjs"
     ,"test:sell-sec-03b": "node scripts/sell-sec-03b.test.cjs"
+    ,"test:sell-sec-03c": "node scripts/sell-sec-03c.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
