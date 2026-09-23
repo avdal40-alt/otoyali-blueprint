@@ -16,6 +16,7 @@ import { t } from "@/i18n/get-dictionary";
 import { canPublishVertical, getPublishVerticalFromSearchParam } from "@/lib/marketplace/publish";
 import { getMarketplaceVertical } from "@/lib/marketplace/verticals";
 import { SellWizard } from "./_components/SellWizard";
+import { SellAssistant } from "./_components/SellAssistant";
 import { getSellEditTarget } from "./sell-route-state";
 import { getSellCopy } from "./sell-copy";
 
@@ -90,6 +91,7 @@ export default async function SellPage({
           </Link>
           {" "}{String(dictionary.sell.agreementSuffix)}
         </div>
+        <SellAssistant locale={locale} editListingId={editTarget.kind === "edit" ? editTarget.listingId : null} />
         <SellWizard
           mode={editTarget.kind === "edit" ? "editRejected" : "create"}
           editListingId={editTarget.kind === "edit" ? editTarget.listingId : null}
