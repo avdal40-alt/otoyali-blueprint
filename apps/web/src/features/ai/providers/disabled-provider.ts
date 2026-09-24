@@ -1,5 +1,6 @@
 import { t } from "@/i18n/get-dictionary";
 import { getDefaultWarnings } from "../domain/safety";
+import type { PlateDetectionRequest } from "../photo/plate-region-contract";
 import type { AiProvider } from "./provider";
 
 export const disabledAiProvider: AiProvider = {
@@ -23,5 +24,8 @@ export const disabledAiProvider: AiProvider = {
         message: "AI provider is disabled."
       }
     };
+  },
+  async detectPlateRegions(_request: PlateDetectionRequest) {
+    throw new Error("vision_provider_unavailable");
   }
 };

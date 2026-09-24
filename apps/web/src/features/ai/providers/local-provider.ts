@@ -3,6 +3,7 @@ import { createAssistantAction } from "../domain/actions";
 import { getAiIntent } from "../domain/intents";
 import { getDefaultWarnings } from "../domain/safety";
 import type { AiAction, AiChecklistItem, AiIntentId, AiProviderId, AiRequest, AiResponse } from "../domain/types";
+import { detectPlateRegionsDeterministically } from "../photo/plate-region-deterministic";
 import type { AiProvider } from "./provider";
 
 const providerId: AiProviderId = "local";
@@ -32,6 +33,9 @@ export const localDeterministicAiProvider: AiProvider = {
       provider: providerId,
       latencyMs: Math.max(Date.now() - startedAt, 0)
     };
+  },
+  async detectPlateRegions(request) {
+    return detectPlateRegionsDeterministically(request);
   }
 };
 

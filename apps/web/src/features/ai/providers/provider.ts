@@ -1,8 +1,10 @@
 import type { AiCapabilityId, AiRequest, AiResponse } from "../domain/types";
+import type { PlateDetectionOutput, PlateDetectionRequest } from "../photo/plate-region-contract";
 
 export type AiProvider = {
   id: AiResponse["provider"];
   isAvailable(): boolean | Promise<boolean>;
   getCapabilities(): AiCapabilityId[];
   generate(request: AiRequest): Promise<AiResponse>;
+  detectPlateRegions(request: PlateDetectionRequest): Promise<PlateDetectionOutput>;
 };
