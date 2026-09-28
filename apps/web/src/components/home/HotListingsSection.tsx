@@ -1,5 +1,4 @@
 import type { HomeListing, ListingMedia } from "@/lib/supabase/types";
-import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { EmptyState } from "@/components/ui/States";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -29,7 +28,7 @@ export function HotListingsSection({
       {hotListings.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {hotListings.map((listing) => (
-            <VehicleCard key={listing.listing_id} listing={listing} media={mediaByListing[listing.listing_id]} compact promoted priceBadge={getPriceBadgeForListing(listing, listings)} locale={locale} />
+            <VehicleCard key={listing.listing_id} listing={listing} media={mediaByListing[listing.listing_id]} compact promoted locale={locale} />
           ))}
         </div>
       ) : (

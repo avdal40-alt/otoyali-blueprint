@@ -17,7 +17,6 @@ import { absoluteUrl } from "@/lib/seo/metadata";
 import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
 import { defaultSearchFilters, buildSearchUrl, type ListingSearchFilters } from "@/lib/search/search-params";
 import { filterListings } from "@/lib/search/filter-listings";
-import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 
 export type BreadcrumbItem = {
   label: string;
@@ -94,7 +93,6 @@ export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoCon
                 <VehicleCard
                   key={listing.listing_id}
                   listing={listing}
-                  priceBadge={getPriceBadgeForListing(listing, filteredListings)}
                 />
               ))}
             </div>

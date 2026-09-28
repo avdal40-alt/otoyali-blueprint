@@ -10,7 +10,6 @@ import { Input, Select, Textarea } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { bodyTypeLabel, cityLabel, colorLabel, conditionLabel, damageStateLabel, driveTypeLabel, formatMileage, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
-import { getPriceSuggestion } from "@/lib/market-price/analysis";
 import { prepareImageVariants, type PreparedImageSet, type PreparedImageVariantName } from "@/lib/media/client-image-processing";
 import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
 import { normalizeStoredAuthPhoneToE164 } from "@/lib/auth/phone";
@@ -454,21 +453,6 @@ export function SellWizard({
     (selectedMake && isSellCatalogOther(selectedMake))
     || (selectedModel && isSellCatalogOther(selectedModel))
   );
-  const priceSuggestion = useMemo(() => {
-    if (!selectedMake || !selectedModel || !state.year || !state.mileageKm) {
-      return null;
-    }
-
-    return getPriceSuggestion(
-      {
-        make_name: selectedMake.make_name,
-        model_name: selectedModel.model_name,
-        year: Number(state.year)
-      },
-      listings
-    );
-  }, [listings, selectedMake, selectedModel, state.mileageKm, state.year]);
-
   function update<K extends keyof WizardState>(key: K, value: WizardState[K]) {
     if (mode === "editRejected" && key !== "photos" && key !== "sellerType") {
       setDirtyEditFields((current) => new Set(current).add(key));
@@ -1239,7 +1223,6 @@ export function SellWizard({
             <input type="checkbox" checked={state.priceNegotiable} onChange={(event) => update("priceNegotiable", event.target.checked)} />
             {copy.negotiable}
           </label>
-          <PriceSuggestionCard suggestion={priceSuggestion} currency={state.currency} locale={locale} copy={copy} />
         </Panel>
       ) : null}
 
@@ -1360,34 +1343,6 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function PriceSuggestionCard({
-  suggestion,
-  currency,
-  locale,
-  copy
-}: {
-  suggestion: ReturnType<typeof getPriceSuggestion>;
-  currency: string;
-  locale: "tr" | "en";
-  copy: SellCopy;
-}) {
-  return (
-    <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
-      <h3 className="text-base font-black text-oto-text">{copy.estimatedMarketPrice}</h3>
-      {suggestion ? (
-        <div className="mt-3 grid gap-2 text-sm font-semibold text-oto-muted">
-          <p>{copy.similarListingRange}: {formatPrice(suggestion.minPrice, currency, locale)} - {formatPrice(suggestion.maxPrice, currency, locale)}</p>
-          <p>{copy.fasterSalePrice}: {formatPrice(suggestion.averagePrice, currency, locale)}</p>
-          <p className="text-xs">{copy.comparableBasis(suggestion.comparableCount)}</p>
-        </div>
-      ) : (
-        <p className="mt-3 text-sm font-semibold leading-6 text-oto-muted">
-          {copy.noPriceSuggestion}
-        </p>
-      )}
-    </div>
-  );
-}
 
 function QualityScore({ score, items, copy }: { score: number; items: QualityItem[]; copy: SellCopy }) {
   return (

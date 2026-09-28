@@ -9,9 +9,9 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/States";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { VehicleGallery } from "@/components/vehicle/VehicleGallery";
-import { MarketPriceAnalysis } from "@/components/vehicle/MarketPriceAnalysis";
+import { PriceIntelligenceCard } from "@/components/vehicle/PriceIntelligenceCard";
 import { SpecChip } from "@/components/vehicle/SpecChip";
-import { VehicleTrustReportCard } from "@/components/vehicle/VehicleTrustReportCard";
+import { TrustStatusCard } from "@/components/vehicle/TrustStatusCard";
 import { FavoriteButton } from "@/components/vehicle/FavoriteButton";
 import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { getListingDetails, getHomeListings, getHomeListingById } from "@/lib/queries/listings";
@@ -31,7 +31,7 @@ import {
   sellerTypeLabel,
   transmissionLabel
 } from "@/lib/format";
-import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
+import { isAiFeatureEnabled } from "@/features/ai/feature-registry";
 import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
@@ -47,6 +47,8 @@ export const revalidate = 0;
 export default async function ListingDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const locale = await getRequestLocale();
   const dictionary = getDictionary(locale);
+  const priceIntelligenceEnabled = isAiFeatureEnabled("ai_price");
+  const vinTrustEnabled = isAiFeatureEnabled("ai_vin");
   const resolvedParams = await params;
   const [detailsResult, mediaResult, fallbackListingResult, similarResult] = await Promise.all([
     getListingDetails(resolvedParams.id),
@@ -130,10 +132,12 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
                     ))}
                   </div>
                 </section>
-                <div className="mt-6 grid items-stretch gap-6 xl:grid-cols-2">
-                  <MarketPriceAnalysis listing={listing} comparables={similarResult.data} />
-                  <VehicleTrustReportCard />
-                </div>
+                {priceIntelligenceEnabled || vinTrustEnabled ? (
+                  <div className="mt-6 grid items-stretch gap-6 xl:grid-cols-2">
+                    {priceIntelligenceEnabled ? <PriceIntelligenceCard listingId={listing.listing_id} /> : null}
+                    {vinTrustEnabled ? <TrustStatusCard listingId={listing.listing_id} /> : null}
+                  </div>
+                ) : null}
                 {videosResult.data.length > 0 ? (
                   <section className="mt-6 rounded-oto border border-oto-border bg-white p-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -173,7 +177,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
                   {similarListings.length > 0 ? (
                     <div className="mt-4 grid gap-4 md:grid-cols-3">
                       {similarListings.map((item) => (
-                        <VehicleCard key={item.listing_id} listing={item} compact priceBadge={getPriceBadgeForListing(item, similarResult.data)} locale={locale} />
+                        <VehicleCard key={item.listing_id} listing={item} compact locale={locale} />
                       ))}
                     </div>
                   ) : (

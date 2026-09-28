@@ -725,6 +725,49 @@ export const tr = {
   ai: {
     title: "Rif",
     subtitle: "OTOYALI yapay zeka önizlemesi",
+    price: {
+      title: "Benzer ilan fiyatları",
+      loading: "Benzer ilanların fiyatları hazırlanıyor.",
+      unavailable: "Fiyat bilgisi şu anda gösterilemiyor.",
+      insufficient: "Bu araç için yeterli sayıda benzer ilan bulunamadı.",
+      median: "Benzer ilanların medyan fiyatı",
+      range: "Gözlenen fiyat aralığı",
+      comparableCount: "{count} benzer ilan",
+      higher: "Bu ilanın fiyatı benzer ilanların medyanından %{percent} daha yüksek.",
+      lower: "Bu ilanın fiyatı benzer ilanların medyanından %{percent} daha düşük.",
+      near: "Bu ilanın fiyatı benzer ilanların medyanına yakın.",
+      limited: "Sınırlı sayıda benzer ilan bulundu; bu karşılaştırmayı dikkatle değerlendirin.",
+      fresh: "Karşılaştırma yakın tarihli ilanlara dayanıyor.",
+      mixed: "Karşılaştırmada farklı tarihlerden ilanlar bulunuyor.",
+      older: "Karşılaştırmadaki ilanlar yakın tarihli olmayabilir.",
+      explanation: "Karşılaştırma, aktif Yolmod ilanlarının istenen fiyatları ile yapılır; tamamlanan satış fiyatlarını göstermez."
+    },
+    trust: {
+      title: "İlan sahibi için araç bilgisi",
+      loading: "Araç bilgisi durumu hazırlanıyor.",
+      unavailable: "Araç bilgisi şu anda gösterilemiyor.",
+      vinMissing: "Bu ilan için satıcı tarafından VIN bilgisi eklenmemiş.",
+      provider: {
+        not_configured: "Harici araç geçmişi kontrolü henüz kullanılamıyor.",
+        unavailable: "Harici araç geçmişi kontrolü şu anda kullanılamıyor.",
+        consent_required: "Harici kontrol için VIN bilgisinin bir sağlayıcıyla paylaşılmasına açık onay gerekir.",
+        available: "Harici kontrol kullanılabilir olduğunda ayrıca açık onay istenir."
+      },
+      signal: {
+        vin_present: "VIN bilgisi satıcı tarafından eklendi.",
+        vin_format_valid: "VIN biçimi Yolmod tarafından yapısal olarak kontrol edildi.",
+        vin_format_invalid: "VIN biçimi yapısal kontrole uymuyor.",
+        vin_reference_review_required: "VIN bilgisi için ek inceleme gerekebilir.",
+        external_check_not_available: "Harici araç geçmişi sonucu yok.",
+        external_check_requires_consent: "Harici kontrol için açık onay gerekir."
+      },
+      provenance: {
+        seller_supplied: "Kaynak: satıcının sağladığı bilgi",
+        yolmod_internal: "Kaynak: Yolmod yapısal kontrolü",
+        external_provider: "Kaynak: harici sağlayıcı",
+        unavailable: "Harici doğrulama sonucu mevcut değil"
+      }
+    },
     launcher: "Rif",
     open: "Rif asistanı aç",
     close: "Kapat",

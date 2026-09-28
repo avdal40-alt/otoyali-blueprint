@@ -1,5 +1,4 @@
 import type { HomeListing, ListingMedia } from "@/lib/supabase/types";
-import { getPriceBadgeForListing } from "@/lib/market-price/analysis";
 import { EmptyState } from "@/components/ui/States";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
@@ -29,7 +28,7 @@ export function VehicleGrid({
   return (
     <div className={variant === "home" ? "grid gap-4 lg:grid-cols-4" : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"}>
       {listings.map((listing) => (
-        <VehicleCard key={listing.listing_id} listing={listing} media={mediaByListing[listing.listing_id]} priceBadge={variant === "home" ? null : getPriceBadgeForListing(listing, listings)} locale={locale} />
+        <VehicleCard key={listing.listing_id} listing={listing} media={mediaByListing[listing.listing_id]} locale={locale} />
       ))}
     </div>
   );

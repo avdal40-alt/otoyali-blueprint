@@ -725,6 +725,49 @@ export const en = {
   ai: {
     title: "Rif",
     subtitle: "OTOYALI AI preview",
+    price: {
+      title: "Comparable listing prices",
+      loading: "Comparable listing prices are being prepared.",
+      unavailable: "Price context is unavailable right now.",
+      insufficient: "There are not enough comparable listings for this vehicle.",
+      median: "Median comparable asking price",
+      range: "Observed asking-price range",
+      comparableCount: "{count} comparable listings",
+      higher: "This listing's asking price is {percent}% higher than the comparable median.",
+      lower: "This listing's asking price is {percent}% lower than the comparable median.",
+      near: "This listing's asking price is close to the comparable median.",
+      limited: "Only a limited number of comparable listings were found; consider this context carefully.",
+      fresh: "The comparison is based on recently published listings.",
+      mixed: "The comparison includes listings from different dates.",
+      older: "The comparison may include listings that are not recent.",
+      explanation: "The comparison uses asking prices from active Yolmod listings; it does not show completed sale prices."
+    },
+    trust: {
+      title: "Vehicle information for the listing owner",
+      loading: "Vehicle information status is being prepared.",
+      unavailable: "Vehicle information is unavailable right now.",
+      vinMissing: "The seller has not added VIN information for this listing.",
+      provider: {
+        not_configured: "An external vehicle-history check is not available yet.",
+        unavailable: "The external vehicle-history check is unavailable right now.",
+        consent_required: "Explicit consent is required before VIN information can be shared with a provider for an external check.",
+        available: "Explicit consent will be requested separately when an external check is available."
+      },
+      signal: {
+        vin_present: "VIN information was added by the seller.",
+        vin_format_valid: "The VIN structure was checked by Yolmod.",
+        vin_format_invalid: "The VIN structure does not meet the expected format.",
+        vin_reference_review_required: "The VIN information may need additional review.",
+        external_check_not_available: "No external vehicle-history result is available.",
+        external_check_requires_consent: "Explicit consent is required for an external check."
+      },
+      provenance: {
+        seller_supplied: "Source: information supplied by the seller",
+        yolmod_internal: "Source: Yolmod structural check",
+        external_provider: "Source: external provider",
+        unavailable: "No external verification result is available"
+      }
+    },
     launcher: "Rif",
     open: "Open Rif assistant",
     close: "Close",

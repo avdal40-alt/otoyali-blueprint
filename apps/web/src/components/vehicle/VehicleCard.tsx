@@ -5,7 +5,6 @@ import Link from "next/link";
 import type { HomeListing, ListingMedia } from "@/lib/supabase/types";
 import { cn } from "@/lib/cn";
 import { cityLabel, conditionLabel, formatMileage, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
-import { priceBadgeClass, priceBadgeLabel, type PriceBadgeKind } from "@/lib/market-price/analysis";
 import { getBestImageUrl } from "@/lib/media/image-variants";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { localizePath } from "@/i18n/config";
@@ -18,14 +17,12 @@ export function VehicleCard({
   listing,
   media = [],
   promoted = false,
-  priceBadge,
   locale
 }: {
   listing: HomeListing;
   media?: ListingMedia[];
   compact?: boolean;
   promoted?: boolean;
-  priceBadge?: PriceBadgeKind | null;
   locale?: Locale;
 }) {
   const { locale: contextLocale, dictionary } = useI18n();
@@ -118,11 +115,6 @@ export function VehicleCard({
         <p className="mt-2 text-xl font-black text-oto-text">{formatPrice(listing.price_amount, listing.currency, activeLocale)}</p>
 
         <div className="mt-2 flex flex-wrap gap-2">
-          {priceBadge ? (
-            <span className={`rounded-full border px-2.5 py-1 text-[11px] font-black ${priceBadgeClass(priceBadge)}`}>
-              {priceBadgeLabel(priceBadge)}
-            </span>
-          ) : null}
           {listing.seller_type ? (
             <span className="rounded-full border border-oto-border bg-oto-surface px-2.5 py-1 text-[11px] font-black text-oto-muted">
               {sellerTypeLabel(listing.seller_type, activeLocale)}

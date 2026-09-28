@@ -1,0 +1,41 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const root = path.resolve(__dirname, "..");
+const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
+const listingPage = read("src", "app", "listing", "[id]", "page.tsx");
+const price = read("src", "components", "vehicle", "PriceIntelligenceCard.tsx");
+const trust = read("src", "components", "vehicle", "TrustStatusCard.tsx");
+const priceRoute = read("src", "app", "api", "ai", "price", "route.ts");
+const trustRoute = read("src", "app", "api", "ai", "trust", "route.ts");
+const tr = read("src", "i18n", "dictionaries", "tr.ts");
+const en = read("src", "i18n", "dictionaries", "en.ts");
+
+assert.match(listingPage, /isAiFeatureEnabled\("ai_price"\)/);
+assert.match(listingPage, /isAiFeatureEnabled\("ai_vin"\)/);
+assert.match(listingPage, /<PriceIntelligenceCard listingId=\{listing\.listing_id\}/);
+assert.match(listingPage, /<TrustStatusCard listingId=\{listing\.listing_id\}/);
+assert.doesNotMatch(listingPage, /MarketPriceAnalysis|getPriceBadgeForListing/);
+assert.match(price, /fetch\("\/api\/ai\/price"/);
+assert.match(price, /available: false/);
+assert.match(price, /role="status" aria-live="polite"/);
+assert.match(price, /limited/);
+assert.match(listingPage, /xl:grid-cols-2/);
+assert.match(price, /formatPrice\(data\.medianAskingPrice/);
+assert.doesNotMatch(price, /fair market value|guaranteed sale price|overpriced|underpriced/i);
+assert.match(tr, /Comparable listing prices|Benzer ilan fiyatları/);
+assert.match(en, /Comparable listing prices/);
+assert.match(tr, /VIN bilgisi satıcı tarafından eklendi/);
+assert.match(en, /VIN information was added by the seller/);
+assert.match(trust, /fetch\("\/api\/ai\/trust"/);
+assert.match(trust, /Authorization: `Bearer \$\{session\.access_token\}`/);
+assert.match(trust, /response\.status === 401 \|\| response\.status === 403/);
+assert.match(trust, /role="status" aria-live="polite"/);
+assert.doesNotMatch(trust, /private_vins|fingerprint|last4|service.role|raw.*vin/i);
+assert.match(priceRoute, /isAiFeatureEnabled\("ai_price"\)/);
+assert.match(trustRoute, /isAiFeatureEnabled\("ai_vin"\)/);
+assert.match(trustRoute, /requireAuthenticatedRequestSupabase/);
+assert.match(trustRoute, /result\.kind === "forbidden"/);
+
+console.log("AI-01F-C price and trust UX contract passed");
