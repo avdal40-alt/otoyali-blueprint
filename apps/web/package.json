@@ -87,6 +87,7 @@
     "test:ai-01e-b1": "node scripts/ai-01e-b1.test.cjs",
     "test:ai-01e-b2": "node scripts/ai-01e-b2.test.cjs",
     "test:ai-01f-a": "node scripts/ai-01f-a.test.cjs",
+    "test:ai-01f-b": "node scripts/ai-01f-b.test.cjs",
     "test:media-sec-01": "node scripts/media-sec-01.test.cjs",
     "test:sell-sec-03b": "node scripts/sell-sec-03b.test.cjs",
     "test:sell-sec-03c": "node scripts/sell-sec-03c.test.cjs"
