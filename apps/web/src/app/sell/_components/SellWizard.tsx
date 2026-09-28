@@ -13,7 +13,6 @@ import { bodyTypeLabel, cityLabel, colorLabel, conditionLabel, damageStateLabel,
 import { getPriceSuggestion } from "@/lib/market-price/analysis";
 import { prepareImageVariants, type PreparedImageSet, type PreparedImageVariantName } from "@/lib/media/client-image-processing";
 import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
-import { releaseStoragePath } from "@/lib/release/compatibility";
 import { normalizeStoredAuthPhoneToE164 } from "@/lib/auth/phone";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
@@ -905,11 +904,7 @@ export function SellWizard({
 
       for (const media of mediaRows) {
         const mediaResult = await listingWriteRequest<{ mediaId: string; isCover: boolean }>(supabase, `/api/listings/${listingId}/media`, "POST", {
-          mediaId: media.id, storagePath: media.storage_path, originalPath: media.original_path,
-          largePath: media.large_path, cardPath: media.card_path, thumbPath: media.thumb_path,
-          sortOrder: media.sort_order, isCover: media.is_cover, width: media.width, height: media.height,
-          aspectRatio: media.aspect_ratio, mimeType: media.mime_type, sizeBytes: media.size_bytes,
-          processedStatus: media.processed_status
+          mediaId: media.id, tempPath: media.temp_path, sortOrder: media.sort_order, isCover: media.is_cover
         });
         if (!isCurrentPublication()) return;
         if (mediaResult.error || !mediaResult.data) {
@@ -1546,7 +1541,7 @@ function validYear(value: string) {
 async function uploadPhotoMedia({
   supabase,
   userId,
-  vehicleProfileId,
+  vehicleProfileId: _vehicleProfileId,
   photo,
   sortOrder,
   isCurrent,
@@ -1563,55 +1558,21 @@ async function uploadPhotoMedia({
   onStatus: (statusText: string) => void;
 }) {
   const mediaId = crypto.randomUUID();
-  const uploads: Partial<Record<PreparedImageVariantName, { path: string }>> = {};
-  const variants = getUploadVariants(photo);
-
-  for (const item of variants) {
-    if (!isCurrent()) return null;
-    onStatus(getVariantUploadStatus(copy, item.name));
-    const path = releaseStoragePath(userId, vehicleProfileId, mediaId, item.name, `${item.name}.${item.extension}`);
-    const { error } = await supabase.storage.from("listing-media").upload(path, item.file, {
-      cacheControl: "31536000",
-      upsert: false,
-      contentType: item.mimeType
-    });
-
-    if (!isCurrent()) return null;
-    if (error) {
-      if (item.required) {
-        throw error;
-      }
-
-      logClientError(`sell.uploadPhoto.${item.name}`, error);
-      continue;
-    }
-
-    uploads[item.name] = { path };
-  }
-
-  const metadata = photo.prepared?.variants.original;
-  const legacyPath = uploads.large?.path ?? uploads.card?.path ?? uploads.original?.path;
-
-  if (!legacyPath) {
-    throw new Error("Photo upload did not produce a usable storage path");
-  }
+  if (!isCurrent()) return null;
+  const mimeType = photo.file.type;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(mimeType) || photo.file.size <= 0 || photo.file.size > 10 * 1024 * 1024) throw new Error("Invalid temporary photo");
+  onStatus(copy.photosUploadingShort);
+  const fileName = `${photo.file.name.replace(/[^A-Za-z0-9._-]/g, "-").slice(0, 80) || "image"}`;
+  const tempPath = `temp/${userId}/${mediaId}/${fileName}`;
+  const { error } = await supabase.storage.from("listing-media").upload(tempPath, photo.file, { cacheControl: "0", upsert: false, contentType: mimeType });
+  if (!isCurrent()) return null;
+  if (error) throw error;
 
   return {
     id: mediaId,
-    storage_path: legacyPath,
-    original_path: uploads.original?.path ?? null,
-    large_path: uploads.large?.path ?? null,
-    card_path: uploads.card?.path ?? null,
-    thumb_path: uploads.thumb?.path ?? null,
+    temp_path: tempPath,
     sort_order: sortOrder,
     is_cover: photo.isCover,
-    width: metadata?.width ?? null,
-    height: metadata?.height ?? null,
-    aspect_ratio: metadata ? Number((metadata.width / metadata.height).toFixed(4)) : null,
-    mime_type: metadata?.mimeType ?? photo.file.type,
-    size_bytes: metadata?.sizeBytes ?? photo.file.size,
-    processed_status: photo.prepared ? "processed" : "failed",
-    processing_error: photo.prepared ? null : "Browser image preprocessing was unavailable."
   };
 }
 

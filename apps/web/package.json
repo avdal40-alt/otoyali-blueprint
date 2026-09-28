@@ -73,19 +73,21 @@
     "test:functional-03c-b": "node scripts/functional-03c-b.test.cjs",
     "test:functional-03c-c": "node scripts/functional-03c-c.test.cjs",
     "test:functional-03b-c": "node scripts/functional-03b-c.test.cjs",
-    "test:stabilization-02": "node scripts/stabilization-02.test.cjs"
-    ,"test:sell-sec-03a": "node scripts/sell-sec-03a.test.cjs"
-    ,"test:ai-01a": "node scripts/ai-01a.test.cjs",
-    "test:ai-01b": "node scripts/ai-01b.test.cjs"
-    ,"test:ai-01c": "node scripts/ai-01c.test.cjs"
-    ,"test:ai-01d-a": "node scripts/ai-01d-a.test.cjs"
-    ,"test:ai-01d-b": "node scripts/ai-01d-b.test.cjs"
-    ,"test:ai-01d-c": "node scripts/ai-01d-c.test.cjs"
-    ,"test:ai-01d-flow": "node scripts/ai-01d-flow.test.cjs"
-    ,"test:ai-01e-a": "node scripts/ai-01e-a.test.cjs"
-    ,"test:ai-01e-a2": "node scripts/ai-01e-a2.test.cjs"
-    ,"test:sell-sec-03b": "node scripts/sell-sec-03b.test.cjs"
-    ,"test:sell-sec-03c": "node scripts/sell-sec-03c.test.cjs"
+    "test:stabilization-02": "node scripts/stabilization-02.test.cjs",
+    "test:sell-sec-03a": "node scripts/sell-sec-03a.test.cjs",
+    "test:ai-01a": "node scripts/ai-01a.test.cjs",
+    "test:ai-01b": "node scripts/ai-01b.test.cjs",
+    "test:ai-01c": "node scripts/ai-01c.test.cjs",
+    "test:ai-01d-a": "node scripts/ai-01d-a.test.cjs",
+    "test:ai-01d-b": "node scripts/ai-01d-b.test.cjs",
+    "test:ai-01d-c": "node scripts/ai-01d-c.test.cjs",
+    "test:ai-01d-flow": "node scripts/ai-01d-flow.test.cjs",
+    "test:ai-01e-a": "node scripts/ai-01e-a.test.cjs",
+    "test:ai-01e-a2": "node scripts/ai-01e-a2.test.cjs",
+    "test:ai-01e-b1": "node scripts/ai-01e-b1.test.cjs",
+    "test:media-sec-01": "node scripts/media-sec-01.test.cjs",
+    "test:sell-sec-03b": "node scripts/sell-sec-03b.test.cjs",
+    "test:sell-sec-03c": "node scripts/sell-sec-03c.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
@@ -96,6 +98,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "read-excel-file": "9.3.10",
+    "sharp": "0.35.4",
     "unzipper-esm": "0.13.3",
     "zod": "^3.25.76"
   },

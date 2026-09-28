@@ -26,7 +26,9 @@ for (const route of [createRoute, editRoute, mediaRoute, coverRoute, submitRoute
 }
 assert.match(createRoute, /create_own_listing_draft/);
 assert.match(editRoute, /save_own_rejected_listing/);
-assert.match(mediaRoute, /attach_own_listing_media/);
+assert.match(mediaRoute, /finalize_own_listing_sanitized_photo/);
+assert.match(mediaRoute, /trustedSanitizedStorage/);
+assert.doesNotMatch(mediaRoute, /attach_own_listing_media/);
 assert.match(coverRoute, /set_own_listing_cover_media/);
 assert.match(submitRoute, /submit_own_listing_for_review/);
 assert.match(resubmitRoute, /resubmit_own_listing_for_review/);

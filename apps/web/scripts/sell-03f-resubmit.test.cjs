@@ -10,6 +10,7 @@ const migration = read(repoRoot, "supabase", "migrations", "20260724120000_sell0
 const wizard = read(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx");
 const listings = read(projectRoot, "src", "app", "profile", "listings", "_components", "MyListingsClient.tsx");
 const resubmitRoute = read(projectRoot, "src", "app", "api", "listings", "[id]", "resubmit", "route.ts");
+const serverWrite = read(projectRoot, "src", "lib", "listings", "server-write.ts");
 
 const rpcName = "resubmit_own_listing_for_review";
 const resubmitStart = migration.indexOf(`CREATE OR REPLACE FUNCTION public.${rpcName}(p_listing_id UUID)`);
@@ -29,7 +30,10 @@ assert.equal(listings.includes(`resubmit: "${rpcName}"`), true, "My Listings map
 assert.equal((`${wizard}\n${listings}`.match(new RegExp(rpcName, "g")) ?? []).length, 1, "Every direct frontend resubmit callsite is audited");
 
 assert.ok(wizard.includes('listingWriteRequest(supabase, `/api/listings/${editListingId}/resubmit`, "POST", {})'));
-assert.ok(resubmitRoute.includes(`rpc("${rpcName}"`));
+assert.ok(resubmitRoute.includes('submitOwnListing(authenticated, listingId.data, "resubmit")'), "Resubmit delegates to the canonical server-write boundary");
+assert.ok(serverWrite.includes('operation === "submit" ? "submit_own_listing_for_review" : "resubmit_own_listing_for_review"'), "The canonical server-write boundary selects the protected resubmit RPC");
+assert.ok(serverWrite.includes("authenticated.supabase.rpc("), "The canonical server-write boundary invokes the RPC with the server-derived authenticated client");
+assert.ok(!resubmitRoute.includes('.from("listings").update('), "Resubmit route cannot directly mutate listing state");
 assert.ok(resubmitRoute.includes("requireAuthenticatedRequestSupabase"));
 assert.ok(wizard.includes("if (resubmitError)"), "Sell edit preserves genuine RPC failures");
 assert.ok(wizard.includes("catch (resubmitRequestError)"), "Sell edit handles thrown transport failures");

@@ -27,7 +27,9 @@ export function getAiServerConfig(): AiServerConfig {
   const provider = rawProvider === "openai" || rawProvider === "local" || rawProvider === "disabled" ? rawProvider : "disabled";
   const model = process.env.AI_MODEL?.trim();
   const openAiReady = provider === "openai" && enabled && Boolean(process.env.OPENAI_API_KEY?.trim()) && Boolean(model) && process.env.AI_DISTRIBUTED_RATE_LIMIT_ENABLED === "true";
-  const mode: AiProviderMode = provider === "local" && !enabled ? "local_preview" : openAiReady ? "external" : "disabled";
+  // Local deterministic vision is an explicitly enabled, non-networked test/runtime mode.
+  // External OpenAI traffic still requires the distributed limiter above.
+  const mode: AiProviderMode = provider === "local" ? "local_preview" : openAiReady ? "external" : "disabled";
 
   return {
     enabled,
