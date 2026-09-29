@@ -5,6 +5,8 @@ import { getDefaultWarnings } from "../domain/safety";
 import type { AiAction, AiChecklistItem, AiIntentId, AiProviderId, AiRequest, AiResponse } from "../domain/types";
 import { detectPlateRegionsDeterministically } from "../photo/plate-region-deterministic";
 import type { ContextualModerationProviderInput, ContextualModerationOutput } from "../moderation/contextual-moderation";
+import type { ImageModerationProviderInput } from "../moderation/image-moderation";
+import { moderateListingImageDeterministically } from "../moderation/image-moderation-deterministic";
 import type { AiProvider } from "./provider";
 
 const providerId: AiProviderId = "local";
@@ -40,6 +42,9 @@ export const localDeterministicAiProvider: AiProvider = {
   },
   async moderateListingContext(input: ContextualModerationProviderInput) {
     return localModerationFixture(input);
+  },
+  async moderateListingImage(input: ImageModerationProviderInput) {
+    return moderateListingImageDeterministically(input);
   }
 };
 

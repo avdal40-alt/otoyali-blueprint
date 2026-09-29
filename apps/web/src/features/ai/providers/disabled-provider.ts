@@ -3,6 +3,7 @@ import { getDefaultWarnings } from "../domain/safety";
 import type { PlateDetectionRequest } from "../photo/plate-region-contract";
 import type { AiProvider } from "./provider";
 import type { ContextualModerationProviderInput } from "../moderation/contextual-moderation";
+import type { ImageModerationProviderInput } from "../moderation/image-moderation";
 
 export const disabledAiProvider: AiProvider = {
   id: "disabled",
@@ -31,5 +32,8 @@ export const disabledAiProvider: AiProvider = {
   },
   async moderateListingContext(_input: ContextualModerationProviderInput) {
     throw new Error("contextual_moderation_provider_unavailable");
+  },
+  async moderateListingImage(_input: ImageModerationProviderInput) {
+    throw new Error("image_moderation_provider_unavailable");
   }
 };

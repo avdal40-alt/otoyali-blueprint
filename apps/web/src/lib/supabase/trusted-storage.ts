@@ -12,6 +12,9 @@ function trustedStorageClient() {
 
 /** Storage-only capability. Database mutations remain with the authenticated actor RPC. */
 export const trustedSanitizedStorage = {
+  download(path: string) {
+    return trustedStorageClient().storage.from("listing-media").download(path);
+  },
   upload(path: string, contents: Uint8Array) {
     return trustedStorageClient().storage.from("listing-media").upload(path, contents, { contentType: "image/webp", cacheControl: "31536000", upsert: false });
   },
