@@ -2,6 +2,7 @@ import { t } from "@/i18n/get-dictionary";
 import { getDefaultWarnings } from "../domain/safety";
 import type { PlateDetectionRequest } from "../photo/plate-region-contract";
 import type { AiProvider } from "./provider";
+import type { ContextualModerationProviderInput } from "../moderation/contextual-moderation";
 
 export const disabledAiProvider: AiProvider = {
   id: "disabled",
@@ -27,5 +28,8 @@ export const disabledAiProvider: AiProvider = {
   },
   async detectPlateRegions(_request: PlateDetectionRequest) {
     throw new Error("vision_provider_unavailable");
+  },
+  async moderateListingContext(_input: ContextualModerationProviderInput) {
+    throw new Error("contextual_moderation_provider_unavailable");
   }
 };

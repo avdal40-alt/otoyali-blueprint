@@ -21,7 +21,7 @@ Git and verified test results are source of truth; this file is a reconciliation
 | Current stage status | AI-01G-B — Contextual Moderation COMPLETE |
 | Last completed stage | AI-01G-B — Contextual Moderation |
 | Last completed product stage | AI-01G-B — Contextual Moderation |
-| Last completed stage commit | Current stage commit (`feat(ai): add contextual moderation`) |
+| Last completed stage commit | Current stage follow-up commit (`feat(ai): add contextual moderation provider`) |
 | Last safe pre-stage commit | `c27981ca29e0818976172a557df72676a01fae64` (`feat(ai): add moderation foundation`) |
 | Latest infrastructure patch | CONTINUOUS-POWERSHELL51-NATIVE-STDERR-01 |
 | Last safe infrastructure baseline | `0669fb714542ef42c4ca86d13c6df5735cbab1b4` |
@@ -39,7 +39,7 @@ Git and verified test results are source of truth; this file is a reconciliation
 | Production status | BLOCKED — manual-only |
 | Known blockers | Remote environment identity remains unverified and blocks remote actions. |
 | Unresolved external-provider decisions | AI, SMS, video, CAPTCHA, analytics, email/push, and VIN/TRAMER/SBM providers remain unresolved. |
-| Last run timestamp | 2026-09-29 — AI-01G-B completed locally with a bounded contextual fixture, strict output contract, and one additive private provenance migration; no external provider or production action. |
+| Last run timestamp | 2026-09-29 — AI-01G-B provider capability completed locally with strict structured output and no external production action. |
 
 ## Next controlled-run preconditions
 

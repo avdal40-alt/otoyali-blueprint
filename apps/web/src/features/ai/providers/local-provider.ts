@@ -4,6 +4,7 @@ import { getAiIntent } from "../domain/intents";
 import { getDefaultWarnings } from "../domain/safety";
 import type { AiAction, AiChecklistItem, AiIntentId, AiProviderId, AiRequest, AiResponse } from "../domain/types";
 import { detectPlateRegionsDeterministically } from "../photo/plate-region-deterministic";
+import type { ContextualModerationProviderInput, ContextualModerationOutput } from "../moderation/contextual-moderation";
 import type { AiProvider } from "./provider";
 
 const providerId: AiProviderId = "local";
@@ -36,8 +37,23 @@ export const localDeterministicAiProvider: AiProvider = {
   },
   async detectPlateRegions(request) {
     return detectPlateRegionsDeterministically(request);
+  },
+  async moderateListingContext(input: ContextualModerationProviderInput) {
+    return localModerationFixture(input);
   }
 };
+
+function localModerationFixture(input: ContextualModerationProviderInput): ContextualModerationOutput {
+  const text = `${input.description ?? ""}\n${input.sellerNotes ?? ""}`.toLocaleLowerCase("tr-TR"); const field = input.description ? "description" : "seller_notes";
+  if (/ignore all previous|system:|return allow|\{.*allow/i.test(text)) return { signals: [], overallRecommendation: "allow" };
+  if (/seni bulup|öldür|tehdit/i.test(text)) return { signals: [{ code: "THREAT", severity: "high", confidence: "high", field, evidence: "[explicit-threat]", recommendedAction: "review" }], overallRecommendation: "review" };
+  if (/insan değil|haşere/i.test(text)) return { signals: [{ code: "HATE_OR_DEHUMANIZING_LANGUAGE", severity: "high", confidence: "high", field, evidence: "[dehumanizing-language]", recommendedAction: "review" }], overallRecommendation: "review" };
+  if (/sürekli aşağıla|rezil et/i.test(text)) return { signals: [{ code: "HARASSMENT", severity: "medium", confidence: "high", field, evidence: "[targeted-harassment]", recommendedAction: "review" }], overallRecommendation: "review" };
+  if (/kripto.*kazanç|bayilik.*fırsatı/i.test(text)) return { signals: [{ code: "SEMANTIC_SPAM", severity: "medium", confidence: "high", field, evidence: "[semantic-spam]", recommendedAction: "review" }], overallRecommendation: "review" };
+  if (/blorpt zzzq|asdf qwer zxcv/i.test(text)) return { signals: [{ code: "SEMANTIC_NONSENSE", severity: "medium", confidence: "high", field, evidence: "[semantic-nonsense]", recommendedAction: "review" }], overallRecommendation: "review" };
+  if (/mavi mesajcıya yaz|sosyal medyada beni bul/i.test(text)) return { signals: [{ code: "CONTACT_OR_LINK_BYPASS", severity: "medium", confidence: "high", field, evidence: "[contextual-contact-bypass]", recommendedAction: "ask_edit" }], overallRecommendation: "ask_edit" };
+  return { signals: [], overallRecommendation: "allow" };
+}
 
 type LocalResponseShape = Pick<AiResponse, "status" | "message" | "structuredData" | "suggestions" | "actions" | "warnings">;
 
