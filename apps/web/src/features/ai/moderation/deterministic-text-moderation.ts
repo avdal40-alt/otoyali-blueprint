@@ -3,16 +3,16 @@ import "server-only";
 import { DETERMINISTIC_MODERATION_RULESET_VERSION, deterministicAbuseRules, moderationRuleIds, ownedListingHosts } from "./deterministic-rules";
 
 export type ModerationAction = "allow" | "ask_edit" | "review" | "block";
-export type ModerationSignalCode = "PROFANITY_OR_ABUSE" | "CONTACT_IN_TEXT" | "EXTERNAL_LINK" | "SPAM_PATTERN" | "NONSENSE_OR_EXCESSIVE_REPETITION";
+export type ModerationSignalCode = "PROFANITY_OR_ABUSE" | "CONTACT_IN_TEXT" | "EXTERNAL_LINK" | "SPAM_PATTERN" | "NONSENSE_OR_EXCESSIVE_REPETITION" | "HARASSMENT" | "THREAT" | "HATE_OR_DEHUMANIZING_LANGUAGE" | "SEMANTIC_SPAM" | "SEMANTIC_NONSENSE" | "CONTACT_OR_LINK_BYPASS";
 export type ModerationTextField = "description" | "seller_notes";
 export type ModerationSeverity = "low" | "medium" | "high";
-export type ModerationEvidence = { matchClass: "lexicon" | "phone" | "contact_handle" | "external_url" | "repetition" | "punctuation"; redactedExcerpt: "[abusive-term]" | "[phone]" | "[contact-handle]" | "[external-link]" | "[repetition]" | "[excessive-punctuation]"; ruleId: string };
+export type ModerationEvidence = { matchClass: "lexicon" | "phone" | "contact_handle" | "external_url" | "repetition" | "punctuation" | "contextual"; redactedExcerpt: "[abusive-term]" | "[phone]" | "[contact-handle]" | "[external-link]" | "[repetition]" | "[excessive-punctuation]" | "[contextual-abuse]" | "[targeted-harassment]" | "[explicit-threat]" | "[dehumanizing-language]" | "[semantic-spam]" | "[semantic-nonsense]" | "[contextual-contact-bypass]"; ruleId: string };
 
 export type ModerationSignal = {
   code: ModerationSignalCode;
   severity: ModerationSeverity;
-  confidence: "high";
-  source: "deterministic";
+  confidence: "low" | "medium" | "high";
+  source: "deterministic" | "contextual_ai";
   field: ModerationTextField;
   evidence: ModerationEvidence;
   recommendedAction: Exclude<ModerationAction, "block">;
