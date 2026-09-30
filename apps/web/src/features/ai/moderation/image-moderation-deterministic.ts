@@ -12,5 +12,10 @@ export function moderateListingImageDeterministically(input: ImageModerationProv
     : input.testFixture === "damage" ? [{ code: "POSSIBLE_VISIBLE_DAMAGE", confidence: "low", evidence: "[possible-visible-damage]", recommendedAction: "review" }]
     : input.testFixture === "contact_qr" ? [{ code: "CONTACT_IN_IMAGE", confidence: "high", evidence: "[contact-overlay]", recommendedAction: "ask_edit" }, { code: "QR_CODE_PRESENT", confidence: "medium", evidence: "[qr-present]", recommendedAction: "ask_edit" }]
     : [];
-  return imageModerationOutputSchema.parse({ signals });
+  const vehicleIdentity = input.testFixture === "motorcycle" ? { category: "motorcycle", confidence: "high" }
+    : input.testFixture === "commercial_van" ? { category: "commercial_van", confidence: "high", bodyType: "commercial" }
+    : input.testFixture === "detail" ? { category: "insufficient_for_vehicle_identity", confidence: "high" }
+    : input.testFixture === "uncertain_make" ? { category: "passenger_car", confidence: "low" }
+    : { category: "passenger_car", confidence: "high", bodyType: input.expectedVehicle?.bodyType === "suv" ? "suv" : "sedan" };
+  return imageModerationOutputSchema.parse({ signals, vehicleIdentity });
 }

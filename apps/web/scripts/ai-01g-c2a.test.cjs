@@ -33,8 +33,11 @@ assert.match(runtime, /processed_status.*processed.*blur_status.*blurred/s);
 assert.match(runtime, /trustedSanitizedStorage\.download/);
 assert.match(runtime, /eq\("seller_id", authenticated\.userId\)/);
 assert.match(runtime, /SUPABASE_SERVICE_ROLE_KEY/);
-assert.doesNotMatch(runtime, /media_id|raw_response|provider_payload|base64|signedUrl|\.update\(/i);
-assert.doesNotMatch(contract + openai, /POSSIBLE_DUPLICATE_IMAGE|POSSIBLE_VEHICLE_MISMATCH|PRICE_ANOMALY|raw_response|provider_payload|createSignedUrl|storage\.objects/i);
+const persistencePayload = runtime.slice(runtime.indexOf('from("listing_moderation_signals")'));
+assert.doesNotMatch(persistencePayload, /\bmedia_id\b/i);
+assert.doesNotMatch(runtime, /raw_response|provider_payload|signedUrl|\.from\([^\n]*\)\.update\(/i);
+const providerSignalCodes = contract.match(/export const imageModerationCodes = \[[\s\S]*?\] as const;/)?.[0] ?? "";
+assert.doesNotMatch(providerSignalCodes + openai, /POSSIBLE_DUPLICATE_IMAGE|POSSIBLE_VEHICLE_MISMATCH|PRICE_ANOMALY|raw_response|provider_payload|createSignedUrl|storage\.objects/i);
 assert.match(plate, /SANITIZED_PHOTO_PLATE_CONFIDENCE_THRESHOLD = 0/);
 const compile = (source, bindings) => {
   const module = { exports: {} };

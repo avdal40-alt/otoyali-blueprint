@@ -5,8 +5,9 @@ import { isAiFeatureEnabled } from "../feature-registry";
 import { privateVisionImageInputSchema, type PrivateVisionImageInput } from "../photo/plate-region-contract";
 import { getConfiguredAiProvider } from "../providers/provider-registry";
 
-export const IMAGE_MODERATION_SCHEMA_VERSION = "ai-01g-c2a-v1";
+export const IMAGE_MODERATION_SCHEMA_VERSION = "ai-01g-c2b-v1";
 export const imageModerationCodes = ["CONTACT_IN_IMAGE", "QR_CODE_PRESENT", "LOW_QUALITY_IMAGE", "POSSIBLE_VISIBLE_DAMAGE"] as const;
+const bodyTypes = ["sedan", "hatchback", "suv", "coupe", "wagon", "pickup", "minivan", "commercial", "other"] as const;
 
 const signalSchema = z.object({
   code: z.enum(imageModerationCodes),
@@ -25,13 +26,15 @@ const signalSchema = z.object({
 });
 
 export const imageModerationOutputSchema = z.object({
-  signals: z.array(signalSchema).max(imageModerationCodes.length)
+  signals: z.array(signalSchema).max(imageModerationCodes.length),
+  vehicleIdentity: z.object({ category: z.enum(["passenger_car", "motorcycle", "commercial_van", "insufficient_for_vehicle_identity"]), confidence: z.enum(["low", "medium", "high"]), bodyType: z.enum(bodyTypes).optional() }).strict().optional()
 }).strict().superRefine((value, context) => {
   if (new Set(value.signals.map((signal) => signal.code)).size !== value.signals.length) context.addIssue({ code: z.ZodIssueCode.custom, message: "Duplicate image moderation signals are not allowed." });
 });
 
 export type ImageModerationOutput = z.infer<typeof imageModerationOutputSchema>;
-export type ImageModerationProviderInput = { image: PrivateVisionImageInput; mediaId: string; schemaVersion: string; testFixture?: "clean" | "contact" | "qr" | "low_quality" | "damage" | "contact_qr" | "malformed" | "unavailable" };
+export type ImageModerationPersistenceSignal = ImageModerationOutput["signals"][number] | { code: "POSSIBLE_DUPLICATE_IMAGE"; confidence: "high"; evidence: "[exact-duplicate-image]"; recommendedAction: "ask_edit" } | { code: "POSSIBLE_VEHICLE_MISMATCH"; confidence: "high"; evidence: "[possible-vehicle-mismatch]"; recommendedAction: "review" };
+export type ImageModerationProviderInput = { image: PrivateVisionImageInput; mediaId: string; schemaVersion: string; expectedVehicle?: { bodyType?: string | null }; testFixture?: "clean" | "contact" | "qr" | "low_quality" | "damage" | "contact_qr" | "motorcycle" | "commercial_van" | "uncertain_make" | "detail" | "malformed" | "unavailable" };
 
 /** Server-only image classification. It deliberately returns closed classifications, never OCR, QR content, image bytes, or model prose. */
 export async function moderateListingImage(input: ImageModerationProviderInput): Promise<{ kind: "ok"; output: ImageModerationOutput } | { kind: "disabled" | "unavailable" | "invalid" }> {
