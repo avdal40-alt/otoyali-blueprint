@@ -9,6 +9,7 @@ import { IMAGE_MODERATION_SCHEMA_VERSION, moderateListingImage, type ImageModera
 const MAX_LISTING_IMAGE_MODERATION_IMAGES = 12;
 const persistedFieldName = "description" as const;
 type SanitizedMedia = { id: string; storage_path: string; mime_type: "image/jpeg" | "image/png" | "image/webp"; processed_status: string; blur_status: string };
+export type OwnListingImageModerationResult = { kind: "ok"; scannedImageCount: number; signals: ImageModerationPersistenceSignal[] } | { kind: "not_found" | "unavailable" | "invalid" | "persistence_unavailable" };
 
 /**
  * Server-only, owner-authorized execution seam for finalized sanitized media.
@@ -16,6 +17,16 @@ type SanitizedMedia = { id: string; storage_path: string; mime_type: "image/jpeg
  * listing/run-scoped and stores classifications only, never image identifiers or bytes.
  */
 export async function moderateOwnListingImages(authenticated: AuthenticatedRequestSupabase, listingId: string): Promise<{ kind: "ok"; scannedImageCount: number; signalCount: number } | { kind: "not_found" | "unavailable" | "invalid" | "persistence_unavailable" }> {
+  const analyzed = await analyzeOwnListingImages(authenticated, listingId);
+  if (analyzed.kind !== "ok") return analyzed;
+  const trusted = trustedModerationClient();
+  if (!trusted) return { kind: "persistence_unavailable" };
+  if (!await persistImageModerationRun(trusted, listingId, authenticated.userId, analyzed.signals)) return { kind: "persistence_unavailable" };
+  return { kind: "ok", scannedImageCount: analyzed.scannedImageCount, signalCount: analyzed.signals.length };
+}
+
+/** Analyzes finalized sanitized media only; the canonical G-C run owns persistence. */
+export async function analyzeOwnListingImages(authenticated: AuthenticatedRequestSupabase, listingId: string): Promise<OwnListingImageModerationResult> {
   const { data: listing, error: listingError } = await authenticated.supabase.schema("marketplace").from("listings").select("id,vehicle_profile_id").eq("id", listingId).eq("seller_id", authenticated.userId).maybeSingle();
   if (listingError || !listing?.vehicle_profile_id) return { kind: "not_found" };
   const trusted = trustedModerationClient();
@@ -43,8 +54,7 @@ export async function moderateOwnListingImages(authenticated: AuthenticatedReque
   }
   if (hasExactDuplicate) allSignals.push({ code: "POSSIBLE_DUPLICATE_IMAGE", confidence: "high", evidence: "[exact-duplicate-image]", recommendedAction: "ask_edit" });
   if (hasClearMismatch) allSignals.push({ code: "POSSIBLE_VEHICLE_MISMATCH", confidence: "high", evidence: "[possible-vehicle-mismatch]", recommendedAction: "review" });
-  if (!await persistImageModerationRun(trusted, listing.id, authenticated.userId, allSignals)) return { kind: "persistence_unavailable" };
-  return { kind: "ok", scannedImageCount: media.length, signalCount: allSignals.length };
+  return { kind: "ok", scannedImageCount: media.length, signals: allSignals };
 }
 
 function trustedModerationClient() {
