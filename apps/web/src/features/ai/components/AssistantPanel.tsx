@@ -12,6 +12,7 @@ import { useAssistant } from "../hooks/useAssistant";
 import { AssistantDisclaimer } from "./AssistantDisclaimer";
 import { AssistantMessage } from "./AssistantMessage";
 import { AssistantSuggestions } from "./AssistantSuggestions";
+import { AiStateMessage } from "./AiStateMessage";
 import { readAiCopy } from "./copy";
 
 export function AssistantPanel({
@@ -111,11 +112,7 @@ export function AssistantPanel({
               {readAiCopy(dictionary, "loading", "Rif is preparing a response...")}
             </div>
           ) : null}
-          {error ? (
-            <p className="mt-4 rounded-md border border-oto-danger/15 bg-oto-danger/10 p-3 text-sm font-bold text-oto-danger" role="alert">
-              {error}
-            </p>
-          ) : null}
+          {error ? <div className="mt-4"><AiStateMessage state="error">{error}</AiStateMessage></div> : null}
         </div>
 
         <div className="border-t border-oto-border bg-white p-4">
