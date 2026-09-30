@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { ButtonLink } from "./Button";
 import { cn } from "@/lib/cn";
 import { useI18n } from "@/i18n/client";
@@ -47,10 +48,11 @@ export function LoadingState({ label }: { label?: string }) {
   );
 }
 
-export function ErrorState({ message }: { message: string }) {
+export function ErrorState({ message, title, action }: { message?: string; title?: string; action?: ReactNode }) {
   return (
     <div className="rounded-card border border-oto-danger/15 bg-oto-danger/10 p-5 text-error text-oto-danger" role="alert">
-      {message}
+      {message ?? title}
+      {action ? <div className="mt-3">{action}</div> : null}
     </div>
   );
 }

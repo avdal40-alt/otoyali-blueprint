@@ -41,6 +41,7 @@ export type Dictionary = {
   seo: DictionarySection;
   verticals: DictionarySection;
   ai: DictionarySection;
+  moderator: DictionarySection;
   futureVerticals: DictionarySection;
   format: DictionarySection;
 };
@@ -53,6 +54,7 @@ export type ClientDictionary = Pick<
   | "home"
   | "listing"
   | "sell"
+  | "moderator"
   | "profile"
   | "notifications"
   | "messages"

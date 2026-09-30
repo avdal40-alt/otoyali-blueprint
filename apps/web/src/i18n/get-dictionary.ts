@@ -33,6 +33,7 @@ export function getClientDictionary(locale?: string | null): ClientDictionary {
     myListings: dictionary.myListings,
     services: dictionary.services,
     admin: dictionary.admin,
+    moderator: dictionary.moderator,
     auth: dictionary.auth,
     errors: dictionary.errors,
     validation: dictionary.validation,
