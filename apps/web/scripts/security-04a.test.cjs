@@ -10,6 +10,7 @@ const migrationsRoot = path.join(repoRoot, "supabase", "migrations");
 const version = "20260826120000";
 const migrationName = `${version}_security04a_profile_phone_identity_hardening.sql`;
 const migrationPath = path.join(migrationsRoot, migrationName);
+const pinnedSupabaseCli = "C:\\Users\\Work\\AppData\\Local\\npm-cache\\_npx\\66b4952730d9cac8\\node_modules\\@supabase\\cli-windows-x64\\bin\\supabase.exe";
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
@@ -30,14 +31,7 @@ function run(command, args, options = {}) {
 }
 
 function spawnSupabase(...args) {
-  if (process.platform === "win32") {
-    return spawnSync(
-      process.env.ComSpec || "cmd.exe",
-      ["/d", "/s", "/c", ["npx.cmd", "supabase", ...args].join(" ")],
-      { cwd: repoRoot, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 }
-    );
-  }
-  return spawnSync("npx", ["supabase", ...args], {
+  return spawnSync(pinnedSupabaseCli, args, {
     cwd: repoRoot,
     encoding: "utf8",
     maxBuffer: 16 * 1024 * 1024
@@ -60,28 +54,12 @@ function supabase(...args) {
   return requireSuccessfulSupabaseOutput(spawnSupabase(...args), args);
 }
 
-function getSupabaseHumanStatus(result = spawnSupabase("status")) {
-  return requireSuccessfulSupabaseOutput(result, ["status"]);
-}
-
 function getSupabaseJsonStatus(result = spawnSupabase("status", "--output", "json")) {
   return requireSuccessfulSupabaseOutput(result, ["status", "--output", "json"]);
 }
 
-function requireExplicitUnlinkedHumanStatus(output) {
-  const lines = String(output ?? "").replace(/\r\n?/g, "\n").split("\n");
-  assert.ok(
-    lines.some((line) => line.trim() === "Not linked."),
-    "Human Supabase status must contain an exact standalone 'Not linked.' line"
-  );
-}
-
 function parseSupabaseJsonStatus(output) {
-  const normalizedText = String(output ?? "").trim().replace(/\r\n?/g, "\n");
-  const lines = normalizedText.split("\n");
-  const jsonText = lines[0]?.trim() === "Not linked."
-    ? lines.slice(1).join("\n").trim()
-    : normalizedText;
+  const jsonText = String(output ?? "").trim().replace(/\r\n?/g, "\n");
 
   if (!jsonText.startsWith("{") || !jsonText.endsWith("}")) {
     throw new Error("Supabase JSON status did not contain a complete JSON object");
@@ -112,18 +90,13 @@ function requireNoSupabaseLinkMarkers(fileExists = fs.existsSync) {
   }
 }
 
-function requireLocalSupabaseStatus({ humanStatusOutput, jsonStatusOutput, fileExists = fs.existsSync }) {
+function requireLocalSupabaseStatus({ jsonStatusOutput, fileExists = fs.existsSync }) {
   requireNoSupabaseLinkMarkers(fileExists);
-  requireExplicitUnlinkedHumanStatus(humanStatusOutput);
 
   const status = parseSupabaseJsonStatus(jsonStatusOutput);
   const hasLinkedProject = Object.prototype.hasOwnProperty.call(status, "linked_project");
   if (hasLinkedProject) {
-    const linkedProject = status.linked_project;
-    assert.ok(
-      linkedProject === null || (typeof linkedProject === "string" && linkedProject.trim() === ""),
-      "Supabase JSON status must not contain a linked project ref"
-    );
+    assert.equal(status.linked_project, null, "Supabase JSON status must affirmatively report no linked project");
   }
 
   for (const key of ["DB_URL", "API_URL", "REST_URL", "GRAPHQL_URL"]) {
@@ -231,7 +204,6 @@ const localStatusJson = JSON.stringify(localStatusWithoutProjectRef);
 
 assert.deepEqual(
   requireLocalSupabaseStatus({
-    humanStatusOutput: "Not linked.\nLocal development setup is running.",
     jsonStatusOutput: localStatusJson,
     fileExists: noLinkMarkers
   }),
@@ -239,31 +211,13 @@ assert.deepEqual(
 );
 assert.deepEqual(
   requireLocalSupabaseStatus({
-    humanStatusOutput: "Not linked.\r\nLocal development setup is running.\r\n",
-    jsonStatusOutput: `Not linked.\r\n${localStatusJson}`,
+    jsonStatusOutput: JSON.stringify({ ...localStatusWithoutProjectRef, linked_project: null }),
     fileExists: noLinkMarkers
   }),
-  localStatusWithoutProjectRef
+  { ...localStatusWithoutProjectRef, linked_project: null }
 );
 assert.throws(
   () => requireLocalSupabaseStatus({
-    humanStatusOutput: "Local development setup is running.",
-    jsonStatusOutput: localStatusJson,
-    fileExists: noLinkMarkers
-  }),
-  /exact standalone 'Not linked\.'/
-);
-assert.throws(
-  () => requireLocalSupabaseStatus({
-    humanStatusOutput: "Project not linked maybe.\nNot linked to production.",
-    jsonStatusOutput: localStatusJson,
-    fileExists: noLinkMarkers
-  }),
-  /exact standalone 'Not linked\.'/
-);
-assert.throws(
-  () => requireLocalSupabaseStatus({
-    humanStatusOutput: "Not linked.",
     jsonStatusOutput: localStatusJson,
     fileExists: (markerPath) => markerPath.endsWith("project-ref")
   }),
@@ -271,7 +225,6 @@ assert.throws(
 );
 assert.throws(
   () => requireLocalSupabaseStatus({
-    humanStatusOutput: "Not linked.",
     jsonStatusOutput: JSON.stringify({
       ...localStatusWithoutProjectRef,
       API_URL: "https://production-ref.supabase.co"
@@ -282,7 +235,6 @@ assert.throws(
 );
 assert.throws(
   () => requireLocalSupabaseStatus({
-    humanStatusOutput: "Not linked.",
     jsonStatusOutput: JSON.stringify({
       ...localStatusWithoutProjectRef,
       DB_URL: "postgresql://postgres:postgres@192.168.1.25:54322/postgres"
@@ -293,7 +245,6 @@ assert.throws(
 );
 assert.throws(
   () => requireLocalSupabaseStatus({
-    humanStatusOutput: "Not linked.",
     jsonStatusOutput: '{"DB_URL":}',
     fileExists: noLinkMarkers
   }),
@@ -301,15 +252,10 @@ assert.throws(
 );
 assert.throws(
   () => requireLocalSupabaseStatus({
-    humanStatusOutput: "Not linked.",
     jsonStatusOutput: JSON.stringify({ DB_URL: localStatusWithoutProjectRef.DB_URL }),
     fileExists: noLinkMarkers
   }),
   /API_URL must be present/
-);
-assert.throws(
-  () => getSupabaseHumanStatus(failedStatusCommand),
-  /supabase status failed with status 1/
 );
 assert.throws(
   () => getSupabaseJsonStatus(failedStatusCommand),
@@ -317,24 +263,30 @@ assert.throws(
 );
 assert.throws(
   () => requireLocalSupabaseStatus({
-    humanStatusOutput: getSupabaseHumanStatus(successfulStatusCommand("Not linked.")),
     jsonStatusOutput: getSupabaseJsonStatus(successfulStatusCommand(JSON.stringify({
       ...localStatusWithoutProjectRef,
-      linked_project: "production-ref"
+      linked_project: "uivazzvxelptjmbbfvir"
     }))),
     fileExists: noLinkMarkers
   }),
-  /linked project ref/
+  /affirmatively report no linked project/
+);
+assert.throws(
+  () => requireLocalSupabaseStatus({
+    jsonStatusOutput: JSON.stringify({ ...localStatusWithoutProjectRef, linked_project: false }),
+    fileExists: noLinkMarkers
+  }),
+  /affirmatively report no linked project/
 );
 
 if (process.argv.slice(2).includes("--status-parser-self-test")) {
   assert.deepEqual(process.argv.slice(2), ["--status-parser-self-test"]);
+  requireLocalSupabaseStatus({ jsonStatusOutput: getSupabaseJsonStatus() });
   console.log("SECURITY-04A local status parser passed");
   process.exit(0);
 }
 
 const status = requireLocalSupabaseStatus({
-  humanStatusOutput: getSupabaseHumanStatus(),
   jsonStatusOutput: getSupabaseJsonStatus()
 });
 

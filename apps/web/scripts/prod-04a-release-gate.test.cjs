@@ -12,6 +12,8 @@ const serverClient = fs.readFileSync(path.join(projectRoot, "src", "lib", "supab
 const middleware = fs.readFileSync(path.join(projectRoot, "src", "middleware.ts"), "utf8");
 const sellWizard = fs.readFileSync(path.join(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx"), "utf8");
 const myListings = fs.readFileSync(path.join(projectRoot, "src", "app", "profile", "listings", "_components", "MyListingsClient.tsx"), "utf8");
+const mediaRoute = fs.readFileSync(path.join(projectRoot, "src", "app", "api", "listings", "[id]", "media", "route.ts"), "utf8");
+const trustedStorage = fs.readFileSync(path.join(projectRoot, "src", "lib", "supabase", "trusted-storage.ts"), "utf8");
 
 for (const required of [
   "mode IN ('normal', 'maintenance', 'enforce_minimum')",
@@ -38,8 +40,22 @@ assert.match(compatibility, /YOLMOD_RELEASE_HEADER = "x-yolmod-release"/);
 assert.match(compatibility, /YOLMOD_STORAGE_RELEASE_SEGMENT = `prod04a-\$\{YOLMOD_RELEASE\}`/);
 assert.match(browserClient, /headers: releaseHeaders\(\)/);
 assert.match(serverClient, /headers: releaseHeaders\(\)/);
-assert.match(sellWizard, /releaseStoragePath\(userId,/);
-assert.match(myListings, /releaseStoragePath\(userId,/);
+assert.match(sellWizard, /const tempPath = `temp\/\$\{userId\}\/\$\{mediaId\}\//);
+assert.match(sellWizard, /storage\.from\("listing-media"\)\.upload\(tempPath,/);
+assert.match(sellWizard, /`\/api\/listings\/\$\{listingId\}\/media`/);
+assert.doesNotMatch(sellWizard, /releaseStoragePath|storage\.from\("listing-media"\)\.remove/);
+assert.match(myListings, /signImageStorageUrlMap/);
+assert.doesNotMatch(myListings, /releaseStoragePath/);
+assert.match(mediaRoute, /requireAuthenticatedRequestSupabase/);
+assert.match(mediaRoute, /eq\("seller_id", authenticated\.userId\)/);
+assert.match(mediaRoute, /tempPath\.startsWith\(`temp\/\$\{authenticated\.userId\}\/\$\{payload\.mediaId\}\//);
+assert.match(mediaRoute, /sanitizePrivatePhoto/);
+assert.match(mediaRoute, /trustedSanitizedStorage\.upload/);
+assert.match(mediaRoute, /finalize_own_listing_sanitized_photo/);
+assert.match(mediaRoute, /storage\.from\("listing-media"\)\.remove\(\[payload\.tempPath\]\)/);
+assert.doesNotMatch(mediaRoute, /createSignedUrl|releaseStoragePath/);
+assert.match(trustedStorage, /import "server-only"/);
+assert.match(trustedStorage, /SUPABASE_SERVICE_ROLE_KEY/);
 assert.match(middleware, /NEXT_PUBLIC_YOLMOD_CUTOVER_MODE === "maintenance"/);
 assert.match(middleware, /status: 503/);
 

@@ -43,8 +43,10 @@ DELETE FROM public.profiles WHERE id IN ('${ids.userA}','${ids.userB}');
 DELETE FROM auth.users WHERE id IN ('${ids.userA}','${ids.userB}');
 `;
 
-const pathA = `${ids.userA}/${ids.profileA1}/${ids.mediaA}/original/original.webp`;
-const pathAThumb = `${ids.userA}/${ids.profileA1}/${ids.mediaA}/thumb/thumb.webp`;
+const pathA = `public/${ids.profileA1}/${ids.mediaA}/master.webp`;
+const pathALarge = `public/${ids.profileA1}/${ids.mediaA}/large.webp`;
+const pathACard = `public/${ids.profileA1}/${ids.mediaA}/card.webp`;
+const pathAThumb = `public/${ids.profileA1}/${ids.mediaA}/thumb.webp`;
 const pathA2 = `${ids.userA}/${ids.profileA2}/${ids.mediaA2}/original/original.webp`;
 const pathB = `${ids.userB}/${ids.profileB}/${ids.mediaA}/original/original.webp`;
 const pathBThumb = `${ids.userB}/${ids.profileB}/${ids.mediaA}/thumb/thumb.webp`;
@@ -52,7 +54,6 @@ const pathBLarge = `${ids.userB}/${ids.profileB}/${ids.mediaA}/large/large.webp`
 const pathBCard = `${ids.userB}/${ids.profileB}/${ids.mediaA}/card/card.webp`;
 const pathServiceA = `${ids.userA}/${ids.profileA1}/${ids.mediaService}/original/original.webp`;
 const orphanPath = `${ids.userA}/sfi001/orphan/original.webp`;
-const legacyPath = `${ids.userA}/sfi001/legacy.webp`;
 
 const runtimeSql = `
 CREATE TEMP TABLE sfi001_results(test text PRIMARY KEY, passed boolean, detail text) ON COMMIT DROP;
@@ -81,22 +82,34 @@ INSERT INTO marketplace.listings (id,vehicle_profile_id,seller_id,status,title,p
  ('${ids.listingA2}','${ids.profileA2}','${ids.userA}','draft','Draft A2',100000,'Adana','pending_review',NULL),
  ('${ids.listingB}','${ids.profileB}','${ids.userB}','draft','Draft B',100000,'Adana','pending_review',NULL);
 INSERT INTO storage.objects (bucket_id,name,owner,owner_id,metadata) VALUES
- ('listing-media','${pathA}','${ids.userA}','${ids.userA}','{"mimetype":"image/webp","size":1}'),
- ('listing-media','${pathAThumb}','${ids.userA}','${ids.userA}','{"mimetype":"image/webp","size":1}'),
+ ('listing-media','${pathA}',NULL,NULL,'{"mimetype":"image/webp","size":1}'),
+ ('listing-media','${pathALarge}',NULL,NULL,'{"mimetype":"image/webp","size":1}'),
+ ('listing-media','${pathACard}',NULL,NULL,'{"mimetype":"image/webp","size":1}'),
+ ('listing-media','${pathAThumb}',NULL,NULL,'{"mimetype":"image/webp","size":1}'),
  ('listing-media','${pathA2}','${ids.userA}','${ids.userA}','{"mimetype":"image/webp","size":1}'),
  ('listing-media','${pathB}','${ids.userB}','${ids.userB}','{"mimetype":"image/webp","size":1}'),
  ('listing-media','${pathBThumb}','${ids.userB}','${ids.userB}','{"mimetype":"image/webp","size":1}'),
  ('listing-media','${pathBLarge}','${ids.userB}','${ids.userB}','{"mimetype":"image/webp","size":1}'),
  ('listing-media','${pathBCard}','${ids.userB}','${ids.userB}','{"mimetype":"image/webp","size":1}'),
  ('listing-media','${pathServiceA}','${ids.userA}','${ids.userA}','{"mimetype":"image/webp","size":1}'),
- ('listing-media','${orphanPath}','${ids.userA}','${ids.userA}','{"mimetype":"image/webp","size":1}'),
- ('vehicle-photos','${legacyPath}','${ids.userA}','${ids.userA}','{"mimetype":"image/webp","size":1}');
+ ('listing-media','${orphanPath}','${ids.userA}','${ids.userA}','{"mimetype":"image/webp","size":1}');
+
+SET LOCAL ROLE service_role;
+INSERT INTO vehicle.profile_media (id,vehicle_profile_id,storage_path,url,original_path,large_path,card_path,thumb_path,media_type,sort_order,is_cover,width,height,aspect_ratio,mime_type,size_bytes,processed_status,blur_status,privacy_version,sanitized_at)
+VALUES ('${ids.mediaA}','${ids.profileA1}','${pathALarge}','${pathALarge}','${pathA}','${pathALarge}','${pathACard}','${pathAThumb}','image',0,true,1,1,1,'image/webp',1,'processed','blurred',1,now());
+RESET ROLE;
 
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims','{"sub":"${ids.userA}","role":"authenticated"}',true);
-INSERT INTO vehicle.profile_media (id,vehicle_profile_id,storage_path,url,original_path,thumb_path,sort_order,is_cover)
-VALUES ('${ids.mediaA}','${ids.profileA1}','${pathA}','http://127.0.0.1:54321/storage/v1/object/authenticated/listing-media/${pathA}','${pathA}','${pathAThumb}',0,true);
-INSERT INTO sfi001_results VALUES ('own object + own vehicle insert',true,'allowed');
+DO $do$ BEGIN
+  BEGIN
+    INSERT INTO vehicle.profile_media (id,vehicle_profile_id,storage_path,url,original_path,sort_order)
+    VALUES ('${ids.mediaA2}','${ids.profileA1}','${pathA}','x','${pathA}',1);
+    INSERT INTO sfi001_results VALUES ('authenticated direct insert denied',false,'unexpectedly allowed');
+  EXCEPTION WHEN insufficient_privilege THEN
+    INSERT INTO sfi001_results VALUES ('authenticated direct insert denied',true,SQLERRM);
+  END;
+END $do$;
 
 DO $do$ BEGIN
   BEGIN
@@ -190,8 +203,12 @@ RESET ROLE;
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims','{"sub":"${ids.userB}","role":"authenticated"}',true);
 DO $do$ BEGIN
-  UPDATE vehicle.profile_media SET sort_order=9 WHERE id='${ids.mediaA}';
-  INSERT INTO sfi001_results VALUES ('USER_B modifying USER_A denied',NOT FOUND,'affected rows='||(CASE WHEN FOUND THEN 1 ELSE 0 END));
+  BEGIN
+    UPDATE vehicle.profile_media SET sort_order=9 WHERE id='${ids.mediaA}';
+    INSERT INTO sfi001_results VALUES ('USER_B modifying USER_A denied',false,'unexpectedly allowed');
+  EXCEPTION WHEN insufficient_privilege THEN
+    INSERT INTO sfi001_results VALUES ('USER_B modifying USER_A denied',true,SQLERRM);
+  END;
 END $do$;
 RESET ROLE;
 
@@ -246,11 +263,9 @@ SELECT set_config('request.jwt.claims','{"role":"anon"}',true);
 INSERT INTO sfi001_results SELECT 'service foreign link not publicly trusted',count(*)=0,'visible='||count(*) FROM storage.objects WHERE bucket_id='listing-media' AND name='${pathB}';
 RESET ROLE;
 
-INSERT INTO vehicle.profile_media (id,vehicle_profile_id,storage_path,url,sort_order,is_cover)
-VALUES ('${ids.mediaLegacy}','${ids.profileA1}','${legacyPath}','legacy',3,false);
 SET LOCAL ROLE anon;
 SELECT set_config('request.jwt.claims','{"role":"anon"}',true);
-INSERT INTO sfi001_results SELECT 'approved legacy vehicle-photos media',count(*)=1,'visible='||count(*) FROM storage.objects WHERE bucket_id='vehicle-photos' AND name='${legacyPath}';
+INSERT INTO sfi001_results SELECT 'legacy vehicle-photos media not exposed',count(*)=0,'visible='||count(*) FROM storage.objects WHERE bucket_id='vehicle-photos' AND name LIKE '${ids.userA}/sfi001/%';
 RESET ROLE;
 
 SELECT test,passed,detail FROM sfi001_results ORDER BY test;
