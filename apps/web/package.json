@@ -96,6 +96,7 @@
     "test:ai-01g-c2b": "node scripts/ai-01g-c2b.test.cjs",
     "test:ai-01g-c2c": "node scripts/ai-01g-c2c.test.cjs",
     "test:ai-01g-d1a": "node scripts/ai-01g-d1a.test.cjs",
+    "test:ai-01g-d1b": "node scripts/ai-01g-d1b.test.cjs",
     "test:media-sec-01": "node scripts/media-sec-01.test.cjs",
     "test:sell-sec-03b": "node scripts/sell-sec-03b.test.cjs",
     "test:sell-sec-03c": "node scripts/sell-sec-03c.test.cjs"

@@ -1,0 +1,7 @@
+import { NextRequest, NextResponse } from "next/server";
+import { privateApiHeaders, requireAuthenticatedRequestSupabase } from "@/lib/supabase/request";
+import { getModeratorQueue, ModeratorReviewError, requireModerator } from "@/features/ai/moderation/moderator-review-runtime";
+
+export const dynamic = "force-dynamic";
+export async function GET(request: NextRequest) { try { const authenticated = await requireAuthenticatedRequestSupabase(request.headers.get("authorization")); if (!authenticated) return NextResponse.json({ error: "Admin oturumu bulunamadı." }, { status: 401, headers: privateApiHeaders }); await requireModerator(authenticated.supabase, authenticated.userId); const rawLimit = request.nextUrl.searchParams.get("limit"); const limit = rawLimit ? Number(rawLimit) : undefined; if (rawLimit && (!Number.isInteger(limit) || limit! < 1 || limit! > 50)) return NextResponse.json({ error: "Geçersiz sayfa boyutu." }, { status: 400, headers: privateApiHeaders }); const data = await getModeratorQueue(authenticated.supabase, { limit, cursor: request.nextUrl.searchParams.get("cursor") }); return NextResponse.json({ data }, { headers: privateApiHeaders }); } catch (error) { return response(error); } }
+function response(error: unknown) { const status = error instanceof ModeratorReviewError ? error.status : 500; const message = error instanceof ModeratorReviewError ? error.message : "Moderasyon kuyruğu yüklenemedi."; return NextResponse.json({ error: message }, { status, headers: privateApiHeaders }); }
