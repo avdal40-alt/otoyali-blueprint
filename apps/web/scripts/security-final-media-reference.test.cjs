@@ -32,17 +32,6 @@ const ids = {
   mediaLegacy: "a4000000-0000-4000-8000-000000000014"
 };
 
-const cleanupSql = `
-SET LOCAL storage.allow_delete_query = 'true';
-DELETE FROM vehicle.profile_media WHERE id IN ('${ids.mediaA}','${ids.mediaA2}','${ids.mediaService}','${ids.mediaLegacy}');
-DELETE FROM marketplace.listings WHERE id IN ('${ids.listingA1}','${ids.listingA2}','${ids.listingB}');
-DELETE FROM vehicle.profile_ownership WHERE vehicle_profile_id IN ('${ids.profileA1}','${ids.profileA2}','${ids.profileB}');
-DELETE FROM vehicle.vehicle_profiles WHERE id IN ('${ids.profileA1}','${ids.profileA2}','${ids.profileB}');
-DELETE FROM storage.objects WHERE name LIKE '${ids.userA}/sfi001/%' OR name LIKE '${ids.userB}/sfi001/%' OR name LIKE '${ids.userA}/%/${ids.mediaA}/%' OR name LIKE '${ids.userA}/%/${ids.mediaA2}/%' OR name LIKE '${ids.userA}/%/${ids.mediaService}/%' OR name LIKE '${ids.userB}/%/${ids.mediaA}/%';
-DELETE FROM public.profiles WHERE id IN ('${ids.userA}','${ids.userB}');
-DELETE FROM auth.users WHERE id IN ('${ids.userA}','${ids.userB}');
-`;
-
 const pathA = `public/${ids.profileA1}/${ids.mediaA}/master.webp`;
 const pathALarge = `public/${ids.profileA1}/${ids.mediaA}/large.webp`;
 const pathACard = `public/${ids.profileA1}/${ids.mediaA}/card.webp`;
@@ -54,6 +43,32 @@ const pathBLarge = `${ids.userB}/${ids.profileB}/${ids.mediaA}/large/large.webp`
 const pathBCard = `${ids.userB}/${ids.profileB}/${ids.mediaA}/card/card.webp`;
 const pathServiceA = `${ids.userA}/${ids.profileA1}/${ids.mediaService}/original/original.webp`;
 const orphanPath = `${ids.userA}/sfi001/orphan/original.webp`;
+const fixtureStoragePaths = [
+  pathA,
+  pathALarge,
+  pathACard,
+  pathAThumb,
+  pathA2,
+  pathB,
+  pathBThumb,
+  pathBLarge,
+  pathBCard,
+  pathServiceA,
+  orphanPath
+];
+
+const cleanupSql = `
+SET LOCAL storage.allow_delete_query = 'true';
+DELETE FROM vehicle.profile_media WHERE id IN ('${ids.mediaA}','${ids.mediaA2}','${ids.mediaService}','${ids.mediaLegacy}');
+DELETE FROM storage.objects
+WHERE bucket_id = 'listing-media'
+  AND name IN (${fixtureStoragePaths.map((path) => `'${path}'`).join(",")});
+DELETE FROM marketplace.listings WHERE id IN ('${ids.listingA1}','${ids.listingA2}','${ids.listingB}');
+DELETE FROM vehicle.profile_ownership WHERE vehicle_profile_id IN ('${ids.profileA1}','${ids.profileA2}','${ids.profileB}');
+DELETE FROM vehicle.vehicle_profiles WHERE id IN ('${ids.profileA1}','${ids.profileA2}','${ids.profileB}');
+DELETE FROM public.profiles WHERE id IN ('${ids.userA}','${ids.userB}');
+DELETE FROM auth.users WHERE id IN ('${ids.userA}','${ids.userB}');
+`;
 
 const runtimeSql = `
 CREATE TEMP TABLE sfi001_results(test text PRIMARY KEY, passed boolean, detail text) ON COMMIT DROP;
