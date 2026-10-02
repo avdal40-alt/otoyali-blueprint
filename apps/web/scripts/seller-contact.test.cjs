@@ -121,7 +121,7 @@ async function runtime() {
     parentMake: randomUUID(),
     model: randomUUID()
   };
-  const phone = "+15550002001";
+  const phone = "+905551234567";
   const contactSignature = "public.get_listing_seller_contact(uuid)";
   const contactCall = `public.get_listing_seller_contact('${ids.listing}'::uuid)`;
   const checks = [];
@@ -187,6 +187,11 @@ async function runtime() {
         'authenticated', 'authenticated', NULL, NULL,
         '{}'::jsonb, '{}'::jsonb, pg_catalog.now(), pg_catalog.now()
       );
+
+    -- Seller-contact authority is the current seller-purpose verification,
+    -- not the profile/Auth fixture phone above.
+    INSERT INTO identity.seller_phone_verifications (user_id, phone_e164)
+    VALUES ('${ids.seller}', '+905551234567');
 
     INSERT INTO vehicle.makes (id, name, slug)
     VALUES
@@ -292,7 +297,7 @@ async function runtime() {
     RESET ROLE;
     UPDATE public.profiles SET phone = NULL WHERE id = '${ids.seller}';
     ${setRole("authenticated", ids.buyer)}
-    ${noContact("null seller phone returns no contact")}
+    ${contact("legacy null profile phone does not affect verified contact")}
     RESET ROLE;
     UPDATE public.profiles SET phone = '${phone}' WHERE id = '${ids.seller}';
 
