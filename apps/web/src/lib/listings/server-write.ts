@@ -81,9 +81,10 @@ export const mediaAttachmentSchema = z.object({
 
 export const coverMediaSchema = z.object({ coverMediaId: listingIdSchema.nullable() }).strict();
 
-export type ListingWriteRpcError = { code?: string | null };
+export type ListingWriteRpcError = { code?: string | null; message?: string | null };
 
 export function listingWriteError(error: ListingWriteRpcError) {
+  if (error.code === "OT403" && error.message === "seller phone verification required") return { status: 403, message: "SELLER_PHONE_VERIFICATION_REQUIRED" };
   switch (error.code) {
     case "OT401": return { status: 401, message: "Oturum doğrulanamadı." };
     case "OT403": return { status: 403, message: "Bu işlem için yetkiniz yok." };
