@@ -30,10 +30,18 @@ function localJwtConfiguration() {
   return { secret: values.GOTRUE_JWT_SECRET, issuer: values.GOTRUE_JWT_ISSUER, audience: values.GOTRUE_JWT_AUD };
 }
 
-function token({ secret, issuer, audience }, userId) {
+function token({ secret, issuer, audience }, role, userId) {
   const header = json({ alg: "HS256", typ: "JWT" });
-  const payload = json({ iss: issuer, role: "authenticated", aud: audience, exp: Math.floor(Date.now() / 1000) + 300, sub: userId });
+  const payload = json({ iss: issuer, role, aud: audience, exp: Math.floor(Date.now() / 1000) + 300, ...(userId ? { sub: userId } : {}) });
   return `${header}.${payload}.${createHmac("sha256", secret).update(`${header}.${payload}`).digest("base64url")}`;
+}
+
+function createLocalClient(role, userId, schema = "public") {
+  const { url, anonKey } = localSupabaseEnvironment();
+  const jwt = localJwtConfiguration();
+  assert.ok(jwt.secret && jwt.issuer && jwt.audience, "local GoTrue JWT configuration is required");
+  const accessToken = token(jwt, role, userId);
+  return { accessToken, client: createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false }, global: { headers: { Authorization: `Bearer ${accessToken}` } }, db: { schema } }), localSupabase: { url, anonKey } };
 }
 
 function cleanup(userId) {
@@ -53,10 +61,7 @@ function cleanup(userId) {
   assert.deepEqual(residual.sort(), residual.map((line) => line.replace(/\|\d+$/, "|0")).sort(), `auth fixture cleanup left rows: ${residual.join(", ")}`);
 }
 
-async function createLocalAuthenticatedHttpFixture() {
-  const { url, anonKey } = localSupabaseEnvironment();
-  const jwt = localJwtConfiguration();
-  assert.ok(jwt.secret && jwt.issuer && jwt.audience, "local GoTrue JWT configuration is required");
+async function createLocalAuthenticatedHttpFixture({ phone = null, label = "http" } = {}) {
   const userId = randomUUID();
   rows(`
     INSERT INTO auth.users (
@@ -65,11 +70,11 @@ async function createLocalAuthenticatedHttpFixture() {
       raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at
     ) VALUES (
       '00000000-0000-0000-0000-000000000000', '${userId}', 'authenticated', 'authenticated',
-      'sell-sec-04c1-http-${userId}@example.test', now(), '', '', '', '', '{}', '{}', false, now(), now()
+      'sell-sec-04c1-${label}-${userId}@example.test', now(), '', '', '', '', '{}', '{}', false, now(), now()
     );
+    ${phone ? `UPDATE auth.users SET phone = '${phone}', phone_confirmed_at = now() WHERE id = '${userId}';` : ""}
   `);
-  const accessToken = token(jwt, userId);
-  const client = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false }, global: { headers: { Authorization: `Bearer ${accessToken}` } } });
+  const { accessToken, client, localSupabase } = createLocalClient("authenticated", userId);
   try {
     const { data: user, error: userError } = await client.auth.getUser(accessToken);
     assert.ifError(userError);
@@ -77,11 +82,11 @@ async function createLocalAuthenticatedHttpFixture() {
     const { data: profile, error: profileError } = await client.from("profiles").select("id").eq("id", userId);
     assert.ifError(profileError);
     assert.deepEqual(profile, [{ id: userId }], "authenticated Data API actor must read only its own fixture profile");
-    return { accessToken, localSupabase: { url, anonKey }, userId, cleanup: () => cleanup(userId) };
+    return { accessToken, client, localSupabase, userId, cleanup: () => cleanup(userId) };
   } catch (error) {
     cleanup(userId);
     throw error;
   }
 }
 
-module.exports = { createLocalAuthenticatedHttpFixture, localSupabaseEnvironment };
+module.exports = { createLocalAuthenticatedHttpFixture, createLocalClient, localSupabaseEnvironment };

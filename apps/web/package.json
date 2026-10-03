@@ -111,7 +111,8 @@
     "test:sell-sec-04b2": "node scripts/sell-sec-04b2.test.cjs",
     "test:sell-sec-04c1": "node scripts/sell-sec-04c1.test.cjs",
     "test:sell-sec-04c1-galeri-fixture": "node scripts/sell-sec-04c1-galeri-fixture.test.cjs",
-    "test:sell-sec-04c1-http-harness": "node scripts/sell-sec-04c1-http-harness.test.cjs"
+    "test:sell-sec-04c1-http-harness": "node scripts/sell-sec-04c1-http-harness.test.cjs",
+    "test:sell-sec-04c1-runtime": "node scripts/sell-sec-04c1-runtime.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
