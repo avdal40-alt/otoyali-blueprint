@@ -17,6 +17,7 @@ import { canPublishVertical, getPublishVerticalFromSearchParam } from "@/lib/mar
 import { getMarketplaceVertical } from "@/lib/marketplace/verticals";
 import { SellWizard } from "./_components/SellWizard";
 import { SellAssistant } from "./_components/SellAssistant";
+import { SellerEntryGate } from "./_components/SellerEntryGate";
 import { getSellEditTarget } from "./sell-route-state";
 import { getSellCopy } from "./sell-copy";
 
@@ -91,16 +92,14 @@ export default async function SellPage({
           </Link>
           {" "}{String(dictionary.sell.agreementSuffix)}
         </div>
-        <SellAssistant locale={locale} editListingId={editTarget.kind === "edit" ? editTarget.listingId : null} />
-        <SellWizard
-          mode={editTarget.kind === "edit" ? "editRejected" : "create"}
-          editListingId={editTarget.kind === "edit" ? editTarget.listingId : null}
-          locale={locale}
-          makes={makesResult.data}
-          models={[]}
-          cities={citiesResult.data}
-          listings={listingsResult.data}
-        />
+        {editTarget.kind === "edit" ? (
+          <SellWizard mode="editRejected" editListingId={editTarget.listingId} locale={locale} makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />
+        ) : (
+          <SellerEntryGate>
+            <SellAssistant locale={locale} editListingId={null} />
+            <SellWizard mode="create" editListingId={null} locale={locale} makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />
+          </SellerEntryGate>
+        )}
       </PageContainer>
       <MarketplaceFooter />
       <MobileBottomNav />
