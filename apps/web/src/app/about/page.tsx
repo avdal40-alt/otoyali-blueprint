@@ -9,10 +9,10 @@ export default function AboutPage() {
     <>
       <AppHeader />
       <PageContainer className="max-w-4xl">
-        <p className="text-sm font-bold uppercase tracking-wide text-oto-blue">OTOYALI</p>
+        <p className="text-sm font-bold uppercase tracking-wide text-oto-blue">Yolmod</p>
         <h1 className="mt-3 text-4xl font-black tracking-tight text-oto-text">AI-first transportation platform</h1>
         <p className="mt-5 text-lg leading-8 text-oto-muted">
-          OTOYALI sadece bir araç pazaryeri değildir. Kullanıcı araç arama, ilan yayınlama, haber okuma ve gelecekteki
+          Yolmod sadece bir araç pazaryeri değildir. Kullanıcı araç arama, ilan yayınlama, haber okuma ve gelecekteki
           ulaşım görevlerini tek yerde çözer.
         </p>
         <div className="mt-8 grid gap-4 md:grid-cols-3">

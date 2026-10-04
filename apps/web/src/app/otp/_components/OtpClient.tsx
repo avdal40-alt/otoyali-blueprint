@@ -143,7 +143,7 @@ export function OtpClient() {
 
   return (
     <div className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-      <p className="text-xs font-black uppercase tracking-wide text-oto-blue">OTOYALI</p>
+      <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Yolmod</p>
       <h1 className="mt-2 text-2xl font-black text-oto-text">{String(dictionary.auth.verifyTitle)}</h1>
       <p className="mt-2 text-sm leading-6 text-oto-muted">{interpolate(String(dictionary.auth.verifyBody), { phone: maskedPhone })}</p>
       <div className="mt-5 grid gap-4">

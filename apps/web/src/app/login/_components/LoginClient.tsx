@@ -76,7 +76,7 @@ export function LoginClient() {
 
   return (
     <div className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-      <p className="text-xs font-black uppercase tracking-wide text-oto-blue">OTOYALI</p>
+      <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Yolmod</p>
       <h1 className="mt-2 text-2xl font-black text-oto-text">{String(dictionary.auth.loginTitle)}</h1>
       <p className="mt-2 text-sm leading-6 text-oto-muted">{String(dictionary.auth.loginBody)}</p>
       <p className="mt-3 rounded-md bg-oto-surface p-3 text-xs font-semibold leading-5 text-oto-muted">

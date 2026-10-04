@@ -4,7 +4,7 @@ const MAINTENANCE_HTML = `<!doctype html>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Kısa bir bakımdayız | OTOYALI</title>
+    <title>Kısa bir bakımdayız | Yolmod</title>
     <style>
       * { box-sizing: border-box; }
       body { margin: 0; background: #f8fafc; color: #172033; font-family: Arial, sans-serif; }
@@ -19,7 +19,7 @@ const MAINTENANCE_HTML = `<!doctype html>
   <body>
     <main>
       <section>
-        <div class="brand">OTOYALI</div>
+        <div class="brand">Yolmod</div>
         <h1>Kısa bir bakımdayız</h1>
         <p>Daha güvenli bir deneyim için kısa bir güncelleme yapıyoruz. Lütfen birkaç dakika sonra yeniden deneyin.</p>
         <p class="english">We are completing a short update. Please try again in a few minutes.</p>

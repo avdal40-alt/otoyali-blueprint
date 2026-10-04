@@ -3,7 +3,7 @@ import { buildSeoMetadata } from "@/lib/seo/metadata";
 
 export const metadata = buildSeoMetadata({
   title: "Çerez Politikası",
-  description: "OTOYALI çerez politikası ve oturum, güvenlik, tercih, analitik kullanımı hakkında MVP bilgilendirmesi.",
+  description: "Yolmod çerez politikası ve oturum, güvenlik, tercih, analitik kullanımı hakkında bilgilendirme.",
   path: "/cookies"
 });
 
@@ -46,7 +46,7 @@ export default function CookiesPage() {
   return (
     <LegalPage
       title="Çerez Politikası"
-      description="OTOYALI’de çerezlerin ve yerel depolama teknolojilerinin neden kullanılabileceğini açıklar."
+      description="Yolmod&apos;da çerezlerin ve yerel depolama teknolojilerinin neden kullanılabileceğini açıklar."
       sections={sections}
       actions={[
         { href: "/privacy", label: "Gizlilik Politikası" },

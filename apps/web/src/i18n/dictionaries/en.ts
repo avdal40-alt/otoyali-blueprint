@@ -254,7 +254,9 @@ export const en = {
     title: "Favorites",
     eyebrow: "Account",
     emptyTitle: "No favorite listings yet",
-    emptyBody: "Save vehicles you like and access them quickly here."
+    emptyBody: "Save vehicles you like and access them quickly here.",
+    loadFailed: "We could not load your favorites. Please try again.",
+    actionFailed: "We could not update your favorite. Please try again."
   },
   myListings: {
     title: "My listings",

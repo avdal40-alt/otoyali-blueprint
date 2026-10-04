@@ -55,44 +55,40 @@ export function FavoritesClient() {
         return;
       }
 
-      const supabase = getSupabaseBrowserClient();
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) {
-        router.replace(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/favorites", locale))}`);
-        return;
-      }
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+        if (!userData.user) {
+          router.replace(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/favorites", locale))}`);
+          return;
+        }
 
-      const { data: favorites, error: favoriteError } = await supabase
-        .schema("marketplace")
-        .from("listing_favorites")
-        .select("listing_id")
-        .order("created_at", { ascending: false })
-        .limit(60);
+        const { data: favorites, error: favoriteError } = await supabase
+          .schema("marketplace")
+          .from("listing_favorites")
+          .select("listing_id")
+          .order("created_at", { ascending: false })
+          .limit(60);
+        if (favoriteError) throw favoriteError;
 
-      if (favoriteError) {
-        setError(favoriteError.message);
+        const ids = (favorites ?? []).map((item) => item.listing_id);
+        if (ids.length === 0) return;
+
+        const { data, error: listingError } = await supabase.from("ff_home_listings").select(FAVORITE_LISTING_COLUMNS).in("listing_id", ids);
+        if (listingError) throw listingError;
+        const rows = (data ?? []) as unknown as HomeListing[];
+        const signed = await signImageStorageUrlMap(supabase, rows.map((row) => row.cover_image_url));
+        setListings(rows.map((row) => ({ ...row, cover_image_url: signed.get(row.cover_image_url ?? "") ?? null })));
+      } catch {
+        setError(String(dictionary.favorites.loadFailed));
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const ids = (favorites ?? []).map((item) => item.listing_id);
-      if (ids.length === 0) {
-        setLoading(false);
-        return;
-      }
-
-      const { data, error: listingError } = await supabase.from("ff_home_listings").select(FAVORITE_LISTING_COLUMNS).in("listing_id", ids);
-      if (listingError) {
-        setError(listingError.message);
-      }
-      const rows = (data ?? []) as unknown as HomeListing[];
-      const signed = await signImageStorageUrlMap(supabase, rows.map((row) => row.cover_image_url));
-      setListings(rows.map((row) => ({ ...row, cover_image_url: signed.get(row.cover_image_url ?? "") ?? null })));
-      setLoading(false);
     }
 
     void load();
-  }, [dictionary.errors.missingSupabaseEnv, locale, router]);
+  }, [dictionary.errors.missingSupabaseEnv, dictionary.favorites.loadFailed, locale, router]);
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;

@@ -4,14 +4,14 @@ import { getRequestLocale } from "@/i18n/server";
 
 export const metadata = buildSeoMetadata({
   title: "Kullanım Şartları",
-  description: "OTOYALI platform kullanım şartları, ilan yayınlama sorumlulukları ve moderasyon kuralları.",
+  description: "Yolmod platform kullanım şartları, ilan yayınlama sorumlulukları ve moderasyon kuralları.",
   path: "/terms"
 });
 
 const sections: LegalSection[] = [
   {
-    title: "OTOYALI nedir?",
-    body: "OTOYALI, kullanıcıların ulaşım ve araç odaklı ihtiyaçlarını tek yerde çözmeyi hedefleyen bir dijital platformdur. MVP aşamasında temel odak araç ilanlarını keşfetmek, aramak, incelemek ve ilan yayınlamaktır."
+    title: "Yolmod nedir?",
+    body: "Yolmod, kullanıcıların araç ilanlarını keşfetmesine, aramasına, incelemesine ve yayınlamasına yardımcı olan bir dijital platformdur."
   },
   {
     title: "Kullanıcı hesabı",
@@ -35,7 +35,7 @@ const sections: LegalSection[] = [
   },
   {
     title: "Platform sorumluluğu",
-    body: "OTOYALI, ilanları kullanıcıların sunduğu bilgilere göre gösterir. Platform her aracın geçmişini, teknik durumunu veya satışa uygunluğunu otomatik olarak garanti etmez."
+    body: "Yolmod, ilanları kullanıcıların sunduğu bilgilere göre gösterir. Platform her aracın geçmişini, teknik durumunu veya satışa uygunluğunu otomatik olarak garanti etmez."
   },
   {
     title: "Ücretli hizmetler hakkında not",
@@ -43,7 +43,7 @@ const sections: LegalSection[] = [
   },
   {
     title: "İlanların kaldırılması ve moderasyon",
-    body: "OTOYALI; şüpheli, yanıltıcı, yasaklı veya kullanıcı güvenliğini riske atabilecek ilanları reddedebilir, arşivleyebilir ya da kaldırabilir."
+    body: "Yolmod; şüpheli, yanıltıcı, yasaklı veya kullanıcı güvenliğini riske atabilecek ilanları reddedebilir, arşivleyebilir ya da kaldırabilir."
   },
   {
     title: "Değişiklikler",
@@ -51,14 +51,14 @@ const sections: LegalSection[] = [
   },
   {
     title: "İletişim",
-    body: "Kullanım şartlarıyla ilgili sorular ve platform destek talepleri için İletişim sayfasındaki yönlendirmeler kullanılabilir."
+    body: "Kullanım şartlarıyla ilgili sorular için legal@yolmod.com, platform desteği için support@yolmod.com adresini kullanabilirsiniz."
   }
 ];
 
 const enSections: LegalSection[] = [
   {
-    title: "What is OTOYALI?",
-    body: "OTOYALI is a digital platform designed to help users solve transport and vehicle-related tasks in one place. The MVP focuses on browsing, searching, viewing, and publishing vehicle listings."
+    title: "What is Yolmod?",
+    body: "Yolmod is a digital platform for browsing, searching, viewing, and publishing vehicle listings."
   },
   {
     title: "User accounts",
@@ -78,11 +78,11 @@ const enSections: LegalSection[] = [
   },
   {
     title: "Platform responsibility",
-    body: "OTOYALI displays listings based on user-provided information. The platform does not automatically guarantee each vehicle's history, technical condition, or sale eligibility."
+    body: "Yolmod displays listings based on user-provided information. The platform does not automatically guarantee each vehicle's history, technical condition, or sale eligibility."
   },
   {
     title: "Moderation",
-    body: "OTOYALI may reject, archive, or remove listings that appear suspicious, misleading, prohibited, or risky for user safety."
+    body: "Yolmod may reject, archive, or remove listings that appear suspicious, misleading, prohibited, or risky for user safety."
   }
 ];
 
@@ -95,8 +95,8 @@ export default async function TermsPage() {
       title={isEnglish ? "Terms of Use" : "Kullanım Şartları"}
       description={
         isEnglish
-          ? "OTOYALI Terms of Use explain platform usage, user responsibilities, and MVP-stage safety boundaries."
-          : "OTOYALI kullanım şartları; platformun nasıl kullanılacağını, kullanıcı sorumluluklarını ve MVP aşamasındaki güvenlik sınırlarını açıklar."
+          ? "Yolmod Terms of Use explain platform usage, user responsibilities, and safety boundaries."
+          : "Yolmod kullanım şartları; platformun nasıl kullanılacağını, kullanıcı sorumluluklarını ve güvenlik sınırlarını açıklar."
       }
       sections={isEnglish ? enSections : sections}
       actions={[

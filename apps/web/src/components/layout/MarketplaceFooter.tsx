@@ -9,7 +9,7 @@ export function MarketplaceFooter() {
   const { locale, dictionary } = useI18n();
   const groups = [
     {
-      title: "OTOYALI",
+      title: "Yolmod",
       links: [
         { href: "/about", label: String(dictionary.footer.about) },
         { href: "/trust", label: String(dictionary.footer.trustCenter) },
@@ -48,7 +48,7 @@ export function MarketplaceFooter() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 md:grid-cols-[1.2fr_2fr] md:px-6 lg:px-8">
         <div>
           <Link href={localizePath("/", locale)} className="text-xl font-black tracking-tight text-oto-text">
-            OTOYALI
+            Yolmod
           </Link>
           <p className="mt-3 max-w-sm text-sm leading-6 text-oto-muted">
             {String(dictionary.footer.description)}

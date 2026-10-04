@@ -6,13 +6,13 @@ import { getRequestLocale } from "@/i18n/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://otoyali.vercel.app"),
+  metadataBase: new URL("https://yolmod.com"),
   title: {
-    default: "OTOYALI - Türkiye'nin akıllı araç pazarı",
-    template: "%s | OTOYALI"
+    default: "Yolmod - Türkiye'nin akıllı araç pazarı",
+    template: "%s | Yolmod"
   },
   description: "Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.",
-  applicationName: "OTOYALI",
+  applicationName: "Yolmod",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -24,16 +24,16 @@ export const metadata: Metadata = {
     apple: "/brand/apple-touch-icon.png"
   },
   openGraph: {
-    title: "OTOYALI",
+    title: "Yolmod",
     description: "Türkiye'nin akıllı araç pazarı.",
-    url: "https://otoyali.vercel.app",
-    siteName: "OTOYALI",
+    url: "https://yolmod.com",
+    siteName: "Yolmod",
     locale: "tr_TR",
     type: "website"
   },
   appleWebApp: {
     capable: true,
-    title: "OTOYALI",
+    title: "Yolmod",
     statusBarStyle: "default"
   }
 };

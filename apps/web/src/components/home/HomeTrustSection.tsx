@@ -8,12 +8,12 @@ export function HomeTrustSection({ locale = "tr" }: { locale?: Locale }) {
       ? [
           "Guest-first browsing: explore listings, search, and videos without creating an account.",
           "Secure login flow only when contacting a seller or publishing a listing.",
-          "Future-ready foundation for OTOYALI trust reports and market price analysis."
+          "Future-ready foundation for Yolmod trust reports and market price analysis."
         ]
       : [
           "Guest-first gezinme: ilanları, aramayı ve videoları kayıt olmadan keşfedin.",
           "Satıcıyla iletişim ve ilan yayınlama adımlarında güvenli giriş akışı.",
-          "OTOYALI güven raporu ve piyasa analizi için şeffaf, geleceğe hazır altyapı."
+          "Yolmod güven raporu ve piyasa analizi için şeffaf, geleceğe hazır altyapı."
         ];
 
   return (

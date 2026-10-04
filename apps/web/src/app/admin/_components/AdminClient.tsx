@@ -178,7 +178,7 @@ export function AdminClient({ section }: { section: AdminSection }) {
         <div className="mb-5 rounded-oto border border-oto-border bg-white p-4 shadow-soft">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-wide text-oto-blue">OTOYALI Admin</p>
+              <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Yolmod Admin</p>
               <h1 className="mt-1 text-2xl font-black text-oto-text">{adminNavLabel(section, dictionary)}</h1>
             </div>
             {admin.role ? <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-black text-oto-blue">{admin.role}</span> : null}

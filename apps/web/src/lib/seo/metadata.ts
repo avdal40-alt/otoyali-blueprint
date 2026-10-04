@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const SITE_URL = "https://otoyali.vercel.app";
+export const SITE_URL = "https://yolmod.com";
 
 export function absoluteUrl(path: string) {
   return `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
@@ -31,10 +31,10 @@ export function buildSeoMetadata({
         : undefined
     },
     openGraph: {
-      title: `${title} | OTOYALI`,
+      title: `${title} | Yolmod`,
       description,
       url,
-      siteName: "OTOYALI",
+      siteName: "Yolmod",
       locale: path === "/en" || path.startsWith("/en/") ? "en_US" : "tr_TR",
       type: "website"
     },

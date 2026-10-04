@@ -61,7 +61,7 @@ export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoCon
         <section className="rounded-oto border border-oto-border bg-gradient-to-br from-white via-white to-blue-50 px-5 py-7 shadow-soft md:px-7">
           <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
-              <p className="text-xs font-black uppercase tracking-wide text-oto-blue">OTOYALI Marketplace</p>
+              <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Yolmod Marketplace</p>
               <h1 className="mt-2 text-3xl font-black tracking-tight text-oto-text md:text-4xl">{config.h1}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-oto-muted md:text-base">{config.description}</p>
             </div>
@@ -116,7 +116,7 @@ export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoCon
           <div className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
             <h2 className="text-lg font-black text-oto-text">Güvenli keşif</h2>
             <div className="mt-3 grid gap-3 text-sm leading-6 text-oto-muted">
-              <p>OTOYALI’de ilanları kayıt olmadan inceleyebilir, filtreleri kullanarak ihtiyacınıza uygun araçları karşılaştırabilirsiniz.</p>
+              <p>Yolmod&apos;da ilanları kayıt olmadan inceleyebilir, filtreleri kullanarak ihtiyacınıza uygun araçları karşılaştırabilirsiniz.</p>
               <p>Bu sayfalar yalnızca aktif ve herkese açık ilan verilerini kullanır; özel satıcı bilgileri gösterilmez.</p>
               <p>Detaylı filtreleme ve daha fazla ilan için arama sayfasına geçebilirsiniz.</p>
             </div>

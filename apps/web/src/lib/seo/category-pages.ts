@@ -31,7 +31,7 @@ export const newCarsSeoConfig: MarketplaceSeoConfig = {
     { label: "Durum", value: "Sıfır km" },
     { label: "Kapsam", value: "Türkiye" }
   ],
-  seoText: "Sıfır kilometre araç ilanlarında marka, model, şehir ve fiyat seçeneklerini hızlıca karşılaştırabilirsiniz. OTOYALI, yeni araç arama deneyimini sade ve filtrelenebilir tutar."
+  seoText: "Sıfır kilometre araç ilanlarında marka, model, şehir ve fiyat seçeneklerini hızlıca karşılaştırabilirsiniz. Yolmod, yeni araç arama deneyimini sade ve filtrelenebilir tutar."
 };
 
 export const electricCarsSeoConfig: MarketplaceSeoConfig = {

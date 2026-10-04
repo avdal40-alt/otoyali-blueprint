@@ -50,7 +50,7 @@ export function SafeImage({
 export function ImagePlaceholder({ className }: { className?: string }) {
   return (
     <div className={cn("flex h-full w-full items-center justify-center bg-oto-surface text-sm font-black text-oto-muted", className)}>
-      OTOYALI
+      Yolmod
     </div>
   );
 }

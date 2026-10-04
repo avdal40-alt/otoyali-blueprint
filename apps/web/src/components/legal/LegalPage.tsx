@@ -23,7 +23,7 @@ const DEFAULT_DISCLAIMER =
   "Bu sayfa MVP aşaması için hazırlanmış genel bilgilendirme metnidir. Yayın öncesinde profesyonel hukuk danışmanlığı ile güncellenmelidir.";
 
 export async function LegalPage({
-  eyebrow = "OTOYALI",
+  eyebrow = "Yolmod",
   title,
   description,
   sections,

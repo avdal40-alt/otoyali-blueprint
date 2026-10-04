@@ -3,14 +3,14 @@ import { buildSeoMetadata } from "@/lib/seo/metadata";
 
 export const metadata = buildSeoMetadata({
   title: "Gizlilik Politikası",
-  description: "OTOYALI MVP gizlilik politikası, işlenen veri türleri ve kullanıcı hakları hakkında genel bilgilendirme.",
+  description: "Yolmod gizlilik politikası, işlenen veri türleri ve kullanıcı hakları hakkında genel bilgilendirme.",
   path: "/privacy"
 });
 
 const sections: LegalSection[] = [
   {
     title: "Hangi veriler işlenir?",
-    body: "OTOYALI, hesap oluşturma, kimlik doğrulama, ilan yayınlama, güvenlik, moderasyon ve ürün geliştirme için gerekli minimum verileri işlemeyi hedefler."
+    body: "Yolmod, hesap oluşturma, kimlik doğrulama, ilan yayınlama, güvenlik, moderasyon ve ürün geliştirme için gerekli minimum verileri işler."
   },
   {
     title: "Hesap ve iletişim bilgileri",
@@ -42,7 +42,7 @@ const sections: LegalSection[] = [
   },
   {
     title: "Verilerin paylaşımı",
-    body: "Hosting, veritabanı, kimlik doğrulama, depolama, analitik ve güvenlik gibi altyapı hizmetleri için üçüncü taraf sağlayıcılar kullanılabilir. OTOYALI hizmeti çalıştırmak için gerekli olmayan verileri satmayı hedeflemez."
+    body: "Hosting, veritabanı, kimlik doğrulama, depolama, analitik ve güvenlik gibi altyapı hizmetleri için üçüncü taraf sağlayıcılar kullanılabilir. Yolmod hizmeti çalıştırmak için gerekli olmayan verileri satmaz."
   },
   {
     title: "Saklama süresi",
@@ -50,15 +50,15 @@ const sections: LegalSection[] = [
   },
   {
     title: "Kullanıcı hakları",
-    body: "Kullanıcılar kişisel verileri hakkında bilgi alma, düzeltme, silme veya işleme faaliyetleriyle ilgili taleplerini iletme hakkına sahip olabilir. Nihai başvuru süreçleri yayın öncesinde hukuk danışmanlığıyla güncellenecektir."
+    body: "Kullanıcılar kişisel verileri hakkında bilgi alma, düzeltme, silme veya işleme faaliyetleriyle ilgili taleplerini iletme hakkına sahip olabilir. Talepler legal@yolmod.com adresine iletilebilir."
   },
   {
     title: "MVP bilgilendirme notu",
-    body: "Bu metin MVP aşaması için hazırlanmış bilgilendirme metnidir. Nihai hukuki metinler yayın öncesinde profesyonel hukuk danışmanlığı ile güncellenmelidir."
+    body: "Bu metin platformun veri işleme yaklaşımına ilişkin genel bilgilendirme sağlar."
   },
   {
     title: "İletişim",
-    body: "Gizlilik ve veri işleme konularındaki talepler için İletişim sayfasındaki resmi destek yönlendirmeleri kullanılabilir."
+    body: "Gizlilik ve veri işleme konularındaki talepler için legal@yolmod.com adresini kullanabilirsiniz."
   }
 ];
 
@@ -66,7 +66,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage
       title="Gizlilik Politikası"
-      description="OTOYALI’nin MVP aşamasında hangi verileri neden işleyebileceğini ve kullanıcıların nelere dikkat etmesi gerektiğini sade biçimde açıklar."
+      description="Yolmod&apos;un hangi verileri neden işlediğini ve kullanıcıların nelere dikkat etmesi gerektiğini sade biçimde açıklar."
       sections={sections}
       actions={[
         { href: "/cookies", label: "Çerez Politikası" },

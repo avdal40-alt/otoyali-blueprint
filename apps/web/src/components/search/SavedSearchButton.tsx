@@ -40,7 +40,7 @@ export function SavedSearchButton({ request }: { request: Record<string, unknown
       response = await fetch("/api/saved-searches", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session.access_token}` },
-        body: JSON.stringify({ request, title: locale === "en" ? "OTOYALI search" : "OTOYALI araması", alertEnabled: false })
+        body: JSON.stringify({ request, title: locale === "en" ? "Yolmod search" : "Yolmod araması", alertEnabled: false })
       });
     } catch {
       setStatus("error");

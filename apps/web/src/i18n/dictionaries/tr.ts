@@ -254,7 +254,9 @@ export const tr = {
     title: "Favoriler",
     eyebrow: "Hesabım",
     emptyTitle: "Favori ilan yok",
-    emptyBody: "Beğendiğiniz ilanları kaydederek buradan hızlıca ulaşabilirsiniz."
+    emptyBody: "Beğendiğiniz ilanları kaydederek buradan hızlıca ulaşabilirsiniz.",
+    loadFailed: "Favorileriniz yüklenemedi. Lütfen tekrar deneyin.",
+    actionFailed: "Favori işlemi tamamlanamadı. Lütfen tekrar deneyin."
   },
   myListings: {
     title: "İlanlarım",

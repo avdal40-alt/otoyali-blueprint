@@ -3,7 +3,7 @@ import { buildSeoMetadata } from "@/lib/seo/metadata";
 
 export const metadata = buildSeoMetadata({
   title: "Moderasyon Politikası",
-  description: "OTOYALI ilan, video ve şikayet moderasyonu için MVP politika açıklaması.",
+  description: "Yolmod ilan, video ve şikayet moderasyonu için politika açıklaması.",
   path: "/moderation-policy"
 });
 
@@ -22,7 +22,7 @@ const sections: LegalSection[] = [
   },
   {
     title: "Video moderasyonu",
-    body: "OTOYALI Video içerikleri yayınlanmadan önce beklemede tutulabilir. Uygunsuz, yanıltıcı veya güvenliği riske atan videolar reddedilebilir ya da arşivlenebilir."
+    body: "Yolmod video içerikleri yayınlanmadan önce beklemede tutulabilir. Uygunsuz, yanıltıcı veya güvenliği riske atan videolar reddedilebilir ya da arşivlenebilir."
   },
   {
     title: "Şikayetler",
@@ -50,7 +50,7 @@ export default function ModerationPolicyPage() {
   return (
     <LegalPage
       title="Moderasyon Politikası"
-      description="OTOYALI’de ilan, video ve şikayetlerin hangi ilkelerle incelenebileceğini açıklar."
+      description="Yolmod&apos;da ilan, video ve şikayetlerin hangi ilkelerle incelenebileceğini açıklar."
       sections={sections}
       actions={[
         { href: "/listing-rules", label: "İlan Kuralları" },

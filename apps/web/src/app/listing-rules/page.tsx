@@ -3,7 +3,7 @@ import { buildSeoMetadata } from "@/lib/seo/metadata";
 
 export const metadata = buildSeoMetadata({
   title: "İlan Yayınlama Kuralları",
-  description: "OTOYALI satıcıları için doğru bilgi, gerçek medya, yasaklı içerik ve güvenli satış kuralları.",
+  description: "Yolmod satıcıları için doğru bilgi, gerçek medya, yasaklı içerik ve güvenli satış kuralları.",
   path: "/listing-rules"
 });
 
@@ -46,7 +46,7 @@ const sections: LegalSection[] = [
   },
   {
     title: "İlan kaldırma ve hesap kısıtlamaları",
-    body: "OTOYALI kuralları ihlal eden ilanları reddedebilir, arşivleyebilir, kaldırabilir veya ileride şüpheli hesaplara kısıtlama uygulayabilir."
+    body: "Yolmod kuralları ihlal eden ilanları reddedebilir, arşivleyebilir, kaldırabilir veya şüpheli hesaplara kısıtlama uygulayabilir."
   },
   {
     title: "Güvenli satış önerileri",
@@ -58,7 +58,7 @@ export default function ListingRulesPage() {
   return (
     <LegalPage
       title="İlan Yayınlama Kuralları"
-      description="OTOYALI’de yayınlanan ilanların doğru, güvenli ve kullanıcıya faydalı kalması için temel satıcı kuralları."
+      description="Yolmod&apos;da yayınlanan ilanların doğru, güvenli ve kullanıcıya faydalı kalması için temel satıcı kuralları."
       sections={sections}
       actions={[
         { href: "/sell", label: "İlan yayınla", variant: "orange" },

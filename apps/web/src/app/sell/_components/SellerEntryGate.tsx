@@ -159,7 +159,7 @@ export function SellerEntryGate({ children }: { children: ReactNode }) {
   const busy = state === "sending" || state === "verifying";
   return (
     <section className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft md:p-6" aria-labelledby="seller-phone-verification-title">
-      <p className="text-xs font-black uppercase tracking-wide text-oto-blue">OTOYALI</p>
+      <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Yolmod</p>
       <h2 id="seller-phone-verification-title" className="mt-2 text-2xl font-black text-oto-text">{String(dictionary.sell.sellerPhoneTitle)}</h2>
       <p className="mt-2 text-sm leading-6 text-oto-muted">{String(dictionary.sell.sellerPhoneBody)}</p>
       <p className="mt-3 rounded-md bg-oto-surface p-3 text-xs font-semibold leading-5 text-oto-muted">{String(dictionary.sell.sellerPhoneAuthIndependent)}</p>

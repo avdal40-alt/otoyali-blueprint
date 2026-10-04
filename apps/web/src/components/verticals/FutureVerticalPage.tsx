@@ -91,7 +91,7 @@ export async function VerticalLandingPage({ verticalId }: { verticalId: Marketpl
 
         {related.length > 0 ? (
           <section className="mt-8">
-            <SectionHeader title={t(locale, "verticals.landing.related")} eyebrow="OTOYALI" />
+            <SectionHeader title={t(locale, "verticals.landing.related")} eyebrow="Yolmod" />
             <div className="grid gap-4 md:grid-cols-3">
               {related.map((item) => (
                 <MarketplaceVerticalCard key={item.id} vertical={item} locale={locale} compact />

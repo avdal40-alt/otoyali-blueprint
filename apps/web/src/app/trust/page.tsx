@@ -3,15 +3,15 @@ import { buildSeoMetadata } from "@/lib/seo/metadata";
 import { getRequestLocale } from "@/i18n/server";
 
 export const metadata = buildSeoMetadata({
-  title: "OTOYALI Güven Merkezi",
-  description: "OTOYALI güven merkezi, ilan kalitesi, şikayetler, fiyat analizi ve gelecek doğrulama özellikleri.",
+  title: "Yolmod Güven Merkezi",
+  description: "Yolmod güven merkezi, ilan kalitesi, şikayetler, fiyat analizi ve gelecek doğrulama özellikleri.",
   path: "/trust"
 });
 
 const sections: LegalSection[] = [
   {
     title: "Güvenli araç alışverişi",
-    body: "OTOYALI kullanıcıların daha bilinçli karar vermesine yardımcı olur. Yine de araç alım satımı öncesinde resmi belgeler, ödeme süreci, ekspertiz ve satıcı bilgileri ayrıca kontrol edilmelidir."
+    body: "Yolmod kullanıcıların daha bilinçli karar vermesine yardımcı olur. Yine de araç alım satımı öncesinde resmi belgeler, ödeme süreci, ekspertiz ve satıcı bilgileri ayrıca kontrol edilmelidir."
   },
   {
     title: "İlan kalitesi",
@@ -19,7 +19,7 @@ const sections: LegalSection[] = [
   },
   {
     title: "Satıcı profilleri",
-    body: "Satıcı profilleri kullanıcıya bağlam sunar. OTOYALI her satıcının geçmişini veya yetkili temsil durumunu otomatik olarak garanti etmez."
+    body: "Satıcı profilleri kullanıcıya bağlam sunar. Yolmod her satıcının geçmişini veya yetkili temsil durumunu otomatik olarak garanti etmez."
   },
   {
     title: "Şikayet ve bildirimler",
@@ -30,7 +30,7 @@ const sections: LegalSection[] = [
     body: "TRAMER/SBM, sigorta kayıtları, ekspertiz kayıtları veya resmi geçmiş sorguları şu anda aktif entegrasyon olarak sunulmaz."
   },
   {
-    title: "OTOYALI Güven Raporu",
+    title: "Yolmod Güven Raporu",
     body: "Güven raporu gelecek aşamalar için planlanan bir özelliktir. Hasar, sigorta ödemesi, kilometre tutarlılığı ve kısıtlama kontrolleri aktifmiş gibi gösterilmez."
   },
   {
@@ -43,14 +43,14 @@ const sections: LegalSection[] = [
   },
   {
     title: "Gelecek entegrasyonlar",
-    body: "OTOYALI ileride ekspertiz, sigorta, TRAMER/SBM, gelişmiş medya işleme ve AI destekli güven kontrolleri sunmayı hedefleyebilir."
+    body: "Yolmod ileride ekspertiz, sigorta, TRAMER/SBM, gelişmiş medya işleme ve AI destekli güven kontrolleri sunmayı hedefleyebilir."
   }
 ];
 
 const enSections: LegalSection[] = [
   {
     title: "Safer vehicle shopping",
-    body: "OTOYALI helps users make more informed decisions. Buyers should still check official documents, payment steps, inspection reports, and seller information before a transaction."
+    body: "Yolmod helps users make more informed decisions. Buyers should still check official documents, payment steps, inspection reports, and seller information before a transaction."
   },
   {
     title: "Listing quality",
@@ -58,18 +58,18 @@ const enSections: LegalSection[] = [
   },
   {
     title: "Seller profiles",
-    body: "Seller profiles provide context. OTOYALI does not automatically guarantee each seller's history or official representative status."
+    body: "Seller profiles provide context. Yolmod does not automatically guarantee each seller's history or official representative status."
   },
   {
     title: "Reports and complaints",
-    body: "Users can report suspicious listings. Reports may be reviewed by the team, but OTOYALI does not claim that every risk can be detected in advance."
+    body: "Users can report suspicious listings. Reports may be reviewed by the team, but Yolmod does not claim that every risk can be detected in advance."
   },
   {
     title: "Vehicle history note",
     body: "TRAMER/SBM, insurance records, inspection records, or official history checks are not currently offered as active integrations."
   },
   {
-    title: "OTOYALI Trust Report",
+    title: "Yolmod Trust Report",
     body: "The trust report is planned for a future phase. Damage, insurance payment, mileage consistency, and restriction checks are not shown as active checks today."
   },
   {
@@ -84,11 +84,11 @@ export default async function TrustPage() {
 
   return (
     <LegalPage
-      title={isEnglish ? "OTOYALI Trust Center" : "OTOYALI Güven Merkezi"}
+      title={isEnglish ? "Yolmod Trust Center" : "Yolmod Güven Merkezi"}
       description={
         isEnglish
-          ? "A transparent overview of OTOYALI's trust approach, current limitations, and future verification areas."
-          : "OTOYALI’nin güven yaklaşımını, mevcut sınırlarını ve gelecekte planlanan doğrulama alanlarını şeffaf biçimde açıklar."
+          ? "A transparent overview of Yolmod's trust approach, current limitations, and future verification areas."
+          : "Yolmod'un güven yaklaşımını, mevcut sınırlarını ve gelecekte planlanan doğrulama alanlarını şeffaf biçimde açıklar."
       }
       sections={isEnglish ? enSections : sections}
       actions={[
@@ -97,8 +97,8 @@ export default async function TrustPage() {
       ]}
       disclaimer={
         isEnglish
-          ? "OTOYALI may add verification and data integrations in future stages. Before buying a vehicle, users should independently check official documents, inspection reports, and seller information."
-          : "OTOYALI, gelecek aşamalarda ek doğrulama ve veri entegrasyonları sunmayı hedefler. Bir araç satın almadan önce resmi belgeleri, ekspertiz raporlarını ve satıcı bilgilerini ayrıca kontrol etmeniz önerilir."
+          ? "Yolmod may add verification and data integrations in future stages. Before buying a vehicle, users should independently check official documents, inspection reports, and seller information."
+          : "Yolmod, gelecek aşamalarda ek doğrulama ve veri entegrasyonları sunmayı hedefler. Bir araç satın almadan önce resmi belgeleri, ekspertiz raporlarını ve satıcı bilgilerini ayrıca kontrol etmeniz önerilir."
       }
     />
   );

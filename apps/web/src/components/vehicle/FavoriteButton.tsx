@@ -13,6 +13,7 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
   const [active, setActive] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!hasSupabaseEnv()) {
@@ -47,46 +48,54 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
       return;
     }
 
+    setError(null);
     setBusy(true);
-    const supabase = getSupabaseBrowserClient();
+    try {
+      const supabase = getSupabaseBrowserClient();
 
-    if (active) {
-      await supabase.schema("marketplace").from("listing_favorites").delete().eq("listing_id", listingId);
-      setActive(false);
-    } else {
-      const { error } = await supabase.schema("marketplace").from("listing_favorites").insert({
-        user_id: userId,
-        listing_id: listingId
-      });
-      if (!error) {
+      if (active) {
+        const { error: deleteError } = await supabase.schema("marketplace").from("listing_favorites").delete().eq("listing_id", listingId);
+        if (deleteError) throw deleteError;
+        setActive(false);
+      } else {
+        const { error: insertError } = await supabase.schema("marketplace").from("listing_favorites").insert({
+          user_id: userId,
+          listing_id: listingId
+        });
+        if (insertError) throw insertError;
         setActive(true);
       }
+    } catch {
+      setError(String(dictionary.favorites.actionFailed));
+    } finally {
+      setBusy(false);
     }
-
-    setBusy(false);
   }
 
   return (
-    <button
-      type="button"
-      disabled={busy}
-      onClick={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        void toggleFavorite();
-      }}
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-oto-border bg-white text-oto-text transition hover:bg-oto-surface disabled:opacity-50"
-      aria-label={String(dictionary.navigation.favorites)}
-    >
-      <svg width="19" height="19" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} aria-hidden="true">
-        <path
-          d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </button>
+    <>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          void toggleFavorite();
+        }}
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-oto-border bg-white text-oto-text transition hover:bg-oto-surface disabled:opacity-50"
+        aria-label={String(dictionary.navigation.favorites)}
+      >
+        <svg width="19" height="19" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} aria-hidden="true">
+          <path
+            d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      {error ? <p role="alert" className="sr-only">{error}</p> : null}
+    </>
   );
 }
