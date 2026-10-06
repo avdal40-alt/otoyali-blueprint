@@ -124,18 +124,20 @@ export function buildSearchRequest(
     has_photos: filters.onlyWithPhotos || undefined
   });
 
+  const cursor = filters.cursor && typeof filters.cursor === "object" ? filters.cursor : undefined;
+
   return compact({
     version: "v1" as const,
     limit: 24,
     sort: filters.sort,
-    cursor: filters.cursor,
+    cursor,
     filters: filtersRequest
   });
 }
 
 function compact<T extends Record<string, unknown>>(value: T) {
   return Object.fromEntries(
-    Object.entries(value).filter(([, item]) => item !== undefined && (!Array.isArray(item) || item.length > 0))
+    Object.entries(value).filter(([, item]) => item != null && (!Array.isArray(item) || item.length > 0))
   );
 }
 
