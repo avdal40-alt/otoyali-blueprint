@@ -9,12 +9,11 @@ import { useI18n } from "@/i18n/client";
 
 type ContactSellerButtonProps = {
   listingId: string;
-  sellerId?: string | null;
 };
 
 type ContactResponse = { data?: { phone?: unknown } };
 
-export function ContactSellerButton({ listingId, sellerId }: ContactSellerButtonProps) {
+export function ContactSellerButton({ listingId }: ContactSellerButtonProps) {
   const { locale, dictionary } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
@@ -35,11 +34,6 @@ export function ContactSellerButton({ listingId, sellerId }: ContactSellerButton
     const { data } = await supabase.auth.getSession();
     if (!data.session) {
       router.push(loginPath);
-      return;
-    }
-
-    if (sellerId && data.session.user.id === sellerId) {
-      setMessage(String(dictionary.listing.ownListingContact));
       return;
     }
 

@@ -118,7 +118,8 @@
     "test:launch-03d3c3-draft-lifecycle": "node scripts/launch-03d3c3-draft-lifecycle.test.cjs",
     "test:launch-03d3c3-draft-runtime-rls": "node scripts/launch-03d3c3-draft-runtime-rls.test.cjs",
     "test:launch-03d3c3-postgrest-rpc": "node scripts/launch-03d3c3-postgrest-rpc.test.cjs",
-    "test:launch-03d3c5-admin-moderation": "node scripts/launch-03d3c5-admin-moderation.test.cjs"
+    "test:launch-03d3c5-admin-moderation": "node scripts/launch-03d3c5-admin-moderation.test.cjs",
+    "test:launch-03d3c6-public-buyer-e2e": "node scripts/launch-03d3c6-public-buyer-e2e.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

@@ -28,9 +28,10 @@ assert.match(button, /Authorization: `Bearer \$\{data\.session\.access_token\}`/
 assert.match(button, /body: JSON\.stringify\(\{ listingId \}\)/);
 assert.doesNotMatch(button, /wa\.me|whatsapp/i);
 assert.match(button, /href=\{`tel:\$\{phone\}`\}/);
-assert.match(button, /if \(sellerId && data\.session\.user\.id === sellerId\)/);
+assert.doesNotMatch(button, /sellerId/);
 assert.match(button, /router\.push\(loginPath\)/);
-assert.match(page, /<ContactSellerButton listingId=\{listing\.listing_id\} sellerId=\{listing\.seller_id\} \/>/);
+assert.match(page, /<ContactSellerButton listingId=\{listing\.listing_id\} \/>/);
+assert.doesNotMatch(page, /listing\.seller_id/);
 assert.match(authReturn, /\/tr\/listing\/abc#section/);
 assert.doesNotMatch(listingQueries, /phone/);
 

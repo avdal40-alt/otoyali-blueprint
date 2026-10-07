@@ -42,7 +42,6 @@ const HOME_LISTING_COLUMNS = [
 const LISTING_DETAILS_COLUMNS = [
   "listing_id",
   "vehicle_profile_id",
-  "seller_id",
   "title",
   "description",
   "price_amount",
