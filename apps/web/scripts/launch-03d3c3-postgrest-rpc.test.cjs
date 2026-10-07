@@ -36,8 +36,14 @@ async function user(id, suffix) {
   const anonymous = await anon.rpc("create_own_private_listing_draft", payload); assert.ok(anonymous.error);
   const ineligible = await c.rpc("create_own_private_listing_draft", payload); assert.ok(ineligible.error);
   assert.ok((await b.rpc("submit_own_listing_for_review", { p_listing_id: listingId })).error);
+  assert.ok((await anon.rpc("submit_own_listing_for_review", { p_listing_id: listingId })).error, "anon submit must be rejected");
+  const submitted = await a.rpc("submit_own_listing_for_review", { p_listing_id: listingId }); assert.ifError(submitted.error);
+  assert.deepEqual(submitted.data?.[0], { listing_id: listingId, status: "draft", moderation_status: "pending_review" });
+  assert.equal(sql(`SELECT status || '|' || moderation_status || '|' || (published_at IS NULL)::text FROM marketplace.listings WHERE id='${listingId}'`), "draft|pending_review|true");
+  assert.equal(sql(`SELECT count(*) FROM marketplace.listing_moderation_runs WHERE listing_id='${listingId}'`), "0");
+  assert.equal(sql(`SELECT count(*) FROM marketplace.listing_search_documents WHERE listing_id='${listingId}'`), "0");
   const crossArchive = await b.rpc("archive_own_listing", { p_listing_id: listingId }); assert.ok(crossArchive.error, "USER B draft archive must be rejected"); assert.match(crossArchive.error.message, /listing owner authorization required/i);
-  assert.equal(sql(`SELECT seller_id || '|' || status || '|' || moderation_status || '|' || (archived_at IS NULL)::text || '|' || (published_at IS NULL)::text FROM marketplace.listings WHERE id='${listingId}'`), `${ids[0]}|draft|draft|true|true`);
+  assert.equal(sql(`SELECT seller_id || '|' || status || '|' || moderation_status || '|' || (archived_at IS NULL)::text || '|' || (published_at IS NULL)::text FROM marketplace.listings WHERE id='${listingId}'`), `${ids[0]}|draft|pending_review|true|true`);
   const anonymousArchive = await anon.rpc("archive_own_listing", { p_listing_id: listingId }); assert.ok(anonymousArchive.error, "anon archive must be rejected");
   const archived = await a.rpc("archive_own_listing", { p_listing_id: listingId }); assert.ifError(archived.error);
   assert.equal(archived.data?.[0]?.status, "removed"); assert.equal(archived.data?.[0]?.moderation_status, "archived");
