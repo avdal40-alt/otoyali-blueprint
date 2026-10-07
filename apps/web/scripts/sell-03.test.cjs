@@ -27,7 +27,8 @@ includesAll(page, [
   "edit?: string | string[]",
   "getSellEditTarget(resolvedSearchParams)",
   'editTarget.kind === "invalid"',
-  'editTarget.kind === "edit" ? "editRejected" : "create"',
+  'editTarget.kind === "edit" ? (',
+  '<SellWizard mode="editRejected" editListingId={editTarget.listingId}',
   "editTarget.listingId"
 ]);
 includesAll(listings, ["`/sell?edit=${item.id}`", "copy.editRejected"]);
@@ -152,7 +153,7 @@ includesAll(security, [
 
 includesAll(wizard, [
   'export type SellWizardMode = "create" | "editRejected"',
-  'supabase.rpc("get_own_rejected_listing_for_edit"',
+  'supabase.rpc("get_own_listing_for_edit"',
   'listingWriteRequest<Record<string, unknown>>(supabase, `/api/listings/${editListingId}`, "PATCH"',
   'listingWriteRequest(supabase, `/api/listings/${editListingId}/resubmit`, "POST", {})',
   "if (saveResult.error || !saveResult.data)",

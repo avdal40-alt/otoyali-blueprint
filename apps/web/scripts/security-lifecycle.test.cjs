@@ -105,10 +105,7 @@ excludesAll(myListingsSource, [
   "updateListingWorkflow"
 ]);
 
-includesAll(sellWizardSource, [
-  'listingWriteRequest(supabase, `/api/listings/${listingId}/submit`, "POST", {})',
-  'listingWriteRequest(supabase, `/api/listings/${listingId}/media/cover`, "PATCH", { coverMediaId })'
-]);
+assert.doesNotMatch(sellWizardSource, /\/api\/listings\/\$\{listingId\}\/media\/cover/);
 includesAll(submitRouteSource, ["submit_own_listing_for_review", "requireAuthenticatedRequestSupabase"]);
 includesAll(coverRouteSource, ["set_own_listing_cover_media", "requireAuthenticatedRequestSupabase"]);
 

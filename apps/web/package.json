@@ -114,7 +114,9 @@
     "test:sell-sec-04c1-http-harness": "node scripts/sell-sec-04c1-http-harness.test.cjs",
     "test:sell-sec-04c1-runtime": "node scripts/sell-sec-04c1-runtime.test.cjs",
     "test:sell-sec-04c2a": "node scripts/sell-sec-04c2a.test.cjs",
-    "test:launch-03b1": "node scripts/launch-03b1.test.cjs"
+    "test:launch-03b1": "node scripts/launch-03b1.test.cjs",
+    "test:launch-03d3c3-draft-lifecycle": "node scripts/launch-03d3c3-draft-lifecycle.test.cjs",
+    "test:launch-03d3c3-draft-runtime-rls": "node scripts/launch-03d3c3-draft-runtime-rls.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

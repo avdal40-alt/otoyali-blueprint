@@ -304,7 +304,7 @@ export function SellWizard({
           setCheckingAuth(false);
           return;
         }
-        const { data: editData, error: editError } = await supabase.rpc("get_own_rejected_listing_for_edit", {
+        const { data: editData, error: editError } = await supabase.rpc("get_own_listing_for_edit", {
           p_listing_id: editListingId
         });
         if (!isCurrentRequest()) return;
@@ -853,92 +853,15 @@ export function SellWizard({
       return;
     }
 
-    const vehicleProfileId = createResult.data.vehicleProfileId;
     const listingId = createResult.data.listingId;
-    const supabase = getSupabaseBrowserClient();
-    let coverMediaId: string | null = null;
-
-    if (state.photos.length > 0) {
-      const mediaRows = [];
-      for (let index = 0; index < state.photos.length; index++) {
-        if (!isCurrentPublication()) return;
-        const photo = state.photos[index];
-        setPublishStatus(copy.photosUploading(index + 1, state.photos.length));
-        updatePhoto(photo.id, { uploadStatus: "uploading", sanitizationStatus: "processing", statusText: copy.photosUploadingShort });
-
-        try {
-          const mediaUpload = await uploadPhotoMedia({
-            supabase,
-            userId,
-            vehicleProfileId,
-            photo,
-            sortOrder: index,
-            isCurrent: isCurrentPublication,
-            copy,
-            onStatus: (statusText) => {
-              if (isCurrentPublication()) updatePhoto(photo.id, { uploadStatus: "uploading", statusText });
-            }
-          });
-          if (!isCurrentPublication()) return;
-          if (!mediaUpload) return;
-          mediaRows.push({ ...mediaUpload, photoId: photo.id });
-        } catch (uploadError) {
-          if (!isCurrentPublication()) return;
-          logClientError("sell.uploadPhoto", uploadError);
-          updatePhoto(photo.id, { uploadStatus: "failed", sanitizationStatus: "failed", statusText: copy.photoUploadFailure, error: copy.photoUploadFailure });
-          setSubmitting(false);
-          setPublishStatus(null);
-          setError(copy.photoUploadFailure);
-          return;
-        }
-      }
-
-      for (const media of mediaRows) {
-        updatePhoto(media.photoId, { sanitizationStatus: "processing", statusText: copy.photoProtecting });
-        const mediaResult = await listingWriteRequest<{ mediaId: string; isCover: boolean; blurredRegionCount: number }>(supabase, `/api/listings/${listingId}/media`, "POST", {
-          mediaId: media.id, tempPath: media.temp_path, sortOrder: media.sort_order, isCover: media.is_cover
-        });
-        if (!isCurrentPublication()) return;
-        if (mediaResult.error || !mediaResult.data) {
-          logClientError("sell.createMedia", mediaResult.error);
-          updatePhoto(media.photoId, { processingStatus: "failed", uploadStatus: "failed", sanitizationStatus: "failed", statusText: copy.photoSaveFailure, error: copy.photoSaveFailure });
-          setSubmitting(false);
-          setPublishStatus(null);
-          setError(copy.photoSaveFailure);
-          return;
-        }
-        updatePhoto(media.photoId, { uploadStatus: "ready", sanitizationStatus: "ready", blurredRegionCount: mediaResult.data.blurredRegionCount, statusText: mediaResult.data.blurredRegionCount > 0 ? copy.photoProtected(mediaResult.data.blurredRegionCount) : copy.photoReady });
-        if (mediaResult.data.isCover) coverMediaId = mediaResult.data.mediaId;
-      }
-    }
-
-    setPublishStatus(copy.submittingForModeration);
-    const finalizeResult = await listingWriteRequest(supabase, `/api/listings/${listingId}/media/cover`, "PATCH", { coverMediaId });
-
-    if (!isCurrentPublication()) return;
-    if (finalizeResult.error) {
-      logClientError("sell.finalizeListingContent", finalizeResult.error);
-      setSubmitting(false);
-      setPublishStatus(null);
-      setError(copy.submitFailure);
-      return;
-    }
-
-    const submitResult = await listingWriteRequest(supabase, `/api/listings/${listingId}/submit`, "POST", {});
-
-    if (!isCurrentPublication()) return;
-    setSubmitting(false);
-    setPublishStatus(null);
-
-    if (submitResult.error) {
-      logClientError("sell.submitForReview", submitResult.error);
-      setError(copy.submitFailure);
-      return;
-    }
-
+    // Draft persistence is deliberately a terminal action. Moderation requires
+    // the separate owner action available from My Listings.
     clearStoredDraft(userId);
     state.photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+    setSubmitting(false);
+    setPublishStatus(null);
     setPublishedListingId(listingId);
+    return;
   }
 
   if (checkingAuth || loadedRouteKey !== routeKey) return <LoadingState label={copy.checkingSession} />;

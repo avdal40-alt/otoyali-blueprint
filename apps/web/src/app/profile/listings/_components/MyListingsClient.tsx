@@ -334,7 +334,7 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
       {items.map((item) => {
         const workflow = statusMeta(item, copy);
         const canViewPublic = item.status === "active" && item.moderation_status === "active";
-        const canSubmit = item.status === "draft" && item.moderation_status !== "pending_review";
+        const canSubmit = item.status === "draft" && item.moderation_status === "draft";
         const canResubmit = item.moderation_status === "rejected";
         const canPause = canViewPublic;
         const canArchive = item.status !== "removed" && item.moderation_status !== "archived";
@@ -379,7 +379,7 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
                 {(
                   item.moderation_status === "rejected"
                   || (item.status === "active" && item.moderation_status === "active")
-                  || (item.status === "draft" && item.moderation_status === "pending_review")
+                  || (item.status === "draft" && item.moderation_status === "draft")
                 ) ? (
                   <ButtonLink href={localizePath(`/sell?edit=${item.id}`, locale)} variant="secondary">{copy.editRejected}</ButtonLink>
                 ) : (
@@ -476,6 +476,10 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
 }
 
 function statusMeta(item: MyListing, copy: MyListingsCopy) {
+  if (item.status === "draft" && item.moderation_status === "draft") {
+    return { label: copy.statusDraft, className: "bg-oto-surface text-oto-muted", body: copy.statusDraftBody };
+  }
+
   if (item.moderation_status === "pending_review") {
     return {
       label: copy.statusPendingReview,
