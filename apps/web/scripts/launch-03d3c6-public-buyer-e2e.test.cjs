@@ -56,6 +56,10 @@ async function session(id, name) {
     for (const field of ["seller_id", "phone", "email", "moderation_note", "rejection_reason", "moderated_by"]) assert.equal(Object.hasOwn(publicDetail.data, field), false, `public detail must not expose ${field}`);
     const hiddenIdentity = await anon.from("ff_listing_details").select("seller_id").eq("listing_id", listingId);
     assert.ok(hiddenIdentity.error, "PostgREST must reject selecting the removed seller_id column");
+    const buyerDetail = await buyer.from("ff_listing_details").select("*").eq("listing_id", listingId).maybeSingle();
+    assert.ifError(buyerDetail.error);
+    assert.equal(buyerDetail.data?.listing_id, listingId, "authenticated buyer detail must remain available");
+    assert.equal(Object.hasOwn(buyerDetail.data, "seller_id"), false, "buyer detail must not need seller identity");
     const publicHome = await anon.from("ff_home_listings").select("*").eq("listing_id", listingId).maybeSingle();
     assert.ifError(publicHome.error);
     for (const field of ["seller_id", "phone", "email"]) assert.equal(Object.hasOwn(publicHome.data, field), false, `public home must not expose ${field}`);
@@ -63,6 +67,10 @@ async function session(id, name) {
     const favorite = await buyer.schema("marketplace").from("listing_favorites").insert({ user_id: ids.buyer, listing_id: listingId });
     assert.ifError(favorite.error);
     assert.equal(count(`SELECT count(*) FROM marketplace.listing_favorites WHERE user_id='${ids.buyer}' AND listing_id='${listingId}'`), 1);
+    const duplicateFavorite = await buyer.schema("marketplace").from("listing_favorites").insert({ user_id: ids.buyer, listing_id: listingId });
+    assert.ok(duplicateFavorite.error, "buyer duplicate favorite must be protected");
+    const anonymousFavorite = await anon.schema("marketplace").from("listing_favorites").insert({ user_id: ids.buyer, listing_id: listingId });
+    assert.ok(anonymousFavorite.error, "anonymous favorite must be blocked");
     const contact = await buyer.rpc("get_listing_seller_contact", { p_listing_id: listingId });
     assert.ifError(contact.error);
     assert.match(contact.data?.[0]?.phone || "", /^\+905550000006$/, "buyer contact must resolve only through the protected RPC");
