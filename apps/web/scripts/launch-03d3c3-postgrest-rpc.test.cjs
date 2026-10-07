@@ -35,13 +35,18 @@ async function user(id, suffix) {
   assert.equal(sql(`SELECT seller_id || '|' || description || '|' || status || '|' || moderation_status FROM marketplace.listings WHERE id='${listingId}'`), `${ids[0]}|${originalDescription}|draft|draft`);
   const anonymous = await anon.rpc("create_own_private_listing_draft", payload); assert.ok(anonymous.error);
   const ineligible = await c.rpc("create_own_private_listing_draft", payload); assert.ok(ineligible.error);
-  assert.ok((await b.rpc("submit_own_listing_for_review", { p_listing_id: listingId })).error);
-  assert.ok((await anon.rpc("submit_own_listing_for_review", { p_listing_id: listingId })).error, "anon submit must be rejected");
+  const crossSubmit = await b.rpc("submit_own_listing_for_review", { p_listing_id: listingId }); assert.ok(crossSubmit.error); assert.match(crossSubmit.error.message, /listing owner authorization required/i);
+  assert.equal(sql(`SELECT count(*) FROM public.admin_audit_logs WHERE action='listing.submit' AND entity_id='${listingId}'`), "0");
+  const anonymousSubmit = await anon.rpc("submit_own_listing_for_review", { p_listing_id: listingId }); assert.ok(anonymousSubmit.error, "anon submit must be rejected");
+  assert.equal(sql(`SELECT count(*) FROM public.admin_audit_logs WHERE action='listing.submit' AND entity_id='${listingId}'`), "0");
   const submitted = await a.rpc("submit_own_listing_for_review", { p_listing_id: listingId }); assert.ifError(submitted.error);
   assert.deepEqual(submitted.data?.[0], { listing_id: listingId, status: "draft", moderation_status: "pending_review" });
   assert.equal(sql(`SELECT status || '|' || moderation_status || '|' || (published_at IS NULL)::text FROM marketplace.listings WHERE id='${listingId}'`), "draft|pending_review|true");
   assert.equal(sql(`SELECT count(*) FROM marketplace.listing_moderation_runs WHERE listing_id='${listingId}'`), "0");
   assert.equal(sql(`SELECT count(*) FROM marketplace.listing_search_documents WHERE listing_id='${listingId}'`), "0");
+  assert.equal(sql(`SELECT actor_user_id || '|' || (metadata->>'previous_status') || '|' || (metadata->>'previous_moderation_status') || '|' || (metadata->>'new_status') || '|' || (metadata->>'new_moderation_status') FROM public.admin_audit_logs WHERE action='listing.submit' AND entity_id='${listingId}'`), `${ids[0]}|draft|draft|draft|pending_review`);
+  const invalidSubmit = await a.rpc("submit_own_listing_for_review", { p_listing_id: listingId }); assert.ok(invalidSubmit.error, "invalid lifecycle submit must be rejected");
+  assert.equal(sql(`SELECT count(*) FROM public.admin_audit_logs WHERE action='listing.submit' AND entity_id='${listingId}'`), "1");
   const crossArchive = await b.rpc("archive_own_listing", { p_listing_id: listingId }); assert.ok(crossArchive.error, "USER B draft archive must be rejected"); assert.match(crossArchive.error.message, /listing owner authorization required/i);
   assert.equal(sql(`SELECT seller_id || '|' || status || '|' || moderation_status || '|' || (archived_at IS NULL)::text || '|' || (published_at IS NULL)::text FROM marketplace.listings WHERE id='${listingId}'`), `${ids[0]}|draft|pending_review|true|true`);
   const anonymousArchive = await anon.rpc("archive_own_listing", { p_listing_id: listingId }); assert.ok(anonymousArchive.error, "anon archive must be rejected");
@@ -52,5 +57,5 @@ async function user(id, suffix) {
   assert.equal(sql(`SELECT count(*) FROM marketplace.listing_moderation_runs WHERE listing_id='${listingId}'`), "0");
   console.log("LAUNCH-03D3C3 PostgREST RPC privilege: PASS");
 } finally {
-  sql(`DELETE FROM marketplace.listings WHERE seller_id IN ('${ids.join("','")}'); DELETE FROM vehicle.profile_ownership WHERE owner_id IN ('${ids.join("','")}'); DELETE FROM vehicle.vehicle_profiles WHERE created_by IN ('${ids.join("','")}'); DELETE FROM identity.seller_phone_verifications WHERE user_id IN ('${ids.join("','")}'); DELETE FROM public.profiles WHERE id IN ('${ids.join("','")}'); DELETE FROM auth.users WHERE id IN ('${ids.join("','")}');`);
+  sql(`DELETE FROM public.admin_audit_logs WHERE actor_user_id IN ('${ids.join("','")}'); DELETE FROM marketplace.listings WHERE seller_id IN ('${ids.join("','")}'); DELETE FROM vehicle.profile_ownership WHERE owner_id IN ('${ids.join("','")}'); DELETE FROM vehicle.vehicle_profiles WHERE created_by IN ('${ids.join("','")}'); DELETE FROM identity.seller_phone_verifications WHERE user_id IN ('${ids.join("','")}'); DELETE FROM public.profiles WHERE id IN ('${ids.join("','")}'); DELETE FROM auth.users WHERE id IN ('${ids.join("','")}');`);
 } })().catch((error) => { console.error(error); process.exitCode = 1; });
