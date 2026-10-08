@@ -120,6 +120,17 @@ export async function saveOwnRejectedListing(authenticated: AuthenticatedRequest
   return result ? { data: { listingId: result.saved_listing_id, listingUpdatedAt: result.saved_listing_updated_at, vehicleUpdatedAt: result.saved_vehicle_updated_at, status: result.saved_status, moderationStatus: result.saved_moderation_status, title: result.saved_title, titleGenerated: result.saved_title_generated } } as const : { error: { status: 500, message: "İlan işlemi tamamlanamadı." } } as const;
 }
 
+export const listingContactSwitchSchema = z.object({ sellerContactPhoneId: listingIdSchema }).strict();
+
+export async function setOwnListingSellerContactPhone(authenticated: AuthenticatedRequestSupabase, listingId: string, sellerContactPhoneId: string) {
+  const { error } = await authenticated.supabase.rpc("set_own_listing_seller_contact_phone", {
+    p_listing_id: listingId,
+    p_seller_contact_phone_id: sellerContactPhoneId
+  });
+  if (error) return { error: listingWriteError(error), rawError: error } as const;
+  return { data: { listingId, sellerContactPhoneId } } as const;
+}
+
 export async function submitOwnListing(authenticated: AuthenticatedRequestSupabase, listingId: string, operation: "submit" | "resubmit") {
   const { data, error } = await authenticated.supabase.rpc(operation === "submit" ? "submit_own_listing_for_review" : "resubmit_own_listing_for_review", { p_listing_id: listingId });
   if (error) return { error: listingWriteError(error), rawError: error } as const;

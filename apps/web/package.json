@@ -124,7 +124,8 @@
     "test:launch-b01b1": "node scripts/launch-b01b1-auth-contract.test.cjs",
     "test:launch-b01b2": "node scripts/launch-b01b2-seller-contact.test.cjs",
     "test:seller-contact-flow": "node scripts/seller-contact-verification-flow.test.cjs",
-    "test:seller-contact-manager": "node scripts/seller-contact-manager.test.cjs"
+    "test:seller-contact-manager": "node scripts/seller-contact-manager.test.cjs",
+    "test:listing-contact-switch-boundary": "node scripts/listing-contact-switch-boundary.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
