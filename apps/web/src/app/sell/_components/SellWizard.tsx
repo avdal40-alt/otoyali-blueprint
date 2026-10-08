@@ -79,6 +79,7 @@ type SellerProfileState = {
   country: string;
   timezone: string;
 };
+type SellerContact = { contact_id: string; masked_phone: string; is_active: boolean; is_current_account_phone: boolean };
 
 type PersistedWizardState = Omit<WizardState, "photos">;
 type EditableField = Exclude<keyof WizardState, "photos" | "sellerType">;
@@ -149,6 +150,8 @@ export function SellWizard({
   const [step, setStep] = useState(1);
   const [state, setState] = useState(initialState);
   const [profile, setProfile] = useState<SellerProfileState | null>(null);
+  const [sellerContacts, setSellerContacts] = useState<SellerContact[]>([]);
+  const [sellerContactId, setSellerContactId] = useState("");
   const [profileSaving, setProfileSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -191,6 +194,7 @@ export function SellWizard({
     modelRequestGuard.current.setTarget(modelRequestContextKey);
   }
   const sell03 = copy;
+  const contactCopy = locale === "tr" ? { title: "Doğrulanmış satıcı iletişimi", label: "İletişim numarası", missing: "İlan oluşturmadan önce doğrulanmış bir Türkiye iletişim numarası ekleyin.", account: "Hesap telefonu", required: "İlan oluşturmadan önce doğrulanmış bir satıcı iletişim numarası seçin." } : { title: "Verified seller contact", label: "Contact number", missing: "Add and verify a Turkish contact number before creating a listing.", account: "Account phone", required: "Select a verified Turkish seller contact number before creating the listing." };
 
   const loadModelsForMake = useCallback(async (makeId: string) => {
     if (!hasSupabaseEnv()) return;
@@ -293,6 +297,12 @@ export function SellWizard({
       }
 
       setUserId(data.user.id);
+      await supabase.rpc("sync_own_verified_account_phone");
+      const { data: contacts } = await supabase.rpc("list_own_verified_seller_contact_phones");
+      if (!isCurrentRequest()) return;
+      const activeContacts = (Array.isArray(contacts) ? contacts : []).filter((contact): contact is SellerContact => Boolean(contact && typeof contact === "object" && "contact_id" in contact && (contact as SellerContact).is_active));
+      setSellerContacts(activeContacts);
+      setSellerContactId(activeContacts[0]?.contact_id ?? "");
       const { data: profileRow } = await supabase.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
       if (!isCurrentRequest()) return;
       const sellerProfile = toSellerProfile((profileRow as Profile | null) ?? null, data.user.phone ?? "", locale);
@@ -690,6 +700,7 @@ export function SellWizard({
       setError(validation);
       return;
     }
+    if (!sellerContactId) { setError(contactCopy.required); return; }
 
     const routeToken = routeRequestGuard.current.currentToken();
     const submissionToken = submissionRequestGuard.current.begin(routeKey);
@@ -841,7 +852,7 @@ export function SellWizard({
       driveType: state.driveType || null, color: state.color || null,
       engineVolumeL: state.fuelType === "electric" ? null : Number(state.engineVolumeL), damageState: state.damageState || null,
       ownerCount: state.ownerCount ? Number(state.ownerCount) : null, description: state.description, priceAmount: state.priceAmount,
-      currency: state.currency, priceNegotiable: state.priceNegotiable, city: state.city, cityId: null, districtId: null
+      currency: state.currency, priceNegotiable: state.priceNegotiable, city: state.city, cityId: null, districtId: null, sellerContactPhoneId: sellerContactId
     });
 
     if (!isCurrentPublication()) return;
@@ -912,6 +923,7 @@ export function SellWizard({
           <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-red-800">{rejectionReason}</p>
         </section>
       ) : null}
+      {mode === "create" ? <section className="rounded-oto border border-oto-border bg-white p-4"><h2 className="text-base font-black text-oto-text">{contactCopy.title}</h2>{sellerContacts.length === 0 ? <p className="mt-2 text-sm text-oto-muted">{contactCopy.missing}</p> : <label className="mt-3 grid gap-1 text-sm font-bold text-oto-text">{contactCopy.label}<Select value={sellerContactId} onChange={(event) => setSellerContactId(event.target.value)}>{sellerContacts.map((contact) => <option key={contact.contact_id} value={contact.contact_id}>{contact.masked_phone}{contact.is_current_account_phone ? ` — ${contactCopy.account}` : ""}</option>)}</Select></label>}</section> : null}
       <div className="flex gap-2 overflow-x-auto pb-1">
         {steps.map((label, index) => {
           const item = index + 1;

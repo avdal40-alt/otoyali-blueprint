@@ -12,6 +12,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type GateState = "checking" | "phone" | "sending" | "otp" | "verifying" | "rateLimited" | "providerUnavailable" | "error" | "eligible";
 type ApiFailure = "auth_required" | "invalid_phone" | "rate_limited" | "verification_unavailable" | "challenge_unavailable" | "invalid_code" | "phone_already_verified" | "invalid_input" | "eligibility_unavailable";
+type SellerContact = { contact_id: string; masked_phone: string; is_current_account_phone: boolean; is_active: boolean };
 
 function messageFor(code: ApiFailure | null, dictionary: ReturnType<typeof useI18n>["dictionary"]) {
   if (code === "invalid_phone") return String(dictionary.sell.sellerPhoneInvalid);
@@ -34,6 +35,7 @@ export function SellerEntryGate({ children }: { children: ReactNode }) {
   const [maskedPhone, setMaskedPhone] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [errorCode, setErrorCode] = useState<ApiFailure | null>(null);
+  const [contacts, setContacts] = useState<SellerContact[]>([]);
   const otpInputId = "seller-phone-otp-code";
   const returnPath = `${pathname}${searchParams.size ? `?${searchParams.toString()}` : ""}`;
 
@@ -56,6 +58,14 @@ export function SellerEntryGate({ children }: { children: ReactNode }) {
       return false;
     }
 
+    const supabase = getSupabaseBrowserClient();
+    // The database derives the phone and confirmation fact from auth.users; the
+    // browser supplies no phone value and cannot create a contact directly.
+    await supabase.rpc("sync_own_verified_account_phone");
+    const { data: contactRows } = await supabase.rpc("list_own_verified_seller_contact_phones");
+    const verifiedContacts = Array.isArray(contactRows) ? contactRows as SellerContact[] : [];
+    setContacts(verifiedContacts.filter((contact) => contact.is_active));
+    if (verifiedContacts.some((contact) => contact.is_active)) { setState("eligible"); return true; }
     let response: Response;
     try {
       response = await fetch("/api/seller/eligibility", { headers: { Authorization: `Bearer ${accessToken}` } });
@@ -162,6 +172,7 @@ export function SellerEntryGate({ children }: { children: ReactNode }) {
       <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Yolmod</p>
       <h2 id="seller-phone-verification-title" className="mt-2 text-2xl font-black text-oto-text">{String(dictionary.sell.sellerPhoneTitle)}</h2>
       <p className="mt-2 text-sm leading-6 text-oto-muted">{String(dictionary.sell.sellerPhoneBody)}</p>
+      {contacts.length >= 3 ? <p className="mt-3 rounded-md bg-oto-surface p-3 text-xs font-semibold text-oto-muted">{locale === "tr" ? "En fazla üç doğrulanmış satıcı iletişim numarası ekleyebilirsiniz." : "You can keep up to three verified seller contact numbers."}</p> : null}
       <p className="mt-3 rounded-md bg-oto-surface p-3 text-xs font-semibold leading-5 text-oto-muted">{String(dictionary.sell.sellerPhoneAuthIndependent)}</p>
       {isOtp ? (
         <form className="mt-5 grid gap-4" onSubmit={(event) => { event.preventDefault(); void verifyCode(); }}>
@@ -183,7 +194,7 @@ export function SellerEntryGate({ children }: { children: ReactNode }) {
           </div>
           {error ? <p id="seller-phone-error" role="alert" className="text-error text-oto-danger">{error}</p> : null}
           <div aria-live="polite" className="sr-only">{busy ? String(dictionary.sell.sellerPhoneSending) : ""}</div>
-          <Button type="submit" disabled={busy || nationalPhone.length !== 10} isLoading={state === "sending"}>{String(dictionary.sell.sellerPhoneSend)}</Button>
+          <Button type="submit" disabled={busy || contacts.length >= 3 || nationalPhone.length !== 10} isLoading={state === "sending"}>{String(dictionary.sell.sellerPhoneSend)}</Button>
           {state === "rateLimited" || state === "providerUnavailable" || state === "error" ? <Button type="button" variant="secondary" disabled={busy} onClick={() => void checkEligibility()}>{String(dictionary.sell.sellerPhoneRetry)}</Button> : null}
         </form>
       )}

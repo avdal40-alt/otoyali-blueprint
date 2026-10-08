@@ -1,0 +1,18 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const root = path.resolve(__dirname, "..", "..", "..");
+const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
+const gate = read("apps", "web", "src", "app", "sell", "_components", "SellerEntryGate.tsx");
+const wizard = read("apps", "web", "src", "app", "sell", "_components", "SellWizard.tsx");
+const writes = read("apps", "web", "src", "lib", "listings", "server-write.ts");
+assert.match(gate, /sync_own_verified_account_phone/);
+assert.match(gate, /list_own_verified_seller_contact_phones/);
+assert.ok(gate.indexOf("sync_own_verified_account_phone") < gate.indexOf('phone-verification/start'));
+assert.match(gate, /contacts\.length >= 3/);
+assert.match(wizard, /list_own_verified_seller_contact_phones/);
+assert.match(wizard, /sellerContactPhoneId: sellerContactId/);
+assert.match(writes, /create_own_listing_draft_v2/);
+assert.match(writes, /p_seller_contact_phone_id: payload\.sellerContactPhoneId/);
+assert.doesNotMatch(writes.slice(writes.indexOf("createOwnListingDraft")), /create_own_private_listing_draft/);
+console.log("PASS B01B2 verified seller contact source contracts and OTP economy");
