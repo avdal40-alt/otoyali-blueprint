@@ -1,0 +1,17 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const root = path.resolve(__dirname, "..", "..", "..");
+const manager = fs.readFileSync(path.join(root, "apps", "web", "src", "app", "profile", "seller-contacts", "_components", "SellerContactsClient.tsx"), "utf8");
+const page = fs.readFileSync(path.join(root, "apps", "web", "src", "app", "profile", "seller-contacts", "page.tsx"), "utf8");
+assert.match(manager, /SellerContactVerificationFlow/);
+assert.match(manager, /sync_own_verified_account_phone/);
+assert.match(manager, /list_own_verified_seller_contact_phones/);
+assert.match(manager, /activeContacts\.length < 3/);
+assert.match(manager, /setShowVerification\(true\)/);
+assert.match(manager, /setShowVerification\(false\); await loadContacts\(\)/);
+assert.match(manager, /Hesap telefonu|Account phone/);
+assert.match(manager, /\$\{count\} \/ 3/);
+assert.doesNotMatch(manager, /phone-verification\/start|phone-verification\/verify|auth_account_phone|seller_otp/);
+assert.doesNotMatch(page, /SellerEntryGate/);
+console.log("seller-contact-manager: PASS");
