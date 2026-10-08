@@ -191,6 +191,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
       </section>
       <aside className="grid h-fit gap-3 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
         <ButtonLink href={localizePath("/my-listings", locale)} variant="secondary">{String(dictionary.navigation.myListings)}</ButtonLink>
+        <ButtonLink href={localizePath("/profile/seller-contacts", locale)} variant="secondary">{locale === "tr" ? "Satıcı iletişim numaraları" : "Seller contact numbers"}</ButtonLink>
         <ButtonLink href={localizePath("/favorites", locale)} variant="secondary">{String(dictionary.navigation.favorites)}</ButtonLink>
         <ButtonLink href={localizePath("/profile/messages", locale)} variant="secondary">{String(dictionary.navigation.messages)}</ButtonLink>
         <ButtonLink href={localizePath("/notifications", locale)} variant="secondary">{String(dictionary.navigation.notifications)}</ButtonLink>
