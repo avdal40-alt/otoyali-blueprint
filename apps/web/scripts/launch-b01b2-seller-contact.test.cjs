@@ -8,8 +8,14 @@ const wizard = read("apps", "web", "src", "app", "sell", "_components", "SellWiz
 const writes = read("apps", "web", "src", "lib", "listings", "server-write.ts");
 assert.match(gate, /sync_own_verified_account_phone/);
 assert.match(gate, /list_own_verified_seller_contact_phones/);
-assert.ok(gate.indexOf("sync_own_verified_account_phone") < gate.indexOf('phone-verification/start'));
-assert.match(gate, /contacts\.length >= 3/);
+assert.match(gate, /import \{ SellerContactVerificationFlow \} from "@\/components\/seller\/SellerContactVerificationFlow"/);
+assert.match(gate, /<SellerContactVerificationFlow onVerified=\{async \(\) => \{ await checkEligibility\(\); \}\} onAuthRequired=\{redirectToLogin\}/);
+assert.doesNotMatch(gate, /phone-verification\/start|phone-verification\/verify/);
+assert.doesNotMatch(gate, /async function startVerification|async function verifyCode|OtpInput/);
+assert.doesNotMatch(gate, /nationalPhone|challengeId|maskedPhone|setCode\(/);
+assert.match(gate, /verifiedContacts\.some\(\(contact\) => contact\.is_active\)/);
+assert.ok(gate.indexOf("sync_own_verified_account_phone") < gate.indexOf("let response: Response"));
+assert.ok(gate.indexOf("list_own_verified_seller_contact_phones") < gate.indexOf("let response: Response"));
 assert.match(wizard, /list_own_verified_seller_contact_phones/);
 assert.match(wizard, /sellerContactPhoneId: sellerContactId/);
 assert.match(writes, /create_own_listing_draft_v2/);

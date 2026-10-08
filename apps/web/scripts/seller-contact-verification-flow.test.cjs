@@ -17,6 +17,8 @@ assert.match(source, /phone\.length !== 10 \|\| phone\.startsWith\("0"\)/);
 assert.match(source, /JSON\.stringify\(\{ phone: `\+90\$\{phone\}` \}\)/);
 assert.match(source, /fetch\("\/api\/seller\/phone-verification\/start"/);
 assert.match(source, /fetch\("\/api\/seller\/phone-verification\/verify"/);
+assert.equal((source.match(/phone-verification\/start/g) ?? []).length, 1);
+assert.equal((source.match(/phone-verification\/verify/g) ?? []).length, 1);
 assert.match(source, /body: JSON\.stringify\(\{ challengeId, code \}\)/);
 assert.match(source, /Authorization: `Bearer \$\{accessToken\}`/);
 assert.match(source, /await onVerified\(\);/);
