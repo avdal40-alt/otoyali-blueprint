@@ -94,7 +94,7 @@ export function OtpClient() {
       await supabase.from("profiles").update(profileUpdate).eq("id", userData.user.id);
     }
 
-    const next = safeNextPath(searchParams.get("next"), localizePath("/profile", locale));
+    const next = localizePath(safeNextPath(searchParams.get("next"), "/profile"), locale);
     if (transaction.purpose === "recovery") {
       clearOtpPhoneTransaction();
       router.replace(localizePath(`/auth/reset-password?next=${encodeURIComponent(next)}`, locale));
@@ -106,7 +106,7 @@ export function OtpClient() {
       router.replace(localizePath(`/auth/create-password?next=${encodeURIComponent(next)}&method=${transaction.purpose}`, locale));
       return;
     }
-    router.replace(safeNextPath(searchParams.get("next"), localizePath("/profile", locale)));
+    router.replace(localizePath(safeNextPath(searchParams.get("next"), "/profile"), locale));
   }
 
   async function resend() {

@@ -19,7 +19,7 @@ export function AuthOtpStartClient({ purpose }: { purpose: Purpose }) {
   const { locale, dictionary } = useI18n(); const router = useRouter(); const searchParams = useSearchParams();
   const [phone, setPhone] = useState(""); const [country, setCountry] = useState<AuthPhoneCountry>(DEFAULT_PHONE_COUNTRY);
   const [error, setError] = useState<string | null>(null); const [loading, setLoading] = useState(false);
-  const parsed = parseAuthPhoneNumber(phone, country); const next = safeNextPath(searchParams.get("next"), localizePath("/profile", locale));
+  const parsed = parseAuthPhoneNumber(phone, country); const next = localizePath(safeNextPath(searchParams.get("next"), "/profile"), locale);
   useEffect(() => { if (phone.trim().startsWith("+")) { const result = parseAuthPhoneNumber(phone, country); if (result.ok && result.country !== country) setCountry(result.country); } }, [phone, country]);
   const title = purpose === "registration" ? String(dictionary.auth.createAccountTitle) : purpose === "recovery" ? String(dictionary.auth.forgotPasswordTitle) : String(dictionary.auth.legacyTitle);
   const body = purpose === "registration" ? String(dictionary.auth.createAccountBody) : purpose === "recovery" ? String(dictionary.auth.forgotPasswordBody) : String(dictionary.auth.legacyBody);

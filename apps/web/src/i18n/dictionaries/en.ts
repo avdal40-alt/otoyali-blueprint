@@ -267,7 +267,7 @@ export const en = {
   },
   auth: {
     loginTitle: "Log in with your phone number",
-    loginBody: "We will send you a one-time verification code.",
+    loginBody: "Use your phone number and password to sign in.",
     phoneHint: "Turkey is selected by default. You can choose another country or paste an international number starting with +.",
     phoneLabel: "Phone number",
     countryLabel: "Country or region",

@@ -267,7 +267,7 @@ export const tr = {
   },
   auth: {
     loginTitle: "Telefon numaranızla giriş yapın",
-    loginBody: "Size tek kullanımlık doğrulama kodu göndereceğiz.",
+    loginBody: "Telefon numaranız ve şifrenizle giriş yapın.",
     phoneHint: "Türkiye varsayılan olarak seçili gelir. Uluslararası numaranızı ülke seçerek veya + ile yapıştırarak kullanabilirsiniz.",
     phoneLabel: "Telefon numarası",
     countryLabel: "Ülke veya bölge",

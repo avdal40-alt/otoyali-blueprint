@@ -6,6 +6,7 @@ import { ErrorState, LoadingState } from "@/components/ui/States";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { authErrorMessage, mapAuthError, safeNextPath } from "@/lib/auth/auth-ui";
 import { useI18n } from "@/i18n/client";
+import { localizePath } from "@/i18n/config";
 
 export function AuthCallbackClient() {
   const { locale, dictionary } = useI18n();
@@ -20,7 +21,7 @@ export function AuthCallbackClient() {
         return;
       }
 
-      const next = safeNextPath(searchParams.get("next"), "/profile");
+      const next = localizePath(safeNextPath(searchParams.get("next"), "/profile"), locale);
       const code = searchParams.get("code");
       const errorDescription = searchParams.get("error_description") || searchParams.get("error");
 

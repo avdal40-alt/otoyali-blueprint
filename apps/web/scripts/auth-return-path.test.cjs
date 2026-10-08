@@ -89,8 +89,8 @@ assert.ok(authUiSource.includes('export { safeNextPath } from "./return-path"'))
 assert.ok(!authUiSource.includes("decodeURIComponent(value)"));
 assert.ok(legacyAuthSource.includes('import { safeNextPath } from "./auth/return-path"'));
 assert.ok(legacyAuthSource.includes('safeNextPath(searchParams.get("next"), "/")'));
-assert.ok(loginSource.includes('safeNextPath(searchParams.get("next"), localizePath("/profile", locale))'));
-assert.ok(otpSource.includes('router.replace(safeNextPath(searchParams.get("next"), localizePath("/profile", locale)))'));
-assert.ok(callbackSource.includes('const next = safeNextPath(searchParams.get("next"), "/profile")'));
+assert.ok(loginSource.includes('localizePath(safeNextPath(searchParams.get("next"), "/profile"), locale)'));
+assert.ok(otpSource.includes('router.replace(localizePath(safeNextPath(searchParams.get("next"), "/profile"), locale))'));
+assert.ok(callbackSource.includes('const next = localizePath(safeNextPath(searchParams.get("next"), "/profile"), locale)'));
 
 console.log("auth return-path tests passed");

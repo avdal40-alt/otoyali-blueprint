@@ -16,7 +16,7 @@ import { useI18n } from "@/i18n/client";
 export function LoginClient() {
   const { locale, dictionary } = useI18n(); const router = useRouter(); const searchParams = useSearchParams();
   const [phone, setPhone] = useState(""); const [country, setCountry] = useState<AuthPhoneCountry>(DEFAULT_PHONE_COUNTRY); const [password, setPassword] = useState(""); const [error, setError] = useState<string | null>(null); const [loading, setLoading] = useState(false);
-  const parsed = parseAuthPhoneNumber(phone, country); const next = safeNextPath(searchParams.get("next"), localizePath("/profile", locale));
+  const parsed = parseAuthPhoneNumber(phone, country); const next = localizePath(safeNextPath(searchParams.get("next"), "/profile"), locale);
   useEffect(() => { if (phone.trim().startsWith("+")) { const result = parseAuthPhoneNumber(phone, country); if (result.ok && result.country !== country) setCountry(result.country); } }, [phone, country]);
   async function submit() {
     setError(null); if (!parsed.ok) { setError(authErrorMessage(parsed.error === "ambiguous_country" ? "ambiguous_phone_country" : "invalid_phone", locale)); return; } if (!password) { setError(String(dictionary.auth.passwordRequired)); return; } if (!hasSupabaseEnv()) { setError(String(dictionary.errors.authConfiguration)); return; }
