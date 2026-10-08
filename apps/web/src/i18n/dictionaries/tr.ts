@@ -288,6 +288,7 @@ export const tr = {
     phoneMissing: "telefon numaranız",
     loginRequired: "Giriş yapmanız gerekir",
     callbackLoading: "Oturum hazırlanıyor"
+    ,signIn: "Giriş yap", signingIn: "Giriş yapılıyor", createAccount: "Hesap oluştur", createAccountTitle: "Hesap oluştur", createAccountBody: "Telefonunuzu bir kez doğrulayın, ardından şifre belirleyin.", forgotPassword: "Şifremi unuttum", forgotPasswordTitle: "Şifrenizi sıfırlayın", forgotPasswordBody: "Mevcut telefon numaranıza kurtarma kodu gönderin.", legacyLink: "Daha önce SMS ile giriş yaptınız mı?", legacyTitle: "Şifre belirleyin", legacyBody: "Şifre belirlemek için mevcut telefon numaranızı doğrulayın.", backToLogin: "Girişe dön", passwordLabel: "Şifre", confirmPasswordLabel: "Şifreyi doğrulayın", passwordRequired: "Şifrenizi girin.", passwordMismatch: "Şifreler eşleşmiyor.", weakPassword: "En az 10 karakter kullanın.", createPasswordTitle: "Şifrenizi oluşturun", createPassword: "Şifre oluştur", resetPasswordTitle: "Şifrenizi sıfırlayın", resetPassword: "Şifreyi sıfırla", passwordRequirements: "En az 10 karakter kullanın. Şifrenizi gizli ve benzersiz tutun.", savingPassword: "Şifre kaydediliyor", enrollmentRetry: "Şifreniz güncellendi. Kurulumu tamamlamak için tekrar deneyin."
   },
   video: {
     label: "Video İlanlar",
@@ -534,6 +535,7 @@ export const tr = {
     smsUnavailable: "SMS girişi şu anda yapılandırılmamış. Lütfen daha sonra tekrar deneyin.",
     tooManyRequests: "Çok fazla deneme yapıldı. Lütfen kısa bir süre bekleyip tekrar deneyin.",
     invalidOtp: "Kod doğrulanamadı. Lütfen tekrar deneyin.",
+    invalidCredentials: "Telefon numarası veya şifre yanlış.",
     missingSession: "Oturum bulunamadı. Lütfen tekrar giriş yapın.",
     networkUnavailable: "Bağlantı kurulamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.",
     missingSupabaseEnv: "Supabase ortam değişkenleri eksik.",

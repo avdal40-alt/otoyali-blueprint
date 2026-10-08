@@ -16,6 +16,7 @@ import {
 } from "@/lib/auth/otp-transaction";
 import { maskE164Phone } from "@/lib/auth/phone";
 import { buildPhoneSignupMetadata } from "@/lib/auth/signup-metadata";
+import { getPasswordEnrollmentStatus } from "@/lib/auth/password-enrollment";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { interpolate } from "@/i18n/get-dictionary";
@@ -82,7 +83,7 @@ export function OtpClient() {
     }
 
     const { data: userData } = await supabase.auth.getUser();
-    if (userData.user) {
+    if (userData.user && transaction.purpose === "registration") {
       const signupMetadata = buildPhoneSignupMetadata({ selectedCountry: transaction.country, locale });
       const profileUpdate = {
         language: signupMetadata?.language ?? locale,
@@ -93,7 +94,18 @@ export function OtpClient() {
       await supabase.from("profiles").update(profileUpdate).eq("id", userData.user.id);
     }
 
+    const next = safeNextPath(searchParams.get("next"), localizePath("/profile", locale));
+    if (transaction.purpose === "recovery") {
+      clearOtpPhoneTransaction();
+      router.replace(localizePath(`/auth/reset-password?next=${encodeURIComponent(next)}`, locale));
+      return;
+    }
+    const enrollment = await getPasswordEnrollmentStatus(supabase);
     clearOtpPhoneTransaction();
+    if (enrollment.error || !enrollment.enrolled) {
+      router.replace(localizePath(`/auth/create-password?next=${encodeURIComponent(next)}&method=${transaction.purpose}`, locale));
+      return;
+    }
     router.replace(safeNextPath(searchParams.get("next"), localizePath("/profile", locale)));
   }
 
@@ -123,10 +135,7 @@ export function OtpClient() {
     const supabase = getSupabaseBrowserClient();
     const { error: resendError } = await supabase.auth.signInWithOtp({
       phone: transaction.phone,
-      options: {
-        shouldCreateUser: true,
-        data: signupMetadata
-      }
+      options: { shouldCreateUser: transaction.purpose === "registration", ...(transaction.purpose === "registration" ? { data: signupMetadata } : {}) }
     });
     setResending(false);
 
@@ -135,7 +144,7 @@ export function OtpClient() {
       return;
     }
 
-    const refreshedTransaction = createOtpPhoneTransaction(transaction.phone, transaction.country);
+    const refreshedTransaction = createOtpPhoneTransaction(transaction.phone, transaction.country, transaction.purpose);
     saveOtpPhoneTransaction(refreshedTransaction);
     setTransaction(refreshedTransaction);
     setResendAvailableAt(Date.now() + RESEND_COOLDOWN_MS);

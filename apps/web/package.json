@@ -120,7 +120,8 @@
     "test:launch-03d3c3-postgrest-rpc": "node scripts/launch-03d3c3-postgrest-rpc.test.cjs",
     "test:launch-03d3c5-admin-moderation": "node scripts/launch-03d3c5-admin-moderation.test.cjs",
     "test:launch-03d3c6-buyer-e2e": "node scripts/launch-03d3c6-public-buyer-e2e.test.cjs",
-    "test:launch-b01a": "node scripts/launch-b01a-auth-contact-runtime.test.cjs"
+    "test:launch-b01a": "node scripts/launch-b01a-auth-contact-runtime.test.cjs",
+    "test:launch-b01b1": "node scripts/launch-b01b1-auth-contract.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

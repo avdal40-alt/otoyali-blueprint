@@ -288,6 +288,7 @@ export const en = {
     phoneMissing: "your phone number",
     loginRequired: "Login required",
     callbackLoading: "Preparing your session"
+    ,signIn: "Sign in", signingIn: "Signing in", createAccount: "Create account", createAccountTitle: "Create an account", createAccountBody: "Verify your phone once, then choose a password.", forgotPassword: "Forgot password?", forgotPasswordTitle: "Reset your password", forgotPasswordBody: "Send a recovery code to your existing phone number.", legacyLink: "Previously signed in by SMS?", legacyTitle: "Set a password", legacyBody: "Verify your existing phone number to set a password.", backToLogin: "Back to sign in", passwordLabel: "Password", confirmPasswordLabel: "Confirm password", passwordRequired: "Enter your password.", passwordMismatch: "Passwords do not match.", weakPassword: "Use at least 10 characters.", createPasswordTitle: "Create your password", createPassword: "Create password", resetPasswordTitle: "Reset your password", resetPassword: "Reset password", passwordRequirements: "Use at least 10 characters. Keep it private and unique.", savingPassword: "Saving password", enrollmentRetry: "Your password was updated. Please try again to finish setup."
   },
   video: {
     label: "Video Listings",
@@ -534,6 +535,7 @@ export const en = {
     smsUnavailable: "SMS login is not configured right now. Please try again later.",
     tooManyRequests: "Too many attempts. Please wait a short time and try again.",
     invalidOtp: "The code could not be verified. Please try again.",
+    invalidCredentials: "The phone number or password is incorrect.",
     missingSession: "No session was found. Please log in again.",
     networkUnavailable: "Could not connect. Check your internet connection and try again.",
     missingSupabaseEnv: "Supabase environment variables are missing.",

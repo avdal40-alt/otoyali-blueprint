@@ -9,6 +9,7 @@ export type AuthErrorCategory =
   | "sms_unavailable"
   | "too_many_requests"
   | "invalid_or_expired_otp"
+  | "invalid_credentials"
   | "missing_session"
   | "network_unavailable"
   | "generic_auth_failure";
@@ -21,6 +22,7 @@ export function authErrorMessage(category: AuthErrorCategory, locale: Locale = "
     sms_unavailable: "errors.smsUnavailable",
     too_many_requests: "errors.tooManyRequests",
     invalid_or_expired_otp: "errors.invalidOtp",
+    invalid_credentials: "errors.invalidCredentials",
     missing_session: "errors.missingSession",
     network_unavailable: "errors.networkUnavailable",
     generic_auth_failure: "errors.generic"
@@ -42,6 +44,10 @@ export function mapAuthError(error?: unknown, fallback: AuthErrorCategory = "gen
     text.includes("429")
   ) {
     return "too_many_requests";
+  }
+
+  if (text.includes("invalid login") || text.includes("invalid credentials") || text.includes("password")) {
+    return "invalid_credentials";
   }
 
   if (text.includes("network") || text.includes("fetch") || text.includes("timeout") || text.includes("offline")) {
