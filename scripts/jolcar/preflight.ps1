@@ -1,17 +1,23 @@
-param(
-  [Parameter(Mandatory=$true)][string]$RepoRoot
+﻿param(
+  [Parameter(Mandatory=$true)]
+  [string]$RepoRoot
 )
 
 $ErrorActionPreference = "Stop"
 
-function Fail([string]$m) {
-  Write-Error $m
+function Fail {
+  param([string]$Message)
+  Write-Error $Message
   exit 1
 }
 
-if (-not (Test-Path (Join-Path $RepoRoot ".git"))) {
-  # Git worktrees often use a .git file instead of a directory; Test-Path is enough.
-  if (-not (Test-Path (Join-Path $RepoRoot ".git"))) { Fail "Not a Git worktree: $RepoRoot" }
+if (-not (Test-Path $RepoRoot)) {
+  Fail "Repository path not found: $RepoRoot"
+}
+
+$inside = & git -C $RepoRoot rev-parse --is-inside-work-tree 2>$null
+if ($LASTEXITCODE -ne 0 -or ([string]$inside).Trim() -ne "true") {
+  Fail "Not a Git worktree: $RepoRoot"
 }
 
 $required = @(
@@ -19,45 +25,77 @@ $required = @(
   "docs\jolcar-control\TASK_QUEUE.json",
   "docs\jolcar-control\AGENTS.md",
   "docs\jolcar-control\DECISIONS.md",
-  "scripts\jolcar\task-result.schema.json"
+  "scripts\jolcar\task-result.schema.json",
+  "scripts\jolcar\run-task.ps1",
+  "scripts\jolcar\continuous.ps1",
+  "scripts\jolcar\safety-check.ps1"
 )
+
 foreach ($rel in $required) {
-  if (-not (Test-Path (Join-Path $RepoRoot $rel))) { Fail "Missing required file: $rel" }
+  $full = Join-Path $RepoRoot $rel
+  if (-not (Test-Path $full)) {
+    Fail "Missing required runner/control file: $rel"
+  }
 }
 
-$inside = (& git -C $RepoRoot rev-parse --is-inside-work-tree 2>$null)
-if ($LASTEXITCODE -ne 0 -or $inside.Trim() -ne "true") { Fail "Git worktree verification failed." }
+$status = & git -C $RepoRoot status --porcelain=v1
+if ($LASTEXITCODE -ne 0) {
+  Fail "git status failed."
+}
+if ($status) {
+  Fail ("Integration worktree is not clean. Refusing autonomous run.`r`n" + ($status -join "`r`n"))
+}
 
-$status = (& git -C $RepoRoot status --porcelain=v1)
-if ($LASTEXITCODE -ne 0) { Fail "git status failed." }
-if ($status) { Fail "Integration worktree is not clean. Refusing autonomous run.`n$status" }
+$codexPath = $null
+$cmd = Get-Command codex -ErrorAction SilentlyContinue
+if ($cmd) {
+  if ($cmd.Source) {
+    $codexPath = $cmd.Source
+  } elseif ($cmd.Path) {
+    $codexPath = $cmd.Path
+  }
+}
 
-$codex = Get-Command codex -ErrorAction SilentlyContinue
-if (-not $codex) {
+if (-not $codexPath) {
   $root = Join-Path $env:LOCALAPPDATA "OpenAI\Codex\bin"
   if (Test-Path $root) {
     $candidate = Get-ChildItem $root -Recurse -Filter codex.exe -File -ErrorAction SilentlyContinue |
       Sort-Object LastWriteTime -Descending |
       Select-Object -First 1
-    if ($candidate) { $codex = $candidate }
+    if ($candidate) {
+      $codexPath = $candidate.FullName
+    }
   }
 }
-if (-not $codex) { Fail "Codex CLI not found. Open/install the ChatGPT Codex desktop integration first." }
 
-# Refuse tracked env/secret-like files. Untracked user env files are not copied into isolated task worktrees.
-$tracked = & git -C $RepoRoot ls-files
-$badTracked = @($tracked | Where-Object {
-  $_ -match '(^|/)\.env($|\.)' -or
-  $_ -match '(service[_-]?role|private[_-]?key|credentials?|secrets?)'
-})
+if (-not $codexPath) {
+  Fail "Codex CLI not found."
+}
+
+# Block only obviously secret material committed to Git. Do not flag normal source
+# files merely because their names contain words such as security or secret.
+$tracked = @(& git -C $RepoRoot ls-files)
+$badTracked = @()
+foreach ($name in $tracked) {
+  $leaf = [System.IO.Path]::GetFileName($name)
+  if (
+    $leaf -match '^\.env($|\.)' -or
+    $leaf -match '^(credentials|secrets)\.(json|ya?ml|toml|ini)$' -or
+    $leaf -match '\.(pem|p12|pfx)$'
+  ) {
+    $badTracked += $name
+  }
+}
+
 if ($badTracked.Count -gt 0) {
-  Write-Warning "Potentially sensitive tracked filenames detected. Review required before autonomous run:"
-  $badTracked | ForEach-Object { Write-Warning "  $_" }
-  Fail "Tracked secret-like files detected."
+  Write-Warning "Potential secret-bearing tracked files detected:"
+  foreach ($name in $badTracked) {
+    Write-Warning ("  " + $name)
+  }
+  Fail "Review tracked secret-like files before autonomous execution."
 }
 
 Write-Host "PREFLIGHT PASS"
-Write-Host "Repo: $RepoRoot"
-Write-Host "HEAD: $(& git -C $RepoRoot rev-parse HEAD)"
-$codexPath = if ($codex.Source) { $codex.Source } elseif ($codex.FullName) { $codex.FullName } else { [string]$codex }
-Write-Host "Codex: $codexPath"
+Write-Host ("Repo: " + $RepoRoot)
+Write-Host ("HEAD: " + ((& git -C $RepoRoot rev-parse HEAD).Trim()))
+Write-Host ("Codex: " + $codexPath)
