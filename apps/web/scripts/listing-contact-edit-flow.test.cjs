@@ -1,0 +1,18 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const root = path.resolve(__dirname, "..", "..", "..");
+const source = fs.readFileSync(path.join(root, "apps", "web", "src", "app", "sell", "_components", "SellWizard.tsx"), "utf8");
+assert.match(source, /persistedSellerContactPhoneId/);
+assert.match(source, /selectedSellerContactPhoneId/);
+assert.match(source, /seller_contact_phone_id/);
+assert.match(source, /const contactChanged = selectedSellerContactPhoneId !== persistedSellerContactPhoneId && selectedSellerContactPhoneId !== ""/);
+assert.match(source, /if \(contactChanged\) \{[\s\S]*\/api\/listings\/\$\{editListingId\}\/seller-contact/);
+assert.ok(source.indexOf("const saveResult") < source.indexOf("if (contactChanged)"));
+assert.match(source, /setPersistedSellerContactPhoneId\(selectedSellerContactPhoneId\)/);
+assert.match(source, /Listing changes were saved, but the contact phone could not be updated/);
+assert.match(source, /İlan değişiklikleri kaydedildi, ancak iletişim numarası güncellenemedi/);
+assert.match(source, /\/profile\/seller-contacts/);
+assert.doesNotMatch(source, /SellerContactVerificationFlow|phone-verification\/start|phone-verification\/verify/);
+assert.doesNotMatch(source, /marketplace\.listings.*seller_contact_phone_id/);
+console.log("listing-contact-edit-flow: PASS");
