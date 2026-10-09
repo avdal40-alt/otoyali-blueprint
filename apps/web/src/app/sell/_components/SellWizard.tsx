@@ -16,6 +16,7 @@ import { normalizeStoredAuthPhoneToE164 } from "@/lib/auth/phone";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
+import { normalizeEditEngineVolume } from "@/lib/listings/edit-payload";
 import { isCurrentEditTarget, LatestRequestGuard } from "../sell-route-state";
 import { getSellCatalogDisplayName, getSellCopy, getSellModelRequestContextKey, getVariantUploadStatus, isSellCatalogOther, type SellCopy } from "../sell-copy";
 
@@ -749,7 +750,7 @@ export function SellWizard({
       condition: raw("condition", state.condition), fuelType: raw("fuelType", state.fuelType),
       transmission: raw("transmission", state.transmission), bodyType: raw("bodyType", state.bodyType || null),
       driveType: raw("driveType", state.driveType || null), color: raw("color", state.color || null),
-      engineVolumeL: submittedSnapshot.engineVolumeL, damageState: raw("damageState", state.damageState || null),
+      engineVolumeL: normalizeEditEngineVolume(state.fuelType, submittedSnapshot.engineVolumeL), damageState: raw("damageState", state.damageState || null),
       ownerCount: (() => { const value = raw("ownerCount", state.ownerCount || null); return value == null ? null : Number(value); })(),
       description: raw("description", state.description), priceAmount: raw("priceAmount", state.priceAmount),
       currency: raw("currency", state.currency), priceNegotiable: raw("priceNegotiable", state.priceNegotiable), city: raw("city", state.city)

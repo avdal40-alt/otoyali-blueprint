@@ -129,7 +129,8 @@
     "test:seller-contact-flow": "node scripts/seller-contact-verification-flow.test.cjs",
     "test:seller-contact-manager": "node scripts/seller-contact-manager.test.cjs",
     "test:listing-contact-switch-boundary": "node scripts/listing-contact-switch-boundary.test.cjs",
-    "test:listing-contact-edit-flow": "node scripts/listing-contact-edit-flow.test.cjs"
+    "test:listing-contact-edit-flow": "node scripts/listing-contact-edit-flow.test.cjs",
+    "test:listing-edit-payload": "node scripts/listing-edit-payload.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
