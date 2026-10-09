@@ -7,10 +7,7 @@
 $ErrorActionPreference = "Stop"
 
 function Save-Json {
-  param(
-    $Object,
-    [string]$Path
-  )
+  param($Object, [string]$Path)
   $Object | ConvertTo-Json -Depth 50 | Set-Content $Path -Encoding UTF8
 }
 
@@ -33,23 +30,67 @@ function Load-State {
 }
 
 function Contains-Id {
-  param(
-    $Items,
-    [string]$Id
-  )
+  param($Items, [string]$Id)
 
   foreach ($item in @($Items)) {
-    if ([string]$item -eq $Id) {
-      return $true
-    }
+    if ([string]$item -eq $Id) { return $true }
   }
   return $false
 }
 
-& (Join-Path $PSScriptRoot "preflight.ps1") -RepoRoot $RepoRoot
-if ($LASTEXITCODE -ne 0) {
-  exit 1
+function Assert-SafeTaskPaths {
+  param([string]$TaskWorktree)
+
+  $changed = @(& git -C $TaskWorktree status --porcelain=v1)
+  $bad = @()
+
+  foreach ($line in $changed) {
+    if (-not $line) { continue }
+    $path = $line.Substring(3).Trim()
+
+    # Rename status can contain "old -> new"; validate both sides.
+    $paths = @($path)
+    if ($path -match ' -> ') {
+      $paths = @($path -split ' -> ')
+    }
+
+    foreach ($candidate in $paths) {
+      $leaf = [System.IO.Path]::GetFileName($candidate)
+
+      $allowedTemplate = (
+        $leaf -eq ".env.example" -or
+        $leaf -eq ".env.sample" -or
+        $leaf -eq ".env.template"
+      )
+
+      $blockedEnv = (
+        (-not $allowedTemplate) -and
+        (
+          $leaf -eq ".env" -or
+          $leaf -match '^\.env\.(local|production|prod|staging|stage|development|dev|test)$'
+        )
+      )
+
+      $blockedCredential = (
+        $leaf -match '^(credentials|secrets)\.(json|ya?ml|toml|ini)$' -or
+        $leaf -match '\.(pem|p12|pfx)$'
+      )
+
+      $blockedRuntime = ($candidate -like ".jolcar-runtime/*")
+
+      if ($blockedEnv -or $blockedCredential -or $blockedRuntime) {
+        $bad += $candidate
+      }
+    }
+  }
+
+  if ($bad.Count -gt 0) {
+    throw ("Unsafe task paths detected; refusing orchestrator commit:`r`n" + ($bad -join "`r`n"))
+  }
 }
+
+& (Join-Path $PSScriptRoot "preflight.ps1") -RepoRoot $RepoRoot
+if ($LASTEXITCODE -ne 0) { exit 1 }
 
 $runtime = Join-Path $RepoRoot ".jolcar-runtime"
 $logs = Join-Path $runtime "logs"
@@ -88,15 +129,12 @@ while ($true) {
   }
 
   foreach ($task in $tasks) {
-    $taskIdForGate = [string]$task.id
-
-    if (Contains-Id -Items $completed -Id $taskIdForGate) {
-      continue
-    }
+    $gateId = [string]$task.id
+    if (Contains-Id -Items $completed -Id $gateId) { continue }
 
     $alreadyDeferred = $false
     foreach ($item in $deferred) {
-      if ([string]$item.task_id -eq $taskIdForGate) {
+      if ([string]$item.task_id -eq $gateId) {
         $alreadyDeferred = $true
         break
       }
@@ -109,21 +147,18 @@ while ($true) {
         break
       }
     }
-
-    if (-not $depsReady) {
-      continue
-    }
+    if (-not $depsReady) { continue }
 
     if (($task.requires_user_authorization -eq $true) -and (-not $alreadyDeferred)) {
       $deferred += [pscustomobject]@{
-        task_id = $taskIdForGate
+        task_id = $gateId
         kind = "MANUAL_AUTHORIZATION"
         at = (Get-Date).ToString("o")
         reason = "Explicit user authorization required; autonomous runner will not execute it."
       }
     } elseif (($task.requires_user_decision -eq $true) -and (-not $alreadyDeferred)) {
       $deferred += [pscustomobject]@{
-        task_id = $taskIdForGate
+        task_id = $gateId
         kind = "USER_DECISION"
         at = (Get-Date).ToString("o")
         decision_ref = $task.decision_ref
@@ -133,29 +168,20 @@ while ($true) {
   }
 
   $nextTask = $null
-
   foreach ($task in $tasks) {
     $candidateId = [string]$task.id
 
-    if (Contains-Id -Items $completed -Id $candidateId) {
-      continue
-    }
+    if (Contains-Id -Items $completed -Id $candidateId) { continue }
+    if (($task.requires_user_authorization -eq $true) -or ($task.requires_user_decision -eq $true)) { continue }
 
-    if (($task.requires_user_authorization -eq $true) -or ($task.requires_user_decision -eq $true)) {
-      continue
-    }
-
-    $isPermanentlyBlocked = $false
+    $isBlocked = $false
     foreach ($item in $blocked) {
       if (([string]$item.task_id -eq $candidateId) -and ($item.permanent -eq $true)) {
-        $isPermanentlyBlocked = $true
+        $isBlocked = $true
         break
       }
     }
-
-    if ($isPermanentlyBlocked) {
-      continue
-    }
+    if ($isBlocked) { continue }
 
     $depsReady = $true
     foreach ($dep in @($task.dependencies)) {
@@ -171,13 +197,8 @@ while ($true) {
     }
   }
 
-  if (-not $nextTask) {
-    break
-  }
-
-  if (($MaxTasks -gt 0) -and ($attemptedThisRun -ge $MaxTasks)) {
-    break
-  }
+  if (-not $nextTask) { break }
+  if (($MaxTasks -gt 0) -and ($attemptedThisRun -ge $MaxTasks)) { break }
 
   $taskId = [string]$nextTask.id
   $previousFailure = ""
@@ -212,24 +233,62 @@ while ($true) {
     }
 
     if ([string]$result.status -eq "PASS") {
-      $taskStatus = & git -C $meta.TaskWorktree status --porcelain=v1
-      if ($taskStatus) {
-        $previousFailure = "PASS was reported but task worktree is dirty.`r`n" + ($taskStatus -join "`r`n")
+      if ($result.commit) {
+        $previousFailure = "Codex attempted to own the Git commit contract. In HOTFIX 06 commit must be null; orchestrator owns Git metadata."
         continue
       }
 
-      $taskHead = ((& git -C $meta.TaskWorktree rev-parse HEAD).Trim())
-      $countText = ((& git -C $meta.TaskWorktree rev-list --count ($meta.BaseHead + ".." + $taskHead)).Trim())
-      $count = [int]$countText
-
-      if ($count -gt 1) {
-        $previousFailure = "Task created more than one commit (" + $count + "). One task may integrate at most one focused commit."
+      if (($nextTask.verification.Count -gt 0) -and ($result.tests_passed -ne $true)) {
+        $previousFailure = "PASS reported without required verification/tests_passed=true."
         continue
       }
 
-      if ($count -eq 1) {
+      Assert-SafeTaskPaths -TaskWorktree $meta.TaskWorktree
+
+      & git -C $meta.TaskWorktree diff --check
+      if ($LASTEXITCODE -ne 0) {
+        $previousFailure = "git diff --check failed for task changes."
+        continue
+      }
+
+      $taskStatus = @(& git -C $meta.TaskWorktree status --porcelain=v1)
+
+      if ($taskStatus.Count -gt 0) {
+        # The outer PowerShell process is intentionally outside the Codex sandbox
+        # and owns Git metadata writes for the isolated task worktree.
+        & git -C $meta.TaskWorktree add -A
+        if ($LASTEXITCODE -ne 0) {
+          $previousFailure = "Outer orchestrator failed to stage task changes."
+          continue
+        }
+
+        & git -C $meta.TaskWorktree diff --cached --check
+        if ($LASTEXITCODE -ne 0) {
+          & git -C $meta.TaskWorktree reset | Out-Null
+          $previousFailure = "Staged diff failed git diff --cached --check."
+          continue
+        }
+
+        $subject = ([string]$nextTask.title -replace '[\r\n]+', ' ').Trim()
+        if ($subject.Length -gt 72) {
+          $subject = $subject.Substring(0,72).TrimEnd()
+        }
+        $message = $taskId + ": " + $subject
+
+        & git -C $meta.TaskWorktree commit -m $message | Out-Host
+        if ($LASTEXITCODE -ne 0) {
+          $previousFailure = "Outer orchestrator could not commit verified task changes."
+          continue
+        }
+
+        $postCommitStatus = & git -C $meta.TaskWorktree status --porcelain=v1
+        if ($postCommitStatus) {
+          $previousFailure = "Task worktree remained dirty after orchestrator commit."
+          continue
+        }
+
         $commit = ((& git -C $meta.TaskWorktree rev-parse HEAD).Trim())
-        Write-Host ("Integrating PASS commit " + $commit)
+        Write-Host ("Integrating orchestrator-owned PASS commit " + $commit)
 
         & git -C $RepoRoot cherry-pick $commit | Out-Host
         if ($LASTEXITCODE -ne 0) {
@@ -239,7 +298,7 @@ while ($true) {
         $integratedThisRun++
       } else {
         if (-not $result.no_change_reason) {
-          $previousFailure = "PASS with no commit requires a concrete no_change_reason."
+          $previousFailure = "PASS with no task changes requires no_change_reason."
           continue
         }
       }
@@ -263,15 +322,14 @@ while ($true) {
       $evidenceText = (@($result.evidence) -join "`r`n")
     }
 
-    $previousFailureParts = @(
+    $previousFailure = @(
       ("Previous status: " + [string]$result.status),
       ("Stop reason: " + [string]$result.stop_reason),
       ("Summary: " + [string]$result.summary),
       "Evidence:",
       $evidenceText,
       ("Failed isolated worktree preserved at: " + [string]$meta.TaskWorktree)
-    )
-    $previousFailure = $previousFailureParts -join "`r`n"
+    ) -join "`r`n"
 
     Write-Warning ($taskId + " attempt " + $attempt + " did not PASS. A fresh repair attempt will be launched if allowed.")
   }

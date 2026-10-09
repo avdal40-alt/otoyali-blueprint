@@ -138,8 +138,8 @@ $promptLines = @(
   "4. Otherwise implement the smallest correct change.",
   "5. Run task acceptance verification plus targeted regression/static checks.",
   "6. Review diff and security/privacy/data impact where relevant.",
-  "7. If changes were needed and the task PASSes, create exactly one focused ordinary commit.",
-  "8. End with a clean worktree on PASS.",
+  "7. DO NOT run git add, git commit, git reset, git checkout, git restore, git stash, or any command that writes Git metadata. The outer orchestrator owns staging and commits.",
+  "8. If source changes are needed, leave the reviewed changes uncommitted in the task worktree. This is expected.",
   "9. If the task cannot PASS safely, do not fake success. Return FAIL/BLOCKED and explain exact root cause.",
   "",
   "Your final response MUST be JSON matching scripts/jolcar/task-result.schema.json exactly.",
@@ -151,9 +151,10 @@ $promptLines = @(
   "- deploy_performed=false",
   "- secrets_changed=false",
   "- otp_sms_sent=0",
-  "- working_tree_clean=true",
+  "- working_tree_clean=false is allowed when verified task changes remain for the outer orchestrator to commit",
   "- tests_passed=true when the task requires executable verification",
-  "- commit is the new commit SHA if repository changes were made; otherwise null with no_change_reason.",
+  "- commit MUST be null; the outer orchestrator creates the Git commit after validating your result and diff",
+  "- no_change_reason is required only when no repository change is needed.",
   "",
   "Do not include markdown around the JSON."
 )
