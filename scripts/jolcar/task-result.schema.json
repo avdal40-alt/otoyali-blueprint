@@ -61,23 +61,28 @@
       }
     },
     "production_accessed": {
-      "type": "boolean"
+      "type": "boolean",
+      "const": false
     },
     "push_performed": {
-      "type": "boolean"
+      "type": "boolean",
+      "const": false
     },
     "remote_migrations_applied": {
-      "type": "boolean"
+      "type": "boolean",
+      "const": false
     },
     "deploy_performed": {
-      "type": "boolean"
+      "type": "boolean",
+      "const": false
     },
     "secrets_changed": {
-      "type": "boolean"
+      "type": "boolean",
+      "const": false
     },
     "otp_sms_sent": {
       "type": "integer",
-      "minimum": 0
+      "const": 0
     },
     "user_decision_required": {
       "type": "boolean"
