@@ -72,17 +72,35 @@ if (-not $codexPath) {
   Fail "Codex CLI not found."
 }
 
-# Block only obviously secret material committed to Git. Do not flag normal source
-# files merely because their names contain words such as security or secret.
+# Safety rule:
+# - tracked template env files such as .env.example/.env.sample/.env.template are allowed;
+# - tracked real environment files and credential/key containers are blocked.
 $tracked = @(& git -C $RepoRoot ls-files)
 $badTracked = @()
+
 foreach ($name in $tracked) {
   $leaf = [System.IO.Path]::GetFileName($name)
-  if (
-    $leaf -match '^\.env($|\.)' -or
+
+  $isAllowedEnvTemplate = (
+    $leaf -eq ".env.example" -or
+    $leaf -eq ".env.sample" -or
+    $leaf -eq ".env.template"
+  )
+
+  $isBlockedEnv = (
+    (-not $isAllowedEnvTemplate) -and
+    (
+      $leaf -eq ".env" -or
+      $leaf -match '^\.env\.(local|production|prod|staging|stage|development|dev|test)$'
+    )
+  )
+
+  $isCredentialContainer = (
     $leaf -match '^(credentials|secrets)\.(json|ya?ml|toml|ini)$' -or
     $leaf -match '\.(pem|p12|pfx)$'
-  ) {
+  )
+
+  if ($isBlockedEnv -or $isCredentialContainer) {
     $badTracked += $name
   }
 }
