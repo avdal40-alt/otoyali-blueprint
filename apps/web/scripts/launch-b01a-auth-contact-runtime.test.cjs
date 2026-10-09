@@ -94,8 +94,23 @@ async function rpcOk(client, name, args) {
     assert.ok(crossDraft.error, "V2 must reject another seller's contact");
     sql(`UPDATE marketplace.listings SET status='active', moderation_status='active', published_at=NOW() WHERE id='${selectedListing}';`);
     assert.ok((await owner.rpc("set_own_listing_seller_contact_phone", { p_listing_id: selectedListing, p_seller_contact_phone_id: synced.contact_id })).error, "active listing switch must fail");
+    const beforeReadOnly = {
+      conversations: count(`SELECT count(*) FROM messaging.conversations WHERE listing_id='${selectedListing}'`),
+      messages: count(`SELECT count(*) FROM messaging.messages AS message JOIN messaging.conversations AS conversation ON conversation.id=message.conversation_id WHERE conversation.listing_id='${selectedListing}'`),
+      favorites: count(`SELECT count(*) FROM marketplace.listing_favorites WHERE listing_id='${selectedListing}'`),
+      listing: sql(`SELECT updated_at || '|' || seller_contact_phone_id FROM marketplace.listings WHERE id='${selectedListing}'`),
+      contacts: count(`SELECT count(*) FROM identity.verified_seller_contact_phones WHERE user_id='${ids.owner}'`)
+    };
     const buyerContact = await rpcOk(other, "get_listing_seller_contact", { p_listing_id: selectedListing });
     assert.equal(buyerContact?.[0]?.phone, contactBPhone, "selected listing contact must be returned");
+    assert.deepEqual(Object.keys(buyerContact?.[0] ?? {}).sort(), ["phone"], "protected response must contain only phone");
+    assert.deepEqual({
+      conversations: count(`SELECT count(*) FROM messaging.conversations WHERE listing_id='${selectedListing}'`),
+      messages: count(`SELECT count(*) FROM messaging.messages AS message JOIN messaging.conversations AS conversation ON conversation.id=message.conversation_id WHERE conversation.listing_id='${selectedListing}'`),
+      favorites: count(`SELECT count(*) FROM marketplace.listing_favorites WHERE listing_id='${selectedListing}'`),
+      listing: sql(`SELECT updated_at || '|' || seller_contact_phone_id FROM marketplace.listings WHERE id='${selectedListing}'`),
+      contacts: count(`SELECT count(*) FROM identity.verified_seller_contact_phones WHERE user_id='${ids.owner}'`)
+    }, beforeReadOnly, "buyer contact lookup must be read-only");
     assert.deepEqual(await rpcOk(owner, "get_listing_seller_contact", { p_listing_id: selectedListing }), [], "seller self-contact must remain blocked");
     assert.ok((await anon.rpc("get_listing_seller_contact", { p_listing_id: selectedListing })).error, "anon contact must remain blocked");
 
