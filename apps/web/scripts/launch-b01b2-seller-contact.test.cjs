@@ -17,6 +17,9 @@ assert.match(gate, /verifiedContacts\.some\(\(contact\) => contact\.is_active\)/
 assert.ok(gate.indexOf("sync_own_verified_account_phone") < gate.indexOf("let response: Response"));
 assert.ok(gate.indexOf("list_own_verified_seller_contact_phones") < gate.indexOf("let response: Response"));
 assert.match(wizard, /list_own_verified_seller_contact_phones/);
+assert.match(wizard, /manage: "Numaraları yönet"/);
+assert.match(wizard, /manage: "Manage phone numbers"/);
+assert.match(wizard, /href=\{localizePath\("\/profile\/seller-contacts", locale\)\}\>\{contactCopy\.manage\}/);
 assert.match(wizard, /sellerContactPhoneId: sellerContactId/);
 assert.match(writes, /create_own_listing_draft_v2/);
 assert.match(writes, /p_seller_contact_phone_id: payload\.sellerContactPhoneId/);
