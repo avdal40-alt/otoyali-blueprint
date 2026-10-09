@@ -90,6 +90,10 @@ async function rpcOk(client, name, args) {
     assert.ok((await other.rpc("set_own_listing_seller_contact_phone", { p_listing_id: selectedListing, p_seller_contact_phone_id: otherContact })).error, "non-owner switch must fail");
     assert.ok((await owner.rpc("set_own_listing_seller_contact_phone", { p_listing_id: selectedListing, p_seller_contact_phone_id: otherContact })).error, "foreign contact switch must fail");
     assert.equal(sql(`SELECT seller_contact_phone_id FROM marketplace.listings WHERE id='${selectedListing}'`), contactB, "rejected switches must preserve contact B");
+    assert.deepEqual((await rpcOk(owner, "sync_own_verified_account_phone", {}))[0], synced, "account sync must remain idempotent");
+    assert.equal(sql(`SELECT seller_contact_phone_id FROM marketplace.listings WHERE id='${selectedListing}'`), contactB, "account sync must not reassign an explicit listing contact");
+    assert.deepEqual((await rpcOk(owner, "sync_own_verified_account_phone", {}))[0], synced, "repeated account sync must remain idempotent");
+    assert.equal(sql(`SELECT seller_contact_phone_id FROM marketplace.listings WHERE id='${selectedListing}'`), contactB, "repeated account sync must preserve explicit listing contact");
     const crossDraft = await other.rpc("create_own_listing_draft_v2", { ...payload, p_seller_contact_phone_id: synced.contact_id });
     assert.ok(crossDraft.error, "V2 must reject another seller's contact");
     sql(`UPDATE marketplace.listings SET status='active', moderation_status='active', published_at=NOW() WHERE id='${selectedListing}';`);
