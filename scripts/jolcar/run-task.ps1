@@ -168,15 +168,30 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 $codex = Get-CodexPath
 
-Get-Content $promptFile -Raw -Encoding UTF8 |
-  & $codex exec --sandbox workspace-write --cd $taskWorktree `
-    --output-schema $schema `
-    --output-last-message $resultFile `
-    - 2>&1 |
-  Tee-Object -FilePath $codexLog |
-  Out-Host
+# Windows PowerShell 5.1 wraps native stderr lines as ErrorRecord objects.
+# With the runner-wide ErrorActionPreference=Stop, harmless Codex diagnostics on
+# stderr (for example model-cache warnings and the normal Codex banner) can
+# terminate the PowerShell script even when codex.exe itself exits successfully.
+# For this one native invocation only, native process exit code is authoritative.
+$previousErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
 
-$codexExitCode = $LASTEXITCODE
+try {
+  Get-Content $promptFile -Raw -Encoding UTF8 |
+    & $codex exec --sandbox workspace-write --cd $taskWorktree `
+      --output-schema $schema `
+      --output-last-message $resultFile `
+      - 2>&1 |
+    Tee-Object -FilePath $codexLog |
+    Out-Host
+
+  $codexExitCode = $LASTEXITCODE
+}
+finally {
+  $ErrorActionPreference = $previousErrorActionPreference
+}
+
+Write-Host ("Codex exit code: " + $codexExitCode)
 
 if (-not (Test-Path $resultFile)) {
   $fallback = [ordered]@{
