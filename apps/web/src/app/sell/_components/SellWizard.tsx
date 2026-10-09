@@ -706,6 +706,7 @@ export function SellWizard({
       return;
     }
     if (!sellerContactId) { setError(contactCopy.required); return; }
+    const contactChanged = selectedSellerContactPhoneId !== persistedSellerContactPhoneId && selectedSellerContactPhoneId !== "";
 
     const routeToken = routeRequestGuard.current.currentToken();
     const submissionToken = submissionRequestGuard.current.begin(routeKey);
@@ -760,6 +761,20 @@ export function SellWizard({
       setSubmitting(false);
       setPublishStatus(null);
       return;
+    }
+
+    if (contactChanged) {
+      const contactResult = await listingWriteRequest(supabase, `/api/listings/${editListingId}/seller-contact`, "PATCH", {
+        sellerContactPhoneId: selectedSellerContactPhoneId
+      });
+      if (!isCurrentSubmission()) return;
+      if (contactResult.error) {
+        setError(locale === "tr" ? "İlan değişiklikleri kaydedildi, ancak iletişim numarası güncellenemedi. Lütfen iletişim numarasını tekrar güncelleyin." : "Listing changes were saved, but the contact phone could not be updated. Please try updating the contact again.");
+        setSubmitting(false);
+        setPublishStatus(null);
+        return;
+      }
+      setPersistedSellerContactPhoneId(selectedSellerContactPhoneId);
     }
 
     const saved = saveResult.data;
