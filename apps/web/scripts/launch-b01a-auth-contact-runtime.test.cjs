@@ -67,11 +67,18 @@ async function rpcOk(client, name, args) {
     const ownerContacts = await rpcOk(owner, "list_own_verified_seller_contact_phones", {});
     assert.equal(ownerContacts.length, 3);
     assert.ok(ownerContacts.every((row) => /^\+90 \*\*\* \*\*\* \d{4}$/.test(row.masked_phone)));
+    assert.ok(ownerContacts.every((row) => Object.keys(row).sort().join(",") === "contact_id,is_active,is_current_account_phone,masked_phone,verification_source,verified_at"), "owner contact list must not expose unrelated owner identity data");
     assert.deepEqual(await rpcOk(other, "list_own_verified_seller_contact_phones", {}), [], "cross-user contacts must be invisible");
+    const userCContacts = await rpcOk(legacy, "list_own_verified_seller_contact_phones", {});
+    assert.ok(userCContacts.length > 0 && userCContacts.every((row) => !ownerContacts.some((ownerContact) => ownerContact.contact_id === row.contact_id)), "a third authenticated user must not receive owner contacts");
+    const anonymousOwnerList = await anon.rpc("list_own_verified_seller_contact_phones", {});
+    assert.ok(anonymousOwnerList.error && !anonymousOwnerList.data, "anonymous owner contact list must be blocked without contact data");
     assert.throws(() => sql(`SELECT identity.upsert_verified_seller_contact_phone('${ids.owner}', '+905550001013', 'seller_otp', FALSE);`), /active seller contact limit reached/);
     assert.throws(() => sql(`SELECT identity.upsert_verified_seller_contact_phone('${ids.other}', '${phones.owner}', 'seller_otp', FALSE);`), /belongs to another user/);
 
     const otherContact = (await rpcOk(other, "sync_own_verified_account_phone", {}))[0].contact_id;
+    const otherContacts = await rpcOk(other, "list_own_verified_seller_contact_phones", {});
+    assert.ok(otherContacts.length > 0 && otherContacts.every((row) => !ownerContacts.some((ownerContact) => ownerContact.contact_id === row.contact_id)), "buyer own-list access must never expose owner contacts");
 
     const [makeId, modelId] = sql("SELECT m.make_id || '|' || m.id FROM vehicle.models m JOIN vehicle.makes mk ON mk.id=m.make_id WHERE mk.is_active AND m.is_active ORDER BY m.id LIMIT 1").split("|");
     const payload = { p_make_id: makeId, p_model_id: modelId, p_variant_id: null, p_year: 2021, p_mileage_km: 1, p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: "sedan", p_drive_type: "front", p_color: "test", p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: 1, p_description: `B01A_${randomUUID()}`, p_price_amount_text: "1000000", p_currency: "TRY", p_price_negotiable: false, p_city: "Ankara", p_city_id: null, p_district_id: null };
