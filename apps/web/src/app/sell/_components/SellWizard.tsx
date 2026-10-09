@@ -152,6 +152,8 @@ export function SellWizard({
   const [profile, setProfile] = useState<SellerProfileState | null>(null);
   const [sellerContacts, setSellerContacts] = useState<SellerContact[]>([]);
   const [sellerContactId, setSellerContactId] = useState("");
+  const [persistedSellerContactPhoneId, setPersistedSellerContactPhoneId] = useState<string | null>(null);
+  const [selectedSellerContactPhoneId, setSelectedSellerContactPhoneId] = useState("");
   const [profileSaving, setProfileSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -331,6 +333,9 @@ export function SellWizard({
         };
         const listing = edit.listing;
         const vehicle = edit.vehicle;
+        const selectedContact = typeof listing.seller_contact_phone_id === "string" ? listing.seller_contact_phone_id : null;
+        setPersistedSellerContactPhoneId(selectedContact);
+        setSelectedSellerContactPhoneId(selectedContact ?? "");
         setExistingTitle(String(listing.title ?? ""));
         setExistingTitleGenerated(Boolean(listing.title_generated));
         setExistingQualityScore(typeof listing.quality_score === "number" ? listing.quality_score : null);
@@ -924,6 +929,7 @@ export function SellWizard({
         </section>
       ) : null}
       {mode === "create" ? <section className="rounded-oto border border-oto-border bg-white p-4"><h2 className="text-base font-black text-oto-text">{contactCopy.title}</h2>{sellerContacts.length === 0 ? <p className="mt-2 text-sm text-oto-muted">{contactCopy.missing}</p> : <label className="mt-3 grid gap-1 text-sm font-bold text-oto-text">{contactCopy.label}<Select value={sellerContactId} onChange={(event) => setSellerContactId(event.target.value)}>{sellerContacts.map((contact) => <option key={contact.contact_id} value={contact.contact_id}>{contact.masked_phone}{contact.is_current_account_phone ? ` — ${contactCopy.account}` : ""}</option>)}</Select></label>}</section> : null}
+      {mode === "editRejected" ? <section className="rounded-oto border border-oto-border bg-white p-4"><h2 className="text-base font-black text-oto-text">{locale === "tr" ? "İlan iletişim numarası" : "Listing contact phone"}</h2><p className="mt-2 text-sm text-oto-muted">{locale === "tr" ? "Alıcıların kullanacağı doğrulanmış numarayı seçin." : "Select the verified phone buyers will use to contact you."}</p>{sellerContacts.length === 0 ? <><p className="mt-3 text-sm text-oto-muted">{locale === "tr" ? "Doğrulanmış iletişim numarası yok." : "No verified contact is available."}</p><ButtonLink className="mt-3" variant="secondary" href={localizePath("/profile/seller-contacts", locale)}>{locale === "tr" ? "Numaraları yönet" : "Manage phone numbers"}</ButtonLink></> : <label className="mt-3 grid gap-1 text-sm font-bold text-oto-text">{locale === "tr" ? "İletişim numarası" : "Contact phone"}<Select value={selectedSellerContactPhoneId} onChange={(event) => setSelectedSellerContactPhoneId(event.target.value)}><option value="">{persistedSellerContactPhoneId ? (locale === "tr" ? "Mevcut seçimi koru" : "Keep current selection") : (locale === "tr" ? "Mevcut iletişim numarası" : "Existing contact number")}</option>{sellerContacts.map((contact) => <option key={contact.contact_id} value={contact.contact_id}>{contact.masked_phone}{contact.is_current_account_phone ? ` — ${contactCopy.account}` : ""}</option>)}</Select></label>}{!persistedSellerContactPhoneId ? <p className="mt-3 text-sm text-oto-muted">{locale === "tr" ? "Bu ilan mevcut iletişim numarasını kullanıyor." : "This listing currently uses its existing contact number."}</p> : null}</section> : null}
       <div className="flex gap-2 overflow-x-auto pb-1">
         {steps.map((label, index) => {
           const item = index + 1;
