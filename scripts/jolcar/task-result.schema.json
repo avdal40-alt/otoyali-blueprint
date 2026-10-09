@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "task_id",
+    "status",
+    "starting_head",
+    "ending_head",
+    "commit",
+    "working_tree_clean",
+    "tests_passed",
+    "tests",
+    "production_accessed",
+    "push_performed",
+    "remote_migrations_applied",
+    "deploy_performed",
+    "secrets_changed",
+    "otp_sms_sent",
+    "user_decision_required",
+    "stop_reason",
+    "summary",
+    "evidence",
+    "no_change_reason"
+  ],
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "DEFERRED"
+      ]
+    },
+    "starting_head": {
+      "type": "string"
+    },
+    "ending_head": {
+      "type": "string"
+    },
+    "commit": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "working_tree_clean": {
+      "type": "boolean"
+    },
+    "tests_passed": {
+      "type": "boolean"
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "production_accessed": {
+      "type": "boolean"
+    },
+    "push_performed": {
+      "type": "boolean"
+    },
+    "remote_migrations_applied": {
+      "type": "boolean"
+    },
+    "deploy_performed": {
+      "type": "boolean"
+    },
+    "secrets_changed": {
+      "type": "boolean"
+    },
+    "otp_sms_sent": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "user_decision_required": {
+      "type": "boolean"
+    },
+    "stop_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "no_change_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

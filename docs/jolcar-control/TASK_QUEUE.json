@@ -1,0 +1,3578 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-10-10",
+  "product": "Jolcar",
+  "country": "Kazakhstan",
+  "future_platform": [
+    "YOLMOD Turkey",
+    "other country brands"
+  ],
+  "execution_policy": {
+    "one_task_per_codex_run": true,
+    "local_only_by_default": true,
+    "push_forbidden": true,
+    "production_access_forbidden": true,
+    "remote_migrations_forbidden": true,
+    "deploy_forbidden": true,
+    "secrets_changes_forbidden": true,
+    "real_paid_provider_calls_forbidden": true,
+    "decision_tasks_must_not_be_guessed": true,
+    "completion_requires_git_or_test_evidence": true,
+    "task_selection": "Select the lowest-order pending task whose dependencies have verified PASS evidence and which is not awaiting_decision/manual_authorization. Skip unresolved decision tasks only when the next task is dependency-independent and skipping creates no architectural commitment."
+  },
+  "status_values": [
+    "pending",
+    "in_progress",
+    "pass",
+    "fail",
+    "blocked",
+    "awaiting_decision",
+    "manual_authorization",
+    "backlog_post_launch"
+  ],
+  "task_count": 125,
+  "tasks": [
+    {
+      "id": "JLC-0001",
+      "order": 1,
+      "phase": "P0-GOVERNANCE",
+      "title": "Repository baseline audit and Jolcar reuse map",
+      "priority": "P0",
+      "type": "audit",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Audit actual repository/worktree, docs, migrations, tests, country hardcodes and reusable YOLMOD capabilities. Do not implement features.",
+      "acceptance_criteria": [
+        "Current branch and HEAD recorded",
+        "Working tree verified clean or exact unrelated changes reported",
+        "Existing capabilities classified VERIFIED/PARTIAL/MISSING with Git/test evidence",
+        "Turkey-specific hardcodes and multi-country risks listed",
+        "No historical prose used as sole completion evidence"
+      ],
+      "verification": [
+        "git status --short",
+        "git log/relevant diff inspection",
+        "targeted existing test inventory",
+        "documentation inventory"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0002",
+      "order": 2,
+      "phase": "P0-GOVERNANCE",
+      "title": "Reconcile repository documentation with Master Plan",
+      "priority": "P0",
+      "type": "documentation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0001"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Map current repository docs to MASTER_PLAN and identify contradictions/gaps without silently changing approved decisions.",
+      "acceptance_criteria": [
+        "Conflicting old decisions are identified",
+        "Missing project docs are reported",
+        "No approved decision is overwritten by stale repository prose",
+        "Repository-local docs point to MASTER_PLAN/TASK_QUEUE/DECISIONS as controlling plan"
+      ],
+      "verification": [
+        "diff review",
+        "documentation inventory"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0003",
+      "order": 3,
+      "phase": "P0-GOVERNANCE",
+      "title": "Autonomous local safety/preflight harness",
+      "priority": "P0",
+      "type": "tooling",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0001"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Verify/adapt local preflight so one-task runs enforce clean Git, no production, no push/deploy/secrets and safe reporting.",
+      "acceptance_criteria": [
+        "Preflight detects dirty worktree",
+        "Production/deploy/push actions are blocked by policy",
+        "Task result can report PASS/FAIL/BLOCKED with commit/test evidence",
+        "No production credentials are required"
+      ],
+      "verification": [
+        "preflight test",
+        "policy guard test",
+        "type/static check if code changed"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0004",
+      "order": 4,
+      "phase": "P0-GOVERNANCE",
+      "title": "Local Supabase/test environment readiness",
+      "priority": "P0",
+      "type": "tooling",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0003"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Prove local DB/Auth/PostgREST test environment can start safely; use dynamic runtime discovery and restore temporary config.",
+      "acceptance_criteria": [
+        "Local Supabase reachable if required",
+        "No Windows port reservation changes",
+        "Runtime URL discovered dynamically",
+        "Temporary config restored exactly",
+        "No secret or temporary port committed"
+      ],
+      "verification": [
+        "npx supabase status -o env when applicable",
+        "focused runtime smoke",
+        "git diff -- supabase/config.toml"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D001",
+      "order": 5,
+      "phase": "P0-DECISIONS",
+      "title": "Decide Kazakhstan launch locale set",
+      "priority": "P1",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0002"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-001",
+      "description": "User decision required. Do not infer kk/ru/en set.",
+      "acceptance_criteria": [
+        "User-approved locale set recorded in DECISIONS.md"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D002",
+      "order": 6,
+      "phase": "P0-DECISIONS",
+      "title": "Decide Jolcar domain/brand kit/accent/card ratio as needed",
+      "priority": "P1",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0002"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-002/O-003/O-004",
+      "description": "Only required for unresolved brand/domain design details. Existing ratio may remain if already 4:3 or 3:2 and passes QA.",
+      "acceptance_criteria": [
+        "Final decisions recorded or explicit deferment approved"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0101",
+      "order": 7,
+      "phase": "P1-MULTICOUNTRY",
+      "title": "Introduce country/brand configuration boundary",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0001"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Extract country/brand values from shared core without duplicating business logic.",
+      "acceptance_criteria": [
+        "Shared code obtains country/brand values from one typed boundary",
+        "Jolcar and future YOLMOD country profiles can coexist conceptually",
+        "No regression to shared listing/auth/security contracts",
+        "No production configuration changed"
+      ],
+      "verification": [
+        "typecheck",
+        "country-config unit tests",
+        "hardcode scan",
+        "relevant routing tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0102",
+      "order": 8,
+      "phase": "P1-MULTICOUNTRY",
+      "title": "Country-aware currency/date/number formatting",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0101"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Formatting is driven by country/locale config",
+        "No Turkey-only currency/locale assumptions in shared formatter",
+        "Invalid/missing config fails safely"
+      ],
+      "verification": [
+        "formatter unit tests",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0103",
+      "order": 9,
+      "phase": "P1-MULTICOUNTRY",
+      "title": "Country-aware phone policy abstraction",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0101"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Make phone validation/presentation pluggable by country without selecting a real Kazakhstan SMS provider.",
+      "acceptance_criteria": [
+        "Core auth/seller-contact code is not hardcoded to +90",
+        "E.164 remains canonical storage format",
+        "Country policy can reject/allow seller contacts independently of login-phone support",
+        "No SMS provider activated"
+      ],
+      "verification": [
+        "phone-policy tests",
+        "auth/seller-contact contract tests",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0104",
+      "order": 10,
+      "phase": "P1-MULTICOUNTRY",
+      "title": "Country-aware location/city boundary",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0101"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Separate geo/location contract from Turkey-specific datasets. Do not invent Kazakhstan city source.",
+      "acceptance_criteria": [
+        "Shared listing/search contracts depend on typed location identifiers/config rather than Turkey constants",
+        "Missing country dataset produces explicit non-production fallback/error",
+        "No fabricated Kazakhstan source data"
+      ],
+      "verification": [
+        "location contract tests",
+        "hardcode scan",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0105",
+      "order": 11,
+      "phase": "P1-MULTICOUNTRY",
+      "title": "Vehicle catalog country adapter",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0101"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Keep reusable make/model/generation/variant domain separate from country-specific availability/data.",
+      "acceptance_criteria": [
+        "Canonical vehicle catalog API is shared",
+        "Country differences are data/config, not forked business logic",
+        "Existing listing/search consumers continue to work"
+      ],
+      "verification": [
+        "catalog tests",
+        "typecheck",
+        "relevant search/listing tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0106",
+      "order": 12,
+      "phase": "P1-MULTICOUNTRY",
+      "title": "Country/brand routing and metadata boundary",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0101"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Brand/country metadata is configurable",
+        "Canonical/SEO helpers do not hardcode YOLMOD/Turkey in shared code",
+        "No domain/DNS changes performed"
+      ],
+      "verification": [
+        "routing/metadata tests",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0107",
+      "order": 13,
+      "phase": "P1-MULTICOUNTRY",
+      "title": "Multi-country regression guard suite",
+      "priority": "P0",
+      "type": "testing",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0102",
+        "JLC-0103",
+        "JLC-0104",
+        "JLC-0105",
+        "JLC-0106"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Tests fail on reintroduction of critical Turkey-only assumptions into shared core",
+        "Country config missing/invalid behavior is explicit",
+        "Shared public/private contracts remain stable"
+      ],
+      "verification": [
+        "new regression suite",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D003",
+      "order": 14,
+      "phase": "P1-DECISIONS",
+      "title": "Approve Kazakhstan phone/SMS production policy",
+      "priority": "P0",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0103"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-005",
+      "description": "",
+      "acceptance_criteria": [
+        "Approved seller-phone policy and provider recorded"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D004",
+      "order": 15,
+      "phase": "P1-DECISIONS",
+      "title": "Approve Kazakhstan geo dataset source",
+      "priority": "P1",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0104"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-006",
+      "description": "",
+      "acceptance_criteria": [
+        "Approved city/location data source recorded"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0201",
+      "order": 16,
+      "phase": "P2-DESIGN",
+      "title": "Design token architecture for restrained palette",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0101"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Create/verify neutral-base + one-accent token system without inventing unresolved brand color.",
+      "acceptance_criteria": [
+        "Primary UI colors flow through tokens",
+        "No uncontrolled large palette in core components",
+        "Accent can be supplied by brand config",
+        "No final unapproved accent color decision embedded"
+      ],
+      "verification": [
+        "UI token inspection/tests",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0202",
+      "order": 17,
+      "phase": "P2-DESIGN",
+      "title": "Listing card aspect-ratio and stable-grid audit",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0201"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "If current cards consistently use 4:3 or 3:2, retain and enforce. Otherwise block for D002 rather than choose silently.",
+      "acceptance_criteria": [
+        "One accepted ratio is used consistently or task reports BLOCKED_DECISION",
+        "Grid does not jump as images load",
+        "Cards remain usable on compact viewport"
+      ],
+      "verification": [
+        "visual/source test",
+        "desktop+compact inspection"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0203",
+      "order": 18,
+      "phase": "P2-DESIGN",
+      "title": "Mobile-first responsive shell and thumb-friendly controls",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0201"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Primary marketplace flows work at compact widths",
+        "Critical controls are reachable/tappable",
+        "No horizontal overflow on core pages"
+      ],
+      "verification": [
+        "responsive browser smoke",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0204",
+      "order": 19,
+      "phase": "P2-DESIGN",
+      "title": "Accessibility baseline",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0203"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Body text target is >=16px in primary flows unless justified",
+        "Interactive hit areas target >=44x44px",
+        "Focus/labels/errors are understandable",
+        "Color alone is not sole selection signal"
+      ],
+      "verification": [
+        "accessibility-focused tests/manual inspection",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0205",
+      "order": 20,
+      "phase": "P2-DESIGN",
+      "title": "Functional microanimation pass",
+      "priority": "P2",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0203"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Animations are short and purposeful",
+        "No blocking decorative motion",
+        "Reduced-motion behavior respected where applicable"
+      ],
+      "verification": [
+        "UI inspection",
+        "reduced-motion check"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0206",
+      "order": 21,
+      "phase": "P2-DESIGN",
+      "title": "Dark-mode readiness of tokens",
+      "priority": "P2",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": false,
+      "dependencies": [
+        "JLC-0201"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Bonus only. Ensure token structure does not block future dark mode; full dark theme is not required.",
+      "acceptance_criteria": [
+        "Token system can support alternate theme without component rewrite"
+      ],
+      "verification": [
+        "source inspection"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0301",
+      "order": 22,
+      "phase": "P3-AUTH",
+      "title": "Audit/reuse current YOLMOD auth implementation",
+      "priority": "P0",
+      "type": "audit",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0001",
+        "JLC-0103"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Registration/login/recovery/seller-contact current contracts mapped",
+        "Reusable code identified with Git/test evidence",
+        "Country-hardcoded phone assumptions identified"
+      ],
+      "verification": [
+        "auth test inventory",
+        "relevant code/migration inspection"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0302",
+      "order": 23,
+      "phase": "P3-AUTH",
+      "title": "Registration: phone OTP then mandatory password enrollment",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0301"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "New registration requires confirmed phone then password creation",
+        "Successful registration cannot silently remain OTP-only",
+        "No extra automatic OTP is sent"
+      ],
+      "verification": [
+        "auth source tests",
+        "local Auth/JWT runtime where available",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0303",
+      "order": 24,
+      "phase": "P3-AUTH",
+      "title": "Routine login by phone + password",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0302"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Enrolled user can login with phone+password",
+        "Routine login sends zero SMS",
+        "Safe return path/locale behavior preserved"
+      ],
+      "verification": [
+        "login tests",
+        "local Auth runtime",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0304",
+      "order": 25,
+      "phase": "P3-AUTH",
+      "title": "Password recovery and sensitive-action OTP boundaries",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0303"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Recovery uses explicit OTP flow",
+        "No automatic resend",
+        "Normal login remains password-based",
+        "Phone-change/new-contact verification remains explicit"
+      ],
+      "verification": [
+        "recovery tests",
+        "OTP economy source tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0305",
+      "order": 26,
+      "phase": "P3-AUTH",
+      "title": "Country-aware reusable verified seller contacts",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0301",
+        "JLC-0103"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Seller verified contacts are owner-private",
+        "Already verified contact can be reused without OTP",
+        "Listing contact is explicit and separate from generic listing edit payload",
+        "Public APIs do not expose contact IDs/verification metadata"
+      ],
+      "verification": [
+        "RLS/RPC tests",
+        "owner/non-owner tests",
+        "public privacy tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0306",
+      "order": 27,
+      "phase": "P3-AUTH",
+      "title": "Enforce maximum three active verified seller contacts",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0305"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Three active contacts allowed",
+        "Fourth rejected server-side",
+        "Cross-user phone takeover blocked",
+        "Rejected attempt does not trigger unnecessary OTP"
+      ],
+      "verification": [
+        "local runtime matrix",
+        "constraint/concurrency test if supported"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0307",
+      "order": 28,
+      "phase": "P3-AUTH",
+      "title": "Auth/contact security regression gate",
+      "priority": "P0",
+      "type": "testing",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0302",
+        "JLC-0303",
+        "JLC-0304",
+        "JLC-0305",
+        "JLC-0306"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Anon/owner/non-owner matrices pass",
+        "Public seller identity/contact privacy passes",
+        "OTP-economy assertions pass",
+        "No production SMS used"
+      ],
+      "verification": [
+        "auth/contact regression suite",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0308",
+      "order": 29,
+      "phase": "P3-AUTH",
+      "title": "Production SMS/provider activation handoff",
+      "priority": "P0",
+      "type": "manual_authorization",
+      "status": "manual_authorization",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0307",
+        "JLC-D003"
+      ],
+      "requires_user_authorization": true,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Prepare integration checklist only. Actual provider/secrets/production SMS require user approval.",
+      "acceptance_criteria": [
+        "Provider decision exists",
+        "No real secret/SMS action without explicit approval"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0401",
+      "order": 30,
+      "phase": "P4-MARKETPLACE",
+      "title": "Public browse/search/detail contract audit and Jolcar adaptation",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0107",
+        "JLC-0105"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Public read surfaces use canonical country-safe contracts",
+        "No private seller identity/contact leakage",
+        "No Turkey-specific copy/data leaks in Jolcar path"
+      ],
+      "verification": [
+        "public API tests",
+        "privacy tests",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0402",
+      "order": 31,
+      "phase": "P4-MARKETPLACE",
+      "title": "Quick search: Make → Model → Price → All filters",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0401",
+        "JLC-0203"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Primary search UI exposes make/model/price first",
+        "Advanced filters remain reachable under All filters",
+        "Mobile flow is usable"
+      ],
+      "verification": [
+        "search UI tests",
+        "desktop+compact inspection"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0403",
+      "order": 32,
+      "phase": "P4-MARKETPLACE",
+      "title": "Live search result count on CTA",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0402"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "CTA count derives from canonical current filters",
+        "Count updates when filters change",
+        "Loading/error states do not show stale misleading count"
+      ],
+      "verification": [
+        "search contract test",
+        "UI interaction test",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0404",
+      "order": 33,
+      "phase": "P4-MARKETPLACE",
+      "title": "Advanced filter/sort/pagination completeness",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0402"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Approved vehicle attributes filter correctly",
+        "Sort/pagination are server-correct and scalable",
+        "Mobile All filters preserves state"
+      ],
+      "verification": [
+        "search runtime tests",
+        "pagination/filter tests",
+        "performance sanity"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0405",
+      "order": 34,
+      "phase": "P4-MARKETPLACE",
+      "title": "Listing card transparency: publication date and views",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0401",
+        "JLC-0202"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Publication date displayed from canonical listing data",
+        "View count displayed without exposing private analytics",
+        "Card grid remains stable"
+      ],
+      "verification": [
+        "card tests",
+        "public contract tests",
+        "visual inspection"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0406",
+      "order": 35,
+      "phase": "P4-MARKETPLACE",
+      "title": "Listing view-count event integrity",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0405"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Implement/verify view counting with reasonable duplicate/abuse behavior without inventing cross-device identity tracking.",
+      "acceptance_criteria": [
+        "View increment path is server-controlled",
+        "Obvious refresh storms are mitigated according to current architecture",
+        "Public caller cannot mutate arbitrary listings outside contract"
+      ],
+      "verification": [
+        "view-event tests",
+        "authorization/abuse tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0407",
+      "order": 36,
+      "phase": "P4-MARKETPLACE",
+      "title": "Zero-km vs second-hand marketplace flow",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0401",
+        "JLC-0105"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "User can distinguish/filter zero-km and second-hand",
+        "Dealer/new inventory can use zero-km path",
+        "Shared listing lifecycle remains consistent"
+      ],
+      "verification": [
+        "search/listing tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0410",
+      "order": 37,
+      "phase": "P4-MARKETPLACE",
+      "title": "Favorites",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0401",
+        "JLC-0303"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Authenticated buyer can add/remove favorites",
+        "Owner privacy/RLS preserved",
+        "Anonymous cannot mutate favorites"
+      ],
+      "verification": [
+        "favorite runtime tests",
+        "RLS tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0411",
+      "order": 38,
+      "phase": "P4-MARKETPLACE",
+      "title": "Saved search create/manage",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0404",
+        "JLC-0303"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Authenticated user can save/manage normalized search criteria",
+        "Saved searches are owner-private",
+        "Canonical matcher can consume saved criteria"
+      ],
+      "verification": [
+        "saved-search tests",
+        "RLS tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0412",
+      "order": 39,
+      "phase": "P4-MARKETPLACE",
+      "title": "New-listing alerts for saved searches",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0411"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "New matching listing produces one intended notification event",
+        "Non-matching listing does not",
+        "No cross-user notification leakage"
+      ],
+      "verification": [
+        "matcher/event tests",
+        "owner privacy tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0413",
+      "order": 40,
+      "phase": "P4-MARKETPLACE",
+      "title": "Price-change event and price-drop alerts",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0411"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Price changes are detectable from canonical listing updates",
+        "Relevant watchers receive price-drop notification event",
+        "No payment/transaction logic introduced"
+      ],
+      "verification": [
+        "price-change tests",
+        "notification matching tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0414",
+      "order": 41,
+      "phase": "P4-MARKETPLACE",
+      "title": "Unified notification center baseline",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0412",
+        "JLC-0413"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Notification records are owner-scoped",
+        "Unread/read state works",
+        "Saved-search and price-drop events render",
+        "Architecture can later accept chat/dealer-live events"
+      ],
+      "verification": [
+        "notification tests",
+        "RLS tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0501",
+      "order": 42,
+      "phase": "P5-LISTING",
+      "title": "Draft create/edit lifecycle",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0305",
+        "JLC-0401"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Owner can create/save/edit draft",
+        "Concurrency/optimistic behavior is safe",
+        "Non-owner writes blocked"
+      ],
+      "verification": [
+        "draft lifecycle tests",
+        "RLS/runtime tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0502",
+      "order": 43,
+      "phase": "P5-LISTING",
+      "title": "Publish listing CTA and moderation transition",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0501"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "User-facing final action is Publish listing",
+        "Save draft remains separate",
+        "Publish transitions to moderation/pending state",
+        "No misleading success on partial failure"
+      ],
+      "verification": [
+        "SellWizard tests",
+        "lifecycle runtime tests",
+        "i18n tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0503",
+      "order": 44,
+      "phase": "P5-LISTING",
+      "title": "Admin moderation/reject/resubmit lifecycle",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0502"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Admin approve/reject is authorized",
+        "Rejected owner can edit/resubmit according to domain rules",
+        "Audit trail exists",
+        "Public only sees eligible listings"
+      ],
+      "verification": [
+        "admin/owner/non-owner runtime tests",
+        "audit checks"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0504",
+      "order": 45,
+      "phase": "P5-LISTING",
+      "title": "Unsaved listing changes protection",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0501"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Meaningful unsaved changes trigger 3-choice dialog",
+        "No warning when no meaningful changes",
+        "Existing draft wording is context-appropriate"
+      ],
+      "verification": [
+        "UI interaction tests",
+        "desktop+compact inspection",
+        "i18n"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0505",
+      "order": 46,
+      "phase": "P5-LISTING",
+      "title": "Protected seller-contact disclosure with durable abuse control",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0307",
+        "JLC-0401"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Only authenticated eligible non-owner buyer can reveal selected contact",
+        "Durable rate/abuse control exists",
+        "Anon/self/ineligible blocked",
+        "Lookup is read-only and creates no chat/message/favorite"
+      ],
+      "verification": [
+        "rate-limit tests",
+        "buyer contact runtime",
+        "privacy tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0506",
+      "order": 47,
+      "phase": "P5-LISTING",
+      "title": "Listing seller-contact selector create/edit",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0305",
+        "JLC-0501"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Create/edit uses owner verified contacts",
+        "Changing selected contact sends zero OTP",
+        "Legacy/missing-contact states fail safely",
+        "Cross-user contact assignment blocked"
+      ],
+      "verification": [
+        "selector/save tests",
+        "runtime ownership tests",
+        "responsive UI"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0507",
+      "order": 48,
+      "phase": "P5-MEDIA",
+      "title": "Photo upload/cover/order/public derivative pipeline",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0501"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Authorized owner upload only",
+        "MIME/size/count validation",
+        "Cover/order works",
+        "Public serves approved derivatives, not private raw objects"
+      ],
+      "verification": [
+        "media security tests",
+        "storage policy tests",
+        "UI upload test"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0508",
+      "order": 49,
+      "phase": "P5-MEDIA",
+      "title": "Listing video pipeline baseline",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0507",
+        "JLC-0503"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Authorized upload metadata lifecycle exists",
+        "Moderation/eligibility is explicit",
+        "Public playback uses safe published media",
+        "No unsupported provider assumption hidden"
+      ],
+      "verification": [
+        "video lifecycle tests",
+        "moderation tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0509",
+      "order": 50,
+      "phase": "P5-MEDIA",
+      "title": "Persisted media deletion and orphan cleanup",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0507"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Removing/replacing media cleans intended storage objects",
+        "No other user's object can be deleted",
+        "Failed cleanup is observable/retryable without corruption"
+      ],
+      "verification": [
+        "cleanup tests",
+        "ownership tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0510",
+      "order": 51,
+      "phase": "P5-ANALYTICS",
+      "title": "Marketplace event model for seller analytics",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0406",
+        "JLC-0410",
+        "JLC-0505"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Views/contact-intent/favorite/message events have typed server-controlled contracts",
+        "Events avoid unnecessary private buyer data",
+        "Duplicate/abuse policy is documented"
+      ],
+      "verification": [
+        "event contract tests",
+        "privacy tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0511",
+      "order": 52,
+      "phase": "P5-ANALYTICS",
+      "title": "Seller cabinet analytics UI",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0510"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Seller sees own views/contact-intent/favorites/messages where available",
+        "Cross-seller analytics impossible",
+        "Mobile layout usable"
+      ],
+      "verification": [
+        "owner isolation tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D009",
+      "order": 53,
+      "phase": "P5-DECISIONS",
+      "title": "Decide Raise-to-top policy",
+      "priority": "P1",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0511"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-009",
+      "description": "",
+      "acceptance_criteria": [
+        "Entitlement/frequency/duration/ranking rule approved"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0512",
+      "order": 54,
+      "phase": "P5-PROMOTION",
+      "title": "Raise-to-top implementation",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0511",
+        "JLC-D009"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Button performs approved promotion behavior only",
+        "No payment/escrow/billing flow added",
+        "Server enforces entitlement/cooldown/ranking rule"
+      ],
+      "verification": [
+        "promotion contract tests",
+        "abuse tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0601",
+      "order": 55,
+      "phase": "P6-CHAT",
+      "title": "Audit/reuse current YOLMOD messaging implementation",
+      "priority": "P0",
+      "type": "audit",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0001",
+        "JLC-0307"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Conversation/message schema/API/UI current status verified from Git/tests",
+        "Gaps listed"
+      ],
+      "verification": [
+        "messaging tests/code inspection"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0602",
+      "order": 56,
+      "phase": "P6-CHAT",
+      "title": "Conversation create/reuse and inbox",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0601",
+        "JLC-0401"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Buyer can create/reuse listing conversation",
+        "Seller/buyer inboxes show only authorized conversations",
+        "No duplicate thread for same intended conversation key"
+      ],
+      "verification": [
+        "conversation runtime tests",
+        "RLS tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0603",
+      "order": 57,
+      "phase": "P6-CHAT",
+      "title": "Send/reply/unread/reliable refresh",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0602"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Authorized participants send/reply",
+        "Unread counts/state correct",
+        "Refresh/realtime behavior reliable without leaking threads"
+      ],
+      "verification": [
+        "message tests",
+        "unread tests",
+        "realtime/polling tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0604",
+      "order": 58,
+      "phase": "P6-CHAT",
+      "title": "Messaging blocking/reporting/rate limits",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0603"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Blocked users cannot continue prohibited messaging",
+        "Report flow authorized and auditable",
+        "Spam/rate protection exists",
+        "No moderation bypass"
+      ],
+      "verification": [
+        "abuse tests",
+        "block/report tests",
+        "security matrix"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0605",
+      "order": 59,
+      "phase": "P6-CHAT",
+      "title": "Chat notification integration",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0603",
+        "JLC-0414"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "New message generates intended owner notification",
+        "Read state integrates without cross-user leak"
+      ],
+      "verification": [
+        "notification tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0606",
+      "order": 60,
+      "phase": "P6-CHAT",
+      "title": "Chat cross-system release gate",
+      "priority": "P0",
+      "type": "testing",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0604",
+        "JLC-0605"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Buyer↔seller E2E passes",
+        "Mobile inbox/thread usable",
+        "No privacy/RLS regression"
+      ],
+      "verification": [
+        "E2E browser/runtime",
+        "security tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0801",
+      "order": 61,
+      "phase": "P7-BUYER-REQUESTS",
+      "title": "Buyer Request domain and owner-private management",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0303",
+        "JLC-0105"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Buyer can create/edit/archive request criteria",
+        "Private identity fields are not public",
+        "Criteria use canonical vehicle/search domain"
+      ],
+      "verification": [
+        "schema/RLS tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0802",
+      "order": 62,
+      "phase": "P7-BUYER-REQUESTS",
+      "title": "Seller/dealer response with active listing",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0801",
+        "JLC-0503"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Seller response attaches own eligible active listing",
+        "Cannot attach another seller's/ineligible listing",
+        "Buyer can view responses without unnecessary seller internals"
+      ],
+      "verification": [
+        "ownership tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0803",
+      "order": 63,
+      "phase": "P7-BUYER-REQUESTS",
+      "title": "Matching engine for Buyer Requests and Saved Searches",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0801",
+        "JLC-0411",
+        "JLC-0404"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Canonical matcher produces deterministic matches",
+        "Country/catalog boundaries respected",
+        "No private data required by public matching logic"
+      ],
+      "verification": [
+        "matcher tests",
+        "performance sanity"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0804",
+      "order": 64,
+      "phase": "P7-BUYER-REQUESTS",
+      "title": "Matching notifications and dealer lead integration",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0802",
+        "JLC-0803",
+        "JLC-0414"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Relevant buyer gets match notification",
+        "Dealer/seller response can produce attributed lead event where approved",
+        "No duplicate notification storm"
+      ],
+      "verification": [
+        "event tests",
+        "notification tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0701",
+      "order": 65,
+      "phase": "P8-TRUST",
+      "title": "Optional private VIN foundation",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0501"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "VIN remains optional unless later country rule changes",
+        "Private VIN not exposed publicly",
+        "Owner/admin access boundaries explicit"
+      ],
+      "verification": [
+        "VIN privacy tests",
+        "RLS tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0702",
+      "order": 66,
+      "phase": "P8-TRUST",
+      "title": "VIN trust provider abstraction",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0701"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Build safe adapter boundary without selecting/activating a Kazakhstan provider.",
+      "acceptance_criteria": [
+        "Provider interface server-only",
+        "No provider secret required for local tests",
+        "Public gets derived trust signal only"
+      ],
+      "verification": [
+        "adapter tests",
+        "privacy tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0703",
+      "order": 67,
+      "phase": "P8-TRUST",
+      "title": "Launch anti-fraud rules and review queue",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0503",
+        "JLC-0510"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Duplicate/spam/suspicious bulk indicators represented",
+        "Signals do not auto-punish without approved policy",
+        "Admin review/flag audit exists"
+      ],
+      "verification": [
+        "anti-fraud rule tests",
+        "admin authorization tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0704",
+      "order": 68,
+      "phase": "P8-REVIEWS",
+      "title": "Vehicle owner review schema/domain",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0105",
+        "JLC-0303"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Review attaches to Brand/Model/Generation and optional modification",
+        "Approved ownership/rating/pros/cons fields supported",
+        "No seller/dealer rating domain introduced"
+      ],
+      "verification": [
+        "schema/domain tests",
+        "RLS tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0705",
+      "order": 69,
+      "phase": "P8-REVIEWS",
+      "title": "Vehicle review create/read/model pages",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0704"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Authenticated user can submit review",
+        "Public can browse approved reviews",
+        "Model/review page links to current listings",
+        "Listing can link to relevant reviews"
+      ],
+      "verification": [
+        "review UI/API tests",
+        "public privacy tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0706",
+      "order": 70,
+      "phase": "P8-REVIEWS",
+      "title": "Vehicle review moderation/reporting",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0705",
+        "JLC-0503"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Report/hide/moderation workflow exists",
+        "Unauthorized users cannot moderate",
+        "Spam/duplicate controls exist at launch-appropriate level"
+      ],
+      "verification": [
+        "moderation tests",
+        "abuse tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D010",
+      "order": 71,
+      "phase": "P8-DECISIONS",
+      "title": "Approve Kazakhstan VIN/history source",
+      "priority": "P1",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0702"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-013",
+      "description": "",
+      "acceptance_criteria": [
+        "Approved legal/provider source recorded"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0901",
+      "order": 72,
+      "phase": "P9-DEALER",
+      "title": "Dealer role/profile/verification state foundation",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0307"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Dealer role tied to existing account identity",
+        "Verification state explicit and admin-controlled",
+        "No second auth system"
+      ],
+      "verification": [
+        "role/RLS tests",
+        "admin tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0902",
+      "order": 73,
+      "phase": "P9-DEALER",
+      "title": "Public Dealer Social profile shell",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0901",
+        "JLC-0203"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Logo/avatar, cover, name, description, location, verified signal and stock supported",
+        "Public profile reveals no private account identifiers",
+        "Responsive mobile layout"
+      ],
+      "verification": [
+        "public dealer tests",
+        "privacy tests",
+        "visual QA"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0903",
+      "order": 74,
+      "phase": "P9-DEALER",
+      "title": "Follow dealer",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0902",
+        "JLC-0303"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Authenticated user can follow/unfollow",
+        "Owner privacy preserved",
+        "Counts consistent"
+      ],
+      "verification": [
+        "follow tests",
+        "RLS tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0904",
+      "order": 75,
+      "phase": "P9-DEALER",
+      "title": "Dealer posts with listing attachments",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0902",
+        "JLC-0508"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Authorized dealer can post text/photo/video according to media rules",
+        "Post can attach dealer-owned eligible listings",
+        "Public post does not leak private seller fields"
+      ],
+      "verification": [
+        "post ownership tests",
+        "media tests",
+        "privacy tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0905",
+      "order": 76,
+      "phase": "P9-DEALER",
+      "title": "Dealer social tabs: Posts / Cars / Videos / Live",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0904",
+        "JLC-0903"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Tabs render eligible content",
+        "Mobile navigation usable",
+        "Empty states safe"
+      ],
+      "verification": [
+        "UI tests",
+        "responsive visual QA"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D005",
+      "order": 77,
+      "phase": "P9-DECISIONS",
+      "title": "Approve Kazakhstan dealer verification requirements",
+      "priority": "P1",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0901"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-007",
+      "description": "",
+      "acceptance_criteria": [
+        "Required documents/criteria approved"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D006",
+      "order": 78,
+      "phase": "P9-DECISIONS",
+      "title": "Approve live-streaming provider",
+      "priority": "P0",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0902"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-010",
+      "description": "",
+      "acceptance_criteria": [
+        "Approved provider/integration constraints recorded"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0906",
+      "order": 79,
+      "phase": "P9-DEALER-IMPORT",
+      "title": "Dealer bulk inventory canonical ingestion/reconciliation model",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0901",
+        "JLC-0503"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Canonical import row maps to listing/catalog domain",
+        "Upsert/reconciliation deterministic",
+        "Duplicate/error records observable",
+        "Dealer cannot import into another dealer account"
+      ],
+      "verification": [
+        "import contract tests",
+        "ownership tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D008",
+      "order": 80,
+      "phase": "P9-DECISIONS",
+      "title": "Approve launch dealer feed formats/API auth",
+      "priority": "P0",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0906"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-008",
+      "description": "",
+      "acceptance_criteria": [
+        "Feed formats and API auth scheme approved"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0907",
+      "order": 81,
+      "phase": "P9-DEALER-IMPORT",
+      "title": "Dealer feed/API adapters",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0906",
+        "JLC-D008"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Approved feed format(s) parse to canonical model",
+        "Dealer API uses approved auth and owner boundaries",
+        "Validation/reconciliation/error report works"
+      ],
+      "verification": [
+        "parser/API tests",
+        "auth tests",
+        "large-batch sanity"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0908",
+      "order": 82,
+      "phase": "P9-DEALER-CRM",
+      "title": "Dealer organization/staff roles",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0901"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Dealer can have staff/manager membership",
+        "Membership roles server-authorized",
+        "Staff cannot cross dealer boundary"
+      ],
+      "verification": [
+        "membership RLS/RPC tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0909",
+      "order": 83,
+      "phase": "P9-DEALER-CRM",
+      "title": "CRM lead domain and source attribution",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0908",
+        "JLC-0510",
+        "JLC-0606",
+        "JLC-0804"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Lead links dealer, optional manager, listing/vehicle and source",
+        "Sources support listing/chat/contact/buyer-request and later post/live",
+        "Duplicate policy is deterministic"
+      ],
+      "verification": [
+        "lead contract tests",
+        "cross-dealer security tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0910",
+      "order": 84,
+      "phase": "P9-DEALER-CRM",
+      "title": "CRM pipeline/status/notes/follow-up/history",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0909"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Approved lightweight statuses supported",
+        "Manager assignment/notes/reminders/history work",
+        "No accounting/payroll/ERP scope"
+      ],
+      "verification": [
+        "CRM workflow tests",
+        "UI tests",
+        "RLS tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0911",
+      "order": 85,
+      "phase": "P9-DEALER-CRM",
+      "title": "Dealer CRM funnel and staff analytics",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0910",
+        "JLC-0511"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Dealer sees own funnel/source/manager metrics",
+        "Cross-dealer analytics blocked",
+        "Mobile dashboard usable"
+      ],
+      "verification": [
+        "analytics isolation tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0912",
+      "order": 86,
+      "phase": "P9-DEALER-LIVE",
+      "title": "Provider-neutral Dealer Live domain and state machine",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0901",
+        "JLC-0905"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Implement live metadata/state/authorization using local fake adapter; do not activate paid provider.",
+      "acceptance_criteria": [
+        "Only eligible dealer can create/start/end live metadata",
+        "Live can attach dealer-owned active listings",
+        "Admin moderation/stop state exists",
+        "Streaming transport abstracted from Supabase/Vercel"
+      ],
+      "verification": [
+        "live authorization tests",
+        "state-machine tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0913",
+      "order": 87,
+      "phase": "P9-DEALER-LIVE",
+      "title": "Dealer Live viewer page and attached listings",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0912"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Viewer page renders provider-neutral playback state",
+        "Attached listings open normally",
+        "Mobile responsive"
+      ],
+      "verification": [
+        "UI tests",
+        "privacy tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0914",
+      "order": 88,
+      "phase": "P9-DEALER-LIVE",
+      "title": "Live comments/reporting/admin stop",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0913",
+        "JLC-0604"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Authorized comments work with abuse controls",
+        "Reports auditable",
+        "Admin can stop/block according to policy"
+      ],
+      "verification": [
+        "comment/report/admin tests",
+        "rate-limit tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0915",
+      "order": 89,
+      "phase": "P9-DEALER-LIVE",
+      "title": "Live ended/recorded state and social profile integration",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0914",
+        "JLC-0905"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Ended live has stable state",
+        "Recording only used if provider contract supports it",
+        "Dealer Live tab shows current/past eligible items"
+      ],
+      "verification": [
+        "state/UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0916",
+      "order": 90,
+      "phase": "P9-DEALER-LIVE",
+      "title": "Live notifications and CRM lead attribution",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0915",
+        "JLC-0414",
+        "JLC-0909"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Relevant follower can receive live-start notification",
+        "Live-origin interest can create attributed dealer lead",
+        "No notification/lead spam loop"
+      ],
+      "verification": [
+        "notification/lead integration tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0917",
+      "order": 91,
+      "phase": "P9-DEALER-LIVE",
+      "title": "Real streaming provider integration handoff",
+      "priority": "P0",
+      "type": "manual_authorization",
+      "status": "manual_authorization",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0912",
+        "JLC-D006"
+      ],
+      "requires_user_authorization": true,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Provider adapter may be prepared with mocks; real secret/provider calls require authorization.",
+      "acceptance_criteria": [
+        "Provider approved",
+        "No secret committed",
+        "Production activation waits for explicit authorization"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-0918",
+      "order": 92,
+      "phase": "P9-DEALER-ANALYTICS",
+      "title": "Dealer cross-channel analytics dashboard",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0911",
+        "JLC-0916",
+        "JLC-0904"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Dealer sees own listing/post/live/lead funnel metrics where events exist",
+        "Source attribution is consistent with CRM",
+        "Cross-dealer analytics blocked",
+        "Mobile dashboard usable"
+      ],
+      "verification": [
+        "analytics isolation tests",
+        "event aggregation tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1001",
+      "order": 93,
+      "phase": "P10-AI",
+      "title": "Audit/reuse YOLMOD AI foundation",
+      "priority": "P0",
+      "type": "audit",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0001",
+        "JLC-0404"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Existing provider abstraction/routes/tools/tests verified",
+        "Security gaps rechecked"
+      ],
+      "verification": [
+        "AI code/test inspection"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1002",
+      "order": 94,
+      "phase": "P10-AI",
+      "title": "Secure AI runtime: actor, redaction, validation, limits, tool allow-list",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1001"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Actor derived server-side",
+        "Outbound PII/private fields redacted",
+        "Structured input/output validation exists",
+        "Only allow-listed tools callable",
+        "Rate/cost abstraction exists without paid provider"
+      ],
+      "verification": [
+        "AI security tests",
+        "tool authorization tests",
+        "typecheck"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1003",
+      "order": 95,
+      "phase": "P10-AI",
+      "title": "AI natural-language vehicle search",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1002",
+        "JLC-0404"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Natural-language request maps to typed canonical search criteria",
+        "AI cannot access private seller/contact data",
+        "Result links/actions are allow-listed"
+      ],
+      "verification": [
+        "AI search tests",
+        "tool tests",
+        "search regression"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1004",
+      "order": 96,
+      "phase": "P10-AI",
+      "title": "AI vehicle/listing comparison",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1002",
+        "JLC-0705"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Comparison uses canonical public listing/catalog/review data",
+        "Claims grounded in available data",
+        "Private fields excluded"
+      ],
+      "verification": [
+        "comparison grounding tests",
+        "privacy tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1005",
+      "order": 97,
+      "phase": "P10-AI",
+      "title": "AI listing description assistance",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1002",
+        "JLC-0501"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Owner input can generate editable description draft",
+        "No auto-publish without user confirmation",
+        "Safety/length/output validation applied"
+      ],
+      "verification": [
+        "description tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1006",
+      "order": 98,
+      "phase": "P10-AI",
+      "title": "AI/voice assisted listing form orchestration",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1005"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Build provider-neutral conversational form state and typed field confirmation. External speech activation may remain blocked by D011.",
+      "acceptance_criteria": [
+        "Assistant asks for missing required listing data",
+        "Mapped values pass canonical form validation",
+        "User reviews/edits before save/publish",
+        "No direct AI bypass of listing authorization"
+      ],
+      "verification": [
+        "form orchestration tests",
+        "validation tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D007",
+      "order": 99,
+      "phase": "P10-DECISIONS",
+      "title": "Approve external AI provider/model/cost policy",
+      "priority": "P0",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1002"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-011",
+      "description": "",
+      "acceptance_criteria": [
+        "Provider/model/cost/timeout policy approved"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1007",
+      "order": 100,
+      "phase": "P10-AI",
+      "title": "External AI/voice provider activation handoff",
+      "priority": "P0",
+      "type": "manual_authorization",
+      "status": "manual_authorization",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-D007",
+        "JLC-1003",
+        "JLC-1004",
+        "JLC-1005",
+        "JLC-1006"
+      ],
+      "requires_user_authorization": true,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "User authorizes exact provider/secrets/action"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D011",
+      "order": 101,
+      "phase": "P10-DECISIONS",
+      "title": "Approve production voice/speech approach if needed",
+      "priority": "P1",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1002"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-012",
+      "description": "",
+      "acceptance_criteria": [
+        "Voice/STT approach approved or browser-native approach accepted"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1101",
+      "order": 102,
+      "phase": "P11-CONTENT",
+      "title": "Automotive news feed foundation",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0106",
+        "JLC-0203"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Implement news domain/UI using approved content source only; do not scrape/copy unapproved copyrighted feeds.",
+      "acceptance_criteria": [
+        "News UI/domain exists",
+        "Content-source boundary explicit",
+        "No unapproved external content ingestion"
+      ],
+      "verification": [
+        "news tests",
+        "UI tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-D012",
+      "order": 103,
+      "phase": "P11-DECISIONS",
+      "title": "Approve automotive news content source/licensing approach",
+      "priority": "P1",
+      "type": "decision_gate",
+      "status": "awaiting_decision",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1101"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-017",
+      "description": "If repository has no already-approved source, user decision is required before external ingestion.",
+      "acceptance_criteria": [
+        "Approved news source/licensing/editorial approach recorded"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1102",
+      "order": 104,
+      "phase": "P11-CONTENT",
+      "title": "Approved automotive news source integration",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1101",
+        "JLC-D012"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Only approved/licensed/editorial source is ingested",
+        "Copyright/source attribution rules implemented as approved",
+        "No unapproved scraping"
+      ],
+      "verification": [
+        "ingestion tests",
+        "content attribution tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1201",
+      "order": 105,
+      "phase": "P12-SEO",
+      "title": "Country-aware SEO/canonical/sitemap/robots",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0106",
+        "JLC-D001"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Country/locale routes produce correct metadata",
+        "Sitemap/robots generated from Jolcar host config without Turkey hardcode",
+        "No production domain changed"
+      ],
+      "verification": [
+        "SEO tests",
+        "route metadata tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1202",
+      "order": 106,
+      "phase": "P12-MOBILE",
+      "title": "Mobile-web/PWA quality pass",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0203",
+        "JLC-0606",
+        "JLC-0905",
+        "JLC-0913",
+        "JLC-0911"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Core buyer/seller/dealer flows usable on compact viewport",
+        "No critical overflow/clipping",
+        "Installability/offline only included if approved existing architecture supports it"
+      ],
+      "verification": [
+        "responsive browser matrix",
+        "performance/mobile audit"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1203",
+      "order": 107,
+      "phase": "P12-ACCESSIBILITY",
+      "title": "Final accessibility release audit",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0204",
+        "JLC-1202"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Primary flows meet agreed typography/tap/contrast/focus requirements",
+        "Critical accessibility defects fixed or reported"
+      ],
+      "verification": [
+        "accessibility audit",
+        "keyboard/focus smoke"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1204",
+      "order": 108,
+      "phase": "P12-PERFORMANCE",
+      "title": "Performance and query/index sanity",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0404",
+        "JLC-0510",
+        "JLC-0907"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Core search/listing/dealer pages meet local performance sanity",
+        "No obvious N+1/unbounded query in launch paths",
+        "Index needs documented/tested"
+      ],
+      "verification": [
+        "query explain/test where safe",
+        "build/perf audit"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1205",
+      "order": 109,
+      "phase": "P12-OPS",
+      "title": "Observability/error-contract readiness without provider lock-in",
+      "priority": "P1",
+      "type": "implementation",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0003"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Structured safe errors/logging for critical flows",
+        "No PII/secrets in logs",
+        "Provider-specific telemetry not activated without approval"
+      ],
+      "verification": [
+        "logging tests",
+        "redaction tests"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1206",
+      "order": 110,
+      "phase": "P12-OPS",
+      "title": "Legal/support/content readiness gap report",
+      "priority": "P0",
+      "type": "audit",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0002"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Audit required Kazakhstan legal/support content. Do not write legal claims not supplied/approved.",
+      "acceptance_criteria": [
+        "Missing legal/privacy/terms/support content listed",
+        "No invented legal/regulatory statements",
+        "Blocking items linked to O-015"
+      ],
+      "verification": [
+        "content inventory"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1301",
+      "order": 111,
+      "phase": "P13-RELEASE",
+      "title": "Master security/privacy/RLS regression",
+      "priority": "P0",
+      "type": "testing",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0307",
+        "JLC-0505",
+        "JLC-0606",
+        "JLC-0703",
+        "JLC-0706",
+        "JLC-0907",
+        "JLC-0916",
+        "JLC-1002"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Anon/auth/owner/non-owner/admin critical matrices pass",
+        "Public privacy passes",
+        "No service-role/client secret leak",
+        "Sensitive endpoints have abuse controls"
+      ],
+      "verification": [
+        "security suite",
+        "RLS/runtime suite",
+        "privacy suite"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1302",
+      "order": 112,
+      "phase": "P13-RELEASE",
+      "title": "Master functional E2E regression",
+      "priority": "P0",
+      "type": "testing",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0414",
+        "JLC-0509",
+        "JLC-0511",
+        "JLC-0606",
+        "JLC-0804",
+        "JLC-0706",
+        "JLC-0916",
+        "JLC-1006",
+        "JLC-0918",
+        "JLC-1102"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Guest browse/search/detail works",
+        "Auth buyer journey works locally",
+        "Seller draft/publish/edit/contact/media works locally",
+        "Chat/notifications/buyer requests/reviews/dealer CRM/social/live local flows pass",
+        "Provider activation items explicitly separated"
+      ],
+      "verification": [
+        "E2E browser tests",
+        "runtime regression",
+        "typecheck/build"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1303",
+      "order": 113,
+      "phase": "P13-RELEASE",
+      "title": "Final mobile/responsive/design QA",
+      "priority": "P0",
+      "type": "testing",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1202",
+        "JLC-1203",
+        "JLC-0202"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Core pages pass desktop+compact",
+        "Stable grid/accepted ratio confirmed",
+        "Restrained palette/microanimation/accessibility respected",
+        "Dark mode absence does not fail launch"
+      ],
+      "verification": [
+        "visual QA matrix"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1304",
+      "order": 114,
+      "phase": "P13-RELEASE",
+      "title": "International-readiness regression",
+      "priority": "P0",
+      "type": "testing",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-0107",
+        "JLC-1302"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Shared core contains no critical Kazakhstan/Turkey hardcodes",
+        "Country config covers launch-specific values",
+        "Future YOLMOD profile can be added without duplicating core domains"
+      ],
+      "verification": [
+        "hardcode scan",
+        "country config tests",
+        "architecture review"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-1305",
+      "order": 115,
+      "phase": "P13-RELEASE",
+      "title": "Local launch-readiness package and unresolved-decision report",
+      "priority": "P0",
+      "type": "audit",
+      "status": "pending",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1301",
+        "JLC-1302",
+        "JLC-1303",
+        "JLC-1304",
+        "JLC-1204",
+        "JLC-1205",
+        "JLC-1206"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Every release-gate task is PASS or explicitly MANUAL_AUTH_REQUIRED",
+        "No awaiting-decision item silently waived",
+        "Exact Git SHAs/tests/migrations listed",
+        "Production/provider/domain actions remain unapplied"
+      ],
+      "verification": [
+        "queue/evidence audit",
+        "git status clean"
+      ],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-9001",
+      "order": 116,
+      "phase": "P90-MANUAL",
+      "title": "Authorize/create/configure production Supabase for Jolcar",
+      "priority": "P0",
+      "type": "manual_authorization",
+      "status": "manual_authorization",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1305"
+      ],
+      "requires_user_authorization": true,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Explicit user authorization received for exact project/actions"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-9002",
+      "order": 117,
+      "phase": "P90-MANUAL",
+      "title": "Authorize production provider secrets (SMS/AI/live/etc.)",
+      "priority": "P0",
+      "type": "manual_authorization",
+      "status": "manual_authorization",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-1305",
+        "JLC-D003",
+        "JLC-D005",
+        "JLC-D006",
+        "JLC-D007"
+      ],
+      "requires_user_authorization": true,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Explicit provider decisions and user authorization received"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-9003",
+      "order": 118,
+      "phase": "P90-MANUAL",
+      "title": "Authorize remote migrations and production deployment",
+      "priority": "P0",
+      "type": "manual_authorization",
+      "status": "manual_authorization",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-9001",
+        "JLC-9002"
+      ],
+      "requires_user_authorization": true,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Explicit user authorization received",
+        "Exact target identity verified"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-9004",
+      "order": 119,
+      "phase": "P90-MANUAL",
+      "title": "Authorize domain/DNS/canonical/Auth callback cutover",
+      "priority": "P0",
+      "type": "manual_authorization",
+      "status": "manual_authorization",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-9003"
+      ],
+      "requires_user_authorization": true,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Final domain decision exists",
+        "Explicit user authorization received"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-9005",
+      "order": 120,
+      "phase": "P90-MANUAL",
+      "title": "Production smoke and GO-LIVE decision",
+      "priority": "P0",
+      "type": "manual_authorization",
+      "status": "manual_authorization",
+      "release_gate": true,
+      "dependencies": [
+        "JLC-9003",
+        "JLC-9004"
+      ],
+      "requires_user_authorization": true,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Controlled production smoke explicitly authorized",
+        "Critical buyer/seller/dealer/auth/media/chat paths pass",
+        "No release claim before user GO decision"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-A001",
+      "order": 121,
+      "phase": "P99-POST-LAUNCH",
+      "title": "Native iOS/Android architecture decision",
+      "priority": "P2",
+      "type": "decision_gate",
+      "status": "backlog_post_launch",
+      "release_gate": false,
+      "dependencies": [
+        "JLC-9005"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
+      "decision_ref": "O-016",
+      "description": "Approved future direction; exact framework/timing not final.",
+      "acceptance_criteria": [
+        "User confirms timing/framework"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-A002",
+      "order": 122,
+      "phase": "P99-POST-LAUNCH",
+      "title": "Native mobile marketplace feature parity",
+      "priority": "P2",
+      "type": "implementation",
+      "status": "backlog_post_launch",
+      "release_gate": false,
+      "dependencies": [
+        "JLC-A001"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Auth/search/listings/favorites/chat/dealer/reviews/notifications parity defined and implemented"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-A003",
+      "order": 123,
+      "phase": "P99-POST-LAUNCH",
+      "title": "Native dealer live broadcasting",
+      "priority": "P2",
+      "type": "implementation",
+      "status": "backlog_post_launch",
+      "release_gate": false,
+      "dependencies": [
+        "JLC-A001",
+        "JLC-0917"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "Approved mobile broadcaster integrates with live provider securely"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-A004",
+      "order": 124,
+      "phase": "P99-POST-LAUNCH",
+      "title": "Country onboarding template for YOLMOD Turkey and future markets",
+      "priority": "P2",
+      "type": "implementation",
+      "status": "backlog_post_launch",
+      "release_gate": false,
+      "dependencies": [
+        "JLC-1304"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "",
+      "acceptance_criteria": [
+        "New country profile can be added via config/data/provider adapters with minimal core changes"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    },
+    {
+      "id": "JLC-A005",
+      "order": 125,
+      "phase": "P99-POST-LAUNCH",
+      "title": "Additional vehicle verticals / parts / services / insurance / RENT planning",
+      "priority": "P2",
+      "type": "implementation",
+      "status": "backlog_post_launch",
+      "release_gate": false,
+      "dependencies": [
+        "JLC-9005"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Previously discussed future expansion. Requires separate scope approval per vertical.",
+      "acceptance_criteria": [
+        "Separate user-approved scope exists before implementation"
+      ],
+      "verification": [],
+      "evidence": null,
+      "notes": null
+    }
+  ]
+}
