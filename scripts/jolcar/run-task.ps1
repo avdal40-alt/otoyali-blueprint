@@ -60,6 +60,7 @@ if ($LASTEXITCODE -ne 0) {
 
 $resultFile = Join-Path $logs ($safeId + "-a" + $Attempt + "-" + $stamp + "-result.json")
 $codexLog = Join-Path $logs ($safeId + "-a" + $Attempt + "-" + $stamp + "-codex.log")
+$promptFile = Join-Path $logs ($safeId + "-a" + $Attempt + "-" + $stamp + "-prompt.txt")
 $schema = Join-Path $taskWorktree "scripts\jolcar\task-result.schema.json"
 
 # Remove common remote/provider credentials from this process before Codex starts.
@@ -158,12 +159,22 @@ $promptLines = @(
 )
 
 $prompt = $promptLines -join "`r`n"
+
+# IMPORTANT: Do not pass the multiline prompt as a positional PowerShell argument.
+# Windows PowerShell/native-argument marshalling can split it into multiple argv items.
+# Codex supports an explicit "-" positional sentinel, which forces prompt input from stdin.
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($promptFile, $prompt, $utf8NoBom)
+
 $codex = Get-CodexPath
 
-& $codex exec --sandbox workspace-write --cd $taskWorktree `
-  --output-schema $schema `
-  --output-last-message $resultFile `
-  $prompt 2>&1 | Tee-Object -FilePath $codexLog | Out-Host
+Get-Content $promptFile -Raw -Encoding UTF8 |
+  & $codex exec --sandbox workspace-write --cd $taskWorktree `
+    --output-schema $schema `
+    --output-last-message $resultFile `
+    - 2>&1 |
+  Tee-Object -FilePath $codexLog |
+  Out-Host
 
 $codexExitCode = $LASTEXITCODE
 
