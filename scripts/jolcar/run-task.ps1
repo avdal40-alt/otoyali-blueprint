@@ -168,27 +168,39 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 $codex = Get-CodexPath
 
-# Windows PowerShell 5.1 wraps native stderr lines as ErrorRecord objects.
-# With the runner-wide ErrorActionPreference=Stop, harmless Codex diagnostics on
-# stderr (for example model-cache warnings and the normal Codex banner) can
-# terminate the PowerShell script even when codex.exe itself exits successfully.
-# For this one native invocation only, native process exit code is authoritative.
-$previousErrorActionPreference = $ErrorActionPreference
-$ErrorActionPreference = "Continue"
+# Windows PowerShell 5.1 can wrap native stderr as ErrorRecord and abort the
+# orchestrator even when codex.exe itself is healthy. Avoid the PowerShell native
+# pipeline entirely: Start-Process redirects stdin/stdout/stderr to files, waits
+# for the real process exit code, then we display the captured output ourselves.
+$stdoutFile = Join-Path $logs ($safeId + "-a" + $Attempt + "-" + $stamp + "-stdout.log")
+$stderrFile = Join-Path $logs ($safeId + "-a" + $Attempt + "-" + $stamp + "-stderr.log")
 
-try {
-  Get-Content $promptFile -Raw -Encoding UTF8 |
-    & $codex exec --sandbox workspace-write --cd $taskWorktree `
-      --output-schema $schema `
-      --output-last-message $resultFile `
-      - 2>&1 |
-    Tee-Object -FilePath $codexLog |
-    Out-Host
+$arguments = @(
+  "exec",
+  "--sandbox", "workspace-write",
+  "--cd", $taskWorktree,
+  "--output-schema", $schema,
+  "--output-last-message", $resultFile,
+  "-"
+)
 
-  $codexExitCode = $LASTEXITCODE
+$process = Start-Process `
+  -FilePath $codex `
+  -ArgumentList $arguments `
+  -RedirectStandardInput $promptFile `
+  -RedirectStandardOutput $stdoutFile `
+  -RedirectStandardError $stderrFile `
+  -NoNewWindow `
+  -Wait `
+  -PassThru
+
+$codexExitCode = $process.ExitCode
+
+if (Test-Path $stderrFile) {
+  Get-Content $stderrFile -Encoding UTF8 | Tee-Object -FilePath $codexLog | Out-Host
 }
-finally {
-  $ErrorActionPreference = $previousErrorActionPreference
+if (Test-Path $stdoutFile) {
+  Get-Content $stdoutFile -Encoding UTF8 | Tee-Object -FilePath $codexLog -Append | Out-Host
 }
 
 Write-Host ("Codex exit code: " + $codexExitCode)
