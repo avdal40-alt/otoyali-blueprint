@@ -14,6 +14,25 @@ const tag = `LOCAL_C6_PUBLIC_${randomUUID()}`;
 let listingId = null;
 const sql = (statement) => execFileSync("docker", ["exec", "supabase_db_Otoyali-blueprint", "psql", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-At", "-c", statement], { encoding: "utf8" }).trim();
 const count = (statement) => Number(sql(statement));
+const privateSellerContactFields = new Set([
+  "seller_id", "user_id", "auth_user_id", "phone", "phone_e164", "seller_phone", "seller_contact_phone",
+  "seller_contact_phone_id", "contact_id", "seller_contact_id", "verified_seller_contact_phones",
+  "seller_contact_phones", "seller_contacts", "verification_source", "verification_status",
+  "verification_attempts", "is_current_account_phone", "current_account_phone", "account_phone",
+  "account_phone_id", "account_phone_verified_at"
+]);
+
+function assertNoPrivateSellerContactFields(value, surface) {
+  const visit = (item, path) => {
+    if (Array.isArray(item)) return item.forEach((child, index) => visit(child, `${path}[${index}]`));
+    if (!item || typeof item !== "object") return;
+    for (const [key, child] of Object.entries(item)) {
+      assert.equal(privateSellerContactFields.has(key), false, `${surface} must not expose ${key} at ${path}`);
+      visit(child, `${path}.${key}`);
+    }
+  };
+  visit(value, surface);
+}
 
 async function session(id, name) {
   const email = `local-c6-${name}-${id}@example.test`;
@@ -53,7 +72,9 @@ async function session(id, name) {
     const publicDetail = await anon.from("ff_listing_details").select("*").eq("listing_id", listingId).maybeSingle();
     assert.ifError(publicDetail.error);
     assert.equal(publicDetail.data?.listing_id, listingId, "anonymous detail must expose the approved listing");
-    for (const field of ["seller_id", "phone", "email", "moderation_note", "rejection_reason", "moderated_by"]) assert.equal(Object.hasOwn(publicDetail.data, field), false, `public detail must not expose ${field}`);
+    assertNoPrivateSellerContactFields(publicDetail.data, "public detail");
+    assert.equal(JSON.stringify(publicDetail.data).includes(ids.seller), false, "public detail must not expose the seller/auth UUID");
+    for (const field of ["email", "moderation_note", "rejection_reason", "moderated_by"]) assert.equal(Object.hasOwn(publicDetail.data, field), false, `public detail must not expose ${field}`);
     const hiddenIdentity = await anon.from("ff_listing_details").select("seller_id").eq("listing_id", listingId);
     assert.ok(hiddenIdentity.error, "PostgREST must reject selecting the removed seller_id column");
     const buyerDetail = await buyer.from("ff_listing_details").select("*").eq("listing_id", listingId).maybeSingle();
@@ -62,7 +83,18 @@ async function session(id, name) {
     assert.equal(Object.hasOwn(buyerDetail.data, "seller_id"), false, "buyer detail must not need seller identity");
     const publicHome = await anon.from("ff_home_listings").select("*").eq("listing_id", listingId).maybeSingle();
     assert.ifError(publicHome.error);
-    for (const field of ["seller_id", "phone", "email"]) assert.equal(Object.hasOwn(publicHome.data, field), false, `public home must not expose ${field}`);
+    assertNoPrivateSellerContactFields(publicHome.data, "public home");
+    assert.equal(JSON.stringify(publicHome.data).includes(ids.seller), false, "public home must not expose the seller/auth UUID");
+    assert.equal(Object.hasOwn(publicHome.data, "email"), false, "public home must not expose email");
+    const publicSearch = await anon.schema("marketplace").rpc("search_listings_v1", {
+      p_request: { version: "v1", limit: 60, filters: { make_ids: [makeId] } }
+    });
+    assert.ifError(publicSearch.error);
+    assert.equal(publicSearch.data?.version, "v1", "anonymous search must return a Search v1 response");
+    const searchResult = publicSearch.data?.items?.find((item) => item.listing_id === listingId);
+    assert.ok(searchResult, "anonymous search must return the approved listing");
+    assertNoPrivateSellerContactFields(publicSearch.data, "public search");
+    assert.equal(JSON.stringify(publicSearch.data).includes(ids.seller), false, "public search must not expose the seller/auth UUID");
 
     const favorite = await buyer.schema("marketplace").from("listing_favorites").insert({ user_id: ids.buyer, listing_id: listingId });
     assert.ifError(favorite.error);
