@@ -40,18 +40,23 @@ async function cleanup() {
 
 async function bootstrap() {
   const existingUserId = await findUserId();
-  if (existingUserId) {
+  const reuse = process.argv.includes("--reuse");
+  if (reuse) {
+    assert.ok(existingUserId, "--reuse requires an existing synthetic local user");
+  } else if (existingUserId) {
     const { error } = await service.auth.admin.deleteUser(existingUserId);
     assert.ifError(error);
   }
 
-  const { error: createError } = await service.auth.admin.createUser({
-    email,
-    phone,
-    email_confirm: true,
-    phone_confirm: true
-  });
-  assert.ifError(createError);
+  if (!reuse) {
+    const { error: createError } = await service.auth.admin.createUser({
+      email,
+      phone,
+      email_confirm: true,
+      phone_confirm: true
+    });
+    assert.ifError(createError);
+  }
 
   const { data, error: linkError } = await service.auth.admin.generateLink({
     type: "magiclink",
