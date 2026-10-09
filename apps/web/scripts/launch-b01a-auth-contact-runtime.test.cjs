@@ -81,7 +81,10 @@ async function rpcOk(client, name, args) {
     assert.match(selectedListing || "", /^[0-9a-f-]{36}$/i);
     createdListingIds.push(selectedListing);
     assert.equal(sql(`SELECT seller_contact_phone_id FROM marketplace.listings WHERE id='${selectedListing}'`), synced.contact_id);
-    const contactB = ownerContacts.find((contact) => contact.contact_id !== synced.contact_id).contact_id;
+    const contactBPhone = "+905550001011";
+    const contactB = sql(`SELECT id FROM identity.verified_seller_contact_phones WHERE user_id='${ids.owner}' AND phone_e164='${contactBPhone}' AND is_active`);
+    assert.match(contactB, /^[0-9a-f-]{36}$/i, "contact B fixture must exist");
+    assert.notEqual(contactB, synced.contact_id, "contact fixtures must be distinct");
     assert.ifError((await owner.rpc("set_own_listing_seller_contact_phone", { p_listing_id: selectedListing, p_seller_contact_phone_id: contactB })).error);
     assert.equal(sql(`SELECT seller_contact_phone_id FROM marketplace.listings WHERE id='${selectedListing}'`), contactB, "owner switch must persist contact B");
     assert.ok((await other.rpc("set_own_listing_seller_contact_phone", { p_listing_id: selectedListing, p_seller_contact_phone_id: otherContact })).error, "non-owner switch must fail");
@@ -92,7 +95,7 @@ async function rpcOk(client, name, args) {
     sql(`UPDATE marketplace.listings SET status='active', moderation_status='active', published_at=NOW() WHERE id='${selectedListing}';`);
     assert.ok((await owner.rpc("set_own_listing_seller_contact_phone", { p_listing_id: selectedListing, p_seller_contact_phone_id: synced.contact_id })).error, "active listing switch must fail");
     const buyerContact = await rpcOk(other, "get_listing_seller_contact", { p_listing_id: selectedListing });
-    assert.equal(buyerContact?.[0]?.phone, "+905550001011", "selected listing contact must be returned");
+    assert.equal(buyerContact?.[0]?.phone, contactBPhone, "selected listing contact must be returned");
     assert.deepEqual(await rpcOk(owner, "get_listing_seller_contact", { p_listing_id: selectedListing }), [], "seller self-contact must remain blocked");
     assert.ok((await anon.rpc("get_listing_seller_contact", { p_listing_id: selectedListing })).error, "anon contact must remain blocked");
 
