@@ -284,6 +284,13 @@ foreach ($taskId in $TaskIds) {
     $hostResult = $hostJson | ConvertFrom-Json
     if ($hostResult.attempted -ne $true -or $hostResult.passed -ne $true) {
       Write-Warning ($taskId + ": host verification did not PASS: " + [string]$hostResult.reason)
+      foreach ($check in @($hostResult.checks)) {
+        Write-Host (
+          "  CHECK: " + [string]$check.command +
+          " | passed=" + [string]$check.passed +
+          " | " + [string]$check.reason
+        )
+      }
       $summary += [pscustomobject]@{ task_id=$taskId; recovered=$false; detail=[string]$hostResult.reason }
       continue
     }

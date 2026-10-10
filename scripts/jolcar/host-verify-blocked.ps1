@@ -200,7 +200,10 @@ foreach ($req in $requests) {
       continue
     }
 
-    $r = Run-ProcessSafe -FilePath $node.Source -ArgumentList @($full) -WorkingDirectory $webRoot
+    # Repository test scripts are normally invoked from the task/repository root as
+    # `node apps/web/scripts/...`. Keep that cwd so process.cwd()-based fixtures
+    # and config resolution behave exactly like the normal test command.
+    $r = Run-ProcessSafe -FilePath $node.Source -ArgumentList @($full) -WorkingDirectory $TaskWorktree
     $checks += [pscustomobject]@{ command = "node " + $relative; passed = $r.passed; reason = $r.reason }
     if (-not $r.passed) { $allPassed = $false }
   }
