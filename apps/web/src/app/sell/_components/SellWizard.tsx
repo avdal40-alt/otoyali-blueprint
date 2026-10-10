@@ -1,11 +1,12 @@
 "use client";
 
-import { FormEvent, type ReactNode, useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { FormEvent, type MouseEvent, type ReactNode, useCallback, useMemo, useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { City, HomeListing, Make, Model, Profile } from "@/lib/supabase/types";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { SafeImage } from "@/components/ui/SafeImage";
@@ -176,6 +177,7 @@ export function SellWizard({
   const [rejectionReason, setRejectionReason] = useState("");
   const [loadedRouteKey, setLoadedRouteKey] = useState<string | null>(null);
   const [loadedEditListingId, setLoadedEditListingId] = useState<string | null>(null);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const routeRequestGuard = useRef(new LatestRequestGuard());
   const submissionRequestGuard = useRef(new LatestRequestGuard());
   const profileRequestGuard = useRef(new LatestRequestGuard());
@@ -431,7 +433,7 @@ export function SellWizard({
   }, [checkingAuth, loadedRouteKey, mode, publishedListingId, routeKey, state, userId]);
 
   useEffect(() => {
-    if (!userId || publishedListingId || submitting || !hasUnsavedDraft(state)) return;
+    if (mode !== "create" || !userId || publishedListingId || submitting || !hasUnsavedDraft(state)) return;
 
     function warnBeforeUnload(event: BeforeUnloadEvent) {
       event.preventDefault();
@@ -957,8 +959,27 @@ export function SellWizard({
     );
   }
 
+  function handleNavigation(event: MouseEvent<HTMLFormElement>) {
+    const link = (event.target as HTMLElement).closest("a[href]") as HTMLAnchorElement | null;
+    if (mode !== "create" || !link || !userId || submitting || publishedListingId || !hasUnsavedDraft(state)) return;
+    const url = new URL(link.href, window.location.href);
+    if (url.origin !== window.location.origin || url.href === window.location.href) return;
+    event.preventDefault();
+    setPendingNavigation(url.pathname + url.search + url.hash);
+  }
+
+  function continueNavigation(save: boolean) {
+    if (!pendingNavigation || !userId) return;
+    if (save) saveStoredDraft(userId, state);
+    else clearStoredDraft(userId);
+    const destination = pendingNavigation;
+    setPendingNavigation(null);
+    router.push(destination);
+  }
+
   return (
-    <form onSubmit={publish} className="grid gap-5">
+    <>
+    <form onSubmit={publish} onClick={handleNavigation} className="grid gap-5">
       {mode === "editRejected" && rejectionReason ? (
         <section className="rounded-oto border border-red-200 bg-red-50 p-5" aria-live="polite">
           <h2 className="text-base font-black text-red-900">{sell03.rejectionReasonHeading}</h2>
@@ -1260,6 +1281,15 @@ export function SellWizard({
         ) : null}
       </div>
     </form>
+    <Modal open={Boolean(pendingNavigation)} title={copy.unsavedChangesTitle}>
+      <p className="text-sm leading-6 text-oto-muted">{copy.unsavedChangesBody}</p>
+      <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <Button type="button" variant="secondary" onClick={() => setPendingNavigation(null)}>{copy.continueEditing}</Button>
+        <Button type="button" variant="secondary" onClick={() => continueNavigation(true)}>{copy.saveDraftAndLeave}</Button>
+        <Button type="button" variant="orange" onClick={() => continueNavigation(false)}>{copy.discardAndLeave}</Button>
+      </div>
+    </Modal>
+    </>
   );
 }
 
@@ -1584,6 +1614,13 @@ function hasUnsavedDraft(state: WizardState) {
     state.mileageKm ||
     state.priceAmount ||
     state.description.trim() ||
+    state.bodyType ||
+    state.driveType ||
+    state.color ||
+    state.engineVolumeL ||
+    state.damageState !== "unknown" ||
+    state.ownerCount ||
+    !state.priceNegotiable ||
     state.photos.length > 0
   );
 }
