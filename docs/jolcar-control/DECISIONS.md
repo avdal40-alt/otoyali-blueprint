@@ -89,7 +89,7 @@ Status values:
 | O-005 | DECIDED | Phone/SMS | Kazakhstan seller/account phone policy uses **+7**. First registration: OTP then mandatory password enrollment. Routine login: phone + password, no routine OTP. OTP remains for registration, recovery, phone change/additional verified contact, and genuinely sensitive actions. Production SMS vendor selection/activation is deferred to production rollout; keep provider abstraction. | Approved by user 2026-10-10. |
 | O-006 | DECIDED | Geo | Use a repository-versioned Kazakhstan region/city dataset for development and MVP. Keep the geo boundary replaceable/syncable so an approved official source can be adopted later without rewriting product logic. | Approved by user 2026-10-10. |
 | O-007 | DECIDED | Dealer verification | Kazakhstan dealer verification requires a Kazakhstan legal entity or registered individual entrepreneur, a verified business registration identifier (BIN/IIN as applicable), verified phone, dealer/trade name, city/location, and an authorized representative. Verification is granted by admin review. States: `pending / verified / rejected / suspended`. Identity-document scans are not required by default unless a later legal/anti-fraud rule explicitly requires them. | Approved by user 2026-10-10. |
-| O-008 | OPEN | Dealer import | Which feed formats and API auth are required at launch? | Blocks specific adapters. |
+| O-008 | DECIDED | Dealer feed/API | Launch dealer inventory ingestion supports XLSX upload, CSV UTF-8 upload, and HTTPS JSON API. API access uses a dealer-specific Bearer token available only to verified dealers; tokens are hashed at rest, inventory-scoped to that dealer, revocable/rotatable, rate-limited, and grant no administrative privileges. XML feeds, scheduled external feed pulls, and OAuth/client-credentials integrations are deferred and must remain replaceable future extensions rather than launch blockers. | Approved by user 2026-10-10. |
 | O-009 | DECIDED | Promotion | “Raise to top” uses a separate `raised_at` signal and never rewrites the true publication date. On MVP, each active listing gets one free raise every 7 days; after a raise it receives fresh placement in the standard ranking and then naturally moves down as newer/raised listings appear. Architecture may support future dealer entitlements/credits, but no payment flow is introduced. | Approved by user 2026-10-10. |
 | O-010 | DECIDED | Live | Amazon IVS is the initial approved Dealer Live provider behind a replaceable provider abstraction. Local contracts/adapter work is authorized; production account activation, credentials, paid usage, and live provider calls remain separately guarded. | Approved by user 2026-10-10. |
 | O-011 | OPEN | AI | Which external AI provider/model/cost limits are approved? | Blocks real provider activation. |
@@ -133,3 +133,31 @@ aised_at; MVP grants one free raise every 7 days per active listing; future deal
 - **Brand:** this batch does **not** rename Jolcar to JOLMOD. Branding remains unchanged until separately and explicitly approved.
 
 These decisions authorize local implementation/testing only. They do not authorize production deployment, remote migrations, provider credentials, paid provider calls, real SMS, DNS changes, or Git push.
+
+<!-- JOLCAR_APPROVED_D008_2026-10-10 -->
+## Approved dealer feed/API launch decision — 2026-10-10
+
+**O-008 / JLC-D008 — dealer inventory ingestion**
+
+Launch formats:
+- XLSX upload
+- CSV UTF-8 upload
+- HTTPS JSON API
+
+API authentication/security:
+- dealer-specific Bearer token
+- verified dealers only
+- token hashed at rest
+- scope restricted to that dealer's inventory
+- token revocable and rotatable
+- rate-limited
+- no administrative privileges
+
+Deferred beyond launch:
+- XML feed
+- scheduled external feed pull
+- OAuth/client-credentials integration
+
+The architecture must keep feed/provider boundaries replaceable so deferred formats can be added without redesigning dealer inventory ownership.
+
+This decision authorizes local implementation and testing only. It does not authorize production API exposure, production credentials, paid services, deployment, push, DNS changes, or remote migrations.
