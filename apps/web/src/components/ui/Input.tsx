@@ -76,7 +76,7 @@ export function Checkbox({
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & FieldStateProps & { label?: ReactNode }) {
   return (
-    <label className={cn("flex items-start gap-2 text-sm font-semibold text-oto-muted", className)}>
+    <label className={cn("flex min-h-11 items-start gap-2 text-base font-semibold text-oto-muted", className)}>
       <input
         type="checkbox"
         className="mt-0.5 h-4 w-4 rounded border-oto-border text-oto-accent focus:ring-2 focus:ring-oto-accent/15"
@@ -98,7 +98,7 @@ export function Radio({
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & FieldStateProps & { label?: ReactNode }) {
   return (
-    <label className={cn("flex items-start gap-2 text-sm font-semibold text-oto-muted", className)}>
+    <label className={cn("flex min-h-11 items-start gap-2 text-base font-semibold text-oto-muted", className)}>
       <input
         type="radio"
         className="mt-0.5 h-4 w-4 border-oto-border text-oto-accent focus:ring-2 focus:ring-oto-accent/15"
@@ -121,7 +121,7 @@ export function Toggle({
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & FieldStateProps & { label?: ReactNode }) {
   return (
-    <label className={cn("flex items-center gap-3 text-sm font-semibold text-oto-text", className)}>
+    <label className={cn("flex min-h-11 items-center gap-3 text-base font-semibold text-oto-text", className)}>
       <input type="checkbox" className="sr-only" checked={checked} aria-invalid={Boolean(error) || undefined} {...props} />
       <span className={cn("relative h-6 w-11 rounded-full transition", checked ? "bg-oto-accent" : "bg-oto-border")}>
         <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-soft transition", checked ? "left-5" : "left-0.5")} />
@@ -155,7 +155,7 @@ function FieldFrame({
 }
 
 function FieldMessage({ error, helperText }: { error?: string | null; helperText?: string | null }) {
-  if (error) return <span className="text-error text-oto-danger">{error}</span>;
+  if (error) return <span className="text-error text-oto-danger" role="alert">{error}</span>;
   if (helperText) return <span className="text-helper text-oto-muted">{helperText}</span>;
   return null;
 }

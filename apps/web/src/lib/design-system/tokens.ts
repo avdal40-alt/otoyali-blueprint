@@ -46,13 +46,13 @@ export const designTokens = {
       h3: ["1.25rem", { lineHeight: "1.25", fontWeight: "800" }],
       title: ["1rem", { lineHeight: "1.35", fontWeight: "800" }],
       subtitle: ["0.9375rem", { lineHeight: "1.6", fontWeight: "600" }],
-      body: ["0.875rem", { lineHeight: "1.65", fontWeight: "500" }],
+      body: ["1rem", { lineHeight: "1.65", fontWeight: "500" }],
       caption: ["0.75rem", { lineHeight: "1.45", fontWeight: "600" }],
       badge: ["0.75rem", { lineHeight: "1", fontWeight: "800" }],
       button: ["0.875rem", { lineHeight: "1", fontWeight: "800" }],
       label: ["0.75rem", { lineHeight: "1.35", fontWeight: "800" }],
-      helper: ["0.75rem", { lineHeight: "1.5", fontWeight: "600" }],
-      error: ["0.8125rem", { lineHeight: "1.5", fontWeight: "700" }]
+      helper: ["0.875rem", { lineHeight: "1.5", fontWeight: "600" }],
+      error: ["0.875rem", { lineHeight: "1.5", fontWeight: "700" }]
     }
   },
   spacing: {
