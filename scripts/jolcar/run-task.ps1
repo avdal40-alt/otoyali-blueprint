@@ -80,11 +80,30 @@ $dependencyLinks = @(
 
 foreach ($link in $dependencyLinks) {
   if ((Test-Path $link.Source) -and (-not (Test-Path $link.Target))) {
+    $effectiveSource = $link.Source
+
+    # If the integration repo itself uses a junction (for example Jolcar reusing
+    # the identical YOLMOD node_modules), point the task worktree directly at the
+    # final local target to avoid fragile junction chains.
+    try {
+      $sourceItem = Get-Item $link.Source -Force
+      if (
+        $sourceItem.LinkType -eq "Junction" -and
+        $sourceItem.Target -and
+        $sourceItem.Target.Count -gt 0 -and
+        (Test-Path ([string]$sourceItem.Target[0]))
+      ) {
+        $effectiveSource = [string]$sourceItem.Target[0]
+      }
+    } catch {
+      # Keep the original source if metadata inspection is unavailable.
+    }
+
     $parentDir = Split-Path $link.Target -Parent
     New-Item -ItemType Directory -Force $parentDir | Out-Null
 
     try {
-      New-Item -ItemType Junction -Path $link.Target -Target $link.Source -ErrorAction Stop | Out-Null
+      New-Item -ItemType Junction -Path $link.Target -Target $effectiveSource -ErrorAction Stop | Out-Null
       Write-Host ("Shared local dependency junction: " + $link.Label)
     } catch {
       throw (
@@ -120,12 +139,39 @@ foreach ($name in $credentialNames) {
   [Environment]::SetEnvironmentVariable($name, $null, "Process")
 }
 
+# The local Supabase CLI otherwise tries to write telemetry state under the
+# user's profile, which can be denied by the Codex workspace sandbox.
+[Environment]::SetEnvironmentVariable("SUPABASE_TELEMETRY_DISABLED", "1", "Process")
+
 $taskJson = $task | ConvertTo-Json -Depth 30
 
 if ($PreviousFailure) {
   $previousText = "PREVIOUS ATTEMPT EVIDENCE:`r`n" + $PreviousFailure
 } else {
   $previousText = "No previous failed attempt."
+}
+
+$runtimeEvidenceText = "LOCAL SUPABASE HOST PREFLIGHT: no current evidence file."
+$runtimeEvidencePath = Join-Path $runtime "local-supabase-readiness.json"
+if (Test-Path $runtimeEvidencePath) {
+  try {
+    $runtimeEvidence = Get-Content $runtimeEvidencePath -Raw -Encoding UTF8 | ConvertFrom-Json
+    $runtimeEvidenceText = @(
+      "LOCAL SUPABASE HOST PREFLIGHT (sanitized; no keys/secrets):",
+      ("- checked_at=" + [string]$runtimeEvidence.checked_at),
+      ("- running=" + [string]$runtimeEvidence.running),
+      ("- api_url=" + [string]$runtimeEvidence.api_url),
+      ("- auth_health_status=" + [string]$runtimeEvidence.auth_health_status),
+      ("- db_port=" + [string]$runtimeEvidence.db_port),
+      ("- db_port_reachable=" + [string]$runtimeEvidence.db_port_reachable),
+      ("- status_env_exit_code=" + [string]$runtimeEvidence.status_env_exit_code),
+      ("- config_unchanged=" + [string]$runtimeEvidence.config_unchanged),
+      "- The local stack is already running. Do not reset it, stop it, link a remote project, or change ports merely to discover runtime values.",
+      "- Independently verify from the Codex sandbox where acceptance criteria require it."
+    ) -join "`r`n"
+  } catch {
+    $runtimeEvidenceText = "LOCAL SUPABASE HOST PREFLIGHT: evidence file exists but could not be parsed."
+  }
 }
 
 $promptLines = @(
@@ -150,6 +196,8 @@ $promptLines = @(
   $taskJson,
   "",
   $previousText,
+  "",
+  $runtimeEvidenceText,
   "",
   "HARD RULES:",
   "- Local-only.",
