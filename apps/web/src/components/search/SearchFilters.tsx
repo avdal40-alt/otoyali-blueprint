@@ -143,8 +143,6 @@ export function SearchFilters({
   return (
     <div className="rounded-oto border border-oto-border bg-white p-4 shadow-soft">
       <div className="grid gap-4">
-        <Input value={filters.q} onChange={(event) => setValue("q", event.target.value)} placeholder={String(dictionary.common.search)} />
-
         <MultiSelectGroup
           label={String(dictionary.search.brand)}
           values={selectedValues(filters.make)}
@@ -163,27 +161,30 @@ export function SearchFilters({
           searchable
         />
 
-        <MultiSelectGroup
-          label={String(dictionary.search.city)}
-          values={selectedValues(filters.city)}
-          options={cities.map((city) => ({ value: city, label: cityLabel(city, locale) }))}
-          onToggle={(value) => toggleValue("city", value)}
-          emptyLabel={String(dictionary.search.allCities)}
-          searchable
-        />
-
         <div className="grid grid-cols-2 gap-2">
           <Input value={filters.priceMin} onChange={(event) => setValue("priceMin", event.target.value)} placeholder={String(dictionary.search.priceMin)} inputMode="numeric" />
           <Input value={filters.priceMax} onChange={(event) => setValue("priceMax", event.target.value)} placeholder={String(dictionary.search.priceMax)} inputMode="numeric" />
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder={String(dictionary.search.yearMin)} inputMode="numeric" />
-          <Input value={filters.yearMax} onChange={(event) => setValue("yearMax", event.target.value)} placeholder={String(dictionary.search.yearMax)} inputMode="numeric" />
-        </div>
-        <Input value={filters.mileageMax} onChange={(event) => setValue("mileageMax", event.target.value)} placeholder={String(dictionary.search.mileageMax)} inputMode="numeric" />
 
         {showAdvanced ? (
           <div className="grid gap-4 border-t border-oto-border pt-4">
+            <Input value={filters.q} onChange={(event) => setValue("q", event.target.value)} placeholder={String(dictionary.common.search)} />
+
+            <MultiSelectGroup
+              label={String(dictionary.search.city)}
+              values={selectedValues(filters.city)}
+              options={cities.map((city) => ({ value: city, label: cityLabel(city, locale) }))}
+              onToggle={(value) => toggleValue("city", value)}
+              emptyLabel={String(dictionary.search.allCities)}
+              searchable
+            />
+
+            <div className="grid grid-cols-2 gap-2">
+              <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder={String(dictionary.search.yearMin)} inputMode="numeric" />
+              <Input value={filters.yearMax} onChange={(event) => setValue("yearMax", event.target.value)} placeholder={String(dictionary.search.yearMax)} inputMode="numeric" />
+            </div>
+            <Input value={filters.mileageMax} onChange={(event) => setValue("mileageMax", event.target.value)} placeholder={String(dictionary.search.mileageMax)} inputMode="numeric" />
+
             <MultiSelectGroup
               label={String(dictionary.search.fuelType)}
               values={selectedValues(filters.fuelType)}

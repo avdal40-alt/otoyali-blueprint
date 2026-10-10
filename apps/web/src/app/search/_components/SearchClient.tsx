@@ -78,7 +78,12 @@ export function SearchClient({
   const showAdvancedFilters =
     filters.advanced ||
     Boolean(
-      filters.fuelType ||
+      filters.q ||
+        filters.city ||
+        filters.yearMin ||
+        filters.yearMax ||
+        filters.mileageMax ||
+        filters.fuelType ||
         filters.transmission ||
         filters.bodyType ||
         filters.driveType ||
@@ -173,7 +178,7 @@ export function SearchClient({
                   }}
                   className="h-10"
                 >
-                  {String(dictionary.search.advanced)}
+                  {locale === "en" ? "All filters" : "Tüm filtreler"}
                 </Button>
                 <SortSelect value={filters.sort} onChange={setSort} />
               </div>
