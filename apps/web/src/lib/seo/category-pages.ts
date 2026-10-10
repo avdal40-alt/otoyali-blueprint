@@ -1,4 +1,5 @@
 import type { MarketplaceSeoConfig } from "@/components/seo/MarketplaceSeoPage";
+import { ACTIVE_MARKET_SCOPE_LABEL } from "@/lib/market";
 
 export const usedCarsSeoConfig: MarketplaceSeoConfig = {
   path: "/ikinci-el-araba",
@@ -12,7 +13,7 @@ export const usedCarsSeoConfig: MarketplaceSeoConfig = {
   ],
   summary: [
     { label: "Durum", value: "İkinci el" },
-    { label: "Kapsam", value: "Türkiye" }
+    { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
   ],
   seoText: "İkinci el araba ilanları sayfası, aktif araçları marka, model, şehir ve teknik özelliklere göre keşfetmeniz için hazırlanmıştır. Daha ayrıntılı filtreler için arama sayfasını kullanabilirsiniz."
 };
@@ -29,7 +30,7 @@ export const newCarsSeoConfig: MarketplaceSeoConfig = {
   ],
   summary: [
     { label: "Durum", value: "Sıfır km" },
-    { label: "Kapsam", value: "Türkiye" }
+    { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
   ],
   seoText: "Sıfır kilometre araç ilanlarında marka, model, şehir ve fiyat seçeneklerini hızlıca karşılaştırabilirsiniz. Yolmod, yeni araç arama deneyimini sade ve filtrelenebilir tutar."
 };
@@ -46,7 +47,7 @@ export const electricCarsSeoConfig: MarketplaceSeoConfig = {
   ],
   summary: [
     { label: "Yakıt", value: "Elektrikli" },
-    { label: "Kapsam", value: "Türkiye" }
+    { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
   ],
   seoText: "Elektrikli araç ilanları, şehir içi kullanım ve düşük kullanım maliyeti arayan kullanıcılar için ayrı bir keşif alanı sunar. İlan detaylarında fiyat, yıl, kilometre ve teknik bilgileri karşılaştırabilirsiniz."
 };
@@ -63,7 +64,7 @@ export const automaticCarsSeoConfig: MarketplaceSeoConfig = {
   ],
   summary: [
     { label: "Vites", value: "Otomatik" },
-    { label: "Kapsam", value: "Türkiye" }
+    { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
   ],
   seoText: "Otomatik vites araç ilanları, konforlu sürüş ve şehir içi kullanım kolaylığı arayanlar için filtrelenmiş bir başlangıç noktasıdır. Daha fazla seçenek için arama sayfasındaki filtreleri kullanabilirsiniz."
 };
@@ -80,7 +81,7 @@ export const suvCarsSeoConfig: MarketplaceSeoConfig = {
   ],
   summary: [
     { label: "Kasa tipi", value: "SUV" },
-    { label: "Kapsam", value: "Türkiye" }
+    { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
   ],
   seoText: "SUV araç ilanları, geniş iç hacim ve yüksek sürüş pozisyonu arayan kullanıcılar için pratik bir keşif sayfasıdır. Marka, model, şehir ve fiyat filtreleriyle sonuçları daraltabilirsiniz."
 };

@@ -129,3 +129,9 @@ export const ACTIVE_MARKET_PROFILE = MARKET_PROFILES[ACTIVE_MARKET_PROFILE_KEY];
 // Compatibility alias for existing shared consumers. New code should use the
 // explicit profile name so country/brand dependencies stay visible.
 export const CURRENT_MARKET = ACTIVE_MARKET_PROFILE;
+
+export function getMarketScopeLabel(profile: MarketProfile = ACTIVE_MARKET_PROFILE) {
+  return profile.countryCode === "KZ" ? "Қазақстан" : "Türkiye";
+}
+
+export const ACTIVE_MARKET_SCOPE_LABEL = getMarketScopeLabel();

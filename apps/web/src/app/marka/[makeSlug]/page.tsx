@@ -3,6 +3,7 @@ import { MarketplaceSeoPage, type MarketplaceSeoConfig } from "@/components/seo/
 import { getSeoCatalog, findMakeBySlug } from "@/lib/seo/catalog";
 import { makeSeoSlug } from "@/lib/seo/slugs";
 import { buildSeoMetadata } from "@/lib/seo/metadata";
+import { ACTIVE_MARKET_SCOPE_LABEL } from "@/lib/market";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -54,7 +55,7 @@ export default async function MakeSeoPage({ params }: PageProps) {
     ],
     summary: [
       { label: "Marka", value: make.make_name },
-      { label: "Kapsam", value: "Türkiye" }
+      { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
     ],
     seoText: `${make.make_name} araba ilanları sayfası, aktif araçları model, fiyat, yıl, kilometre ve şehir bilgilerine göre keşfetmeniz için hazırlanmıştır. Daha fazla filtre için arama sayfasına geçebilirsiniz.`
   };
