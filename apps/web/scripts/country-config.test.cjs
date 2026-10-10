@@ -1,0 +1,58 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const ts = require("typescript");
+
+const projectRoot = path.resolve(__dirname, "..");
+const read = (...parts) => fs.readFileSync(path.join(projectRoot, ...parts), "utf8");
+
+function loadTypeScriptModule(source, fileName) {
+  const output = ts.transpileModule(source, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    fileName
+  }).outputText;
+  const module = { exports: {} };
+  new Function("exports", "module", "require", output)(module.exports, module, require);
+  return module.exports;
+}
+
+const market = loadTypeScriptModule(read("src", "lib", "market.ts"), "market.ts");
+const metadataSource = read("src", "lib", "seo", "metadata.ts");
+const layoutSource = read("src", "app", "layout.tsx");
+const footerSource = read("src", "components", "layout", "MarketplaceFooter.tsx");
+
+assert.deepEqual(Object.keys(market.MARKET_PROFILES), ["yolmodTurkey", "jolcarKazakhstan"]);
+assert.equal(market.ACTIVE_MARKET_PROFILE_KEY, "yolmodTurkey");
+assert.strictEqual(market.CURRENT_MARKET, market.ACTIVE_MARKET_PROFILE);
+
+assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
+  id: "turkey",
+  countryCode: "TR",
+  brandName: "Yolmod",
+  siteUrl: "https://yolmod.com",
+  currencyCode: "TRY",
+  defaultPhoneCountry: "TR",
+  status: "active"
+});
+assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
+  id: "kazakhstan",
+  countryCode: "KZ",
+  brandName: "Jolcar",
+  siteUrl: null,
+  currencyCode: "KZT",
+  defaultPhoneCountry: "KZ",
+  status: "planned"
+});
+assert.notEqual(market.MARKET_PROFILES.yolmodTurkey.countryCode, market.MARKET_PROFILES.jolcarKazakhstan.countryCode);
+assert.equal(metadataSource.includes('"https://yolmod.com"'), false, "SEO must not independently hardcode the active host");
+assert.equal(metadataSource.includes('"Yolmod"'), false, "SEO must not independently hardcode the active brand");
+assert.match(metadataSource, /ACTIVE_MARKET_PROFILE\.siteUrl/);
+assert.match(metadataSource, /ACTIVE_MARKET_PROFILE\.brandName/);
+for (const [fileName, source] of [["layout", layoutSource], ["footer", footerSource]]) {
+  assert.match(source, /ACTIVE_MARKET_PROFILE\.brandName/, `${fileName} must consume the active brand profile`);
+  assert.equal(source.includes('"Yolmod"'), false, `${fileName} must not independently hardcode the active brand`);
+}
+assert.equal(layoutSource.includes('"https://yolmod.com"'), false, "Root metadata must not independently hardcode the active host");
+assert.match(layoutSource, /ACTIVE_MARKET_PROFILE\.siteUrl/);
+
+console.log("Country/brand configuration tests passed.");

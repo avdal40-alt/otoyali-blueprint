@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { ACTIVE_MARKET_PROFILE } from "@/lib/market";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function MarketplaceFooter() {
   const { locale, dictionary } = useI18n();
   const groups = [
     {
-      title: "Yolmod",
+      title: ACTIVE_MARKET_PROFILE.brandName,
       links: [
         { href: "/about", label: String(dictionary.footer.about) },
         { href: "/trust", label: String(dictionary.footer.trustCenter) },
@@ -48,7 +49,7 @@ export function MarketplaceFooter() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 md:grid-cols-[1.2fr_2fr] md:px-6 lg:px-8">
         <div>
           <Link href={localizePath("/", locale)} className="text-xl font-black tracking-tight text-oto-text">
-            Yolmod
+            {ACTIVE_MARKET_PROFILE.brandName}
           </Link>
           <p className="mt-3 max-w-sm text-sm leading-6 text-oto-muted">
             {String(dictionary.footer.description)}

@@ -3,16 +3,17 @@ import { I18nProvider } from "@/i18n/client";
 import { getLocaleDirection, getLocaleTag } from "@/i18n/config";
 import { getClientDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
+import { ACTIVE_MARKET_PROFILE } from "@/lib/market";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://yolmod.com"),
+  metadataBase: new URL(ACTIVE_MARKET_PROFILE.siteUrl),
   title: {
-    default: "Yolmod - Türkiye'nin akıllı araç pazarı",
-    template: "%s | Yolmod"
+    default: `${ACTIVE_MARKET_PROFILE.brandName} - Türkiye'nin akıllı araç pazarı`,
+    template: `%s | ${ACTIVE_MARKET_PROFILE.brandName}`
   },
   description: "Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.",
-  applicationName: "Yolmod",
+  applicationName: ACTIVE_MARKET_PROFILE.brandName,
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -24,16 +25,16 @@ export const metadata: Metadata = {
     apple: "/brand/apple-touch-icon.png"
   },
   openGraph: {
-    title: "Yolmod",
+    title: ACTIVE_MARKET_PROFILE.brandName,
     description: "Türkiye'nin akıllı araç pazarı.",
-    url: "https://yolmod.com",
-    siteName: "Yolmod",
+    url: ACTIVE_MARKET_PROFILE.siteUrl,
+    siteName: ACTIVE_MARKET_PROFILE.brandName,
     locale: "tr_TR",
     type: "website"
   },
   appleWebApp: {
     capable: true,
-    title: "Yolmod",
+    title: ACTIVE_MARKET_PROFILE.brandName,
     statusBarStyle: "default"
   }
 };
