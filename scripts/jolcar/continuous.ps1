@@ -89,6 +89,83 @@ function Assert-SafeTaskPaths {
   }
 }
 
+
+function Get-ResultDiagnosticText {
+  param($Result)
+
+  $parts = @(
+    [string]$Result.stop_reason,
+    [string]$Result.summary
+  )
+
+  foreach ($entry in @($Result.evidence)) {
+    if (-not $entry) { continue }
+    $parts += [string]$entry
+
+    if (Test-Path ([string]$entry)) {
+      try {
+        $parts += (Get-Content ([string]$entry) -Raw -Encoding UTF8)
+      } catch {
+        # Diagnostic enrichment only; never fail the runner for an unreadable log.
+      }
+    }
+  }
+
+  return ($parts -join "`r`n")
+}
+
+function Test-UsageLimitText {
+  param([string]$Text)
+
+  if (-not $Text) { return $false }
+
+  return (
+    $Text -match "(?i)you.?ve hit your usage limit" -or
+    $Text -match "(?i)usage limit" -or
+    $Text -match "(?i)purchase more credits" -or
+    $Text -match "(?i)try again at\s+\d{1,2}:\d{2}\s*(AM|PM)"
+  )
+}
+
+function Get-UsageResetDateTime {
+  param([string]$Text)
+
+  if (-not $Text) { return $null }
+
+  $match = [regex]::Match(
+    $Text,
+    "(?i)try again at\s+(\d{1,2}:\d{2}\s*(?:AM|PM))"
+  )
+
+  if (-not $match.Success) { return $null }
+
+  try {
+    $timeOnly = [DateTime]::ParseExact(
+      $match.Groups[1].Value.ToUpperInvariant(),
+      "h:mm tt",
+      [System.Globalization.CultureInfo]::InvariantCulture
+    )
+
+    $now = Get-Date
+    $reset = Get-Date `
+      -Year $now.Year `
+      -Month $now.Month `
+      -Day $now.Day `
+      -Hour $timeOnly.Hour `
+      -Minute $timeOnly.Minute `
+      -Second 0
+
+    if ($reset -le $now) {
+      $reset = $reset.AddDays(1)
+    }
+
+    # Small safety margin so the very first retry is not a few seconds early.
+    return $reset.AddMinutes(2)
+  } catch {
+    return $null
+  }
+}
+
 & (Join-Path $PSScriptRoot "preflight.ps1") -RepoRoot $RepoRoot
 if ($LASTEXITCODE -ne 0) { exit 1 }
 
@@ -203,6 +280,7 @@ while ($true) {
   $taskId = [string]$nextTask.id
   $previousFailure = ""
   $taskPassed = $false
+  $taskPausedForUsageLimit = $false
 
   for ($attempt = 1; $attempt -le $MaxRepairAttempts; $attempt++) {
     $attemptedThisRun++
@@ -230,6 +308,51 @@ while ($true) {
 
     if ([string]$result.task_id -ne $taskId) {
       throw ("Task result ID mismatch. Expected " + $taskId + ", got " + [string]$result.task_id)
+    }
+
+    $diagnosticText = Get-ResultDiagnosticText -Result $result
+    if (Test-UsageLimitText -Text $diagnosticText) {
+      $resetAt = Get-UsageResetDateTime -Text $diagnosticText
+
+      if ($resetAt) {
+        $seconds = [int][Math]::Ceiling(($resetAt - (Get-Date)).TotalSeconds)
+        if ($seconds -lt 1) { $seconds = 1 }
+
+        Write-Warning (
+          "Codex usage limit reached. This is NOT a task failure. " +
+          "Runner will wait until " + $resetAt.ToString("yyyy-MM-dd HH:mm:ss") +
+          " and retry the same task without consuming a repair attempt."
+        )
+
+        Start-Sleep -Seconds $seconds
+
+        # The for-loop increments at the end of the iteration. Decrement here so
+        # the retry keeps the same logical repair-attempt number.
+        $attempt--
+        continue
+      }
+
+      $deferred += [pscustomobject]@{
+        task_id = $taskId
+        kind = "USAGE_LIMIT"
+        at = (Get-Date).ToString("o")
+        reason = "Codex usage limit reached and reset time could not be parsed. Task was not marked blocked."
+      }
+
+      $state = [pscustomobject]@{
+        schema_version = 1
+        started_at = $state.started_at
+        updated_at = (Get-Date).ToString("o")
+        completed = @($completed)
+        deferred = @($deferred)
+        blocked = @($blocked)
+        last_integrated_head = ((& git -C $RepoRoot rev-parse HEAD).Trim())
+      }
+      Save-Json -Object $state -Path $statePath
+
+      Write-Warning "Usage limit detected without a parseable reset time. Pausing the autonomous run without blocking the task."
+      $taskPausedForUsageLimit = $true
+      break
     }
 
     if ([string]$result.status -eq "PASS") {
@@ -334,7 +457,7 @@ while ($true) {
     Write-Warning ($taskId + " attempt " + $attempt + " did not PASS. A fresh repair attempt will be launched if allowed.")
   }
 
-  if (-not $taskPassed) {
+  if ((-not $taskPassed) -and (-not $taskPausedForUsageLimit)) {
     $blocked += [pscustomobject]@{
       task_id = $taskId
       permanent = $true
@@ -355,6 +478,10 @@ while ($true) {
   }
 
   Save-Json -Object $state -Path $statePath
+
+  if ($taskPausedForUsageLimit) {
+    break
+  }
 }
 
 $pending = @()
@@ -364,8 +491,18 @@ foreach ($task in $tasks) {
   }
 }
 
+$hasUsageLimitDeferred = $false
+foreach ($entry in $deferred) {
+  if ([string]$entry.kind -eq "USAGE_LIMIT") {
+    $hasUsageLimitDeferred = $true
+    break
+  }
+}
+
 if ($pending.Count -eq 0) {
   $overallStatus = "LOCAL_QUEUE_COMPLETE"
+} elseif ($hasUsageLimitDeferred) {
+  $overallStatus = "PAUSED_USAGE_LIMIT"
 } elseif ($blocked.Count -gt 0) {
   $overallStatus = "LOCAL_PROGRESS_WITH_BLOCKERS"
 } else {
