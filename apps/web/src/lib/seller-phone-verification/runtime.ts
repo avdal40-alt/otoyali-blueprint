@@ -37,6 +37,7 @@ export async function startSellerPhoneVerification(input: { userId: string; phon
   const reserved = await service.rpc<{ challenge_id: string; outcome: string; retry_after_seconds: number | null }>("reserve_seller_phone_verification_challenge_service", { p_user_id: input.userId, p_phone_e164: phone });
   const challenge = row(reserved.data);
   if (reserved.error || !challenge) return unavailable();
+  if (challenge.outcome === "active_contact_limit") return { ok: false, status: 429, code: "active_contact_limit" };
   if (challenge.outcome === "rate_limited") return { ok: false, status: 429, code: "rate_limited", retryAfterSeconds: challenge.retry_after_seconds ?? undefined };
   if (challenge.outcome !== "reserved" || !challenge.challenge_id) return unavailable();
   const sent = await provider.start(phone);
