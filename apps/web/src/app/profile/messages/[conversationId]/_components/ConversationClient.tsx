@@ -30,7 +30,23 @@ export function ConversationClient({ conversationId }: { conversationId: string 
   const [pendingSafety, setPendingSafety] = useState(false);
   const session = async () => hasSupabaseEnv() ? (await getSupabaseBrowserClient().auth.getSession()).data.session : null;
   const load = async (older = false) => { setError(false); const activeSession = await session(); if (!activeSession) return setError(true); const query = older && before ? `?limit=50&beforeAt=${encodeURIComponent(before.at)}&beforeId=${before.id}` : "?limit=50"; try { const [response, stateResponse] = await Promise.all([fetch(`/api/conversations/${conversationId}/messages${query}`, { cache: "no-store", headers: { Authorization: `Bearer ${activeSession.access_token}` } }), older ? Promise.resolve(null) : fetch(`/api/conversations/${conversationId}/block`, { cache: "no-store", headers: { Authorization: `Bearer ${activeSession.access_token}` } })]); const payload = await response.json() as { data?: Message[] }; const statePayload = stateResponse ? await stateResponse.json() as { data?: { blocked?: boolean } } : null; if (!response.ok || !Array.isArray(payload.data) || (stateResponse && (!stateResponse.ok || typeof statePayload?.data?.blocked !== "boolean"))) throw new Error("messages unavailable"); if (statePayload) setBlocked(statePayload.data!.blocked!); const ordered = [...payload.data].reverse(); setMessages((current) => older ? [...ordered, ...(current ?? [])] : ordered); const oldest = ordered[0]; setBefore(oldest ? { at: oldest.createdAt, id: oldest.messageId } : null); if (!older && payload.data.length) await fetch(`/api/conversations/${conversationId}/read`, { method: "POST", cache: "no-store", headers: { "content-type": "application/json", Authorization: `Bearer ${activeSession.access_token}` }, body: JSON.stringify({ messageId: payload.data[0].messageId }) }); } catch { setError(true); } };
-  useEffect(() => { void load(); }, [conversationId]);
+  useEffect(() => {
+    void load();
+
+    const refresh = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+
+    const timer = window.setInterval(refresh, 5_000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [conversationId]);
   async function authenticatedRequest(path: string, method: "POST" | "DELETE", body?: object) { const activeSession = await session(); if (!activeSession) return false; const response = await fetch(path, { method, cache: "no-store", headers: { "content-type": "application/json", Authorization: `Bearer ${activeSession.access_token}` }, body: body ? JSON.stringify(body) : undefined }); return response.ok; }
   async function send(event: FormEvent) { event.preventDefault(); if (sending || blocked) return; if (!text.trim() || Array.from(text).length>2000) { setFeedback(String(copy.invalidMessage)); return; } const activeSession = await session(); if (!activeSession) { setError(true); return; } setSending(true); setFeedback(null); try { const response = await fetch(`/api/conversations/${conversationId}/messages`, { method: "POST", cache: "no-store", headers: { "content-type": "application/json", Authorization: `Bearer ${activeSession.access_token}` }, body: JSON.stringify({ text }) }); if (!response.ok) { if (response.status === 404 && messages !== null) { setBlocked(true); setFeedback(String(copy.blocked)); return; } throw new Error("send unavailable"); } setText(""); await load(); } catch { setFeedback(String(copy.unavailable)); } finally { setSending(false); } }
   async function confirmBlockAction() { if (!safetyAction) return; setPendingSafety(true); setFeedback(null); const isBlock = safetyAction === "block"; const success = await authenticatedRequest(`/api/conversations/${conversationId}/block`, isBlock ? "POST" : "DELETE"); setPendingSafety(false); if (!success) { setFeedback(String(copy.safetyError)); return; } setBlocked(isBlock); setSafetyAction(null); setFeedback(String(isBlock ? copy.blockedSuccess : copy.unblockedSuccess)); }
