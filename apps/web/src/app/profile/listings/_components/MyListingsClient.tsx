@@ -34,6 +34,7 @@ type MyListing = {
   cover_image_url?: string | null;
   media_processed_status?: string | null;
 };
+type ListingAnalytics = { views: number; contact_intents: number; favorites: number; messages: number };
 
 const MAX_VIDEO_SIZE_BYTES = 100 * 1024 * 1024;
 const ALLOWED_VIDEO_TYPES = new Set(["video/mp4", "video/webm", "video/quicktime"]);
@@ -70,6 +71,7 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
   const [videoUploading, setVideoUploading] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
   const [videoSuccess, setVideoSuccess] = useState<string | null>(null);
+  const [analytics, setAnalytics] = useState<Record<string, ListingAnalytics>>({});
 
   const loadListings = useCallback(async function loadListings() {
     const loadGeneration = ++listingLoadGeneration.current;
@@ -112,6 +114,8 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
       }
 
       const listingRows = (data ?? []) as MyListing[];
+      const { data: analyticsRows } = await supabase.rpc("list_own_seller_analytics");
+      setAnalytics(Object.fromEntries(((analyticsRows ?? []) as Array<ListingAnalytics & { listing_id: string }>).map((row) => [row.listing_id, row])));
       const profileIds = listingRows.map((item) => item.vehicle_profile_id).filter(Boolean);
       if (profileIds.length === 0) {
         setItems(listingRows);
@@ -367,6 +371,13 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
                   </span>
                 ) : null}
               </div>
+              {analytics[item.id] ? (
+                <section aria-label={copy.analyticsTitle} className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {([[copy.analyticsViews, analytics[item.id].views], [copy.analyticsContacts, analytics[item.id].contact_intents], [copy.analyticsFavorites, analytics[item.id].favorites], [copy.analyticsMessages, analytics[item.id].messages]] as const).map(([label, value]) => (
+                    <div key={label} className="rounded-md bg-oto-surface p-2 text-center"><p className="text-lg font-black text-oto-text">{value}</p><p className="text-[11px] font-bold text-oto-muted">{label}</p></div>
+                  ))}
+                </section>
+              ) : null}
               {workflow.body ? (
                 <p className="mt-3 rounded-md bg-oto-surface p-3 text-sm font-semibold leading-6 text-oto-muted">{workflow.body}</p>
               ) : null}

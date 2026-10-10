@@ -58,7 +58,13 @@ const tr = {
   listingStateChanged: "İlan durumu değişti. Sayfayı yenileyip tekrar deneyin.",
   invalidAction: "Bu ilan işlemi geçerli değil.",
   mutationFailure: "İlan durumu güncellenemedi. Lütfen tekrar deneyin.",
-  loadFailure: "İlanlarınız yüklenemedi. Lütfen tekrar deneyin."
+  loadFailure: "İlanlarınız yüklenemedi. Lütfen tekrar deneyin.",
+  analyticsTitle: "İlan performansı",
+  analyticsViews: "Görüntülenme",
+  analyticsContacts: "İletişim ilgisi",
+  analyticsFavorites: "Favoriler",
+  analyticsMessages: "Mesajlar",
+  analyticsUnavailable: "Performans verileri şu anda kullanılamıyor."
 };
 
 const en: typeof tr = {
@@ -118,7 +124,13 @@ const en: typeof tr = {
   listingStateChanged: "This listing state changed. Refresh the page and try again.",
   invalidAction: "This listing action is not valid.",
   mutationFailure: "Listing status could not be updated. Please try again.",
-  loadFailure: "Your listings could not be loaded. Please try again."
+  loadFailure: "Your listings could not be loaded. Please try again.",
+  analyticsTitle: "Listing performance",
+  analyticsViews: "Views",
+  analyticsContacts: "Contact intent",
+  analyticsFavorites: "Favorites",
+  analyticsMessages: "Messages",
+  analyticsUnavailable: "Performance data is temporarily unavailable."
 };
 
 export type MyListingsCopy = typeof tr;
