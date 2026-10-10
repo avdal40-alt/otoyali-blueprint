@@ -1,4 +1,4 @@
-# JOLCAR / YOLMOD DECISIONS LOG
+﻿# JOLCAR / YOLMOD DECISIONS LOG
 
 **Version:** 1.0  
 **Prepared:** 2026-10-10
@@ -82,12 +82,12 @@ Status values:
 
 | ID | Status | Area | Question | Blocking impact |
 |---|---|---|---|---|
-| O-001 | OPEN | Localization | Which locales are required for Jolcar Kazakhstan launch? | Blocks final localized copy/SEO. |
-| O-002 | OPEN | Brand/domain | What is the final Jolcar domain/host and brand kit? | Blocks domain/SEO cutover. |
-| O-003 | OPEN | Design | Final accent color? | Blocks final visual brand lock, not core logic. |
-| O-004 | OPEN | Design | Final listing-card ratio: 4:3 or 3:2 if current UI is not already accepted? | Blocks final card design lock. |
-| O-005 | OPEN | Phone/SMS | Exact Kazakhstan seller phone policy and production SMS provider? | Blocks production OTP activation. |
-| O-006 | OPEN | Geo | Approved Kazakhstan cities/geo source if repo lacks one? | Blocks final location dataset. |
+| O-001 | DECIDED | Localization | Kazakhstan launch locales are **kk-KZ, ru-KZ, and en**. All three are launch languages across primary user journeys, system copy/notifications, and SEO/meta where applicable. | Approved by user 2026-10-10. |
+| O-002 | DECIDED | Brand/domain | Kazakhstan brand is **Jolcar / Жолкар**, launched as a standalone country product on the shared multi-country architecture. Exact production domain/host is explicitly deferred to the DNS/release gate and must not block core development. | Approved by user 2026-10-10. |
+| O-003 | DECIDED | Design | Accent color remains a configurable design token. Exact final accent value is explicitly deferred and must not block implementation or QA of core flows. | Approved by user 2026-10-10. |
+| O-004 | DECIDED | Design | Final listing-card image ratio is **4:3**. | Approved by user 2026-10-10. |
+| O-005 | DECIDED | Phone/SMS | Kazakhstan seller/account phone policy uses **+7**. First registration: OTP then mandatory password enrollment. Routine login: phone + password, no routine OTP. OTP remains for registration, recovery, phone change/additional verified contact, and genuinely sensitive actions. Production SMS vendor selection/activation is deferred to production rollout; keep provider abstraction. | Approved by user 2026-10-10. |
+| O-006 | DECIDED | Geo | Use a repository-versioned Kazakhstan region/city dataset for development and MVP. Keep the geo boundary replaceable/syncable so an approved official source can be adopted later without rewriting product logic. | Approved by user 2026-10-10. |
 | O-007 | OPEN | Dealer verification | What documents/criteria make a Kazakhstan dealer verified? | Blocks production verification policy. |
 | O-008 | OPEN | Dealer import | Which feed formats and API auth are required at launch? | Blocks specific adapters. |
 | O-009 | OPEN | Promotion | How does “Raise to top” work: entitlement, frequency, duration, ranking? | Blocks promotion behavior. |
@@ -98,10 +98,24 @@ Status values:
 | O-014 | OPEN | Analytics | Which production analytics/telemetry vendor is approved? | Blocks vendor-specific telemetry. |
 | O-015 | OPEN | Legal/support | Final Kazakhstan legal/privacy/terms/support content and owner? | Blocks final production launch gate. |
 | O-016 | OPEN | Native apps | Must native iOS/Android launch with first public web release or afterward? | Does not block web unless user reclassifies. |
-| O-017 | OPEN | News | Which approved/licensed/editorial automotive news source should Jolcar use? | Blocks external news ingestion, not the news UI/domain foundation. |
+| O-017 | DECIDED | News | Launch news with original/editorial content or content with explicit permission/license only. **No automated scraping of third-party media.** External ingestion/provider integration is deferred until separately approved. | Approved by user 2026-10-10. |
 
 ## Historical implementation note
 
 Historical YOLMOD audits/commits indicate many reusable capabilities already exist or partially exist, including browse/search/detail, listing lifecycle, moderation, favorites, saved searches, media security, messaging work, seller-contact work and an AI foundation.
 
 **No Jolcar task is complete from this evidence alone.** The Jolcar baseline audit must confirm current Git and tests before reuse.
+
+<!-- JOLCAR_APPROVED_DECISIONS_2026-10-10 -->
+## Approved Jolcar launch decisions — 2026-10-10
+
+- **Locales:** kk-KZ, ru-KZ, en are all launch languages.
+- **Brand:** Jolcar / Жолкар for Kazakhstan; standalone country launch on shared multi-country architecture.
+- **Domain:** exact production host is deferred to the guarded DNS/release gate.
+- **Design:** listing cards use 4:3; accent remains a configurable token and final accent lock is non-blocking.
+- **Phone/Auth:** +7; first registration OTP -> mandatory password; routine login phone + password; OTP only for registration/recovery/phone-change/additional-contact/sensitive actions.
+- **SMS:** provider abstraction remains; production vendor selection and activation are deferred to production rollout.
+- **Geo:** repository-versioned Kazakhstan city/region data for MVP, behind a replaceable source boundary.
+- **News:** original/editorial or explicitly licensed/permitted content only; no automated scraping; external ingestion deferred.
+
+These decisions authorize local implementation and testing only. They do not authorize production deployment, external provider activation, DNS changes, remote migrations, real SMS, scraping, or paid provider calls.

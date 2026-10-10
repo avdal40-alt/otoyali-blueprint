@@ -172,6 +172,42 @@ function Get-UsageResetDateTime {
   }
 }
 
+
+function Test-DecisionRefsResolved {
+  param(
+    [string]$DecisionRef,
+    [string]$DecisionFile
+  )
+
+  if ([string]::IsNullOrWhiteSpace($DecisionRef)) {
+    return $false
+  }
+
+  if (-not (Test-Path -LiteralPath $DecisionFile -PathType Leaf)) {
+    return $false
+  }
+
+  $text = Get-Content -LiteralPath $DecisionFile -Raw -Encoding UTF8
+  $refs = @(
+    $DecisionRef -split '/' |
+      ForEach-Object { $_.Trim() } |
+      Where-Object { $_ }
+  )
+
+  if ($refs.Count -eq 0) {
+    return $false
+  }
+
+  foreach ($ref in $refs) {
+    $pattern = "(?m)^\|\s*" + [regex]::Escape($ref) + "\s*\|\s*(DECIDED|APPROVED)\s*\|"
+    if ($text -notmatch $pattern) {
+      return $false
+    }
+  }
+
+  return $true
+}
+
 & (Join-Path $PSScriptRoot "preflight.ps1") -RepoRoot $RepoRoot
 if ($LASTEXITCODE -ne 0) { exit 1 }
 
@@ -239,16 +275,49 @@ while ($true) {
         at = (Get-Date).ToString("o")
         reason = "Explicit user authorization required; autonomous runner will not execute it."
       }
-    } elseif (($task.requires_user_decision -eq $true) -and (-not $alreadyDeferred)) {
-      $deferred += [pscustomobject]@{
-        task_id = $gateId
-        kind = "USER_DECISION"
-        at = (Get-Date).ToString("o")
-        decision_ref = $task.decision_ref
-        reason = "Unresolved decision gate. Runner continues independent tasks."
+    } elseif ($task.requires_user_decision -eq $true) {
+      $decisionFile = Join-Path $RepoRoot "docs\jolcar-control\DECISIONS.md"
+
+      if (Test-DecisionRefsResolved -DecisionRef ([string]$task.decision_ref) -DecisionFile $decisionFile) {
+        if (-not (Contains-Id -Items $completed -Id $gateId)) {
+          $completed += $gateId
+          Write-Host (
+            "DECISION GATE RESOLVED FROM DECISIONS.md: " +
+            $gateId + " -> " + [string]$task.decision_ref
+          )
+        }
+
+        # Remove stale USER_DECISION deferrals for an explicitly decided gate.
+        $deferred = @(
+          $deferred | Where-Object {
+            [string]$_.task_id -ne $gateId
+          }
+        )
+      } elseif (-not $alreadyDeferred) {
+        $deferred += [pscustomobject]@{
+          task_id = $gateId
+          kind = "USER_DECISION"
+          at = (Get-Date).ToString("o")
+          decision_ref = $task.decision_ref
+          reason = "Unresolved decision gate. Runner continues independent tasks."
+        }
       }
     }
   }
+
+  # Persist resolved decision gates even when no ordinary implementation task
+  # becomes runnable in this loop. This makes DECISIONS.md the durable source of
+  # truth while state.json remains the fast runtime cache.
+  $state = [pscustomobject]@{
+    schema_version = 1
+    started_at = $state.started_at
+    updated_at = (Get-Date).ToString("o")
+    completed = @($completed)
+    deferred = @($deferred)
+    blocked = @($blocked)
+    last_integrated_head = ((& git -C $RepoRoot rev-parse HEAD).Trim())
+  }
+  Save-Json -Object $state -Path $statePath
 
   $nextTask = $null
   foreach ($task in $tasks) {
