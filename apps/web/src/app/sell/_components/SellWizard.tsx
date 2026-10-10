@@ -886,8 +886,29 @@ export function SellWizard({
     }
 
     const listingId = createResult.data.listingId;
-    // Draft persistence is deliberately a terminal action. Moderation requires
-    // the separate owner action available from My Listings.
+    setPublishStatus(copy.submittingForModeration);
+    let submitError: unknown;
+    try {
+      const submitResult = await listingWriteRequest(getSupabaseBrowserClient(), `/api/listings/${listingId}/submit`, "POST", {});
+      submitError = submitResult.error;
+    } catch (submitRequestError) {
+      if (!isCurrentPublication()) return;
+      logClientError("sell.submitListing", submitRequestError);
+      setSubmitting(false);
+      setPublishStatus(null);
+      setError(copy.submitFailure);
+      return;
+    }
+
+    if (!isCurrentPublication()) return;
+    if (submitError) {
+      logClientError("sell.submitListing", submitError);
+      setSubmitting(false);
+      setPublishStatus(null);
+      setError(copy.submitFailure);
+      return;
+    }
+
     clearStoredDraft(userId);
     state.photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
     setSubmitting(false);
