@@ -7,9 +7,12 @@
   --oto-bg: #ffffff;
   --oto-surface: #f7f8fa;
   --oto-surface-raised: #ffffff;
+  --oto-surface-muted: #f1f5f9;
   --oto-text: #111111;
+  --oto-text-soft: #374151;
   --oto-muted: #6b7280;
   --oto-border: #e5e7eb;
+  --oto-border-strong: #cbd5e1;
   /* Supplied by the active brand config; no accent decision is embedded here. */
   --brand-accent: initial;
   --brand-accent-strong: initial;
@@ -21,6 +24,9 @@
   --oto-danger: #dc2626;
   --oto-info: #0ea5e9;
   --oto-skeleton: #eef2f7;
+  --oto-hover: #f3f6fa;
+  --oto-disabled: #e5e7eb;
+  --oto-focus-color: #93c5fd;
   --oto-focus: 0 0 0 3px color-mix(in srgb, var(--brand-accent) 16%, transparent);
   background: var(--oto-bg);
 }
@@ -30,9 +36,16 @@
   --oto-bg: #0b1220;
   --oto-surface: #111827;
   --oto-surface-raised: #172033;
+  --oto-surface-muted: #1e293b;
   --oto-text: #f9fafb;
+  --oto-text-soft: #e2e8f0;
   --oto-muted: #94a3b8;
   --oto-border: #1f2937;
+  --oto-border-strong: #334155;
+  --oto-skeleton: #1e293b;
+  --oto-hover: #243044;
+  --oto-disabled: #334155;
+  --oto-focus-color: #93c5fd;
 }
 
 * {
