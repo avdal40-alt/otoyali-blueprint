@@ -58,7 +58,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
               event.preventDefault();
               switchLocale(candidate);
             }}
-            className="rounded-full px-2 py-1 text-oto-muted hover:bg-oto-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-oto-blue"
+            className="flex min-h-11 items-center rounded-full px-2 py-1 text-oto-muted hover:bg-oto-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-oto-blue"
             hrefLang={candidate}
             lang={candidate}
           >

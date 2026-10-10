@@ -46,6 +46,7 @@ html {
 
 body {
   min-height: 100%;
+  overflow-x: hidden;
   margin: 0;
   background: var(--oto-bg);
   color: var(--oto-text);
@@ -64,6 +65,7 @@ input,
 select,
 textarea {
   font: inherit;
+  max-width: 100%;
 }
 
 :focus-visible {

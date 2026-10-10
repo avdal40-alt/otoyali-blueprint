@@ -20,7 +20,7 @@ export function MobileBottomNav() {
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
-            <Link key={tab.href} href={localizePath(tab.href, locale)} className="flex flex-col items-center justify-center gap-1 text-[11px] font-bold text-oto-muted">
+            <Link key={tab.href} href={localizePath(tab.href, locale)} className="flex min-w-0 min-h-16 flex-col items-center justify-center gap-1 px-1 text-center text-[11px] font-bold leading-tight text-oto-muted">
               <span className={tab.cta ? "text-oto-orange" : "text-oto-blue"}>
                 <Icon />
               </span>

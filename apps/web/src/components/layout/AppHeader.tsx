@@ -64,11 +64,11 @@ export function AppHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <LanguageSwitcher className="md:inline-flex" />
-          <Link href={isAuthed ? localizePath("/notifications", locale) : `${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/notifications", locale))}`} className="relative rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={unreadCount > 0 ? `${String(dictionary.navigation.notifications)} (${unreadCount})` : String(dictionary.navigation.notifications)}>
+          <Link href={isAuthed ? localizePath("/notifications", locale) : `${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/notifications", locale))}`} className="relative flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={unreadCount > 0 ? `${String(dictionary.navigation.notifications)} (${unreadCount})` : String(dictionary.navigation.notifications)}>
             <BellIcon />
             {isAuthed && unreadCount > 0 ? <span className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-oto-orange px-1 text-center text-[10px] font-black leading-4 text-white" aria-hidden="true">{unreadCount > 99 ? "99+" : unreadCount}</span> : null}
           </Link>
-          <Link href={isAuthed ? profilePath : loginProfilePath} className="rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={String(dictionary.navigation.profile)}>
+          <Link href={isAuthed ? profilePath : loginProfilePath} className="flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={String(dictionary.navigation.profile)}>
             <UserIcon />
           </Link>
           <ButtonLink href={localizePath("/sell", locale)} variant="orange" className="hidden md:inline-flex">

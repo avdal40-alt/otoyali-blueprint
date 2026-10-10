@@ -15,7 +15,7 @@ const variantClass: Record<ButtonVariant, string> = {
 };
 
 const sizeClass: Record<ButtonSize, string> = {
-  sm: "h-9 gap-1.5 rounded-button px-3 text-xs",
+  sm: "min-h-11 gap-1.5 rounded-button px-3 text-xs",
   md: "h-11 gap-2 rounded-button px-4 text-sm",
   lg: "h-12 gap-2.5 rounded-button px-5 text-base"
 };
@@ -31,7 +31,7 @@ type BaseProps = {
 };
 
 const baseClass =
-  "inline-flex shrink-0 items-center justify-center font-bold transition duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oto-accent/15 disabled:cursor-not-allowed disabled:opacity-disabled aria-disabled:pointer-events-none aria-disabled:opacity-disabled";
+  "inline-flex min-w-11 shrink-0 items-center justify-center font-bold transition duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oto-accent/15 disabled:cursor-not-allowed disabled:opacity-disabled aria-disabled:pointer-events-none aria-disabled:opacity-disabled";
 
 export function Button({
   children,

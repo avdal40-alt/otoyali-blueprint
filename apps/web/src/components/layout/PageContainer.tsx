@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 export function PageContainer({ children, className }: { children: ReactNode; className?: string }) {
-  return <main className={cn("container w-full max-w-[1180px] pb-24 pt-4", className)}>{children}</main>;
+  return <main className={cn("container min-w-0 w-full max-w-[1180px] pb-24 pt-4", className)}>{children}</main>;
 }
 
 export function PageBand({ children, className }: { children: ReactNode; className?: string }) {
