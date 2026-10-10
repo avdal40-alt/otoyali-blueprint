@@ -1,5 +1,13 @@
 # OTOYALI Developer Documentation
 
+> **Jolcar governance notice (2026-10-10):** These are implementation and
+> historical OTOYALI references, not Jolcar product authority. Jolcar planning
+> and task selection follow the repository [MASTER_PLAN](../../../docs/jolcar-control/MASTER_PLAN.md),
+> [TASK_QUEUE](../../../docs/jolcar-control/TASK_QUEUE.json), and
+> [DECISIONS](../../../docs/jolcar-control/DECISIONS.md). Read the
+> [documentation reconciliation](../../../docs/jolcar-control/DOCUMENTATION_RECONCILIATION.md)
+> before applying country, auth, provider, or product-scope statements here.
+
 This folder is the developer handoff index for the code-first OTOYALI web MVP.
 
 OTOYALI is an AI-first transport marketplace for Turkey. The current web product is guest-first: users can browse, search, view listings, watch OTOYALI Video, read SEO/legal pages, and reach login only when an action needs identity.

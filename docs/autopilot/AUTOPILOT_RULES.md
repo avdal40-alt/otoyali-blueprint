@@ -1,5 +1,12 @@
 # Yolmod autopilot rules
 
+> **Jolcar governance notice (2026-10-10):** These rules govern the historical
+> YOLMOD autopilot flow. They do not choose Jolcar work or override the
+> repository [MASTER_PLAN](../jolcar-control/MASTER_PLAN.md),
+> [TASK_QUEUE](../jolcar-control/TASK_QUEUE.json), or
+> [DECISIONS](../jolcar-control/DECISIONS.md). See the
+> [documentation reconciliation](../jolcar-control/DOCUMENTATION_RECONCILIATION.md).
+
 ## Interactive and continuous modes
 
 Interactive manual mode may execute at most three approved, dependency-ordered implementation stages. Each stage equals one ordinary commit; multiple stages must never share a commit. Continuous supervised mode uses `scripts/autopilot/continuous.ps1`, which starts a fresh `codex exec` for exactly one stage at a time and may continue indefinitely while its independent gates pass. A new run and every continuation must proceed from repository sources alone: Git, `AUTOPILOT_STATE.md`, the V1 Product Spec, this Roadmap, code/tests/migrations, durable contracts, and the relevant skill. Previous thread messages, remembered output, invisible session state, and unsupported automation/UI interaction are never inputs.

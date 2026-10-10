@@ -1,5 +1,12 @@
 # OTOYALI — Product Vision
 
+> **Jolcar governance notice (2026-10-10):** This is historical OTOYALI/Turkey
+> product prose. It cannot approve Jolcar scope or override the repository
+> [MASTER_PLAN](./docs/jolcar-control/MASTER_PLAN.md),
+> [TASK_QUEUE](./docs/jolcar-control/TASK_QUEUE.json), and
+> [DECISIONS](./docs/jolcar-control/DECISIONS.md). See the
+> [documentation reconciliation](./docs/jolcar-control/DOCUMENTATION_RECONCILIATION.md).
+
 **Version:** 1.0.0  
 **Domain:** [otoyali.com](https://otoyali.com)  
 **Classification:** Internal — Strategic  
@@ -328,4 +335,5 @@ Each vertical shares: listings, search, messaging, payments, reviews — but has
 
 ---
 
-*This document is the single source of truth for OTOYALI product direction. All engineering decisions must align with this vision.*
+*Historical OTOYALI reference only. Jolcar product authority is defined by the
+repository-local control documents linked above.*

@@ -1,5 +1,13 @@
 # OTOYALI — Technical Blueprint
 
+> **Jolcar governance notice (2026-10-10):** This is a legacy OTOYALI/Turkey
+> blueprint, not the source of product authority for Jolcar. For Jolcar work,
+> use [MASTER_PLAN](./docs/jolcar-control/MASTER_PLAN.md),
+> [TASK_QUEUE](./docs/jolcar-control/TASK_QUEUE.json), and
+> [DECISIONS](./docs/jolcar-control/DECISIONS.md) in that order. See the
+> [documentation reconciliation](./docs/jolcar-control/DOCUMENTATION_RECONCILIATION.md)
+> before relying on historical scope or provider statements.
+
 **Domain:** [otoyali.com](https://otoyali.com)  
 **Version:** 1.0.0  
 **Last Updated:** 2026-06-29
@@ -77,4 +85,5 @@ Phone OTP (primary) · MFA for dealers (Phase 2)
 
 ---
 
-*This blueprint is the single source of truth for OTOYALI technical foundation. All implementation must align with these documents.*
+*Historical OTOYALI technical reference only. Jolcar planning and implementation
+scope follow the repository-local control documents linked above.*

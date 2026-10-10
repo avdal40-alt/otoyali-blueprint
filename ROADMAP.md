@@ -1,5 +1,12 @@
 # OTOYALI — Product & Engineering Roadmap
 
+> **Jolcar governance notice (2026-10-10):** This historical OTOYALI roadmap
+> does not order or approve Jolcar work. Use the repository
+> [MASTER_PLAN](./docs/jolcar-control/MASTER_PLAN.md),
+> [TASK_QUEUE](./docs/jolcar-control/TASK_QUEUE.json), and
+> [DECISIONS](./docs/jolcar-control/DECISIONS.md) instead. See the
+> [documentation reconciliation](./docs/jolcar-control/DOCUMENTATION_RECONCILIATION.md).
+
 **Version:** 1.0.0  
 **Classification:** Internal — Strategic  
 **Last Updated:** 2026-07-19
