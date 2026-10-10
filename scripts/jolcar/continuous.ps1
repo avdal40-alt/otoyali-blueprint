@@ -284,6 +284,53 @@ while ($true) {
   if (($MaxTasks -gt 0) -and ($attemptedThisRun -ge $MaxTasks)) { break }
 
   $taskId = [string]$nextTask.id
+
+  # --------------------------------------------------------------
+  # TIER 0 — NO AI
+  # Run deterministic host-side recovery/index/checks before Codex.
+  # It may auto-complete only a strict same-HEAD verified no-change PASS.
+  # All semantic/implementation uncertainty falls through to Codex.
+  # --------------------------------------------------------------
+  $tier0 = $null
+  try {
+    $tier0Json = & (Join-Path $PSScriptRoot "precheck-task.ps1") `
+      -RepoRoot $RepoRoot `
+      -TaskId $taskId
+
+    if ($tier0Json) {
+      $tier0 = $tier0Json | ConvertFrom-Json
+    }
+  } catch {
+    Write-Warning (
+      "Tier-0 precheck failed nonfatally for " + $taskId +
+      ". Falling back to Codex. " + $_.Exception.Message
+    )
+  }
+
+  if ($tier0 -and [string]$tier0.decision -eq "PASS") {
+    Write-Host ""
+    Write-Host ("TIER 0 NO-AI PASS: " + $taskId)
+    Write-Host ([string]$tier0.reason)
+
+    if (-not (Contains-Id -Items $completed -Id $taskId)) {
+      $completed += $taskId
+    }
+
+    $state = [pscustomobject]@{
+      schema_version = 1
+      started_at = $state.started_at
+      updated_at = (Get-Date).ToString("o")
+      completed = @($completed)
+      deferred = @($deferred)
+      blocked = @($blocked)
+      last_integrated_head = ((& git -C $RepoRoot rev-parse HEAD).Trim())
+    }
+    Save-Json -Object $state -Path $statePath
+
+    # Do not increment attemptedThisRun because no Codex call was made.
+    continue
+  }
+
   $previousFailure = ""
   $taskPassed = $false
   $taskPausedForUsageLimit = $false
@@ -405,7 +452,7 @@ while ($true) {
         }
         $message = $taskId + ": " + $subject
 
-        & git -C $meta.TaskWorktree commit -m $message | Out-Host
+        & git -C $meta.TaskWorktree -c gc.auto=0 -c maintenance.auto=false commit -m $message | Out-Host
         if ($LASTEXITCODE -ne 0) {
           $previousFailure = "Outer orchestrator could not commit verified task changes."
           continue
@@ -420,7 +467,7 @@ while ($true) {
         $commit = ((& git -C $meta.TaskWorktree rev-parse HEAD).Trim())
         Write-Host ("Integrating orchestrator-owned PASS commit " + $commit)
 
-        & git -C $RepoRoot cherry-pick $commit | Out-Host
+        & git -C $RepoRoot -c gc.auto=0 -c maintenance.auto=false cherry-pick $commit | Out-Host
         if ($LASTEXITCODE -ne 0) {
           throw "Cherry-pick conflict or integration failure. Safety stop."
         }

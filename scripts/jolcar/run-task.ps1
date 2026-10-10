@@ -204,13 +204,52 @@ if ($needsLocalSupabase) {
   }
 }
 
+$hostPrecheckText = "HOST_PRECHECK: none"
+$precheckPath = Join-Path (Join-Path $runtime "precheck") ($TaskId + ".json")
+if (Test-Path -LiteralPath $precheckPath -PathType Leaf) {
+  try {
+    $precheck = Get-Content -LiteralPath $precheckPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ([string]$precheck.head -eq $baseHead) {
+      $fileHints = @($precheck.candidate_files | Select-Object -First 10)
+      $checkHints = @()
+
+      foreach ($check in @($precheck.checks | Select-Object -First 4)) {
+        if ($check.script) {
+          $piece = [string]$check.script + "=" + [string]$check.status
+          if ($check.tail) {
+            $tail = [string]$check.tail
+            if ($tail.Length -gt 500) {
+              $tail = $tail.Substring(0,500) + "...[truncated]"
+            }
+            $piece += "(" + ($tail -replace '[\r\n]+',' ') + ")"
+          }
+          $checkHints += $piece
+        } elseif ($check.status) {
+          $checkHints += ([string]$check.status)
+        }
+      }
+
+      $hostPrecheckText = (
+        "HOST_PRECHECK: files=[" + ($fileHints -join ", ") + "]; " +
+        "checks=[" + ($checkHints -join "; ") + "]. " +
+        "Use these hints first. Do not repeat a PASS host check unless your edits can affect it."
+      )
+    }
+  } catch {
+    $hostPrecheckText = "HOST_PRECHECK: unavailable (nonfatal parse issue)."
+  }
+}
+
 $promptLines = @(
   "JOLCAR TASK " + $TaskId + " | attempt " + $Attempt + " | head " + $baseHead,
   "",
   "Do exactly ONE task. Work local-only.",
-  "Read repository AGENTS.md and docs/jolcar-control/AGENTS.md only if present, then inspect only files/tests directly relevant to this task.",
-  "Do NOT read MASTER_PLAN.md, DECISIONS.md, ROADMAP, or broad documentation unless the task itself is ambiguous after inspecting relevant code. The queue definition below is authoritative for this task.",
-  "Use targeted search/reads. Do not inventory the repository. Do not narrate your work.",
+  "Honor repository AGENTS instructions if Codex loads them automatically. Do not re-read broad project docs unless a concrete ambiguity remains.",
+  "Do NOT read MASTER_PLAN.md, DECISIONS.md, ROADMAP, or perform a repository inventory by default. The queue definition below is authoritative for this task.",
+  $hostPrecheckText,
+  "READ BUDGET BEFORE FIRST EDIT: use HOST_PRECHECK files first; at most 2 repo-wide searches and at most 8 file reads. Prefer targeted line ranges/grep over whole-file reads. Exceed only when the task cannot be solved safely otherwise, and state why in evidence.",
+  "For likely no-change tasks: run/inspect the narrowest proof first. If HOST_PRECHECK already passed a relevant check and you make no affecting edits, reuse that evidence instead of repeating it.",
+  "Do not narrate your work.",
   "",
   "TASK=" + $taskJson,
   "",
