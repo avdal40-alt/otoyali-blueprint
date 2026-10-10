@@ -11,6 +11,42 @@
 
 $ErrorActionPreference = "Stop"
 
+function Quote-NativeArg {
+  param([string]$Value)
+
+  if ($null -eq $Value) { return '""' }
+  if ($Value -notmatch '[\s"]') { return $Value }
+
+  # Windows command-line quoting for arguments passed directly to CreateProcess.
+  $escaped = $Value -replace '(\\*)"', '$1$1\"'
+  $escaped = $escaped -replace '(\\+)$', '$1$1'
+  return '"' + $escaped + '"'
+}
+
+function Get-RedactedTail {
+  param(
+    [string]$Text,
+    [int]$MaxChars = 1600
+  )
+
+  if ([string]::IsNullOrWhiteSpace($Text)) {
+    return ""
+  }
+
+  # Do not persist or print token-like values even from local test stderr.
+  $safe = $Text
+  $safe = [regex]::Replace($safe, 'sb_secret_[A-Za-z0-9_-]+', '[REDACTED_SUPABASE_SECRET]')
+  $safe = [regex]::Replace($safe, 'sb_publishable_[A-Za-z0-9_-]+', '[REDACTED_SUPABASE_KEY]')
+  $safe = [regex]::Replace($safe, '(?i)(service[_-]?role|anon)[^\r\n:=]{0,20}[:=]\s*[A-Za-z0-9._-]{20,}', '$1=[REDACTED]')
+  $safe = [regex]::Replace($safe, 'postgresql://[^@\s]+@', 'postgresql://[REDACTED]@')
+
+  if ($safe.Length -gt $MaxChars) {
+    $safe = "...[tail] " + $safe.Substring($safe.Length - $MaxChars)
+  }
+
+  return ($safe -replace '[\r\n]+', ' ').Trim()
+}
+
 function Run-ProcessSafe {
   param(
     [string]$FilePath,
@@ -18,12 +54,6 @@ function Run-ProcessSafe {
     [string]$WorkingDirectory,
     [int]$TimeoutSeconds = 300
   )
-
-  $runtime = Join-Path $RepoRoot ".jolcar-runtime"
-  New-Item -ItemType Directory -Force $runtime | Out-Null
-  $stamp = Get-Date -Format "yyyyMMdd-HHmmssfff"
-  $stdout = Join-Path $runtime ("host-verify-" + $stamp + ".stdout.tmp")
-  $stderr = Join-Path $runtime ("host-verify-" + $stamp + ".stderr.tmp")
 
   $secretNames = @(
     "SUPABASE_ACCESS_TOKEN",
@@ -43,36 +73,81 @@ function Run-ProcessSafe {
   [Environment]::SetEnvironmentVariable("SUPABASE_TELEMETRY_DISABLED", "1", "Process")
 
   try {
-    $p = Start-Process `
-      -FilePath $FilePath `
-      -ArgumentList $ArgumentList `
-      -WorkingDirectory $WorkingDirectory `
-      -RedirectStandardOutput $stdout `
-      -RedirectStandardError $stderr `
-      -NoNewWindow `
-      -PassThru
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $FilePath
+    $psi.WorkingDirectory = $WorkingDirectory
+    $psi.UseShellExecute = $false
+    $psi.CreateNoWindow = $true
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.Arguments = (($ArgumentList | ForEach-Object { Quote-NativeArg ([string]$_) }) -join " ")
+
+    $p = New-Object System.Diagnostics.Process
+    $p.StartInfo = $psi
+
+    if (-not $p.Start()) {
+      return [pscustomobject]@{
+        passed = $false
+        exit_code = $null
+        reason = "process did not start"
+        tail = ""
+      }
+    }
+
+    # Read both streams asynchronously to avoid stdout/stderr pipe deadlocks.
+    $stdoutTask = $p.StandardOutput.ReadToEndAsync()
+    $stderrTask = $p.StandardError.ReadToEndAsync()
 
     $finished = $p.WaitForExit($TimeoutSeconds * 1000)
     if (-not $finished) {
       try { $p.Kill() } catch {}
+      try { $p.WaitForExit() } catch {}
+
+      $outText = ""
+      $errText = ""
+      try { $outText = $stdoutTask.Result } catch {}
+      try { $errText = $stderrTask.Result } catch {}
+
       return [pscustomobject]@{
         passed = $false
         exit_code = $null
         reason = "timeout"
+        tail = (Get-RedactedTail (($outText + "`n" + $errText).Trim()))
       }
     }
 
+    # Required on some Windows/.NET combinations before ExitCode is reliable.
     $p.WaitForExit()
+    $p.Refresh()
+
+    $stdoutText = ""
+    $stderrText = ""
+    try { $stdoutText = $stdoutTask.Result } catch {}
+    try { $stderrText = $stderrTask.Result } catch {}
+
+    $exitCode = [int]$p.ExitCode
+    $tail = ""
+    if ($exitCode -ne 0) {
+      $tail = Get-RedactedTail (($stdoutText + "`n" + $stderrText).Trim())
+    }
+
     return [pscustomobject]@{
-      passed = ($p.ExitCode -eq 0)
-      exit_code = $p.ExitCode
-      reason = $(if ($p.ExitCode -eq 0) { "PASS" } else { "exit " + $p.ExitCode })
+      passed = ($exitCode -eq 0)
+      exit_code = $exitCode
+      reason = $(if ($exitCode -eq 0) { "PASS" } else { "exit " + $exitCode })
+      tail = $tail
+    }
+  } catch {
+    return [pscustomobject]@{
+      passed = $false
+      exit_code = $null
+      reason = ("process exception: " + $_.Exception.Message)
+      tail = ""
     }
   } finally {
     foreach ($name in $secretNames) {
       [Environment]::SetEnvironmentVariable($name, $old[$name], "Process")
     }
-    Remove-Item -LiteralPath $stdout,$stderr -Force -ErrorAction SilentlyContinue
   }
 }
 
@@ -162,7 +237,7 @@ foreach ($req in $requests) {
     }
 
     $r = Run-ProcessSafe -FilePath $npm.Source -ArgumentList @("run",$scriptName) -WorkingDirectory $webRoot
-    $checks += [pscustomobject]@{ command = "npm run " + $scriptName; passed = $r.passed; reason = $r.reason }
+    $checks += [pscustomobject]@{ command = "npm run " + $scriptName; passed = $r.passed; reason = $r.reason; tail = $r.tail }
     if (-not $r.passed) { $allPassed = $false }
   }
 
@@ -204,7 +279,7 @@ foreach ($req in $requests) {
     # `node apps/web/scripts/...`. Keep that cwd so process.cwd()-based fixtures
     # and config resolution behave exactly like the normal test command.
     $r = Run-ProcessSafe -FilePath $node.Source -ArgumentList @($full) -WorkingDirectory $TaskWorktree
-    $checks += [pscustomobject]@{ command = "node " + $relative; passed = $r.passed; reason = $r.reason }
+    $checks += [pscustomobject]@{ command = "node " + $relative; passed = $r.passed; reason = $r.reason; tail = $r.tail }
     if (-not $r.passed) { $allPassed = $false }
   }
 }

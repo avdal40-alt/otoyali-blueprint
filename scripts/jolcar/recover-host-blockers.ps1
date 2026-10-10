@@ -290,6 +290,9 @@ foreach ($taskId in $TaskIds) {
           " | passed=" + [string]$check.passed +
           " | " + [string]$check.reason
         )
+        if ($check.tail) {
+          Write-Host ("    TAIL: " + [string]$check.tail)
+        }
       }
       $summary += [pscustomobject]@{ task_id=$taskId; recovered=$false; detail=[string]$hostResult.reason }
       continue
