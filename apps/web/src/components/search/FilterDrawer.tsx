@@ -2,6 +2,7 @@
 
 import type { Make, Model } from "@/lib/supabase/types";
 import { Input, Select } from "@/components/ui/Input";
+import { getLocationDataset } from "@/lib/location";
 
 export type SearchFilters = {
   q: string;
@@ -29,6 +30,8 @@ export function FilterDrawer({
   onChange: (filters: SearchFilters) => void;
 }) {
   const filteredModels = filters.make ? models.filter((model) => (model.make_name ?? "") === filters.make) : models;
+  const locationDataset = getLocationDataset();
+  const cityOptions = locationDataset.status === "available" ? Object.entries(locationDataset.dataset.cityAliases) : [];
 
   function setValue(key: keyof SearchFilters, value: string) {
     onChange({
@@ -60,14 +63,9 @@ export function FilterDrawer({
         </Select>
         <Select value={filters.city} onChange={(event) => setValue("city", event.target.value)}>
           <option value="">Şehir</option>
-          {[
-            { value: "Istanbul", label: "İstanbul" },
-            { value: "Ankara", label: "Ankara" },
-            { value: "Izmir", label: "İzmir" },
-            { value: "Antalya", label: "Antalya" }
-          ].map((city) => (
-            <option key={city.value} value={city.value}>
-              {city.label}
+          {cityOptions.map(([id, label]) => (
+            <option key={id} value={id}>
+              {label}
             </option>
           ))}
         </Select>

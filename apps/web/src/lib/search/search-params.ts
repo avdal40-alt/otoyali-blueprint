@@ -1,10 +1,12 @@
+import type { LocationIdentifier } from "@/lib/location";
+
 export type SortOption = "newest" | "price_asc" | "price_desc" | "year_desc" | "mileage_asc";
 
 export type ListingSearchFilters = {
   q: string;
   make: string;
   model: string;
-  city: string;
+  city: LocationIdentifier;
   priceMin: string;
   priceMax: string;
   yearMin: string;

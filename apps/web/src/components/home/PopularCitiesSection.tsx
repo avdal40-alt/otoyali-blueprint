@@ -5,10 +5,10 @@ import { citySeoSlug } from "@/lib/seo/slugs";
 import { getDictionary, interpolate } from "@/i18n/get-dictionary";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
-
-const priority = ["İstanbul", "Ankara", "İzmir", "Antalya", "Bursa", "Adana", "Konya", "Gaziantep"];
+import { getPreferredCityNames } from "@/lib/location";
 
 export function PopularCitiesSection({ cities, locale = "tr" }: { cities: City[]; locale?: Locale }) {
+  const priority = getPreferredCityNames();
   const dictionary = getDictionary(locale);
   const cityLinks = [...cities]
     .sort((a, b) => {

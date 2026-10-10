@@ -3,6 +3,7 @@ import { t } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 import { CURRENT_MARKET } from "@/lib/market";
 import type { CurrencyPlacement, MarketProfile } from "@/lib/market";
+import { getCityLabel } from "@/lib/location";
 
 export function formatCurrency(amount?: number | null, currency: string | null | undefined = CURRENT_MARKET.currencyCode, locale?: string | null, market: MarketProfile = CURRENT_MARKET) {
   const normalizedLocale = resolveFormatLocale(locale);
@@ -115,16 +116,7 @@ export function colorLabel(value?: string | null, locale?: string | null) {
 
 export function cityLabel(value?: string | null, locale?: string | null) {
   const normalizedLocale = resolveFormatLocale(locale);
-  const labels: Record<string, string> = {
-    Istanbul: "İstanbul",
-    İstanbul: "İstanbul",
-    Izmir: "İzmir",
-    İzmir: "İzmir",
-    Ankara: "Ankara",
-    Antalya: "Antalya"
-  };
-
-  return value ? labels[value] ?? value : t(normalizedLocale, "format.locationUnknown");
+  return value ? getCityLabel(value) : t(normalizedLocale, "format.locationUnknown");
 }
 
 export function titleCase(value: string) {

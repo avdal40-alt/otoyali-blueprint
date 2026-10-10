@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 import type { AuthenticatedRequestSupabase } from "@/lib/supabase/request";
+import type { LocationIdentifier } from "@/lib/location";
 
 export const listingIdSchema = z.string().uuid();
 
@@ -11,6 +12,7 @@ const transmissionTypes = ["automatic", "manual", "semi_automatic"] as const;
 const driveTypes = ["front", "rear", "awd", "4x4"] as const;
 const damageStates = ["unknown", "none", "minor", "major", "painted", "replaced", "heavy_damage"] as const;
 const imageMimeTypes = ["image/jpeg", "image/png", "image/webp"] as const;
+const locationNameSchema = z.string().trim().min(1).max(120).transform((value): LocationIdentifier => value);
 
 /** Canonical safe listing fields shared by server-side draft workflows. */
 export const listingFields = {
@@ -31,7 +33,7 @@ export const listingFields = {
   priceAmount: z.string().regex(/^[1-9][0-9]{0,18}$/),
   currency: z.string().regex(/^[A-Z]{3}$/),
   priceNegotiable: z.boolean(),
-  city: z.string().trim().min(1).max(120)
+  city: locationNameSchema
 } as const;
 
 const validEngineVolume = (value: { fuelType: string; engineVolumeL: number | null }, context: z.RefinementCtx) => {

@@ -17,6 +17,9 @@ function loadTypeScriptModule(source, fileName, dependencies = {}) {
 }
 
 const market = loadTypeScriptModule(read("src", "lib", "market.ts"), "market.ts");
+const location = loadTypeScriptModule(read("src", "lib", "location.ts"), "location.ts", {
+  "@/lib/market": market
+});
 const format = loadTypeScriptModule(read("src", "lib", "format.ts"), "format.ts", {
   "@/i18n/config": {
     DEFAULT_LOCALE: "tr",
@@ -25,7 +28,8 @@ const format = loadTypeScriptModule(read("src", "lib", "format.ts"), "format.ts"
   "@/i18n/get-dictionary": {
     t: (locale, key) => key === "format.priceNotProvided" ? (locale === "en" ? "Price not provided" : "Fiyat belirtilmedi") : "Bilgi yok"
   },
-  "@/lib/market": market
+  "@/lib/market": market,
+  "@/lib/location": location
 });
 
 const turkey = market.MARKET_PROFILES.yolmodTurkey;
