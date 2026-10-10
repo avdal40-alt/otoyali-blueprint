@@ -1,4 +1,5 @@
 import "server-only";
+import { CURRENT_MARKET } from "@/lib/market";
 
 export type ProviderStart = { kind: "sent"; reference: string } | { kind: "not_configured" | "rate_limited" | "unavailable" };
 export type ProviderCheck = "approved" | "rejected" | "expired" | "unavailable" | "not_configured";
@@ -13,4 +14,4 @@ export function createTwilioVerifyProvider(fetcher: typeof fetch = fetch): Selle
   };
 }
 export function createDeterministicSellerPhoneVerificationProvider(code="123456"): SellerPhoneVerificationProvider { let n=0; return { async start(){return {kind:"sent",reference:`test-${++n}`};}, async check(_phone,input){return input===code?"approved":"rejected";} }; }
-export function getSellerPhoneVerificationProvider(): SellerPhoneVerificationProvider | null { if(process.env.SELLER_PHONE_VERIFICATION_PROVIDER!=="twilio_verify") return null; return createTwilioVerifyProvider(); }
+export function getSellerPhoneVerificationProvider(): SellerPhoneVerificationProvider | null { const policy = CURRENT_MARKET.phonePolicy.sellerContacts; if (!policy.enabled || policy.verificationProvider !== "twilio_verify" || process.env.SELLER_PHONE_VERIFICATION_PROVIDER !== policy.verificationProvider) return null; return createTwilioVerifyProvider(); }

@@ -40,6 +40,17 @@ assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
     currencyPlacementByLocale: { en: "prefix" }
   },
   defaultPhoneCountry: "TR",
+  phonePolicy: {
+    login: { allowedCountries: "any" },
+    sellerContacts: {
+      enabled: true,
+      allowedCountries: ["TR"],
+      verificationPurpose: "turkey_seller_contact",
+      verificationProvider: "twilio_verify",
+      callingCode: "+90",
+      nationalPlaceholder: "555 123 45 67"
+    }
+  },
   status: "active"
 });
 assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
@@ -55,6 +66,10 @@ assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
     defaultCurrencyPlacement: "suffix"
   },
   defaultPhoneCountry: "KZ",
+  phonePolicy: {
+    login: { allowedCountries: "any" },
+    sellerContacts: { enabled: false }
+  },
   status: "planned"
 });
 assert.notEqual(market.MARKET_PROFILES.yolmodTurkey.countryCode, market.MARKET_PROFILES.jolcarKazakhstan.countryCode);

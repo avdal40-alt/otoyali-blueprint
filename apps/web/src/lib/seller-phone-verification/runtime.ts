@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 import { maskE164Phone, parseAuthPhoneNumber } from "@/lib/auth/phone";
+import { CURRENT_MARKET } from "@/lib/market";
 import { getSellerPhoneVerificationProvider, type SellerPhoneVerificationProvider } from "@/lib/seller-phone-verification/provider";
 
 type RpcResult<T> = PromiseLike<{ data: T | null; error: { code?: string; message?: string } | null }>;
@@ -10,10 +11,12 @@ export type SellerPhoneVerificationFailure = { ok: false; status: number; code: 
 type StartSuccess = { ok: true; challengeId: string; expiresAt: string; maskedPhone: string; status: "sent" };
 type VerifySuccess = { ok: true; status: "verified" };
 
-export function normalizeTurkeySellerPhone(value: unknown): string | null {
+export function normalizeSellerContactPhone(value: unknown): string | null {
   if (typeof value !== "string" || !value.trim().startsWith("+")) return null;
-  const parsed = parseAuthPhoneNumber(value, "TR");
-  return parsed.ok && parsed.country === "TR" && /^\+90[1-9][0-9]{9}$/.test(parsed.e164) ? parsed.e164 : null;
+  const policy = CURRENT_MARKET.phonePolicy.sellerContacts;
+  if (!policy.enabled) return null;
+  const parsed = parseAuthPhoneNumber(value, CURRENT_MARKET.defaultPhoneCountry);
+  return parsed.ok && (policy.allowedCountries as readonly string[]).includes(parsed.country) ? parsed.e164 : null;
 }
 
 function serviceClient(): SellerPhoneVerificationService | null {
@@ -26,7 +29,7 @@ function row<T>(value: T | T[] | null): T | null { return Array.isArray(value) ?
 function unavailable(): SellerPhoneVerificationFailure { return { ok: false, status: 503, code: "verification_unavailable" }; }
 
 export async function startSellerPhoneVerification(input: { userId: string; phone: unknown; service?: SellerPhoneVerificationService | null; provider?: SellerPhoneVerificationProvider | null }): Promise<StartSuccess | SellerPhoneVerificationFailure> {
-  const phone = normalizeTurkeySellerPhone(input.phone);
+  const phone = normalizeSellerContactPhone(input.phone);
   if (!phone) return { ok: false, status: 422, code: "invalid_phone" };
   const service = input.service ?? serviceClient();
   const provider = input.provider ?? getSellerPhoneVerificationProvider();
@@ -51,7 +54,8 @@ export async function verifySellerPhoneVerification(input: { userId: string; cha
   const fetched = await service.rpc<{ phone_e164: string; purpose: string; provider: string; provider_reference: string | null; status: string; expires_at: string }>("get_seller_phone_verification_challenge_service", { p_user_id: input.userId, p_challenge_id: input.challengeId });
   const challenge = row(fetched.data);
   if (fetched.error) return unavailable();
-  if (!challenge || challenge.purpose !== "turkey_seller_contact" || challenge.provider !== "twilio_verify" || challenge.status !== "sent" || !challenge.provider_reference || Date.parse(challenge.expires_at) <= Date.now()) return { ok: false, status: 409, code: "challenge_unavailable" };
+  const policy = CURRENT_MARKET.phonePolicy.sellerContacts;
+  if (!policy.enabled || !challenge || challenge.purpose !== policy.verificationPurpose || challenge.provider !== policy.verificationProvider || challenge.status !== "sent" || !challenge.provider_reference || Date.parse(challenge.expires_at) <= Date.now()) return { ok: false, status: 409, code: "challenge_unavailable" };
   const checked = await provider.check(challenge.phone_e164, input.code);
   if (checked === "unavailable" || checked === "not_configured") return unavailable();
   if (checked !== "approved") return { ok: false, status: 422, code: "invalid_code" };

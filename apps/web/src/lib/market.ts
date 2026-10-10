@@ -11,6 +11,19 @@ export type MarketProfile = {
   currencyCode: "TRY" | "KZT";
   formatting: MarketFormatting;
   defaultPhoneCountry: "TR" | "KZ";
+  phonePolicy: {
+    login: { allowedCountries: "any" | readonly ("TR" | "KZ")[] };
+    sellerContacts:
+      | { enabled: false }
+      | {
+          enabled: true;
+          allowedCountries: readonly ("TR" | "KZ")[];
+          verificationPurpose: string;
+          verificationProvider: string;
+          callingCode: string;
+          nationalPlaceholder: string;
+        };
+  };
   status: "active" | "planned";
 };
 
@@ -45,6 +58,19 @@ export const MARKET_PROFILES = {
       currencyPlacementByLocale: { en: "prefix" }
     },
     defaultPhoneCountry: "TR",
+    phonePolicy: {
+      // Keep the existing login behaviour while making the rule explicit.
+      login: { allowedCountries: "any" },
+      sellerContacts: {
+        enabled: true,
+        allowedCountries: ["TR"],
+        // These are legacy challenge values, isolated at the country boundary.
+        verificationPurpose: "turkey_seller_contact",
+        verificationProvider: "twilio_verify",
+        callingCode: "+90",
+        nationalPlaceholder: "555 123 45 67"
+      }
+    },
     status: "active"
   },
   jolcarKazakhstan: {
@@ -63,6 +89,12 @@ export const MARKET_PROFILES = {
       defaultCurrencyPlacement: "suffix"
     },
     defaultPhoneCountry: "KZ",
+    phonePolicy: {
+      login: { allowedCountries: "any" },
+      // O-005 is open: do not permit a seller-contact flow before its policy
+      // and provider have been explicitly approved.
+      sellerContacts: { enabled: false }
+    },
     status: "planned"
   }
 } as const satisfies Record<string, MarketProfile>;
