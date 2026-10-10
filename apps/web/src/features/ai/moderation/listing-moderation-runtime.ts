@@ -16,7 +16,7 @@ type MultimodalSignal = {
   severity: "low" | "medium" | "high";
   confidence: "low" | "medium" | "high";
   source: "deterministic" | "contextual_ai" | "ai";
-  field: "description" | "seller_notes";
+  field: "description" | "seller_notes" | "listing";
   evidenceClass: string;
   evidence: string;
   ruleId: string;

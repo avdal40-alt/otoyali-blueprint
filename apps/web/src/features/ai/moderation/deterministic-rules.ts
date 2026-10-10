@@ -27,5 +27,13 @@ export const moderationRuleIds = {
   externalLink: "external-link-v1",
   repeatedPhrase: "repeated-phrase-v1",
   excessivePunctuation: "excessive-punctuation-v1",
-  repeatedCharacters: "repeated-characters-v1"
+  repeatedCharacters: "repeated-characters-v1",
+  duplicateListing: "anti-fraud-duplicate-listing-v1",
+  suspiciousBulkActivity: "anti-fraud-suspicious-bulk-v1"
+} as const;
+
+/** Anti-fraud indicators are review signals only; they never make a decision. */
+export const antiFraudRuleIds = {
+  duplicateListing: moderationRuleIds.duplicateListing,
+  suspiciousBulkActivity: moderationRuleIds.suspiciousBulkActivity
 } as const;

@@ -3,8 +3,8 @@ import "server-only";
 import { DETERMINISTIC_MODERATION_RULESET_VERSION, deterministicAbuseRules, moderationRuleIds, ownedListingHosts } from "./deterministic-rules";
 
 export type ModerationAction = "allow" | "ask_edit" | "review" | "block";
-export type ModerationSignalCode = "PROFANITY_OR_ABUSE" | "CONTACT_IN_TEXT" | "EXTERNAL_LINK" | "SPAM_PATTERN" | "NONSENSE_OR_EXCESSIVE_REPETITION" | "HARASSMENT" | "THREAT" | "HATE_OR_DEHUMANIZING_LANGUAGE" | "SEMANTIC_SPAM" | "SEMANTIC_NONSENSE" | "CONTACT_OR_LINK_BYPASS";
-export type ModerationTextField = "description" | "seller_notes";
+export type ModerationSignalCode = "PROFANITY_OR_ABUSE" | "CONTACT_IN_TEXT" | "EXTERNAL_LINK" | "SPAM_PATTERN" | "NONSENSE_OR_EXCESSIVE_REPETITION" | "DUPLICATE_LISTING_CONTENT" | "SUSPICIOUS_BULK_ACTIVITY" | "HARASSMENT" | "THREAT" | "HATE_OR_DEHUMANIZING_LANGUAGE" | "SEMANTIC_SPAM" | "SEMANTIC_NONSENSE" | "CONTACT_OR_LINK_BYPASS";
+export type ModerationTextField = "description" | "seller_notes" | "listing";
 export type ModerationSeverity = "low" | "medium" | "high";
 export type ModerationEvidence = { matchClass: "lexicon" | "phone" | "contact_handle" | "external_url" | "repetition" | "punctuation" | "contextual"; redactedExcerpt: "[abusive-term]" | "[phone]" | "[contact-handle]" | "[external-link]" | "[repetition]" | "[excessive-punctuation]" | "[contextual-abuse]" | "[targeted-harassment]" | "[explicit-threat]" | "[dehumanizing-language]" | "[semantic-spam]" | "[semantic-nonsense]" | "[contextual-contact-bypass]"; ruleId: string };
 
@@ -25,7 +25,7 @@ export type ModerationResult = {
   sellerIssues: readonly { field: ModerationTextField; code: "profanity_or_abuse" | "contact_in_text" }[];
 };
 
-export type ListingModerationText = { description: string | null; sellerNotes: string | null };
+export type ListingModerationText = { description: string | null; sellerNotes: string | null; antiFraud?: { duplicateContent?: boolean; recentListingCount?: number } };
 
 type NormalizedText = { tokens: readonly string[]; compactSegments: readonly string[]; original: string; normalized: string };
 
@@ -58,6 +58,8 @@ export function moderateListingText(input: ListingModerationText): ModerationRes
   const signals: ModerationSignal[] = [];
   inspectField("description", input.description, signals);
   inspectField("seller_notes", input.sellerNotes, signals);
+  if (input.antiFraud?.duplicateContent) addAntiFraudSignal(signals, "DUPLICATE_LISTING_CONTENT", "[repetition]", moderationRuleIds.duplicateListing);
+  if ((input.antiFraud?.recentListingCount ?? 0) >= 10) addAntiFraudSignal(signals, "SUSPICIOUS_BULK_ACTIVITY", "[repetition]", moderationRuleIds.suspiciousBulkActivity);
   const recommendedAction: Exclude<ModerationAction, "block"> = signals.some((signal) => signal.recommendedAction === "review") ? "review" : signals.some((signal) => signal.recommendedAction === "ask_edit") ? "ask_edit" : "allow";
   const sellerIssues: { field: ModerationTextField; code: "profanity_or_abuse" | "contact_in_text" }[] = [];
   for (const signal of signals) {
@@ -89,6 +91,10 @@ function inspectField(field: ModerationTextField, value: string | null, signals:
 
 function addSignal(signals: ModerationSignal[], signal: Omit<ModerationSignal, "confidence" | "source">) {
   if (!signals.some((item) => item.code === signal.code && item.field === signal.field)) signals.push({ ...signal, confidence: "high", source: "deterministic" });
+}
+
+function addAntiFraudSignal(signals: ModerationSignal[], code: "DUPLICATE_LISTING_CONTENT" | "SUSPICIOUS_BULK_ACTIVITY", redactedExcerpt: "[repetition]", ruleId: string) {
+  signals.push({ code, severity: "medium", field: "listing", evidence: { matchClass: "repetition", redactedExcerpt, ruleId }, confidence: "high", source: "deterministic", recommendedAction: "review" });
 }
 
 function findTurkishPhones(value: string): string[] {
