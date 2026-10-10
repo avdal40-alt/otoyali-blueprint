@@ -427,10 +427,73 @@ while ($true) {
     $meta = $metaJson | ConvertFrom-Json
     $result = Get-Content $meta.ResultFile -Raw -Encoding UTF8 | ConvertFrom-Json
 
-    & (Join-Path $PSScriptRoot "safety-check.ps1") -ResultFile $meta.ResultFile
-
     if ([string]$result.task_id -ne $taskId) {
       throw ("Task result ID mismatch. Expected " + $taskId + ", got " + [string]$result.task_id)
+    }
+
+    # Validate obvious PASS invariants before safety-check.ps1. Previously a
+    # malformed/internally inconsistent PASS (for example status=PASS while
+    # tests_passed=false) caused safety-check.ps1 to throw and terminate the
+    # entire autonomous run. It should only reject THIS attempt.
+    if (
+      [string]$result.status -eq "PASS" -and
+      ($nextTask.verification.Count -gt 0) -and
+      ($result.tests_passed -ne $true)
+    ) {
+      $testSummary = ""
+      if ($result.tests) {
+        $testSummary = (@($result.tests | Select-Object -First 6) -join "; ")
+      }
+
+      $previousFailure = (
+        "Previous result was rejected: Codex returned PASS but required " +
+        "verification had tests_passed=false. Tests: " + $testSummary + ". " +
+        "On the repair attempt, run only acceptance-relevant verification. " +
+        "Do not count an unrelated pre-existing baseline failure as task " +
+        "verification; if required task verification itself cannot pass, " +
+        "return FAIL or BLOCKED, not PASS."
+      )
+
+      Write-Warning (
+        $taskId + " returned an invalid PASS (tests_passed=false). " +
+        "Treating this as a failed attempt instead of stopping the runner."
+      )
+      continue
+    }
+
+    if ([string]$result.status -eq "PASS" -and $result.commit) {
+      $previousFailure = (
+        "Previous PASS was rejected because Codex attempted to own Git metadata. " +
+        "Return commit=null; the outer orchestrator owns add/commit/cherry-pick."
+      )
+      Write-Warning ($taskId + " returned an invalid PASS with commit metadata. Retrying safely.")
+      continue
+    }
+
+    $safetyAccepted = $true
+    try {
+      & (Join-Path $PSScriptRoot "safety-check.ps1") -ResultFile $meta.ResultFile
+      if ($LASTEXITCODE -ne 0) {
+        $safetyAccepted = $false
+      }
+    } catch {
+      $safetyAccepted = $false
+      $previousFailure = (
+        "Previous task result was rejected by the local safety policy: " +
+        $_.Exception.Message
+      )
+    }
+
+    if (-not $safetyAccepted) {
+      if ([string]::IsNullOrWhiteSpace($previousFailure)) {
+        $previousFailure = "Previous task result was rejected by the local safety policy."
+      }
+
+      Write-Warning (
+        $taskId + " result failed safety validation. " +
+        "The autonomous run will continue with a fresh repair attempt."
+      )
+      continue
     }
 
     # If Codex completed the task but a LOCAL Windows sandbox EPERM prevented only
@@ -533,7 +596,7 @@ while ($true) {
 
     if ([string]$result.status -eq "PASS") {
       if ($result.commit) {
-        $previousFailure = "Codex attempted to own the Git commit contract. In HOTFIX 06 commit must be null; orchestrator owns Git metadata."
+        $previousFailure = "Codex attempted to own the Git commit contract. commit must be null; orchestrator owns Git metadata."
         continue
       }
 
