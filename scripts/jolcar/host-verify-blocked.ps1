@@ -153,14 +153,20 @@ function Run-ProcessSafe {
 
 $result = Get-Content -LiteralPath $ResultFile -Raw -Encoding UTF8 | ConvertFrom-Json
 
+$infraDiagnostic = (
+  ([string]$result.stop_reason) + "`n" +
+  (@($result.tests) -join "`n") + "`n" +
+  (@($result.evidence) -join "`n")
+)
+
 $infraBlocked = (
   [string]$result.status -eq "BLOCKED" -and
   (
-    [string]$result.stop_reason -match "(?i)\bEPERM\b" -or
-    [string]$result.stop_reason -match "(?i)(denied|cannot|could not|unable to)\s+(spawn|spawning).*(cmd\.exe|docker)" -or
-    [string]$result.stop_reason -match "(?i)(cmd\.exe|docker).*(denied|blocked|cannot|could not|unable)" -or
-    [string]$result.stop_reason -match "(?i)windows sandbox.*(cmd\.exe|docker)" -or
-    [string]$result.stop_reason -match "(?i)(cmd\.exe|docker).*windows sandbox"
+    $infraDiagnostic -match "(?i)\bEPERM\b" -or
+    $infraDiagnostic -match "(?i)(denied|cannot|could not|unable to)\s+(spawn|spawning).*(cmd\.exe|docker)" -or
+    $infraDiagnostic -match "(?i)(cmd\.exe|docker).*(denied|blocked|cannot|could not|unable)" -or
+    $infraDiagnostic -match "(?i)windows sandbox.*(cmd\.exe|docker|process)" -or
+    $infraDiagnostic -match "(?i)(cmd\.exe|docker|process).*(windows sandbox|sandbox process restrictions)"
   )
 )
 
@@ -239,7 +245,7 @@ function Extract-AllowListedRequestsFromText {
 
 $requests = New-Object System.Collections.ArrayList
 
-foreach ($entry in @($result.evidence)) {
+foreach ($entry in @($result.evidence) + @($result.tests)) {
   $text = [string]$entry
 
   if ($text -match '^\s*HOST_VERIFY_NPM:\s*([A-Za-z0-9:_.\\/-]+)\s*$') {
