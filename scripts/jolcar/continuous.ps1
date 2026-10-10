@@ -100,14 +100,20 @@ function Get-ResultDiagnosticText {
 
   foreach ($entry in @($Result.evidence)) {
     if (-not $entry) { continue }
-    $parts += [string]$entry
 
-    if (Test-Path ([string]$entry)) {
-      try {
-        $parts += (Get-Content ([string]$entry) -Raw -Encoding UTF8)
-      } catch {
-        # Diagnostic enrichment only; never fail the runner for an unreadable log.
+    $entryText = [string]$entry
+    $parts += $entryText
+
+    # Evidence is usually prose, not a path. Strings such as
+    # "VehicleCard uses aspect-[4/3]." contain wildcard metacharacters that
+    # PowerShell's Test-Path treats as patterns. Diagnostic enrichment must
+    # therefore use literal-path semantics and must never terminate the runner.
+    try {
+      if (Test-Path -LiteralPath $entryText -PathType Leaf -ErrorAction SilentlyContinue) {
+        $parts += (Get-Content -LiteralPath $entryText -Raw -Encoding UTF8 -ErrorAction Stop)
       }
+    } catch {
+      # Optional diagnostic enrichment only.
     }
   }
 
