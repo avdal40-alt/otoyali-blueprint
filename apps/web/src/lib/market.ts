@@ -9,8 +9,24 @@ export type MarketProfile = {
   brandName: string;
   siteUrl: string | null;
   currencyCode: "TRY" | "KZT";
+  formatting: MarketFormatting;
   defaultPhoneCountry: "TR" | "KZ";
   status: "active" | "planned";
+};
+
+export type CurrencyPlacement = "prefix" | "suffix";
+
+/**
+ * Formatting is a market concern. UI language can select an override, while
+ * the country profile remains the safe fallback for requests without one.
+ */
+export type MarketFormatting = {
+  defaultIntlLocale: string;
+  intlLocaleByLocale: Record<string, string>;
+  defaultCurrencyLabel: string;
+  currencyLabelByLocale?: Record<string, string>;
+  defaultCurrencyPlacement: CurrencyPlacement;
+  currencyPlacementByLocale?: Record<string, CurrencyPlacement>;
 };
 
 export const MARKET_PROFILES = {
@@ -20,6 +36,14 @@ export const MARKET_PROFILES = {
     brandName: "Yolmod",
     siteUrl: "https://yolmod.com",
     currencyCode: "TRY",
+    formatting: {
+      defaultIntlLocale: "tr-TR",
+      intlLocaleByLocale: { tr: "tr-TR", en: "en-US" },
+      defaultCurrencyLabel: "TL",
+      currencyLabelByLocale: { en: "TRY" },
+      defaultCurrencyPlacement: "suffix",
+      currencyPlacementByLocale: { en: "prefix" }
+    },
     defaultPhoneCountry: "TR",
     status: "active"
   },
@@ -30,6 +54,14 @@ export const MARKET_PROFILES = {
     // The final Jolcar host/domain is an open product decision (O-002).
     siteUrl: null,
     currencyCode: "KZT",
+    formatting: {
+      // This controls numeric/date conventions only; it does not activate a
+      // Kazakhstan UI locale (O-001 remains an open product decision).
+      defaultIntlLocale: "kk-KZ",
+      intlLocaleByLocale: {},
+      defaultCurrencyLabel: "₸",
+      defaultCurrencyPlacement: "suffix"
+    },
     defaultPhoneCountry: "KZ",
     status: "planned"
   }

@@ -31,6 +31,14 @@ assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
   brandName: "Yolmod",
   siteUrl: "https://yolmod.com",
   currencyCode: "TRY",
+  formatting: {
+    defaultIntlLocale: "tr-TR",
+    intlLocaleByLocale: { tr: "tr-TR", en: "en-US" },
+    defaultCurrencyLabel: "TL",
+    currencyLabelByLocale: { en: "TRY" },
+    defaultCurrencyPlacement: "suffix",
+    currencyPlacementByLocale: { en: "prefix" }
+  },
   defaultPhoneCountry: "TR",
   status: "active"
 });
@@ -40,6 +48,12 @@ assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
   brandName: "Jolcar",
   siteUrl: null,
   currencyCode: "KZT",
+  formatting: {
+    defaultIntlLocale: "kk-KZ",
+    intlLocaleByLocale: {},
+    defaultCurrencyLabel: "₸",
+    defaultCurrencyPlacement: "suffix"
+  },
   defaultPhoneCountry: "KZ",
   status: "planned"
 });
