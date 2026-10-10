@@ -1,0 +1,15 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const root = path.resolve(__dirname, "..");
+const source = fs.readFileSync(path.join(root, "src/lib/observability/safe-logger.ts"), "utf8");
+assert.match(source, /JSON\.stringify/);
+assert.match(source, /console\.error\(output\)/);
+assert.match(source, /password\|token\|secret/);
+assert.match(source, /EMAIL/);
+assert.match(source, /PHONE/);
+assert.doesNotMatch(source, /sentry|datadog|newrelic|posthog|segment/i);
+const listing = fs.readFileSync(path.join(root, "src/lib/listings/server-write.ts"), "utf8");
+assert.match(listing, /safeLog\(/);
+assert.doesNotMatch(listing, /console\.(log|warn|error)\(/);
+console.log("Observability safe logging and redaction contract passed");

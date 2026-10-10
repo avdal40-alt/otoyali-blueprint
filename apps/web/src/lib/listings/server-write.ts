@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 import type { AuthenticatedRequestSupabase } from "@/lib/supabase/request";
 import type { LocationIdentifier } from "@/lib/location";
+import { safeLog } from "@/lib/observability/safe-logger";
 
 export const listingIdSchema = z.string().uuid();
 
@@ -100,8 +101,7 @@ export function listingWriteError(error: ListingWriteRpcError) {
 
 export function logListingWriteFailure(action: string, error: ListingWriteRpcError, userId: string, listingId?: string) {
   const context = { action, code: error.code ?? null, userId, listingId: listingId ?? null };
-  if (listingWriteError(error).status >= 500) console.error("Listing write failed", context);
-  else console.warn("Listing write rejected", context);
+  safeLog(listingWriteError(error).status >= 500 ? "error" : "warn", "listing_write_failed", context);
 }
 
 /** The sole application write boundary for listing create, edit, and lifecycle submission. */
