@@ -1,11 +1,28 @@
+/**
+ * News is intentionally first-party editorial content for the MVP.
+ *
+ * This module is the only content boundary consumed by the news UI. Do not
+ * add RSS/API fetching, scraping, or copied third-party article text here.
+ * A future CMS/provider integration must introduce an explicitly approved,
+ * licensed adapter before it can feed this contract.
+ */
+export const NEWS_CONTENT_SOURCE = "first-party-editorial" as const;
+
+export const NEWS_CONTENT_SOURCE_POLICY = {
+  source: NEWS_CONTENT_SOURCE,
+  externalIngestionAllowed: false,
+  requiresLicenseReview: true
+} as const;
+
 export type NewsArticle = {
   slug: string;
   title: string;
   excerpt: string;
   category: string;
   publishedAt: string;
-  imageUrl: string;
+  imageUrl?: string;
   body: string[];
+  source: typeof NEWS_CONTENT_SOURCE;
 };
 
 export const newsArticles: NewsArticle[] = [
@@ -15,7 +32,7 @@ export const newsArticles: NewsArticle[] = [
     excerpt: "Yeni modeller, şarj ağı yatırımları ve düşen kullanım maliyetleri pazarı hızlandırıyor.",
     category: "Elektrikli",
     publishedAt: "2026-07-01",
-    imageUrl: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1200&q=80",
+    source: NEWS_CONTENT_SOURCE,
     body: [
       "Elektrikli araçlar Türkiye'de sadece teknoloji meraklılarının değil, ailelerin ve filo kullanıcılarının da gündemine giriyor.",
       "Şarj altyapısının genişlemesi, daha uzun menzilli modeller ve toplam sahip olma maliyetindeki avantajlar bu ilgiyi destekliyor.",
@@ -28,7 +45,7 @@ export const newsArticles: NewsArticle[] = [
     excerpt: "İlk görüşmeden ekspertize kadar dikkat edilmesi gereken temel noktalar.",
     category: "Rehber",
     publishedAt: "2026-06-30",
-    imageUrl: "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=1200&q=80",
+    source: NEWS_CONTENT_SOURCE,
     body: [
       "İkinci el araç alırken ilanın tutarlılığı, bakım kayıtları, kilometre bilgisi ve fotoğraf kalitesi ilk sinyalleri verir.",
       "Görüşme öncesi fiyat aralığı, model yılı ve motor seçeneklerini karşılaştırmak karar sürecini hızlandırır.",
@@ -41,7 +58,7 @@ export const newsArticles: NewsArticle[] = [
     excerpt: "Yakıt, boyut, park kolaylığı ve güvenlik donanımları arasında denge kurun.",
     category: "Piyasa",
     publishedAt: "2026-06-28",
-    imageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80",
+    source: NEWS_CONTENT_SOURCE,
     body: [
       "Şehir içinde kullanılacak araçlarda sadece fiyat değil, yakıt tüketimi, donanım ve park kolaylığı da önemlidir.",
       "Kompakt hatchback, sedan ve küçük SUV modeller farklı ihtiyaçlara cevap verir.",
