@@ -23,7 +23,7 @@ export function EmptyState({
   const iconLabel = tone === "video" ? "▶" : tone === "admin" ? "A" : "O";
 
   return (
-    <div className={cn("rounded-card border border-dashed border-oto-border bg-white p-8 text-center shadow-soft", className)}>
+    <div className={cn("motion-safe:animate-oto-slide-up rounded-card border border-dashed border-oto-border bg-white p-8 text-center shadow-soft", className)}>
       <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-avatar bg-oto-accent/10 text-oto-accent">
         <span className="text-xl font-black">{iconLabel}</span>
       </div>
@@ -41,7 +41,7 @@ export function EmptyState({
 export function LoadingState({ label }: { label?: string }) {
   const { dictionary } = useI18n();
   return (
-    <div className="rounded-card border border-oto-border bg-white p-8 text-center text-body text-oto-muted shadow-soft" aria-live="polite">
+    <div className="motion-safe:animate-oto-fade-in rounded-card border border-oto-border bg-white p-8 text-center text-body text-oto-muted shadow-soft" aria-live="polite">
       <Spinner className="mx-auto mb-3" />
       <span>{label ?? String(dictionary.common.loading)}</span>
     </div>
@@ -50,7 +50,7 @@ export function LoadingState({ label }: { label?: string }) {
 
 export function ErrorState({ message, title, action }: { message?: string; title?: string; action?: ReactNode }) {
   return (
-    <div className="rounded-card border border-oto-danger/15 bg-oto-danger/10 p-5 text-error text-oto-danger" role="alert">
+    <div className="motion-safe:animate-oto-slide-up rounded-card border border-oto-danger/15 bg-oto-danger/10 p-5 text-error text-oto-danger" role="alert">
       {message ?? title}
       {action ? <div className="mt-3">{action}</div> : null}
     </div>
@@ -64,7 +64,7 @@ export function Spinner({ className }: { className?: string }) {
 export function PageLoader({ label }: { label?: string }) {
   const { dictionary } = useI18n();
   return (
-    <div className="flex min-h-[320px] flex-col items-center justify-center rounded-card border border-oto-border bg-white text-body text-oto-muted">
+    <div className="motion-safe:animate-oto-fade-in flex min-h-[320px] flex-col items-center justify-center rounded-card border border-oto-border bg-white text-body text-oto-muted">
       <Spinner className="mb-3" />
       {label ?? String(dictionary.common.loading)}
     </div>

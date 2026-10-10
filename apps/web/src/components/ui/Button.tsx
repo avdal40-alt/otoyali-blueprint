@@ -31,7 +31,7 @@ type BaseProps = {
 };
 
 const baseClass =
-  "inline-flex min-w-11 shrink-0 items-center justify-center font-bold transition duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oto-accent/15 disabled:cursor-not-allowed disabled:opacity-disabled aria-disabled:pointer-events-none aria-disabled:opacity-disabled";
+  "inline-flex min-w-11 shrink-0 items-center justify-center font-bold transition duration-base active:scale-[0.98] motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oto-accent/15 disabled:cursor-not-allowed disabled:opacity-disabled aria-disabled:pointer-events-none aria-disabled:opacity-disabled";
 
 export function Button({
   children,
