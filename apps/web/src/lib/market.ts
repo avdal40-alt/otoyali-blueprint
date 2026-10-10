@@ -9,6 +9,12 @@ export type MarketProfile = {
   brandName: string;
   siteUrl: string | null;
   currencyCode: "TRY" | "KZT";
+  metadata: {
+    defaultTitle: string;
+    description: string;
+    openGraphDescription: string;
+    defaultLocale: string;
+  };
   formatting: MarketFormatting;
   defaultPhoneCountry: "TR" | "KZ";
   phonePolicy: {
@@ -49,6 +55,12 @@ export const MARKET_PROFILES = {
     brandName: "Yolmod",
     siteUrl: "https://yolmod.com",
     currencyCode: "TRY",
+    metadata: {
+      defaultTitle: "Türkiye'nin akıllı araç pazarı",
+      description: "Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.",
+      openGraphDescription: "Türkiye'nin akıllı araç pazarı.",
+      defaultLocale: "tr_TR"
+    },
     formatting: {
       defaultIntlLocale: "tr-TR",
       intlLocaleByLocale: { tr: "tr-TR", en: "en-US" },
@@ -80,6 +92,12 @@ export const MARKET_PROFILES = {
     // The final Jolcar host/domain is an open product decision (O-002).
     siteUrl: null,
     currencyCode: "KZT",
+    metadata: {
+      defaultTitle: "Қазақстанның ақылды көлік нарығы",
+      description: "Көліктерді, қосалқы бөлшектерді және автокөлік қызметтерін бір платформадан табыңыз.",
+      openGraphDescription: "Қазақстанның ақылды көлік нарығы.",
+      defaultLocale: "kk_KZ"
+    },
     formatting: {
       // This controls numeric/date conventions only; it does not activate a
       // Kazakhstan UI locale (O-001 remains an open product decision).

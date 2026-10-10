@@ -9,10 +9,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(ACTIVE_MARKET_PROFILE.siteUrl),
   title: {
-    default: `${ACTIVE_MARKET_PROFILE.brandName} - Türkiye'nin akıllı araç pazarı`,
+    default: `${ACTIVE_MARKET_PROFILE.brandName} - ${ACTIVE_MARKET_PROFILE.metadata.defaultTitle}`,
     template: `%s | ${ACTIVE_MARKET_PROFILE.brandName}`
   },
-  description: "Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.",
+  description: ACTIVE_MARKET_PROFILE.metadata.description,
   applicationName: ACTIVE_MARKET_PROFILE.brandName,
   manifest: "/manifest.webmanifest",
   icons: {
@@ -26,10 +26,10 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: ACTIVE_MARKET_PROFILE.brandName,
-    description: "Türkiye'nin akıllı araç pazarı.",
+    description: ACTIVE_MARKET_PROFILE.metadata.openGraphDescription,
     url: ACTIVE_MARKET_PROFILE.siteUrl,
     siteName: ACTIVE_MARKET_PROFILE.brandName,
-    locale: "tr_TR",
+    locale: ACTIVE_MARKET_PROFILE.metadata.defaultLocale,
     type: "website"
   },
   appleWebApp: {

@@ -31,6 +31,12 @@ assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
   brandName: "Yolmod",
   siteUrl: "https://yolmod.com",
   currencyCode: "TRY",
+  metadata: {
+    defaultTitle: "Türkiye'nin akıllı araç pazarı",
+    description: "Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.",
+    openGraphDescription: "Türkiye'nin akıllı araç pazarı.",
+    defaultLocale: "tr_TR"
+  },
   formatting: {
     defaultIntlLocale: "tr-TR",
     intlLocaleByLocale: { tr: "tr-TR", en: "en-US" },
@@ -59,6 +65,12 @@ assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
   brandName: "Jolcar",
   siteUrl: null,
   currencyCode: "KZT",
+  metadata: {
+    defaultTitle: "Қазақстанның ақылды көлік нарығы",
+    description: "Көліктерді, қосалқы бөлшектерді және автокөлік қызметтерін бір платформадан табыңыз.",
+    openGraphDescription: "Қазақстанның ақылды көлік нарығы.",
+    defaultLocale: "kk_KZ"
+  },
   formatting: {
     defaultIntlLocale: "kk-KZ",
     intlLocaleByLocale: {},
@@ -83,5 +95,7 @@ for (const [fileName, source] of [["layout", layoutSource], ["footer", footerSou
 }
 assert.equal(layoutSource.includes('"https://yolmod.com"'), false, "Root metadata must not independently hardcode the active host");
 assert.match(layoutSource, /ACTIVE_MARKET_PROFILE\.siteUrl/);
+assert.match(layoutSource, /ACTIVE_MARKET_PROFILE\.metadata/);
+assert.doesNotMatch(metadataSource, /tr_TR/);
 
 console.log("Country/brand configuration tests passed.");

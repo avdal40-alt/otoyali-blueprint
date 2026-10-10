@@ -38,7 +38,7 @@ export function buildSeoMetadata({
       description,
       url,
       siteName: ACTIVE_MARKET_PROFILE.brandName,
-      locale: path === "/en" || path.startsWith("/en/") ? "en_US" : "tr_TR",
+      locale: path === "/en" || path.startsWith("/en/") ? "en_US" : ACTIVE_MARKET_PROFILE.metadata.defaultLocale,
       type: "website"
     },
     robots: {
