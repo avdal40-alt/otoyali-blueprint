@@ -143,105 +143,95 @@ foreach ($name in $credentialNames) {
 # user's profile, which can be denied by the Codex workspace sandbox.
 [Environment]::SetEnvironmentVariable("SUPABASE_TELEMETRY_DISABLED", "1", "Process")
 
-$taskJson = $task | ConvertTo-Json -Depth 30
+# ECONOMY MODE:
+# Send only the task fields needed to implement/verify this task. Decision/manual
+# gates are handled by the outer orchestrator and do not need to consume model
+# context on ordinary tasks.
+$compactTask = [ordered]@{
+  id = [string]$task.id
+  phase = [string]$task.phase
+  title = [string]$task.title
+  priority = [string]$task.priority
+  type = [string]$task.type
+  description = [string]$task.description
+  acceptance_criteria = @($task.acceptance_criteria)
+  verification = @($task.verification)
+  dependencies = @($task.dependencies)
+}
+$taskJson = $compactTask | ConvertTo-Json -Depth 12 -Compress
 
+# Repair context is intentionally capped. The previous runner used to feed large
+# failure transcripts back into every retry, multiplying token consumption.
 if ($PreviousFailure) {
-  $previousText = "PREVIOUS ATTEMPT EVIDENCE:`r`n" + $PreviousFailure
+  $failureCap = 1600
+  $failureText = [string]$PreviousFailure
+  if ($failureText.Length -gt $failureCap) {
+    $failureText = $failureText.Substring(0, $failureCap) + "...[truncated by economy mode]"
+  }
+  $previousText = "PREVIOUS FAILURE (compact): " + $failureText
 } else {
-  $previousText = "No previous failed attempt."
+  $previousText = "PREVIOUS FAILURE: none"
 }
 
-$runtimeEvidenceText = "LOCAL SUPABASE HOST PREFLIGHT: no current evidence file."
-$runtimeEvidencePath = Join-Path $runtime "local-supabase-readiness.json"
-if (Test-Path $runtimeEvidencePath) {
-  try {
-    $runtimeEvidence = Get-Content $runtimeEvidencePath -Raw -Encoding UTF8 | ConvertFrom-Json
-    $runtimeEvidenceText = @(
-      "LOCAL SUPABASE HOST PREFLIGHT (sanitized; no keys/secrets):",
-      ("- checked_at=" + [string]$runtimeEvidence.checked_at),
-      ("- running=" + [string]$runtimeEvidence.running),
-      ("- api_url=" + [string]$runtimeEvidence.api_url),
-      ("- auth_health_status=" + [string]$runtimeEvidence.auth_health_status),
-      ("- db_port=" + [string]$runtimeEvidence.db_port),
-      ("- db_port_reachable=" + [string]$runtimeEvidence.db_port_reachable),
-      ("- status_env_exit_code=" + [string]$runtimeEvidence.status_env_exit_code),
-      ("- config_unchanged=" + [string]$runtimeEvidence.config_unchanged),
-      "- The local stack is already running. Do not reset it, stop it, link a remote project, or change ports merely to discover runtime values.",
-      "- Independently verify from the Codex sandbox where acceptance criteria require it."
-    ) -join "`r`n"
-  } catch {
-    $runtimeEvidenceText = "LOCAL SUPABASE HOST PREFLIGHT: evidence file exists but could not be parsed."
+# Only inject local-Supabase readiness when this task actually appears to need a
+# DB/Auth/API runtime. Frontend/docs tasks should not pay this context cost.
+$taskSignal = (
+  ([string]$task.title) + " " +
+  ([string]$task.description) + " " +
+  (@($task.acceptance_criteria) -join " ") + " " +
+  (@($task.verification) -join " ")
+)
+$needsLocalSupabase = $taskSignal -match "(?i)\b(supabase|postgres|database|db|auth|rls|migration|storage|postgrest|rest api|runtime database)\b"
+
+$runtimeEvidenceText = $null
+if ($needsLocalSupabase) {
+  $runtimeEvidencePath = Join-Path $runtime "local-supabase-readiness.json"
+  if (Test-Path $runtimeEvidencePath) {
+    try {
+      $runtimeEvidence = Get-Content $runtimeEvidencePath -Raw -Encoding UTF8 | ConvertFrom-Json
+      $runtimeEvidenceText = (
+        "LOCAL_RUNTIME: Supabase running=" + [string]$runtimeEvidence.running +
+        "; api=" + [string]$runtimeEvidence.api_url +
+        "; auth_health=" + [string]$runtimeEvidence.auth_health_status +
+        "; db_port=" + [string]$runtimeEvidence.db_port +
+        "; db_reachable=" + [string]$runtimeEvidence.db_port_reachable +
+        "; config_unchanged=" + [string]$runtimeEvidence.config_unchanged +
+        ". Local-only; do not link/reset/stop or print keys."
+      )
+    } catch {
+      $runtimeEvidenceText = "LOCAL_RUNTIME: readiness file exists but is unreadable; verify locally if required."
+    }
   }
 }
 
 $promptLines = @(
-  "# JOLCAR AUTONOMOUS LOCAL TASK",
+  "JOLCAR TASK " + $TaskId + " | attempt " + $Attempt + " | head " + $baseHead,
   "",
-  "You are one fresh Codex process managed by the Jolcar local orchestrator.",
+  "Do exactly ONE task. Work local-only.",
+  "Read repository AGENTS.md and docs/jolcar-control/AGENTS.md only if present, then inspect only files/tests directly relevant to this task.",
+  "Do NOT read MASTER_PLAN.md, DECISIONS.md, ROADMAP, or broad documentation unless the task itself is ambiguous after inspecting relevant code. The queue definition below is authoritative for this task.",
+  "Use targeted search/reads. Do not inventory the repository. Do not narrate your work.",
   "",
-  ("TASK ID: " + $TaskId),
-  ("ATTEMPT: " + $Attempt),
-  ("STARTING HEAD: " + $baseHead),
+  "TASK=" + $taskJson,
   "",
-  "Read before changing anything:",
-  "1. repository root AGENTS.md if present;",
-  "2. docs/jolcar-control/AGENTS.md;",
-  "3. docs/jolcar-control/MASTER_PLAN.md;",
-  "4. docs/jolcar-control/DECISIONS.md;",
-  "5. only repository documentation relevant to this task.",
+  $previousText
+)
+
+if ($runtimeEvidenceText) {
+  $promptLines += ""
+  $promptLines += $runtimeEvidenceText
+}
+
+$promptLines += @(
   "",
-  "Execute EXACTLY ONE task. Do not begin another task.",
+  "SAFETY: no production/remote Supabase; no remote migrations; no push/deploy/DNS; no production secrets; no real SMS/OTP; no paid AI/live provider calls; no payments/escrow; no weakening auth/privacy/RLS/validation; never edit applied historical migrations; no reset/rebase/amend/squash/force-push.",
+  "Git metadata is owned by the outer orchestrator: DO NOT git add/commit/reset/checkout/restore/stash.",
   "",
-  "TASK DEFINITION:",
-  $taskJson,
+  "METHOD: inspect narrowly -> make smallest correct change -> run acceptance verification and targeted regressions only -> review diff/security impact. Do not run broad suites unless explicitly required.",
+  "If already satisfied, prove it and PASS with no_change_reason. If unsafe/impossible, return BLOCKED rather than retrying the same infrastructure problem.",
   "",
-  $previousText,
-  "",
-  $runtimeEvidenceText,
-  "",
-  "HARD RULES:",
-  "- Local-only.",
-  "- Do not access or mutate production Supabase.",
-  "- Do not apply remote migrations.",
-  "- Do not push Git.",
-  "- Do not deploy.",
-  "- Do not change DNS.",
-  "- Do not read, print, create, or change production secrets.",
-  "- Do not send real SMS/OTP.",
-  "- Do not enable paid AI or live-stream provider calls.",
-  "- Do not perform buyer-seller payments or escrow.",
-  "- Do not invent product decisions.",
-  "- Do not weaken validation, privacy, RLS, auth, or security to pass tests.",
-  "- Never edit an already-applied historical migration.",
-  "- No reset, rebase, amend, squash, or force-push.",
-  "- Keep changes limited to this task.",
-  "",
-  "WORKFLOW:",
-  "1. Verify current HEAD and clean task worktree.",
-  "2. Inspect concrete current implementation and relevant docs/tests.",
-  "3. If already satisfied, prove it with current Git/test evidence and return PASS with no_change_reason.",
-  "4. Otherwise implement the smallest correct change.",
-  "5. Run task acceptance verification plus targeted regression/static checks.",
-  "6. Review diff and security/privacy/data impact where relevant.",
-  "7. DO NOT run git add, git commit, git reset, git checkout, git restore, git stash, or any command that writes Git metadata. The outer orchestrator owns staging and commits.",
-  "8. If source changes are needed, leave the reviewed changes uncommitted in the task worktree. This is expected.",
-  "9. If the task cannot PASS safely, do not fake success. Return FAIL/BLOCKED and explain exact root cause.",
-  "",
-  "Your final response MUST be JSON matching scripts/jolcar/task-result.schema.json exactly.",
-  "",
-  "For PASS:",
-  "- production_accessed=false",
-  "- push_performed=false",
-  "- remote_migrations_applied=false",
-  "- deploy_performed=false",
-  "- secrets_changed=false",
-  "- otp_sms_sent=0",
-  "- working_tree_clean=false is allowed when verified task changes remain for the outer orchestrator to commit",
-  "- tests_passed=true when the task requires executable verification",
-  "- commit MUST be null; the outer orchestrator creates the Git commit after validating your result and diff",
-  "- no_change_reason is required only when no repository change is needed.",
-  "",
-  "Do not include markdown around the JSON."
+  "FINAL: JSON only, exactly matching scripts/jolcar/task-result.schema.json. Keep summary/evidence concise (max 8 evidence entries).",
+  "PASS invariants: production_accessed=false; push_performed=false; remote_migrations_applied=false; deploy_performed=false; secrets_changed=false; otp_sms_sent=0; commit=null; tests_passed=true when executable verification is required. working_tree_clean=false is allowed for verified source changes."
 )
 
 $prompt = $promptLines -join "`r`n"
@@ -261,8 +251,26 @@ $codex = Get-CodexPath
 $stdoutFile = Join-Path $logs ($safeId + "-a" + $Attempt + "-" + $stamp + "-stdout.log")
 $stderrFile = Join-Path $logs ($safeId + "-a" + $Attempt + "-" + $stamp + "-stderr.log")
 
+# Maximum-economy routing:
+# - attempts 1-2 use GPT-5.6 Luna + low reasoning;
+# - only the final repair attempt escalates to Terra + low reasoning.
+# Luna is intentionally tried twice because it is substantially cheaper than
+# Terra, while the final Terra fallback preserves an escape hatch for genuinely
+# difficult implementation failures.
+if ($Attempt -ge 3) {
+  $codexModel = "gpt-5.6-terra"
+  $reasoningEffort = "low"
+} else {
+  $codexModel = "gpt-5.6-luna"
+  $reasoningEffort = "low"
+}
+
+Write-Host ("Codex economy profile: model=" + $codexModel + "; reasoning=" + $reasoningEffort)
+
 $arguments = @(
   "exec",
+  "--model", $codexModel,
+  "--config", ("model_reasoning_effort=" + $reasoningEffort),
   "--sandbox", "workspace-write",
   "--cd", $taskWorktree,
   "--output-schema", $schema,

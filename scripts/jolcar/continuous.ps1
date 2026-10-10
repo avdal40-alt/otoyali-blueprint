@@ -281,6 +281,7 @@ while ($true) {
   $previousFailure = ""
   $taskPassed = $false
   $taskPausedForUsageLimit = $false
+  $taskHardBlocked = $false
 
   for ($attempt = 1; $attempt -le $MaxRepairAttempts; $attempt++) {
     $attemptedThisRun++
@@ -442,27 +443,40 @@ while ($true) {
 
     $evidenceText = ""
     if ($result.evidence) {
-      $evidenceText = (@($result.evidence) -join "`r`n")
+      $evidenceText = (@($result.evidence | Select-Object -First 6) -join "; ")
     }
 
     $previousFailure = @(
-      ("Previous status: " + [string]$result.status),
-      ("Stop reason: " + [string]$result.stop_reason),
-      ("Summary: " + [string]$result.summary),
-      "Evidence:",
-      $evidenceText,
-      ("Failed isolated worktree preserved at: " + [string]$meta.TaskWorktree)
+      ("status=" + [string]$result.status),
+      ("stop=" + [string]$result.stop_reason),
+      ("summary=" + [string]$result.summary),
+      ("evidence=" + $evidenceText)
     ) -join "`r`n"
 
-    Write-Warning ($taskId + " attempt " + $attempt + " did not PASS. A fresh repair attempt will be launched if allowed.")
+    if ([string]$result.status -eq "BLOCKED") {
+      # BLOCKED means the model has identified a prerequisite/infrastructure/
+      # authorization condition that another identical fresh attempt cannot fix.
+      # Repeating it burns allowance without adding information.
+      $taskHardBlocked = $true
+      Write-Warning ($taskId + " returned BLOCKED. Economy mode will not spend additional Codex attempts on the same blocker.")
+      break
+    }
+
+    Write-Warning ($taskId + " attempt " + $attempt + " failed. Economy mode will retry only while repair attempts remain.")
   }
 
   if ((-not $taskPassed) -and (-not $taskPausedForUsageLimit)) {
+    if ($taskHardBlocked) {
+      $blockReason = "Codex returned BLOCKED; no duplicate retries were spent in economy mode."
+    } else {
+      $blockReason = "Failed to PASS after " + $MaxRepairAttempts + " autonomous attempts."
+    }
+
     $blocked += [pscustomobject]@{
       task_id = $taskId
       permanent = $true
       at = (Get-Date).ToString("o")
-      reason = "Failed to PASS after " + $MaxRepairAttempts + " autonomous attempts."
+      reason = $blockReason
       last_evidence = $previousFailure
     }
   }
