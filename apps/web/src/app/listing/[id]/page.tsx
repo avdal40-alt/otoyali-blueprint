@@ -40,6 +40,7 @@ import { ContactSellerButton } from "./_components/ContactSellerButton";
 import { StartConversationButton } from "./_components/StartConversationButton";
 import { ShareListingButton } from "./_components/ShareListingButton";
 import { ReportListingButton } from "./_components/ReportListingButton";
+import { ListingViewEvent } from "./_components/ListingViewEvent";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -79,6 +80,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
   return (
     <>
       <AppHeader />
+      {listing ? <ListingViewEvent listingId={listing.listing_id} /> : null}
       <PageContainer className={listing ? "pb-40 md:pb-24" : undefined}>
         {detailsResult.error ? <ErrorState message={detailsResult.error} /> : null}
         <DevQueryDebug items={[detailsResult, mediaResult, fallbackListingResult, videosResult, ...(fallbackMediaResult ? [fallbackMediaResult] : [])]} />
