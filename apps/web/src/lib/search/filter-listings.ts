@@ -44,7 +44,9 @@ export function filterListings(listings: HomeListing[], filters: ListingSearchFi
     if (fuelValues.length > 0 && !fuelValues.includes(listing.fuel_type ?? "")) return false;
     if (transmissionValues.length > 0 && !transmissionValues.includes(listing.transmission ?? "")) return false;
     if (bodyValues.length > 0 && support.bodyType && !bodyValues.includes(normalize(future.body_type ?? ""))) return false;
-    if (filters.condition && support.condition && future.condition !== filters.condition) return false;
+    // A requested condition must never broaden into an unfiltered result when
+    // a mixed/legacy result set omits the condition field on some rows.
+    if (filters.condition && future.condition !== filters.condition) return false;
     if (filters.sellerType && support.sellerType && future.seller_type !== filters.sellerType) return false;
     if (filters.driveType && support.driveType && future.drive_type !== filters.driveType) return false;
     if (filters.color && support.color && future.color !== filters.color) return false;
