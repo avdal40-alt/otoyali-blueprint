@@ -25,7 +25,8 @@ const config: Config = {
     },
     extend: {
       colors: {
-        oto: designTokens.colors
+        oto: designTokens.colors,
+        accent: designTokens.colors.accent
       },
       fontFamily: {
         sans: [...designTokens.typography.fontFamily.sans]

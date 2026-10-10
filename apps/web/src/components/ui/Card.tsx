@@ -7,9 +7,9 @@ type CardPadding = "none" | "sm" | "md" | "lg";
 const cardVariantClass: Record<CardVariant, string> = {
   default: "border-oto-border bg-white shadow-soft",
   listing: "border-oto-border bg-white shadow-soft hover:shadow-oto",
-  category: "border-oto-border bg-white shadow-soft hover:border-oto-blue",
+  category: "border-oto-border bg-white shadow-soft hover:border-oto-accent",
   seller: "border-oto-border bg-white shadow-soft",
-  video: "border-oto-border bg-white shadow-soft hover:border-oto-blue",
+  video: "border-oto-border bg-white shadow-soft hover:border-oto-accent",
   admin: "border-oto-border bg-white shadow-soft",
   placeholder: "border-dashed border-oto-border bg-oto-surface shadow-none"
 };

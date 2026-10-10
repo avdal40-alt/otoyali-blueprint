@@ -18,7 +18,7 @@ const controlBase =
 const controlState = (error?: string | null) =>
   error
     ? "border-oto-danger focus:border-oto-danger focus:ring-2 focus:ring-oto-danger/15"
-    : "border-oto-border focus:border-oto-blue focus:ring-2 focus:ring-oto-blue/15";
+    : "border-oto-border focus:border-oto-accent focus:ring-2 focus:ring-oto-accent/15";
 
 export function Input({ className, error, helperText, isLoading, ...props }: InputHTMLAttributes<HTMLInputElement> & FieldStateProps) {
   return (
@@ -79,7 +79,7 @@ export function Checkbox({
     <label className={cn("flex items-start gap-2 text-sm font-semibold text-oto-muted", className)}>
       <input
         type="checkbox"
-        className="mt-0.5 h-4 w-4 rounded border-oto-border text-oto-blue focus:ring-2 focus:ring-oto-blue/15"
+        className="mt-0.5 h-4 w-4 rounded border-oto-border text-oto-accent focus:ring-2 focus:ring-oto-accent/15"
         {...props}
       />
       <span className="grid gap-1">
@@ -101,7 +101,7 @@ export function Radio({
     <label className={cn("flex items-start gap-2 text-sm font-semibold text-oto-muted", className)}>
       <input
         type="radio"
-        className="mt-0.5 h-4 w-4 border-oto-border text-oto-blue focus:ring-2 focus:ring-oto-blue/15"
+        className="mt-0.5 h-4 w-4 border-oto-border text-oto-accent focus:ring-2 focus:ring-oto-accent/15"
         {...props}
       />
       <span className="grid gap-1">
@@ -123,7 +123,7 @@ export function Toggle({
   return (
     <label className={cn("flex items-center gap-3 text-sm font-semibold text-oto-text", className)}>
       <input type="checkbox" className="sr-only" checked={checked} aria-invalid={Boolean(error) || undefined} {...props} />
-      <span className={cn("relative h-6 w-11 rounded-full transition", checked ? "bg-oto-blue" : "bg-oto-border")}>
+      <span className={cn("relative h-6 w-11 rounded-full transition", checked ? "bg-oto-accent" : "bg-oto-border")}>
         <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-soft transition", checked ? "left-5" : "left-0.5")} />
       </span>
       <span className="grid gap-1">

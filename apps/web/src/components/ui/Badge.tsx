@@ -20,7 +20,7 @@ type BadgeVariant =
 
 const badgeVariantClass: Record<BadgeVariant, string> = {
   neutral: "border-oto-border bg-oto-surface text-oto-muted",
-  primary: "border-oto-blue/15 bg-oto-blue/10 text-oto-blue",
+  primary: "border-oto-accent/15 bg-oto-accent/10 text-oto-accent",
   success: "border-oto-success/15 bg-oto-success/10 text-oto-success",
   warning: "border-oto-warning/20 bg-oto-warning/10 text-oto-warning",
   danger: "border-oto-danger/15 bg-oto-danger/10 text-oto-danger",
@@ -30,10 +30,10 @@ const badgeVariantClass: Record<BadgeVariant, string> = {
   rejected: "border-oto-danger/15 bg-oto-danger/10 text-oto-danger",
   archived: "border-oto-border bg-oto-surface text-oto-muted",
   draft: "border-oto-border bg-oto-surface text-oto-muted",
-  featured: "border-oto-orange/20 bg-oto-orange text-white",
-  gallery: "border-oto-blue/15 bg-oto-blue/10 text-oto-blue",
-  new: "border-oto-cyan/20 bg-oto-cyan/10 text-oto-info",
-  ai: "border-oto-cyan/20 bg-oto-cyan/10 text-oto-info"
+  featured: "border-oto-accent/20 bg-oto-accent text-white",
+  gallery: "border-oto-accent/15 bg-oto-accent/10 text-oto-accent",
+  new: "border-oto-accent/20 bg-oto-accent/10 text-oto-accent",
+  ai: "border-oto-accent/20 bg-oto-accent/10 text-oto-accent"
 };
 
 export function Badge({

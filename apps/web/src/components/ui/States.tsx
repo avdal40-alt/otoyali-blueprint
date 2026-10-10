@@ -24,7 +24,7 @@ export function EmptyState({
 
   return (
     <div className={cn("rounded-card border border-dashed border-oto-border bg-white p-8 text-center shadow-soft", className)}>
-      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-avatar bg-oto-blue/10 text-oto-blue">
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-avatar bg-oto-accent/10 text-oto-accent">
         <span className="text-xl font-black">{iconLabel}</span>
       </div>
       <h3 className="text-title text-oto-text">{title}</h3>

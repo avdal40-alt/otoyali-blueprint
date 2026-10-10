@@ -1,7 +1,12 @@
 export const designTokens = {
   colors: {
-    primary: "#2563EB",
-    secondary: "#22D3EE",
+    // Brand colors are deliberately supplied by the active market/brand layer.
+    // Keep reusable UI neutral until that decision is made.
+    accent: "var(--brand-accent)",
+    accentSoft: "color-mix(in srgb, var(--brand-accent) 10%, transparent)",
+    accentStrong: "var(--brand-accent-strong, var(--brand-accent))",
+    primary: "var(--brand-accent)",
+    secondary: "var(--brand-accent-strong, var(--brand-accent))",
     bg: "#FFFFFF",
     background: "#FFFFFF",
     surface: "#F7F8FA",
@@ -12,9 +17,11 @@ export const designTokens = {
     muted: "#6B7280",
     border: "#E5E7EB",
     borderStrong: "#CBD5E1",
-    blue: "#2563EB",
-    cyan: "#22D3EE",
-    orange: "#F59E0B",
+    // Deprecated aliases remain temporarily for existing screens; new UI must
+    // use accent/neutral/status tokens instead of introducing another palette.
+    blue: "var(--brand-accent)",
+    cyan: "var(--brand-accent-strong, var(--brand-accent))",
+    orange: "var(--brand-accent)",
     success: "#16A34A",
     warning: "#F59E0B",
     danger: "#DC2626",
@@ -125,3 +132,9 @@ export const designTokens = {
 } as const;
 
 export type DesignTokens = typeof designTokens;
+
+/** Brand configuration supplies the accent at the product boundary. */
+export type BrandColorConfig = {
+  accent: string;
+  accentStrong?: string;
+};

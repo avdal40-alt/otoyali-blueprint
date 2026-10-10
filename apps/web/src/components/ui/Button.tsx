@@ -6,12 +6,12 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "danger" | 
 type ButtonSize = "sm" | "md" | "lg";
 
 const variantClass: Record<ButtonVariant, string> = {
-  primary: "bg-oto-blue text-white shadow-soft hover:bg-oto-blue/90",
+  primary: "bg-oto-accent text-white shadow-soft hover:bg-oto-accent/90",
   secondary: "border border-oto-border bg-white text-oto-text hover:bg-oto-surface",
   ghost: "bg-transparent text-oto-text hover:bg-oto-surface",
-  outline: "border border-oto-blue bg-white text-oto-blue hover:bg-oto-blue/10",
+  outline: "border border-oto-accent bg-white text-oto-accent hover:bg-oto-accent/10",
   danger: "bg-oto-danger text-white shadow-soft hover:bg-oto-danger/90",
-  orange: "bg-oto-orange text-white shadow-soft hover:bg-oto-orange/90"
+  orange: "bg-oto-accent text-white shadow-soft hover:bg-oto-accent/90"
 };
 
 const sizeClass: Record<ButtonSize, string> = {
@@ -31,7 +31,7 @@ type BaseProps = {
 };
 
 const baseClass =
-  "inline-flex shrink-0 items-center justify-center font-bold transition duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oto-blue/15 disabled:cursor-not-allowed disabled:opacity-disabled aria-disabled:pointer-events-none aria-disabled:opacity-disabled";
+  "inline-flex shrink-0 items-center justify-center font-bold transition duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oto-accent/15 disabled:cursor-not-allowed disabled:opacity-disabled aria-disabled:pointer-events-none aria-disabled:opacity-disabled";
 
 export function Button({
   children,
