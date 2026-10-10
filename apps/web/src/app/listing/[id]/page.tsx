@@ -87,6 +87,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
             <div>
               <VehicleGallery media={mediaRows} title={title} fallbackImageUrl={fallbackCoverImage} />
               <div className="mt-6">
+                <Link href="/reviews" className="mb-4 inline-block text-sm font-semibold text-oto-primary underline">Осы көлікке қатысты иелер пікірін қарау</Link>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <div className="flex flex-wrap gap-2">
