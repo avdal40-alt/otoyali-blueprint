@@ -4,7 +4,7 @@ import { MouseEvent, useState } from "react";
 import Link from "next/link";
 import type { HomeListing, ListingMedia } from "@/lib/supabase/types";
 import { cn } from "@/lib/cn";
-import { cityLabel, conditionLabel, formatMileage, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
+import { cityLabel, conditionLabel, formatDate, formatMileage, formatNumber, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
 import { getBestImageUrl } from "@/lib/media/image-variants";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { localizePath } from "@/i18n/config";
@@ -131,6 +131,10 @@ export function VehicleCard({
         <div className="mt-auto flex items-center justify-between gap-3 pt-3 text-sm font-semibold text-oto-muted">
           <span className="truncate">{city}</span>
           <span className="truncate text-right">{makeModel}</span>
+        </div>
+        <div className="mt-2 flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs text-oto-muted">
+          <span>{activeLocale === "en" ? "Published" : "Yayın tarihi"}: {formatDate(listing.published_at, activeLocale)}</span>
+          <span>{activeLocale === "en" ? "Views" : "Görüntülenme"}: {formatNumber(listing.views_count ?? 0, activeLocale)}</span>
         </div>
       </div>
     </article>

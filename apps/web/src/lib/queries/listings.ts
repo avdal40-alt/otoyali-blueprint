@@ -17,6 +17,7 @@ const HOME_LISTING_COLUMNS = [
   "currency",
   "city",
   "published_at",
+  "views_count",
   "make_name",
   "model_name",
   "year",

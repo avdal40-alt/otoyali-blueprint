@@ -7,6 +7,7 @@ export type HomeListing = {
   price_negotiable?: boolean | null;
   city?: string | null;
   published_at: string | null;
+  views_count?: number | null;
   make_name?: string | null;
   model_name?: string | null;
   year?: number | null;
