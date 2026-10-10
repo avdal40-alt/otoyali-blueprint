@@ -2,7 +2,7 @@
   [Parameter(Mandatory=$true)]
   [string]$RepoRoot,
 
-  [string[]]$TaskIds = @("JLC-0306","JLC-0401","JLC-0801")
+  [string[]]$TaskIds = @("JLC-0413","JLC-0508","JLC-0602","JLC-0703","JLC-0906")
 )
 
 $ErrorActionPreference = "Stop"
@@ -227,22 +227,22 @@ foreach ($taskId in $TaskIds) {
 
   $wt = Get-TaskWorktree -RepoRoot $RepoRoot -TaskId $taskId -StartingHead ([string]$result.starting_head)
 
-  # No-change audit tasks may not need a preserved task worktree. If the exact
-  # failed worktree exists, use it. Otherwise only JLC-0801 may safely verify on
-  # the integration tree because its previous result explicitly says no files changed.
+  # If the task made no source changes, current integration HEAD is a valid
+  # place to re-run acceptance verification even if the historical task worktree
+  # was already cleaned up. Dirty tasks still REQUIRE their preserved worktree.
   if (-not $wt) {
-    if (
-      $taskId -eq "JLC-0801" -and
-      (
-        $result.working_tree_clean -eq $true -or
-        (@($result.evidence) -join " ") -match "(?i)no files changed|git status clean"
-      )
-    ) {
+    $declaredNoChange = (
+      $result.working_tree_clean -eq $true -or
+      (@($result.evidence) -join " ") -match "(?i)no files changed|git status clean|working tree remained clean" -or
+      -not [string]::IsNullOrWhiteSpace([string]$result.no_change_reason)
+    )
+
+    if ($declaredNoChange) {
       $taskRoot = $RepoRoot
       $usingIntegrationTree = $true
     } else {
-      Write-Warning ($taskId + ": preserved task worktree not found.")
-      $summary += [pscustomobject]@{ task_id=$taskId; recovered=$false; detail="worktree missing" }
+      Write-Warning ($taskId + ": preserved dirty task worktree not found; refusing recovery.")
+      $summary += [pscustomobject]@{ task_id=$taskId; recovered=$false; detail="dirty worktree missing" }
       continue
     }
   } else {
@@ -251,23 +251,8 @@ foreach ($taskId in $TaskIds) {
     Ensure-TaskDependencies -RepoRoot $RepoRoot -TaskRoot $taskRoot
   }
 
-  # JLC-0801 had one requested host runtime test plus two already-passing related
-  # tests. Re-run all three on the host so its no-change PASS is self-contained.
   $verificationResultFile = $latest.FullName
   $tempResult = $null
-
-  if ($taskId -eq "JLC-0801") {
-    $clone = $result | ConvertTo-Json -Depth 30 | ConvertFrom-Json
-    $clone.evidence = @(
-      "HOST_VERIFY_NODE:apps/web/scripts/functional-03b-a1.test.cjs",
-      "HOST_VERIFY_NODE:apps/web/scripts/functional-03b-a2.test.cjs",
-      "HOST_VERIFY_NODE:apps/web/scripts/functional-03b-c.test.cjs"
-    )
-
-    $tempResult = Join-Path $runtime ("recover-" + $taskId + "-" + (Get-Date -Format "yyyyMMdd-HHmmssfff") + ".json")
-    $clone | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $tempResult -Encoding UTF8
-    $verificationResultFile = $tempResult
-  }
 
   try {
     $hostJson = & $hostVerifier `

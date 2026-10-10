@@ -174,21 +174,107 @@ if (-not $infraBlocked) {
   exit 0
 }
 
-$requests = @()
-foreach ($entry in @($result.evidence)) {
-  $text = [string]$entry
+function Add-VerifyRequest {
+  param(
+    [System.Collections.ArrayList]$List,
+    [string]$Kind,
+    [string]$Value
+  )
 
-  if ($text -match '^\s*HOST_VERIFY_NPM:\s*([A-Za-z0-9:_-]+)\s*$') {
-    $requests += [pscustomobject]@{
-      kind = "npm"
-      value = $matches[1]
+  if ([string]::IsNullOrWhiteSpace($Value)) { return }
+
+  $normalizedKind = $Kind.ToLowerInvariant()
+  $normalizedValue = $Value.Trim()
+
+  # Some Codex runs emitted HOST_VERIFY_NPM:<filename.test.cjs>. That is not an
+  # npm package script, but it is still a tightly bounded repository test file.
+  if (
+    $normalizedKind -eq "npm" -and
+    $normalizedValue -match '^[A-Za-z0-9_.-]+\.(cjs|mjs|js)$'
+  ) {
+    $normalizedKind = "node"
+    $normalizedValue = "apps/web/scripts/" + $normalizedValue
+  }
+
+  foreach ($existing in @($List)) {
+    if (
+      [string]$existing.kind -eq $normalizedKind -and
+      [string]$existing.value -eq $normalizedValue
+    ) {
+      return
     }
   }
 
+  [void]$List.Add([pscustomobject]@{
+    kind = $normalizedKind
+    value = $normalizedValue
+  })
+}
+
+function Extract-AllowListedRequestsFromText {
+  param(
+    [System.Collections.ArrayList]$List,
+    [string]$Text
+  )
+
+  if ([string]::IsNullOrWhiteSpace($Text)) { return }
+
+  # Exact package-script invocations only. No args, pipes, redirection, shell
+  # operators, or environment assignment are accepted.
+  foreach ($m in [regex]::Matches(
+    $Text,
+    '(?i)(?:^|[\s:;])npm(?:\.cmd)?\s+run\s+([A-Za-z0-9:_-]+)(?=$|[\s,.;)])'
+  )) {
+    Add-VerifyRequest -List $List -Kind "npm" -Value $m.Groups[1].Value
+  }
+
+  # Exact repository JS test files only.
+  foreach ($m in [regex]::Matches(
+    $Text,
+    '(?i)(?:^|[\s:;])node(?:\.exe)?\s+((?:apps[\\/]+web[\\/]+)?scripts[\\/]+[A-Za-z0-9_.\\/-]+\.(?:cjs|mjs|js))(?=$|[\s,.;)])'
+  )) {
+    Add-VerifyRequest -List $List -Kind "node" -Value $m.Groups[1].Value
+  }
+}
+
+$requests = New-Object System.Collections.ArrayList
+
+foreach ($entry in @($result.evidence)) {
+  $text = [string]$entry
+
+  if ($text -match '^\s*HOST_VERIFY_NPM:\s*([A-Za-z0-9:_.\\/-]+)\s*$') {
+    Add-VerifyRequest -List $requests -Kind "npm" -Value $matches[1]
+  }
+
   if ($text -match '^\s*HOST_VERIFY_NODE:\s*([A-Za-z0-9_./\\-]+)\s*$') {
-    $requests += [pscustomobject]@{
-      kind = "node"
-      value = $matches[1]
+    Add-VerifyRequest -List $requests -Kind "node" -Value $matches[1]
+  }
+}
+
+# Existing historical blockers sometimes predate the current marker protocol.
+# Recover only literal allow-listed commands already recorded by Codex.
+if ($requests.Count -eq 0) {
+  foreach ($entry in @($result.tests)) {
+    Extract-AllowListedRequestsFromText -List $requests -Text ([string]$entry)
+  }
+}
+
+# Last bounded fallback: parse command-shaped strings from this task's queue
+# verification field. Descriptive prose is ignored.
+if ($requests.Count -eq 0) {
+  $queuePath = Join-Path $RepoRoot "docs\jolcar-control\TASK_QUEUE.json"
+  if (Test-Path -LiteralPath $queuePath) {
+    try {
+      $queue = Get-Content -LiteralPath $queuePath -Raw -Encoding UTF8 | ConvertFrom-Json
+      $task = $queue.tasks |
+        Where-Object { [string]$_.id -eq [string]$result.task_id } |
+        Select-Object -First 1
+
+      foreach ($entry in @($task.verification)) {
+        Extract-AllowListedRequestsFromText -List $requests -Text ([string]$entry)
+      }
+    } catch {
+      # Queue parsing is diagnostic fallback only; never weaken the allow-list.
     }
   }
 }
@@ -197,7 +283,7 @@ if ($requests.Count -eq 0) {
   [pscustomobject]@{
     attempted = $false
     passed = $false
-    reason = "Codex did not provide allow-listed HOST_VERIFY requests"
+    reason = "No exact allow-listed host verification command could be recovered"
     checks = @()
   } | ConvertTo-Json -Depth 10 -Compress
   exit 0
