@@ -17,6 +17,7 @@ function loadTypeScriptModule(source, fileName) {
 }
 
 const market = loadTypeScriptModule(read("src", "lib", "market.ts"), "market.ts");
+const i18n = loadTypeScriptModule(read("src", "i18n", "config.ts"), "config.ts");
 const metadataSource = read("src", "lib", "seo", "metadata.ts");
 const layoutSource = read("src", "app", "layout.tsx");
 const footerSource = read("src", "components", "layout", "MarketplaceFooter.tsx");
@@ -85,6 +86,23 @@ assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
   status: "planned"
 });
 assert.notEqual(market.MARKET_PROFILES.yolmodTurkey.countryCode, market.MARKET_PROFILES.jolcarKazakhstan.countryCode);
+assert.equal(i18n.normalizeLocale("invalid-locale"), i18n.DEFAULT_LOCALE, "invalid locale must fall back explicitly");
+assert.equal(i18n.normalizeLocale(null), i18n.DEFAULT_LOCALE, "missing locale must fall back explicitly");
+assert.equal(i18n.isSupportedLocale("ru"), false, "future locales must not become public accidentally");
+assert.deepEqual(i18n.SUPPORTED_LOCALES, ["tr", "en"]);
+
+for (const fileName of [
+  "src/features/ai/config.ts",
+  "src/features/booking/server/configuration.ts",
+  "next.config.mjs",
+  "postcss.config.mjs",
+  "tailwind.config.ts",
+  "tsconfig.json"
+]) {
+  const source = read(...fileName.split("/"));
+  assert.doesNotMatch(source, /(?:Turkey|Türkiye|yolmod\.com|\+90|TRY|turkey_seller_contact)/i, `${fileName} must remain market-neutral`);
+}
+
 assert.equal(metadataSource.includes('"https://yolmod.com"'), false, "SEO must not independently hardcode the active host");
 assert.equal(metadataSource.includes('"Yolmod"'), false, "SEO must not independently hardcode the active brand");
 assert.match(metadataSource, /ACTIVE_MARKET_PROFILE\.siteUrl/);
