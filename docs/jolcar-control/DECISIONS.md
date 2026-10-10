@@ -1,6 +1,6 @@
-﻿# JOLCAR / YOLMOD DECISIONS LOG
+# JOLCAR / YOLMOD DECISIONS LOG
 
-**Version:** 1.0  
+**Version:** 1.0
 **Prepared:** 2026-10-10
 
 Status values:
@@ -88,13 +88,13 @@ Status values:
 | O-004 | DECIDED | Design | Final listing-card image ratio is **4:3**. | Approved by user 2026-10-10. |
 | O-005 | DECIDED | Phone/SMS | Kazakhstan seller/account phone policy uses **+7**. First registration: OTP then mandatory password enrollment. Routine login: phone + password, no routine OTP. OTP remains for registration, recovery, phone change/additional verified contact, and genuinely sensitive actions. Production SMS vendor selection/activation is deferred to production rollout; keep provider abstraction. | Approved by user 2026-10-10. |
 | O-006 | DECIDED | Geo | Use a repository-versioned Kazakhstan region/city dataset for development and MVP. Keep the geo boundary replaceable/syncable so an approved official source can be adopted later without rewriting product logic. | Approved by user 2026-10-10. |
-| O-007 | OPEN | Dealer verification | What documents/criteria make a Kazakhstan dealer verified? | Blocks production verification policy. |
+| O-007 | DECIDED | Dealer verification | Kazakhstan dealer verification requires a Kazakhstan legal entity or registered individual entrepreneur, a verified business registration identifier (BIN/IIN as applicable), verified phone, dealer/trade name, city/location, and an authorized representative. Verification is granted by admin review. States: `pending / verified / rejected / suspended`. Identity-document scans are not required by default unless a later legal/anti-fraud rule explicitly requires them. | Approved by user 2026-10-10. |
 | O-008 | OPEN | Dealer import | Which feed formats and API auth are required at launch? | Blocks specific adapters. |
-| O-009 | OPEN | Promotion | How does “Raise to top” work: entitlement, frequency, duration, ranking? | Blocks promotion behavior. |
-| O-010 | OPEN | Live | Which streaming provider is approved? | Blocks real provider integration/secrets. |
+| O-009 | DECIDED | Promotion | “Raise to top” uses a separate `raised_at` signal and never rewrites the true publication date. On MVP, each active listing gets one free raise every 7 days; after a raise it receives fresh placement in the standard ranking and then naturally moves down as newer/raised listings appear. Architecture may support future dealer entitlements/credits, but no payment flow is introduced. | Approved by user 2026-10-10. |
+| O-010 | DECIDED | Live | Amazon IVS is the initial approved Dealer Live provider behind a replaceable provider abstraction. Local contracts/adapter work is authorized; production account activation, credentials, paid usage, and live provider calls remain separately guarded. | Approved by user 2026-10-10. |
 | O-011 | OPEN | AI | Which external AI provider/model/cost limits are approved? | Blocks real provider activation. |
 | O-012 | OPEN | Voice | Which speech/voice provider or browser-native approach is approved if external service is needed? | Blocks production voice activation. |
-| O-013 | OPEN | VIN/trust | Which Kazakhstan official/partner source may provide VIN/history data? | Blocks external history integration. |
+| O-013 | DECIDED | VIN/trust | No external Kazakhstan VIN/history provider is required for the first public release. VIN remains optional; keep a replaceable provider boundary and normalization model. Do not claim verified vehicle history until an official/licensed source is separately approved and activated. | Approved by user 2026-10-10. |
 | O-014 | OPEN | Analytics | Which production analytics/telemetry vendor is approved? | Blocks vendor-specific telemetry. |
 | O-015 | OPEN | Legal/support | Final Kazakhstan legal/privacy/terms/support content and owner? | Blocks final production launch gate. |
 | O-016 | OPEN | Native apps | Must native iOS/Android launch with first public web release or afterward? | Does not block web unless user reclassifies. |
@@ -119,3 +119,17 @@ Historical YOLMOD audits/commits indicate many reusable capabilities already exi
 - **News:** original/editorial or explicitly licensed/permitted content only; no automated scraping; external ingestion deferred.
 
 These decisions authorize local implementation and testing only. They do not authorize production deployment, external provider activation, DNS changes, remote migrations, real SMS, scraping, or paid provider calls.
+
+<!-- JOLCAR_APPROVED_DECISIONS_2_2026-10-10 -->
+## Approved Jolcar product/provider decisions — 2026-10-10 (batch 2)
+
+- **Dealer verification (O-007 / JLC-D005):** Kazakhstan legal entity or registered individual entrepreneur; verified business registration identifier (BIN/IIN as applicable), verified phone, dealer/trade name, city/location and authorized representative; admin-controlled pending / verified / rejected / suspended; no identity-document scan by default unless later legally/anti-fraud required.
+- **Raise to top (O-009 / JLC-D009):** keep true publication date immutable; use separate
+aised_at; MVP grants one free raise every 7 days per active listing; future dealer entitlements/credits may plug in without introducing payments now.
+- **Dealer Live (O-010 / JLC-D006):** Amazon IVS is the initial provider behind a replaceable provider abstraction. This approves local integration contracts only; production account activation, credentials, paid usage and live provider calls remain separately guarded.
+- **VIN/history (O-013 / JLC-D010):** external Kazakhstan VIN/history source is deferred for first public release; VIN remains optional; provider boundary stays replaceable; no verified-history claims until an approved official/licensed source is activated.
+- **Production SMS (JLC-0308):** remains deferred and requires separate explicit authorization.
+- **AI foundation gap (JLC-1001):** remains a real implementation blocker; this decision package does not mark it complete.
+- **Brand:** this batch does **not** rename Jolcar to JOLMOD. Branding remains unchanged until separately and explicitly approved.
+
+These decisions authorize local implementation/testing only. They do not authorize production deployment, remote migrations, provider credentials, paid provider calls, real SMS, DNS changes, or Git push.
