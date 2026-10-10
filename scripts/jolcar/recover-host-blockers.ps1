@@ -2,7 +2,7 @@
   [Parameter(Mandatory=$true)]
   [string]$RepoRoot,
 
-  [string[]]$TaskIds = @("JLC-0508","JLC-0703","JLC-0906")
+  [string[]]$TaskIds = @("JLC-0508","JLC-0703")
 )
 
 $ErrorActionPreference = "Stop"
