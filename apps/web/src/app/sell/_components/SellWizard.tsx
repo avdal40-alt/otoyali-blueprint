@@ -888,6 +888,88 @@ export function SellWizard({
     }
 
     const listingId = createResult.data.listingId;
+    const supabase = getSupabaseBrowserClient();
+
+    // JLC-1001: upload and sanitize seller photos before moderation submission.
+    for (const [sortOrder, photo] of state.photos.entries()) {
+      if (!isCurrentPublication()) return;
+      updatePhoto(photo.id, {
+        uploadStatus: "uploading",
+        sanitizationStatus: "processing",
+        blurredRegionCount: null,
+        statusText: copy.photoProtecting,
+        error: null
+      });
+
+      let tempPath: string | null = null;
+      try {
+        const uploaded = await uploadPhotoMedia({
+          supabase,
+          userId,
+          vehicleProfileId: createResult.data.vehicleProfileId,
+          photo,
+          sortOrder,
+          isCurrent: isCurrentPublication,
+          copy,
+          onStatus: (statusText) => updatePhoto(photo.id, { statusText })
+        });
+        if (!isCurrentPublication()) return;
+        if (!uploaded) return;
+
+        tempPath = uploaded.temp_path;
+        updatePhoto(photo.id, {
+          sanitizationStatus: "processing",
+          statusText: copy.photoProtecting,
+          error: null
+        });
+
+        const mediaResult = await listingWriteRequest<{ mediaId: string; sortOrder: number; isCover: boolean; blurredRegionCount: number }>(
+          supabase,
+          `/api/listings/${listingId}/media`,
+          "POST",
+          {
+            mediaId: uploaded.id,
+            tempPath: uploaded.temp_path,
+            sortOrder: uploaded.sort_order,
+            isCover: uploaded.is_cover
+          }
+        );
+        if (!isCurrentPublication()) return;
+        if (mediaResult.error || !mediaResult.data) {
+          throw mediaResult.error ?? new Error("Sanitized media processing failed.");
+        }
+
+        updatePhoto(photo.id, {
+          uploadStatus: "ready",
+          sanitizationStatus: "ready",
+          blurredRegionCount: mediaResult.data.blurredRegionCount,
+          statusText: copy.photoProtected(mediaResult.data.blurredRegionCount),
+          error: null
+        });
+        tempPath = null;
+      } catch (mediaError) {
+        if (!isCurrentPublication()) return;
+        if (tempPath) {
+          try {
+            await supabase.storage.from("listing-media").remove([tempPath]);
+          } catch (cleanupError) {
+            logClientError("sell.cleanupTemporaryPhoto", cleanupError);
+          }
+        }
+        logClientError("sell.uploadSanitizedPhoto", mediaError);
+        updatePhoto(photo.id, {
+          uploadStatus: "failed",
+          sanitizationStatus: "failed",
+          statusText: copy.photoProcessingFailed,
+          error: copy.photoProcessingFallback
+        });
+        setSubmitting(false);
+        setPublishStatus(null);
+        setError(copy.submitFailure);
+        return;
+      }
+    }
+
     setPublishStatus(copy.submittingForModeration);
     let submitError: unknown;
     try {
