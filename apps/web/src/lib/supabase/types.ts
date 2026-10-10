@@ -31,6 +31,7 @@ export type HomeListing = {
 
 export type ListingDetails = {
   listing_id: string;
+  seller_id?: string | null;
   vehicle_profile_id?: string | null;
   title?: string | null;
   description: string | null;
