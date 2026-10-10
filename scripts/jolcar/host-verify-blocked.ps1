@@ -82,8 +82,10 @@ $infraBlocked = (
   [string]$result.status -eq "BLOCKED" -and
   (
     [string]$result.stop_reason -match "(?i)\bEPERM\b" -or
-    [string]$result.stop_reason -match "(?i)denied spawning cmd\.exe" -or
-    [string]$result.stop_reason -match "(?i)Docker returned EPERM"
+    [string]$result.stop_reason -match "(?i)(denied|cannot|could not|unable to)\s+(spawn|spawning).*(cmd\.exe|docker)" -or
+    [string]$result.stop_reason -match "(?i)(cmd\.exe|docker).*(denied|blocked|cannot|could not|unable)" -or
+    [string]$result.stop_reason -match "(?i)windows sandbox.*(cmd\.exe|docker)" -or
+    [string]$result.stop_reason -match "(?i)(cmd\.exe|docker).*windows sandbox"
   )
 )
 
@@ -101,14 +103,14 @@ $requests = @()
 foreach ($entry in @($result.evidence)) {
   $text = [string]$entry
 
-  if ($text -match '^HOST_VERIFY_NPM:([A-Za-z0-9:_-]+)$') {
+  if ($text -match '^\s*HOST_VERIFY_NPM:\s*([A-Za-z0-9:_-]+)\s*$') {
     $requests += [pscustomobject]@{
       kind = "npm"
       value = $matches[1]
     }
   }
 
-  if ($text -match '^HOST_VERIFY_NODE:([A-Za-z0-9_./\\-]+)$') {
+  if ($text -match '^\s*HOST_VERIFY_NODE:\s*([A-Za-z0-9_./\\-]+)\s*$') {
     $requests += [pscustomobject]@{
       kind = "node"
       value = $matches[1]
@@ -166,6 +168,16 @@ foreach ($req in $requests) {
 
   if ($req.kind -eq "node") {
     $relative = ([string]$req.value).Replace("/","\")
+
+    # Codex may express the allow-listed path either as:
+    #   scripts/foo.test.cjs
+    # or:
+    #   apps/web/scripts/foo.test.cjs
+    # Normalize both to a path relative to apps/web.
+    if ($relative -match '^(?i)apps\\web\\(.+)$') {
+      $relative = $matches[1]
+    }
+
     $candidate = Join-Path $webRoot $relative
     $full = [System.IO.Path]::GetFullPath($candidate)
     $webFull = [System.IO.Path]::GetFullPath($webRoot)

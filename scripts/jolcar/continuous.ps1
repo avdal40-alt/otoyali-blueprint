@@ -440,8 +440,10 @@ while ($true) {
       [string]$result.status -eq "BLOCKED" -and
       (
         [string]$result.stop_reason -match "(?i)\bEPERM\b" -or
-        [string]$result.stop_reason -match "(?i)denied spawning cmd\.exe" -or
-        [string]$result.stop_reason -match "(?i)Docker returned EPERM"
+        [string]$result.stop_reason -match "(?i)(denied|cannot|could not|unable to)\s+(spawn|spawning).*(cmd\.exe|docker)" -or
+        [string]$result.stop_reason -match "(?i)(cmd\.exe|docker).*(denied|blocked|cannot|could not|unable)" -or
+        [string]$result.stop_reason -match "(?i)windows sandbox.*(cmd\.exe|docker)" -or
+        [string]$result.stop_reason -match "(?i)(cmd\.exe|docker).*windows sandbox"
       )
     ) {
       try {
