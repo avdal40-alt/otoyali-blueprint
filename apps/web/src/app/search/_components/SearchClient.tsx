@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { City, HomeListing, ListingMedia, Make, Model } from "@/lib/supabase/types";
 import { AppHeader } from "@/components/layout/AppHeader";
@@ -65,6 +65,7 @@ export function SearchClient({
   const { locale, dictionary } = useI18n();
   const router = useRouter();
   const [filters, setFilters] = useState<ListingSearchFilters>(initialFilters);
+  const [isPending, startTransition] = useTransition();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   useEffect(() => setFilters(initialFilters), [initialFilters]);
   const cityOptions = useMemo(() => {
@@ -100,7 +101,7 @@ export function SearchClient({
     );
 
   function submit(nextFilters = filters) {
-    router.push(localizePath(buildSearchUrl({ ...nextFilters, cursor: null }), locale));
+    startTransition(() => router.push(localizePath(buildSearchUrl({ ...nextFilters, cursor: null }), locale)));
     setMobileFiltersOpen(false);
   }
 
@@ -129,6 +130,7 @@ export function SearchClient({
   }
 
   function renderFilterPanel() {
+    const resultCount = !error && !isPending && JSON.stringify(filters) === JSON.stringify(initialFilters) ? listings.length : undefined;
     return (
       <SearchFilters
         filters={filters}
@@ -140,6 +142,7 @@ export function SearchClient({
         onChange={setFilters}
         onSubmit={() => submit()}
         onReset={reset}
+        resultCount={resultCount}
       />
     );
   }

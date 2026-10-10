@@ -88,7 +88,8 @@ export function SearchFilters({
   support,
   onChange,
   onSubmit,
-  onReset
+  onReset,
+  resultCount
 }: {
   filters: ListingSearchFilters;
   makes: Make[];
@@ -99,6 +100,7 @@ export function SearchFilters({
   onChange: (filters: ListingSearchFilters) => void;
   onSubmit?: () => void;
   onReset?: () => void;
+  resultCount?: number;
 }) {
   const { locale, dictionary } = useI18n();
   const selectedMakes = selectedValues(filters.make);
@@ -273,7 +275,7 @@ export function SearchFilters({
             </Button>
           ) : null}
           <Button type="button" variant="orange" onClick={onSubmit} className={onReset ? "" : "col-span-2"}>
-            {String(dictionary.common.search)}
+            {resultCount === undefined ? String(dictionary.common.search) : `${String(dictionary.common.search)} (${resultCount})`}
           </Button>
         </div>
       </div>
