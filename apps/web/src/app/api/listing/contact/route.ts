@@ -38,6 +38,14 @@ export async function POST(request: NextRequest) {
     return privateJson({ error: "Oturum doğrulanamadı." }, 401);
   }
 
+  const { data: reservation, error: reservationError } = await supabase.rpc("reserve_listing_seller_contact_disclosure", {
+    p_listing_id: payload.listingId
+  });
+  const allowed = Array.isArray(reservation) && reservation[0]?.allowed === true;
+  if (reservationError || !allowed) {
+    return privateJson({ error: "Satıcı iletişimi şu anda kullanılamıyor." }, reservationError ? 403 : 429);
+  }
+
   const { data, error } = await supabase.rpc("get_listing_seller_contact", {
     p_listing_id: payload.listingId
   });
