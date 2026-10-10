@@ -268,6 +268,7 @@ $promptLines += @(
   "",
   "METHOD: inspect narrowly -> make smallest correct change -> run acceptance verification and targeted regressions only -> review diff/security impact. Do not run broad suites unless explicitly required.",
   "If already satisfied, prove it and PASS with no_change_reason. If unsafe/impossible, return BLOCKED rather than retrying the same infrastructure problem.",
+  "WINDOWS SANDBOX BRIDGE: if the ONLY remaining verification blocker is local Windows sandbox EPERM/cmd.exe/Docker process spawning, return BLOCKED but include exact allow-listed evidence entries for the outer host: HOST_VERIFY_NPM:<package-script-name> and/or HOST_VERIFY_NODE:<relative path under apps/web/scripts>. Do not request arbitrary shell commands. Complete all other checks first.",
   "",
   "FINAL: JSON only, exactly matching scripts/jolcar/task-result.schema.json. Keep summary/evidence concise (max 8 evidence entries).",
   "PASS invariants: production_accessed=false; push_performed=false; remote_migrations_applied=false; deploy_performed=false; secrets_changed=false; otp_sms_sent=0; commit=null; tests_passed=true when executable verification is required. working_tree_clean=false is allowed for verified source changes."

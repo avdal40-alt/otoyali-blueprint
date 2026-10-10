@@ -364,6 +364,57 @@ while ($true) {
       throw ("Task result ID mismatch. Expected " + $taskId + ", got " + [string]$result.task_id)
     }
 
+    # If Codex completed the task but a LOCAL Windows sandbox EPERM prevented only
+    # the final executable verification, allow the outer host to run explicitly
+    # requested, tightly allow-listed verification commands. No arbitrary shell.
+    if (
+      [string]$result.status -eq "BLOCKED" -and
+      (
+        [string]$result.stop_reason -match "(?i)\bEPERM\b" -or
+        [string]$result.stop_reason -match "(?i)denied spawning cmd\.exe" -or
+        [string]$result.stop_reason -match "(?i)Docker returned EPERM"
+      )
+    ) {
+      try {
+        $hostVerifyJson = & (Join-Path $PSScriptRoot "host-verify-blocked.ps1") `
+          -RepoRoot $RepoRoot `
+          -TaskWorktree $meta.TaskWorktree `
+          -ResultFile $meta.ResultFile
+
+        if ($hostVerifyJson) {
+          $hostVerify = $hostVerifyJson | ConvertFrom-Json
+
+          if ($hostVerify.attempted -eq $true -and $hostVerify.passed -eq $true) {
+            Write-Host ("HOST VERIFICATION BRIDGE PASS: " + $taskId)
+
+            $result.status = "PASS"
+            $result.tests_passed = $true
+            $result.stop_reason = $null
+
+            $hostEvidence = @()
+            foreach ($check in @($hostVerify.checks)) {
+              $hostEvidence += (
+                "HOST PASS: " + [string]$check.command
+              )
+            }
+
+            $result.evidence = @($result.evidence) + @($hostEvidence)
+
+            # Persist the converted local-only result so recovery/audit evidence
+            # reflects what the outer host actually proved.
+            $result | ConvertTo-Json -Depth 30 | Set-Content $meta.ResultFile -Encoding UTF8
+
+            & (Join-Path $PSScriptRoot "safety-check.ps1") -ResultFile $meta.ResultFile
+          }
+        }
+      } catch {
+        Write-Warning (
+          "Host verification bridge failed nonfatally for " + $taskId +
+          ": " + $_.Exception.Message
+        )
+      }
+    }
+
     $diagnosticText = Get-ResultDiagnosticText -Result $result
     if (Test-UsageLimitText -Text $diagnosticText) {
       $resetAt = Get-UsageResetDateTime -Text $diagnosticText
