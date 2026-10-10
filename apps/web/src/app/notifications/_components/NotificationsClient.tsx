@@ -8,7 +8,7 @@ import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 
-type NotificationRow = { id: string; type: "saved_search_match"; listingId: string | null; createdAt: string; readAt: string | null };
+type NotificationRow = { id: string; type: "saved_search_match" | "price_drop"; listingId: string | null; createdAt: string; readAt: string | null };
 type Cursor = { beforeAt: string; beforeId: string };
 
 export function NotificationsClient() {
