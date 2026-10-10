@@ -58,6 +58,43 @@ if ($LASTEXITCODE -ne 0) {
   throw "Failed to create isolated task worktree."
 }
 
+# Git worktrees intentionally do not copy ignored dependency directories such as
+# node_modules. Reuse the already-installed LOCAL dependencies from the clean
+# integration worktree by creating directory junctions inside the isolated task
+# worktree. This performs no network install and does not change package state.
+#
+# Codex still receives the task worktree as its workspace-write root; the shared
+# dependency directories are only runtime inputs for typecheck/tests.
+$dependencyLinks = @(
+  [pscustomobject]@{
+    Source = (Join-Path $IntegrationRepo "node_modules")
+    Target = (Join-Path $taskWorktree "node_modules")
+    Label = "root node_modules"
+  },
+  [pscustomobject]@{
+    Source = (Join-Path $IntegrationRepo "apps\web\node_modules")
+    Target = (Join-Path $taskWorktree "apps\web\node_modules")
+    Label = "apps/web node_modules"
+  }
+)
+
+foreach ($link in $dependencyLinks) {
+  if ((Test-Path $link.Source) -and (-not (Test-Path $link.Target))) {
+    $parentDir = Split-Path $link.Target -Parent
+    New-Item -ItemType Directory -Force $parentDir | Out-Null
+
+    try {
+      New-Item -ItemType Junction -Path $link.Target -Target $link.Source -ErrorAction Stop | Out-Null
+      Write-Host ("Shared local dependency junction: " + $link.Label)
+    } catch {
+      throw (
+        "Failed to share existing local dependencies into task worktree: " +
+        $link.Label + ". " + $_.Exception.Message
+      )
+    }
+  }
+}
+
 $resultFile = Join-Path $logs ($safeId + "-a" + $Attempt + "-" + $stamp + "-result.json")
 $codexLog = Join-Path $logs ($safeId + "-a" + $Attempt + "-" + $stamp + "-codex.log")
 $promptFile = Join-Path $logs ($safeId + "-a" + $Attempt + "-" + $stamp + "-prompt.txt")
