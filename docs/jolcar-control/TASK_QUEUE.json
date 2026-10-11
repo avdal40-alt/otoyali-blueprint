@@ -1961,7 +1961,7 @@
       "title": "Vehicle owner review schema/domain",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0105",
@@ -1980,8 +1980,8 @@
         "schema/domain tests",
         "RLS tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11: migration 20261010120000_functional_08_vehicle_owner_reviews.sql provides the owner review vehicle hierarchy, ownership/rating/pros/cons fields, and RLS. Verified by apps/web/scripts/jlc-0704-vehicle-owner-review-domain.test.cjs and local PostgreSQL catalog/RLS inspection.",
+      "notes": "No seller/dealer rating domain introduced. Historical migration was retained unchanged; later review moderation and UI migrations remain intact."
     },
     {
       "id": "JLC-0705",
