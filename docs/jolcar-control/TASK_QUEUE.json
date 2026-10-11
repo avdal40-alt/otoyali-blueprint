@@ -264,7 +264,7 @@
       "title": "Country-aware phone policy abstraction",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0101"
@@ -284,8 +284,8 @@
         "auth/seller-contact contract tests",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 revalidated the committed country-aware phone policy with `npm.cmd run test:phone-policy`, `npm.cmd run test:phone-auth`, `npm.cmd run test:seller-contact-flow`, `npm.cmd run test:sell-sec-04b1`, and `npm.cmd run typecheck` in apps/web. The local authorization test passed authenticated service-finalizer, ownership, replay, privilege, and Auth-phone-independence checks.",
+      "notes": "Phone parsing and presentation resolve through the typed market policy; canonical storage remains E.164. Seller-contact support is independently disabled for the planned Kazakhstan profile while login support remains unconstrained. No Kazakhstan SMS provider was selected or activated; the active legacy provider remains separately configuration-gated."
     },
     {
       "id": "JLC-0104",
