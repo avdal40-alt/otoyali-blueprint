@@ -294,7 +294,7 @@
       "title": "Country-aware location/city boundary",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0101"
@@ -313,8 +313,8 @@
         "hardcode scan",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local implementation: 20261011120553_jlc0104_kazakhstan_city_dataset.sql seeds 20 repository-versioned Kazakhstan republican/regional-centre cities; local transaction dry-run inserted 20 rows then rolled back cleanly, followed by local apply and exact migration-history repair. `npm run test:location-contract`, `npm run test:country-config`, `npm run typecheck`, static migration check, duplicate-version scan, and `git diff --check` passed.",
+      "notes": "City retrieval now scopes the existing public city view by the typed market country code. The O-006 source boundary records the 2026-01-01 Kazakhstan Bureau of National Statistics administrative-territorial publication; no live integration or production action occurred."
     },
     {
       "id": "JLC-0105",
