@@ -99,8 +99,8 @@ export const MARKET_PROFILES = {
       defaultLocale: "kk_KZ"
     },
     formatting: {
-      // This controls numeric/date conventions only; it does not activate a
-      // Kazakhstan UI locale (O-001 remains an open product decision).
+      // This controls numeric/date conventions only; it does not activate
+      // Kazakhstan UI locales, which are delivered by the localization tasks.
       defaultIntlLocale: "kk-KZ",
       intlLocaleByLocale: {},
       defaultCurrencyLabel: "₸",
@@ -109,8 +109,8 @@ export const MARKET_PROFILES = {
     defaultPhoneCountry: "KZ",
     phonePolicy: {
       login: { allowedCountries: "any" },
-      // O-005 is open: do not permit a seller-contact flow before its policy
-      // and provider have been explicitly approved.
+      // O-005 confirms the policy, but activation belongs to the dedicated
+      // country-aware phone and provider rollout tasks.
       sellerContacts: { enabled: false }
     },
     status: "planned"

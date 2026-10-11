@@ -17,6 +17,7 @@ function loadTypeScriptModule(source, fileName) {
 }
 
 const market = loadTypeScriptModule(read("src", "lib", "market.ts"), "market.ts");
+const marketSource = read("src", "lib", "market.ts");
 const i18n = loadTypeScriptModule(read("src", "i18n", "config.ts"), "config.ts");
 const metadataSource = read("src", "lib", "seo", "metadata.ts");
 const layoutSource = read("src", "app", "layout.tsx");
@@ -90,6 +91,8 @@ assert.equal(i18n.normalizeLocale("invalid-locale"), i18n.DEFAULT_LOCALE, "inval
 assert.equal(i18n.normalizeLocale(null), i18n.DEFAULT_LOCALE, "missing locale must fall back explicitly");
 assert.equal(i18n.isSupportedLocale("ru"), false, "future locales must not become public accidentally");
 assert.deepEqual(i18n.SUPPORTED_LOCALES, ["tr", "en"]);
+assert.doesNotMatch(marketSource, /O-001 remains an open product decision/);
+assert.doesNotMatch(marketSource, /O-005 is open/);
 
 for (const fileName of [
   "src/features/ai/config.ts",

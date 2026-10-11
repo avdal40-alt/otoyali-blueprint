@@ -205,7 +205,7 @@
       "title": "Introduce country/brand configuration boundary",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0001"
@@ -226,8 +226,8 @@
         "hardcode scan",
         "relevant routing tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 verified typed MARKET_PROFILES boundary and its active-profile consumers with apps/web/scripts/country-config.test.cjs, apps/web/scripts/i18n-routing-runtime.test.cjs, and TypeScript typecheck. The hardcode guard confirms brand/host values remain confined to src/lib/market.ts.",
+      "notes": "Jolcar and YOLMOD profiles coexist in the typed boundary; the active profile and production configuration remain unchanged. Corrected stale O-001/O-005 comments without activating future localization or phone-provider work."
     },
     {
       "id": "JLC-0102",
