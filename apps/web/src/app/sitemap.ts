@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getCities } from "@/lib/queries/cities";
 import { getHomeListings } from "@/lib/queries/listings";
 import { getMakes, getModels } from "@/lib/queries/makes";
-import { SITE_URL } from "@/lib/seo/metadata";
+import { getPublicSiteUrl } from "@/lib/seo/metadata";
 import { citySeoSlug, makeSeoSlug, modelSeoSlug } from "@/lib/seo/slugs";
 import { localizePath } from "@/i18n/config";
 import { getSitemapVerticals } from "@/lib/marketplace/verticals";
@@ -11,6 +11,9 @@ import { getServiceProviders } from "@/lib/queries/services";
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const siteUrl = getPublicSiteUrl();
+  if (!siteUrl) return [];
+
   const now = new Date();
   const staticPaths = [
     "/",
@@ -60,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries = new Map<string, MetadataRoute.Sitemap[number]>();
   const add = (path: string, priority = 0.6) => {
     entries.set(path, {
-      url: `${SITE_URL}${path}`,
+      url: `${siteUrl}${path}`,
       lastModified: now,
       changeFrequency: "daily",
       priority

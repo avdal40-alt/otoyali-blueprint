@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/seo/metadata";
+import { getPublicSiteUrl } from "@/lib/seo/metadata";
 import { getSitemapVerticals } from "@/lib/marketplace/verticals";
 
 export default function robots(): MetadataRoute.Robots {
+  const siteUrl = getPublicSiteUrl();
   const verticalRoutes = getSitemapVerticals().flatMap((vertical) => [vertical.routes.tr, vertical.routes.en]);
 
   return {
@@ -78,6 +79,6 @@ export default function robots(): MetadataRoute.Robots {
         "/api/private"
       ]
     },
-    sitemap: `${SITE_URL}/sitemap.xml`
+    ...(siteUrl ? { sitemap: `${siteUrl}/sitemap.xml` } : {})
   };
 }

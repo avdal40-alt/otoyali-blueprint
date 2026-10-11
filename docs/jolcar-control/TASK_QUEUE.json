@@ -352,7 +352,7 @@
       "title": "Country/brand routing and metadata boundary",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0101"
@@ -370,8 +370,8 @@
         "routing/metadata tests",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 implemented and verified configurable public-host metadata handling with apps/web/scripts/jlc-0106-routing-metadata.test.cjs, apps/web/scripts/country-config.test.cjs, apps/web/scripts/i18n-routing-runtime.test.cjs, and apps/web TypeScript typecheck. The build/runtime routing test passed after the metadata boundary change.",
+      "notes": "SEO metadata, canonical URLs, Open Graph URLs, sitemap, and robots resolve through the typed market profile. A planned profile without an approved host emits relative metadata and no sitemap/robots sitemap rather than borrowing a country host. Active profile, routing, domain, and DNS remain unchanged."
     },
     {
       "id": "JLC-0107",

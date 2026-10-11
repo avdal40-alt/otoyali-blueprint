@@ -108,14 +108,15 @@ for (const fileName of [
 
 assert.equal(metadataSource.includes('"https://yolmod.com"'), false, "SEO must not independently hardcode the active host");
 assert.equal(metadataSource.includes('"Yolmod"'), false, "SEO must not independently hardcode the active brand");
-assert.match(metadataSource, /ACTIVE_MARKET_PROFILE\.siteUrl/);
-assert.match(metadataSource, /ACTIVE_MARKET_PROFILE\.brandName/);
+assert.match(metadataSource, /getPublicSiteUrl/);
+assert.match(metadataSource, /profile\.brandName/);
 for (const [fileName, source] of [["layout", layoutSource], ["footer", footerSource]]) {
   assert.match(source, /ACTIVE_MARKET_PROFILE\.brandName/, `${fileName} must consume the active brand profile`);
   assert.equal(source.includes('"Yolmod"'), false, `${fileName} must not independently hardcode the active brand`);
 }
 assert.equal(layoutSource.includes('"https://yolmod.com"'), false, "Root metadata must not independently hardcode the active host");
-assert.match(layoutSource, /ACTIVE_MARKET_PROFILE\.siteUrl/);
+assert.match(layoutSource, /getMetadataBase\(\)/);
+assert.match(layoutSource, /getPublicSiteUrl\(\)/);
 assert.match(layoutSource, /ACTIVE_MARKET_PROFILE\.metadata/);
 assert.doesNotMatch(metadataSource, /tr_TR/);
 

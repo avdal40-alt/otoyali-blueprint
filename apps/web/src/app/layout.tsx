@@ -4,10 +4,11 @@ import { getLocaleDirection, getLocaleTag } from "@/i18n/config";
 import { getClientDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
 import { ACTIVE_MARKET_PROFILE } from "@/lib/market";
+import { getMetadataBase, getPublicSiteUrl } from "@/lib/seo/metadata";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(ACTIVE_MARKET_PROFILE.siteUrl),
+  metadataBase: getMetadataBase(),
   title: {
     default: `${ACTIVE_MARKET_PROFILE.brandName} - ${ACTIVE_MARKET_PROFILE.metadata.defaultTitle}`,
     template: `%s | ${ACTIVE_MARKET_PROFILE.brandName}`
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: ACTIVE_MARKET_PROFILE.brandName,
     description: ACTIVE_MARKET_PROFILE.metadata.openGraphDescription,
-    url: ACTIVE_MARKET_PROFILE.siteUrl,
+    url: getPublicSiteUrl() ?? undefined,
     siteName: ACTIVE_MARKET_PROFILE.brandName,
     locale: ACTIVE_MARKET_PROFILE.metadata.defaultLocale,
     type: "website"
