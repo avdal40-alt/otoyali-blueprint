@@ -1237,7 +1237,7 @@
       "title": "Publish listing CTA and moderation transition",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0501"
@@ -1257,8 +1257,8 @@
         "lifecycle runtime tests",
         "i18n tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local verification: `npm run test:jlc-0501`, `npm run test:sell-03h`, and `npm run typecheck` passed. The lifecycle/RLS runtime test proves that an owner can transition a private draft to `pending_review`, while anonymous and non-owner submission is denied and the listing remains unpublished. The SellWizard contract confirms the separate Publish action invokes the protected submit endpoint and reports submission failure without showing success.",
+      "notes": "The protected Publish-to-moderation implementation was already present in current history (5ec5a58). This completion localizes seller-contact copy through the typed dictionary, removes stale Turkey-specific wording from that UI path, and aligns the localized success titles with the i18n regression. No migration was required or applied; only local Supabase fixtures were used. No production/provider/remote action, deploy, or push occurred."
     },
     {
       "id": "JLC-0503",

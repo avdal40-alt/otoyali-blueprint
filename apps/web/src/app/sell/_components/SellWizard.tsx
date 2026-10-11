@@ -199,7 +199,6 @@ export function SellWizard({
     modelRequestGuard.current.setTarget(modelRequestContextKey);
   }
   const sell03 = copy;
-  const contactCopy = locale === "tr" ? { title: "Doğrulanmış satıcı iletişimi", label: "İletişim numarası", missing: "İlan oluşturmadan önce doğrulanmış bir Türkiye iletişim numarası ekleyin.", manage: "Numaraları yönet", account: "Hesap telefonu", required: "İlan oluşturmadan önce doğrulanmış bir satıcı iletişim numarası seçin." } : { title: "Verified seller contact", label: "Contact number", missing: "Add and verify a Turkish contact number before creating a listing.", manage: "Manage phone numbers", account: "Account phone", required: "Select a verified Turkish seller contact number before creating the listing." };
 
   const loadModelsForMake = useCallback(async (makeId: string) => {
     if (!hasSupabaseEnv()) return;
@@ -708,7 +707,7 @@ export function SellWizard({
       setError(validation);
       return;
     }
-    if (!sellerContactId) { setError(contactCopy.required); return; }
+    if (!sellerContactId) { setError(copy.sellerContactRequired); return; }
     const contactChanged = selectedSellerContactPhoneId !== persistedSellerContactPhoneId && selectedSellerContactPhoneId !== "";
 
     const routeToken = routeRequestGuard.current.currentToken();
@@ -772,7 +771,7 @@ export function SellWizard({
       });
       if (!isCurrentSubmission()) return;
       if (contactResult.error) {
-        setError(locale === "tr" ? "İlan değişiklikleri kaydedildi, ancak iletişim numarası güncellenemedi. Lütfen iletişim numarasını tekrar güncelleyin." : "Listing changes were saved, but the contact phone could not be updated. Please try updating the contact again.");
+        setError(copy.contactUpdateFailure);
         setSubmitting(false);
         setPublishStatus(null);
         return;
@@ -1068,8 +1067,8 @@ export function SellWizard({
           <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-red-800">{rejectionReason}</p>
         </section>
       ) : null}
-      {mode === "create" ? <section className="rounded-oto border border-oto-border bg-white p-4"><h2 className="text-base font-black text-oto-text">{contactCopy.title}</h2>{sellerContacts.length === 0 ? <><p className="mt-2 text-sm text-oto-muted">{contactCopy.missing}</p><ButtonLink className="mt-3" variant="secondary" href={localizePath("/profile/seller-contacts", locale)}>{contactCopy.manage}</ButtonLink></> : <label className="mt-3 grid gap-1 text-sm font-bold text-oto-text">{contactCopy.label}<Select value={sellerContactId} onChange={(event) => setSellerContactId(event.target.value)}>{sellerContacts.map((contact) => <option key={contact.contact_id} value={contact.contact_id}>{contact.masked_phone}{contact.is_current_account_phone ? ` — ${contactCopy.account}` : ""}</option>)}</Select></label>}</section> : null}
-      {mode === "editRejected" ? <section className="rounded-oto border border-oto-border bg-white p-4"><h2 className="text-base font-black text-oto-text">{locale === "tr" ? "İlan iletişim numarası" : "Listing contact phone"}</h2><p className="mt-2 text-sm text-oto-muted">{locale === "tr" ? "Alıcıların kullanacağı doğrulanmış numarayı seçin." : "Select the verified phone buyers will use to contact you."}</p>{sellerContacts.length === 0 ? <><p className="mt-3 text-sm text-oto-muted">{locale === "tr" ? "Doğrulanmış iletişim numarası yok." : "No verified contact is available."}</p><ButtonLink className="mt-3" variant="secondary" href={localizePath("/profile/seller-contacts", locale)}>{locale === "tr" ? "Numaraları yönet" : "Manage phone numbers"}</ButtonLink></> : <label className="mt-3 grid gap-1 text-sm font-bold text-oto-text">{locale === "tr" ? "İletişim numarası" : "Contact phone"}<Select value={selectedSellerContactPhoneId} onChange={(event) => setSelectedSellerContactPhoneId(event.target.value)}><option value="">{persistedSellerContactPhoneId ? (locale === "tr" ? "Mevcut seçimi koru" : "Keep current selection") : (locale === "tr" ? "Mevcut iletişim numarası" : "Existing contact number")}</option>{sellerContacts.map((contact) => <option key={contact.contact_id} value={contact.contact_id}>{contact.masked_phone}{contact.is_current_account_phone ? ` — ${contactCopy.account}` : ""}</option>)}</Select></label>}{!persistedSellerContactPhoneId ? <p className="mt-3 text-sm text-oto-muted">{locale === "tr" ? "Bu ilan mevcut iletişim numarasını kullanıyor." : "This listing currently uses its existing contact number."}</p> : null}</section> : null}
+      {mode === "create" ? <section className="rounded-oto border border-oto-border bg-white p-4"><h2 className="text-base font-black text-oto-text">{copy.sellerContactTitle}</h2>{sellerContacts.length === 0 ? <><p className="mt-2 text-sm text-oto-muted">{copy.sellerContactMissing}</p><ButtonLink className="mt-3" variant="secondary" href={localizePath("/profile/seller-contacts", locale)}>{copy.sellerContactManage}</ButtonLink></> : <label className="mt-3 grid gap-1 text-sm font-bold text-oto-text">{copy.sellerContactLabel}<Select value={sellerContactId} onChange={(event) => setSellerContactId(event.target.value)}>{sellerContacts.map((contact) => <option key={contact.contact_id} value={contact.contact_id}>{contact.masked_phone}{contact.is_current_account_phone ? ` — ${copy.sellerContactAccount}` : ""}</option>)}</Select></label>}</section> : null}
+      {mode === "editRejected" ? <section className="rounded-oto border border-oto-border bg-white p-4"><h2 className="text-base font-black text-oto-text">{copy.listingContactTitle}</h2><p className="mt-2 text-sm text-oto-muted">{copy.listingContactHelp}</p>{sellerContacts.length === 0 ? <><p className="mt-3 text-sm text-oto-muted">{copy.listingContactUnavailable}</p><ButtonLink className="mt-3" variant="secondary" href={localizePath("/profile/seller-contacts", locale)}>{copy.sellerContactManage}</ButtonLink></> : <label className="mt-3 grid gap-1 text-sm font-bold text-oto-text">{copy.listingContactLabel}<Select value={selectedSellerContactPhoneId} onChange={(event) => setSelectedSellerContactPhoneId(event.target.value)}><option value="">{persistedSellerContactPhoneId ? copy.keepCurrentContact : copy.existingContact}</option>{sellerContacts.map((contact) => <option key={contact.contact_id} value={contact.contact_id}>{contact.masked_phone}{contact.is_current_account_phone ? ` — ${copy.sellerContactAccount}` : ""}</option>)}</Select></label>}{!persistedSellerContactPhoneId ? <p className="mt-3 text-sm text-oto-muted">{copy.existingContactHelp}</p> : null}</section> : null}
       <div className="flex gap-2 overflow-x-auto pb-1">
         {steps.map((label, index) => {
           const item = index + 1;
