@@ -49,6 +49,15 @@ const validEngineVolume = (value: { fuelType: string; engineVolumeL: number | nu
   }
 };
 
+const validConditionMileage = (value: { condition: "used" | "new"; mileageKm: number }, context: z.RefinementCtx) => {
+  if (value.condition === "new" && value.mileageKm !== 0) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["mileageKm"], message: "New listings must have zero mileage." });
+  }
+  if (value.condition === "used" && value.mileageKm <= 0) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["mileageKm"], message: "Used listings require mileage greater than zero." });
+  }
+};
+
 export const createListingSchema = z.object({
   ...listingFields,
   variantId: listingIdSchema.nullable(),
@@ -57,6 +66,7 @@ export const createListingSchema = z.object({
   sellerContactPhoneId: listingIdSchema
 }).strict().superRefine((value, context) => {
   validEngineVolume(value, context);
+  validConditionMileage(value, context);
   if (value.districtId && !value.cityId) context.addIssue({ code: z.ZodIssueCode.custom, path: ["districtId"], message: "District requires a city." });
 });
 
@@ -64,7 +74,10 @@ export const editListingSchema = z.object({
   ...listingFields,
   expectedListingUpdatedAt: z.string().datetime({ offset: true }),
   expectedVehicleUpdatedAt: z.string().datetime({ offset: true })
-}).strict().superRefine(validEngineVolume);
+}).strict().superRefine((value, context) => {
+  validEngineVolume(value, context);
+  validConditionMileage(value, context);
+});
 
 export const mediaAttachmentSchema = z.object({
   mediaId: listingIdSchema,

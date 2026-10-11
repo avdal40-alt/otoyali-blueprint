@@ -1034,7 +1034,7 @@
       "title": "Zero-km vs second-hand marketplace flow",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0401",
@@ -1053,8 +1053,8 @@
         "search/listing tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "20261011190000_jlc0407_zero_km_condition_invariant.sql; npm run test:jlc-0407 PASS; npm run typecheck PASS; local constraint/history verification PASS 2026-10-11",
+      "notes": "New listings now enter the seller flow with mileage fixed at 0, used listings require positive mileage, and the invariant is enforced in server validation and the local PostgreSQL schema. Existing search condition filtering remains unchanged."
     },
     {
       "id": "JLC-0410",

@@ -1129,7 +1129,17 @@ export function SellWizard({
               <Input value={state.year} onChange={(event) => update("year", event.target.value)} placeholder="2021" inputMode="numeric" />
             </Field>
             <Field label={copy.condition}>
-              <Select value={state.condition} onChange={(event) => update("condition", event.target.value)}>
+              <Select
+                value={state.condition}
+                onChange={(event) => {
+                  const condition = event.target.value;
+                  setState((current) => ({
+                    ...current,
+                    condition,
+                    mileageKm: condition === "new" ? "0" : current.condition === "new" && current.mileageKm === "0" ? "" : current.mileageKm
+                  }));
+                }}
+              >
                 <option value="used">{conditionLabel("used", locale)}</option>
                 <option value="new">{conditionLabel("new", locale)}</option>
               </Select>
@@ -1147,7 +1157,7 @@ export function SellWizard({
         <Panel title={copy.equipmentAndDescription}>
           <div className="grid gap-3 md:grid-cols-2">
             <Field label={copy.mileage}>
-              <Input value={state.mileageKm} onChange={(event) => update("mileageKm", event.target.value)} placeholder="45000" inputMode="numeric" />
+              <Input value={state.mileageKm} onChange={(event) => update("mileageKm", event.target.value)} placeholder="45000" inputMode="numeric" disabled={state.condition === "new"} />
             </Field>
             <Field label={copy.fuelType}>
               <Select value={state.fuelType} onChange={(event) => update("fuelType", event.target.value)}>
@@ -1539,7 +1549,8 @@ function validateStep(step: number, state: WizardState, copy: SellCopy) {
     if (!validYear(state.year)) return copy.invalidYear;
   }
   if (step === 3) {
-    if (state.condition === "used" && !state.mileageKm) return copy.usedMileageRequired;
+    if (state.condition === "used" && (!state.mileageKm || Number(state.mileageKm) <= 0)) return copy.usedMileageRequired;
+    if (state.condition === "new" && state.mileageKm !== "0") return copy.invalidMileage;
     if (state.mileageKm && Number(state.mileageKm) < 0) return copy.invalidMileage;
     if (state.fuelType !== "electric" && (!state.engineVolumeL || !Number.isFinite(Number(state.engineVolumeL)) || Number(state.engineVolumeL) <= 0)) {
       return copy.combustionDisplacement;
