@@ -52,6 +52,12 @@ try {
   assert.equal(saved, `${listingId}|draft|draft`);
   assert.equal(sql(`SELECT count(*) FROM marketplace.listings WHERE seller_id='${userA}' AND description LIKE 'LOCAL_RLS_RUNTIME_%'`), "1");
 
+  // A second editor using the pre-save tokens must not overwrite the owner's
+  // first save. The RPC's optimistic-lock failure rolls back its temporary
+  // draft-to-pending bridge, preserving the private draft state.
+  assert.equal(asUser(userA, `SELECT * FROM public.save_own_listing_edit('${listingId}'::uuid, '${tokens[0]}'::timestamptz, '${tokens[1]}'::timestamptz, '${makeId}'::uuid, '${modelId}'::uuid, 2021::smallint, 1002::integer, 'used'::text, 'gasoline'::vehicle.fuel_type, 'automatic'::vehicle.transmission_type, 'sedan'::text, 'front'::text, 'LOCAL TEST'::text, 1.6::numeric, 'unknown'::text, 1::smallint, 'LOCAL_RLS_RUNTIME_STALE_${run}'::text, '1000000'::text, 'TRY'::text, false, 'Ankara'::text)`, true), null);
+  assert.equal(sql(`SELECT description || '|' || status || '|' || moderation_status FROM marketplace.listings WHERE id='${listingId}'`), `LOCAL_RLS_RUNTIME_UPDATED_${run}|draft|draft`);
+
   const anonDirect = value(sql(`BEGIN; SET LOCAL ROLE anon; SELECT count(*) FROM marketplace.listings WHERE id='${listingId}'; COMMIT;`));
   const anonBrowse = value(sql(`BEGIN; SET LOCAL ROLE anon; SELECT count(*) FROM marketplace.listings WHERE description LIKE 'LOCAL_RLS_RUNTIME_%'; COMMIT;`));
   assert.equal(anonDirect, "0"); assert.equal(anonBrowse, "0");

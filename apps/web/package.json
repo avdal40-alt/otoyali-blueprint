@@ -20,6 +20,7 @@
     "test:jlc-0307": "npm run test:phone-auth && npm run test:auth-return-path && npm run test:auth-signup-metadata && npm run test:jlc-0302 && npm run test:jlc-0302:runtime && npm run test:jlc-0303 && npm run test:jlc-0304 && npm run test:launch-b01a && npm run test:launch-b01b1 && npm run test:launch-b01b2 && npm run test:jlc-0306",
     "test:jlc-0407": "node scripts/jlc-0407-zero-km-flow.test.cjs",
     "test:jlc-0410": "node scripts/jlc-0410-favorites-runtime.test.cjs",
+    "test:jlc-0501": "npm run test:launch-03d3c3-draft-lifecycle && npm run test:launch-03d3c3-draft-runtime-rls",
     "test:jlc-0704": "node scripts/jlc-0704-vehicle-owner-review-domain.test.cjs",
     "test:jlc-0801": "node scripts/jlc-0801-buyer-request-private-management.test.cjs",
     "test:jlc-0901": "node scripts/jlc-0901-dealer-verification-foundation.test.cjs",

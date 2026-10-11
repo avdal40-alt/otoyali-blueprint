@@ -1208,7 +1208,7 @@
       "title": "Draft create/edit lifecycle",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0305",
@@ -1227,8 +1227,8 @@
         "draft lifecycle tests",
         "RLS/runtime tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local verification: npm run test:jlc-0501 passed. The runtime suite proves owner create/read/save, stale optimistic-edit rejection without state leakage, anonymous/non-owner read/write denial, and owner-only submission using the local Supabase container.",
+      "notes": "Existing implementation is backed by create_own_listing_draft_v2, get_own_listing_for_edit, save_own_listing_edit, and submit_own_listing_for_review. No migration was required."
     },
     {
       "id": "JLC-0502",
