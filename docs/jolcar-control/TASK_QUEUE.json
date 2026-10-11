@@ -1267,7 +1267,7 @@
       "title": "Admin moderation/reject/resubmit lifecycle",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0502"
@@ -1286,8 +1286,8 @@
         "admin/owner/non-owner runtime tests",
         "audit checks"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local verification: `npm run test:launch-03d3c5-admin-moderation` passed against local Supabase, covering authorized admin/moderator approve/reject, anonymous/owner/non-owner denial, rejected-owner resubmission, audit rows, and hidden pending/rejected listings. `npm run test:sell-03f` and `npm run typecheck` passed. Local PostgreSQL function and migration-history inspection confirmed the applied hardened `SECURITY DEFINER` moderation/resubmission functions and zero runtime-fixture residue.",
+      "notes": "Normalized the resubmission regression test's SQL fixture line endings so its existing LF-based assertions execute reliably on Windows. No application or database behavior changed, and no migration was created or applied. Only local Supabase fixtures were used; no production/provider/remote action, deploy, or push occurred."
     },
     {
       "id": "JLC-0504",

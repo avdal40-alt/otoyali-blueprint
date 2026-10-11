@@ -6,7 +6,7 @@ const ts = require("typescript");
 const projectRoot = path.resolve(__dirname, "..");
 const repoRoot = path.resolve(projectRoot, "..", "..");
 const read = (...parts) => fs.readFileSync(path.join(...parts), "utf8");
-const migration = read(repoRoot, "supabase", "migrations", "20260724120000_sell03_rejected_listing_editing.sql");
+const migration = read(repoRoot, "supabase", "migrations", "20260724120000_sell03_rejected_listing_editing.sql").replace(/\r\n/g, "\n");
 const wizard = read(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx");
 const listings = read(projectRoot, "src", "app", "profile", "listings", "_components", "MyListingsClient.tsx");
 const resubmitRoute = read(projectRoot, "src", "app", "api", "listings", "[id]", "resubmit", "route.ts");
