@@ -625,7 +625,7 @@
       "title": "Audit/reuse current YOLMOD auth implementation",
       "priority": "P0",
       "type": "audit",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0001",
@@ -644,8 +644,8 @@
         "auth test inventory",
         "relevant code/migration inspection"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local auth reuse audit: docs/jolcar-control/JLC-0301-AUTH-REUSE-AUDIT.md. Registration/login/recovery/seller-contact contracts were mapped from source and migrations; phone/auth/contact contract tests passed and local migration history is aligned.",
+      "notes": "Password-first and reusable-contact security boundaries are reusable. Active seller-contact persistence/runtime remains Turkey-specific; local `test:launch-b01a` currently fails its selected-contact disclosure assertion and is recorded for the owning country-aware seller-contact follow-up rather than bypassed. No provider or production action occurred."
     },
     {
       "id": "JLC-0302",
