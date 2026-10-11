@@ -1447,7 +1447,7 @@
       "title": "Persisted media deletion and orphan cleanup",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0507"
