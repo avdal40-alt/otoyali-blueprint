@@ -39,7 +39,7 @@
       "title": "Repository baseline audit and Jolcar reuse map",
       "priority": "P0",
       "type": "audit",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [],
       "requires_user_authorization": false,
@@ -59,8 +59,8 @@
         "targeted existing test inventory",
         "documentation inventory"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local baseline audit: docs/jolcar-control/JLC-0001-BASELINE-AUDIT.md; branch jolcar/autonomous at afb7a157f263bb3710b673bdf45da6bcb7fd202f; focused country/search/notification tests and local migration history PASS.",
+      "notes": "Inherited YOLMOD capabilities are evidence-classified; Jolcar remains country/configuration-incomplete and legacy Turkey hardcodes are recorded rather than treated as task completion."
     },
     {
       "id": "JLC-0002",
