@@ -772,7 +772,7 @@
       "title": "Enforce maximum three active verified seller contacts",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0305"
@@ -791,8 +791,8 @@
         "local runtime matrix",
         "constraint/concurrency test if supported"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11: npm run test:jlc-0306 (local Supabase runtime matrix); npm run test:launch-b01a; npm run test:launch-b01b2; npm run test:seller-contact-manager; npm run typecheck.",
+      "notes": "The atomic identity.upsert_verified_seller_contact_phone boundary serializes per-user and per-phone writes with advisory locks, permits exactly three active contacts, and rejects a fourth or a cross-user takeover. The reservation boundary returns active_contact_limit before inserting a challenge; the application checks that result before calling the OTP provider."
     },
     {
       "id": "JLC-0307",
