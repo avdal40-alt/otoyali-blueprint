@@ -7,14 +7,13 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 
-export function StartConversationButton({ listingId, sellerId }: { listingId: string; sellerId?: string | null }) {
+export function StartConversationButton({ listingId }: { listingId: string }) {
   const { locale, dictionary } = useI18n(); const router = useRouter(); const pathname = usePathname();
   const [error, setError] = useState<string | null>(null); const [loading, setLoading] = useState(false);
   async function start() {
     setError(null); if (!hasSupabaseEnv()) return setError(String(dictionary.messages.unavailable));
     const { data } = await getSupabaseBrowserClient().auth.getSession();
     if (!data.session) { router.push(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath(pathname, locale))}`); return; }
-    if (sellerId && data.session.user.id === sellerId) return;
     setLoading(true);
     try {
       const response = await fetch("/api/conversations", { method: "POST", cache: "no-store", headers: { "content-type": "application/json", Authorization: `Bearer ${data.session.access_token}` }, body: JSON.stringify({ listingId }) });

@@ -741,7 +741,7 @@
       "title": "Country-aware reusable verified seller contacts",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0301",
@@ -762,8 +762,8 @@
         "owner/non-owner tests",
         "public privacy tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local implementation: forward-only migrations 20261011153000 and 20261011154500 widen reusable verified-contact storage to canonical E.164 and align protected disclosure with the explicitly selected contact. Local transaction dry-runs rolled back cleanly; both migrations were then applied locally and history repaired after physical apply. `npm run test:launch-b01a`, `test:launch-b01b2`, `test:functional-02i`, `test:listing-contact-switch-boundary`, `test:seller-contact-manager`, and `typecheck` passed; role and public-view privacy checks passed.",
+      "notes": "Contacts remain private to their authenticated owner; selected listing contact changes use the dedicated owner RPC; public listing data no longer forwards seller auth UUIDs. The local migration guard flags the reviewed, necessary replacement of the legacy Turkey-only CHECK constraint; the corrective follow-up migration fixes PostgreSQL literal-plus regex escaping. No provider, real OTP/SMS, production, or remote operation occurred."
     },
     {
       "id": "JLC-0306",

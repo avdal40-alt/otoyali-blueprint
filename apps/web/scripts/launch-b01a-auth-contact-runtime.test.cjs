@@ -9,10 +9,10 @@ const apiUrl = env.API_URL;
 assert.ok(apiUrl, "Supabase status must provide API_URL");
 const service = createClient(apiUrl, env.SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
 const anon = createClient(apiUrl, env.ANON_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
-const ids = Object.fromEntries(["owner", "other", "legacy", "nonTurkish"].map((name) => [name, randomUUID()]));
+const ids = Object.fromEntries(["owner", "other", "legacy"].map((name) => [name, randomUUID()]));
 const sql = (statement) => execFileSync("docker", ["exec", "supabase_db_Otoyali-blueprint", "psql", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-At", "-c", statement], { encoding: "utf8" }).trim();
 const count = (statement) => Number(sql(statement));
-const phones = { owner: "+905550001001", other: "+905550001002", legacy: "+905550001003", nonTurkish: "+14155550104" };
+const phones = { owner: "+77010001001", other: "+77010001002", legacy: "+905550001003" };
 let createdListingIds = [];
 
 async function session(id, phone, name) {
@@ -40,9 +40,9 @@ async function rpcOk(client, name, args) {
 
 (async () => {
   try {
-    const [owner, other, legacy, nonTurkish] = await Promise.all([
+    const [owner, other, legacy] = await Promise.all([
       session(ids.owner, phones.owner, "owner"), session(ids.other, phones.other, "other"),
-      session(ids.legacy, phones.legacy, "legacy"), session(ids.nonTurkish, phones.nonTurkish, "non-turkish")
+      session(ids.legacy, phones.legacy, "legacy")
     ]);
 
     assert.ok((await anon.rpc("get_own_password_enrollment_status")).error, "anon enrollment status must be rejected");
@@ -54,7 +54,6 @@ async function rpcOk(client, name, args) {
     assert.match(synced.contact_id, /^[0-9a-f-]{36}$/i);
     const repeated = (await rpcOk(owner, "sync_own_verified_account_phone", {}))[0];
     assert.deepEqual(repeated, synced, "account-phone sync must be idempotent");
-    assert.deepEqual((await rpcOk(nonTurkish, "sync_own_verified_account_phone", {}))[0], { outcome: "phone_not_turkish", contact_id: null });
 
     sql(`INSERT INTO identity.seller_phone_verifications(user_id, phone_e164) VALUES ('${ids.legacy}','${phones.legacy}');
       INSERT INTO identity.verified_seller_contact_phones(user_id, phone_e164, verified_at, verification_source)
@@ -62,11 +61,11 @@ async function rpcOk(client, name, args) {
       ON CONFLICT (phone_e164) WHERE is_active DO NOTHING;`);
     assert.equal(count(`SELECT count(*) FROM identity.verified_seller_contact_phones WHERE user_id='${ids.legacy}' AND phone_e164='${phones.legacy}' AND verification_source='seller_otp'`), 1, "legacy verification must migrate to contact");
 
-    sql(`SELECT identity.upsert_verified_seller_contact_phone('${ids.owner}', '+905550001011', 'seller_otp', FALSE);
-      SELECT identity.upsert_verified_seller_contact_phone('${ids.owner}', '+905550001012', 'seller_otp', FALSE);`);
+    sql(`SELECT identity.upsert_verified_seller_contact_phone('${ids.owner}', '+77010001011', 'seller_otp', FALSE);
+      SELECT identity.upsert_verified_seller_contact_phone('${ids.owner}', '+77010001012', 'seller_otp', FALSE);`);
     const ownerContacts = await rpcOk(owner, "list_own_verified_seller_contact_phones", {});
     assert.equal(ownerContacts.length, 3);
-    assert.ok(ownerContacts.every((row) => /^\+90 \*\*\* \*\*\* \d{4}$/.test(row.masked_phone)));
+    assert.ok(ownerContacts.every((row) => /^\+[1-9][0-9]{0,2} \*\*\* \*\*\* \d{4}$/.test(row.masked_phone)));
     assert.ok(ownerContacts.every((row) => Object.keys(row).sort().join(",") === "contact_id,is_active,is_current_account_phone,masked_phone,verification_source,verified_at"), "owner contact list must not expose unrelated owner identity data");
     assert.deepEqual(await rpcOk(other, "list_own_verified_seller_contact_phones", {}), [], "cross-user contacts must be invisible");
     const userCContacts = await rpcOk(legacy, "list_own_verified_seller_contact_phones", {});
@@ -88,7 +87,7 @@ async function rpcOk(client, name, args) {
     assert.match(selectedListing || "", /^[0-9a-f-]{36}$/i);
     createdListingIds.push(selectedListing);
     assert.equal(sql(`SELECT seller_contact_phone_id FROM marketplace.listings WHERE id='${selectedListing}'`), synced.contact_id);
-    const contactBPhone = "+905550001011";
+    const contactBPhone = "+77010001011";
     const contactB = sql(`SELECT id FROM identity.verified_seller_contact_phones WHERE user_id='${ids.owner}' AND phone_e164='${contactBPhone}' AND is_active`);
     assert.match(contactB, /^[0-9a-f-]{36}$/i, "contact B fixture must exist");
     assert.notEqual(contactB, synced.contact_id, "contact fixtures must be distinct");
@@ -130,9 +129,8 @@ async function rpcOk(client, name, args) {
     const legacyListing = legacyDraft.data?.[0]?.listing_id;
     createdListingIds.push(legacyListing);
     assert.equal(sql(`SELECT seller_contact_phone_id IS NULL FROM marketplace.listings WHERE id='${legacyListing}'`), "t");
-    sql(`UPDATE marketplace.listings SET status='active', moderation_status='active', published_at=NOW() WHERE id='${legacyListing}';
-      INSERT INTO identity.seller_phone_verifications(user_id, phone_e164) VALUES ('${ids.owner}','${phones.owner}') ON CONFLICT (user_id) DO UPDATE SET phone_e164=EXCLUDED.phone_e164;`);
-    assert.equal((await rpcOk(other, "get_listing_seller_contact", { p_listing_id: legacyListing }))?.[0]?.phone, phones.owner, "legacy listing fallback must remain available");
+    sql(`UPDATE marketplace.listings SET status='active', moderation_status='active', published_at=NOW() WHERE id='${legacyListing}';`);
+    assert.deepEqual(await rpcOk(other, "get_listing_seller_contact", { p_listing_id: legacyListing }), [], "a listing without an explicit selected contact must not disclose a legacy contact");
     console.log("B01A local Auth/JWT/PostgREST foundation: PASS");
   } finally {
     if (createdListingIds.length) sql(`DELETE FROM marketplace.listings WHERE id IN ('${createdListingIds.join("','")}');`);

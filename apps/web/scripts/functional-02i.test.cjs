@@ -33,6 +33,6 @@ assert.match(button, /router\.push\(loginPath\)/);
 assert.match(page, /<ContactSellerButton listingId=\{listing\.listing_id\} \/>/);
 assert.doesNotMatch(page, /listing\.seller_id/);
 assert.match(authReturn, /\/tr\/listing\/abc#section/);
-assert.doesNotMatch(listingQueries, /phone/);
+assert.doesNotMatch(listingQueries, /phone|seller_id/);
 
 console.log("FUNCTIONAL-02I seller contact flow contract passed");
