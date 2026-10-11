@@ -21,7 +21,7 @@ function Pass-Preflight([string]$Name, [string]$Detail = "") {
 }
 
 function Invoke-Checked([string]$File, [string[]]$Arguments, [string]$Failure) {
-  $output = & $File @Arguments 2>&1
+  $output = & $File @Arguments 2>$null
   if ($LASTEXITCODE -ne 0) { throw $Failure }
   return @($output)
 }
