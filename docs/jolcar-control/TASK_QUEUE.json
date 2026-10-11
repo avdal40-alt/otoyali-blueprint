@@ -1586,7 +1586,7 @@
       "title": "Audit/reuse current YOLMOD messaging implementation",
       "priority": "P0",
       "type": "audit",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0001",
@@ -1603,8 +1603,8 @@
       "verification": [
         "messaging tests/code inspection"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local audit at b066ba7: verified applied messaging migrations 20260915114703/20260915114954/20260915170302/20260921063719; all six messaging tables have RLS; participant-only SECURITY DEFINER RPCs use search_path='' and authenticated EXECUTE grants. Passed functional-03a1, -03a2, -03a4, -03a4-ui, -03a5, and -03a6-refresh. functional-03a3 fails at baseline because its stale static assertion expects a removed CTA self-contact token; the script and CTA are byte-identical to pre-task HEAD b066ba7.",
+      "notes": "Current reusable scope: canonical buyer/listing conversation create-or-reuse, inbox/history/unread/read state, bearer-authenticated no-store API, block/unblock/report, 5s conversation and 10s inbox refresh. Gaps for successor tasks: durable distributed abuse/rate enforcement (current limiter is process-local); Jolcar locale/brand/date-format migration; end-to-end local browser coverage; and explicit Jolcar validation of notification integration. No production/provider action taken."
     },
     {
       "id": "JLC-0602",
