@@ -1387,7 +1387,7 @@
       "title": "Photo upload/cover/order/public derivative pipeline",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0501"
@@ -1407,8 +1407,8 @@
         "storage policy tests",
         "UI upload test"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12: `npm run test:jlc-0507`, `npm run test:media-sec-01`, and local runtime `npm run test:prod-04c` passed. The runtime matrix verifies temp-only owner uploads, cross-owner finalization denial, trusted sanitized variants, and anonymous public derivative delivery while temp objects remain private.",
+      "notes": "Existing owner-scoped sanitized-photo pipeline was acceptance-tested for Jolcar. No migration was required or added. `npm run test:sell-03` was run at pre-task HEAD and fails on an unrelated stale assertion against the historical rejected-listing-edit migration."
     },
     {
       "id": "JLC-0508",
