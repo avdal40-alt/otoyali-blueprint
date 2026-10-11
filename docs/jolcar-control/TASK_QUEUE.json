@@ -1063,7 +1063,7 @@
       "title": "Favorites",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0401",
@@ -1082,8 +1082,8 @@
         "favorite runtime tests",
         "RLS tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local completion gate: added and passed `npm run test:jlc-0410`, which creates a canonical seller draft and verifies authenticated buyer add/remove, duplicate prevention, authenticated cross-owner create/read/delete denial, anonymous read/create denial, and full fixture cleanup against local Supabase. `npm run test:seller-analytics-events`, `node scripts/seller-analytics-ingestion-local.test.cjs` (8 checks), and `npm run typecheck` also passed.",
+      "notes": "Existing `marketplace.listing_favorites` ownership RLS, authenticated grants, unique (user_id, listing_id) constraint, and seller-analytics favorite trigger were physically inspected in the local database; no migration was needed or applied. The broad legacy `launch-03b1` smoke test still fails because it expects a removed hardcoded `SITE_URL`; its exact pre-task HEAD was run in a detached temporary worktree and failed identically, and JLC-0410 changes neither that test nor SEO code. No production, provider, remote migration, deployment, or push occurred."
     },
     {
       "id": "JLC-0411",
