@@ -1356,7 +1356,7 @@
       "title": "Listing seller-contact selector create/edit",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0305",
@@ -1377,8 +1377,8 @@
         "runtime ownership tests",
         "responsive UI"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local completion: the existing create flow selects only the authenticated owner's active verified contact and persists it via create_own_listing_draft_v2; rejected-listing edits use the dedicated authenticated PATCH/RPC boundary. `npm run test:launch-b01a`, `test:launch-b01b2`, `test:listing-contact-switch-boundary`, `test:listing-contact-edit-flow`, `test:seller-contact-manager`, and `typecheck` passed. The local runtime matrix proves owner contact switching, foreign/non-owner rejection, legacy/missing-contact safe behavior, idempotent account-contact sync, and selected-contact persistence without any OTP send. The selector continues to use the existing responsive form primitives.",
+      "notes": "No migration was required. Two stale selector contract tests were aligned with the current centralized sell-copy localization contract. Local-only verification; no production database, credentials, real SMS/OTP, provider, deployment, or push used."
     },
     {
       "id": "JLC-0507",
