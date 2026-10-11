@@ -42,7 +42,7 @@ assert.equal(secondPage.items.length, 5, "cursor returns the remaining fixture r
 assert.ok(secondPage.next_cursor, "current contract returns a cursor for every non-empty page, including the terminal page");
 const firstIds = firstPage.items.map((item) => item.listing_id);
 const secondIds = secondPage.items.map((item) => item.listing_id);
-assert.deepEqual(Object.keys(firstPage.next_cursor).sort(), ["listing_id", "mileage_km", "price_amount", "published_at", "sort", "version", "year"]);
+assert.deepEqual(Object.keys(firstPage.next_cursor).sort(), ["listing_id", "mileage_km", "price_amount", "ranked_at", "sort", "version", "year"]);
 assert.equal(firstPage.next_cursor.version, "v1"); assert.equal(firstPage.next_cursor.sort, "price_asc");
 assert.equal(new Set(secondIds).size, 5, "second page contains no duplicates");
 assert.equal(secondIds.filter((id) => firstIds.includes(id)).length, 0, "pages do not overlap");

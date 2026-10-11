@@ -10,7 +10,7 @@ const publicColumns = [
   'color', 'engine_volume_l', 'power_kw', 'battery_capacity_kwh', 'electric_range_km',
   'seller_service_declaration', 'seller_damage_declaration', 'price_amount', 'currency',
   'price_negotiable', 'trade_in_accepted', 'city_id', 'district_id', 'city_name', 'district_name',
-  'seller_type', 'cover_image_url', 'photo_count', 'has_video', 'published_at', 'projected_at',
+  'seller_type', 'cover_image_url', 'photo_count', 'has_video', 'published_at', 'projected_at', 'raised_at',
 ];
 
 const columns = query(`SELECT string_agg(column_name, ',' ORDER BY ordinal_position)
