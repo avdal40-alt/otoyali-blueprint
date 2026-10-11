@@ -2346,7 +2346,7 @@
       "title": "Dealer organization/staff roles",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0901"
@@ -2363,8 +2363,8 @@
       "verification": [
         "membership RLS/RPC tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "20261011170000_jlc0908_harden_dealer_staff_authorization.sql; apps/web/scripts/jlc-0908-dealer-staff-roles.test.cjs; scripts/jolcar/jlc-0908-dealer-staff-roles-runtime.test.ps1; local migration history/runtime verification passed 2026-10-11.",
+      "notes": "Forward-only repair removes the absent-membership-as-owner escalation path. Local role matrix verifies owner/manager/staff/outsider and RLS isolation; no remote database accessed."
     },
     {
       "id": "JLC-0909",
