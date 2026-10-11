@@ -323,7 +323,7 @@
       "title": "Vehicle catalog country adapter",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0101"
@@ -342,8 +342,8 @@
         "typecheck",
         "relevant search/listing tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 completion gate: local PostgreSQL transaction inserted a KZ make/model availability row, verified anon-RLS reads plus public.get_vehicle_catalog('KZ') (3 rows) and shared catalog (922 rows), then rolled back with zero residual rows. apps/web/scripts/jlc-0105-catalog-adapter.test.cjs, apps/web/scripts/country-config.test.cjs, apps/web/scripts/launch-03d3b-r3-search-cursor.test.cjs, and apps/web TypeScript typecheck passed.",
+      "notes": "The already-applied 20261010120002_vehicle_catalog_country_adapter.sql keeps canonical vehicle entities shared and represents country availability as data. Completion recorded after local physical/RLS verification; no production, provider, or remote migration action occurred."
     },
     {
       "id": "JLC-0106",
