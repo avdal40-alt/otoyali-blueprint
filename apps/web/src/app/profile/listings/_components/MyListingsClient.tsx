@@ -28,6 +28,7 @@ type MyListing = {
   currency: string;
   city: string;
   quality_score?: number | null;
+  raised_at?: string | null;
   make_name?: string | null;
   model_name?: string | null;
   year?: number | null;
@@ -100,7 +101,7 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
       const { data, error: listingError } = await supabase
         .schema("marketplace")
         .from("listings")
-        .select("id,vehicle_profile_id,title,status,moderation_status,rejection_reason,moderation_note,price_amount,currency,city,quality_score")
+        .select("id,vehicle_profile_id,title,status,moderation_status,rejection_reason,moderation_note,price_amount,currency,city,quality_score,raised_at")
         .eq("seller_id", userData.user.id)
         .limit(50)
         .order("created_at", { ascending: false });
@@ -224,6 +225,18 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
     }
   }
 
+  async function raiseListing(listingId: string) {
+    if (actionInFlight.current !== null) return;
+    const supabase = getSupabaseBrowserClient();
+    setError(null); actionInFlight.current = listingId; setActionListingId(listingId);
+    try {
+      const { error: raiseError } = await supabase.rpc("raise_own_listing", { p_listing_id: listingId });
+      if (raiseError) { logClientError("myListings.raise", raiseError); if (mounted.current) setError(lifecycleErrorMessage(raiseError, locale)); return; }
+      await loadListings();
+    } catch (raiseError) { logClientError("myListings.raise", raiseError); if (mounted.current) setError(copy.mutationFailure); }
+    finally { if (actionInFlight.current === listingId) { actionInFlight.current = null; if (mounted.current) setActionListingId(null); } }
+  }
+
   function openVideoForm(item: MyListing) {
     if (videoListingId === item.id) {
       resetVideoForm();
@@ -344,6 +357,8 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
         const canArchive = item.status !== "removed" && item.moderation_status !== "archived";
         const actionBusy = actionListingId === item.id;
         const anyActionBusy = Boolean(actionListingId);
+        const nextRaiseAt = item.raised_at ? new Date(new Date(item.raised_at).getTime() + 7 * 24 * 60 * 60 * 1000) : null;
+        const raiseCoolingDown = Boolean(nextRaiseAt && nextRaiseAt.getTime() > Date.now());
 
         return (
         <article key={item.id} className="overflow-hidden rounded-oto border border-oto-border bg-white shadow-soft">
@@ -409,6 +424,11 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
                 {canPause ? (
                   <Button type="button" variant="secondary" disabled={anyActionBusy} onClick={() => runListingWorkflow(item.id, "pause")}>
                     {actionBusy ? copy.pausing : copy.pause}
+                  </Button>
+                ) : null}
+                {canViewPublic ? (
+                  <Button type="button" variant="secondary" disabled={anyActionBusy || raiseCoolingDown} onClick={() => raiseListing(item.id)}>
+                    {actionBusy ? copy.sending : raiseCoolingDown && nextRaiseAt ? `${copy.raiseCooldown}: ${new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(nextRaiseAt)}` : copy.raiseToTop}
                   </Button>
                 ) : null}
                 {canArchive ? (

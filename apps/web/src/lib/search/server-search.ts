@@ -9,6 +9,7 @@ export type SearchCursor = {
   sort: ListingSearchFilters["sort"];
   listing_id: string;
   published_at?: string;
+  ranked_at?: string;
   price_amount?: number;
   year?: number;
   mileage_km?: number;

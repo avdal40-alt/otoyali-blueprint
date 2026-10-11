@@ -1556,7 +1556,7 @@
       "title": "Raise-to-top implementation",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0511",
@@ -1576,8 +1576,8 @@
         "abuse tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local migration 20261010250000; owner/role/cooldown/projection tests pass.",
+      "notes": "Separate raised_at preserves publication date; no payment flow added."
     },
     {
       "id": "JLC-0601",

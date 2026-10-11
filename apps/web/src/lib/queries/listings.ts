@@ -38,6 +38,7 @@ const HOME_LISTING_COLUMNS = [
   "quality_score",
   "seller_display_name",
   "video_count"
+  ,"ranking_freshness_at"
 ].join(",");
 
 const LISTING_DETAILS_COLUMNS = [
@@ -82,7 +83,8 @@ export async function getHomeListings(limit?: number): Promise<QueryResult<HomeL
   let query = supabase
     .from("ff_home_listings")
     .select(HOME_LISTING_COLUMNS)
-    .order("published_at", { ascending: false, nullsFirst: false });
+    .order("ranking_freshness_at", { ascending: false, nullsFirst: false })
+    .order("listing_id", { ascending: true });
 
   if (limit) {
     query = query.limit(limit);
