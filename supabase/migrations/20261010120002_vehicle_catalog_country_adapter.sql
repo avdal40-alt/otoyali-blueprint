@@ -2,19 +2,6 @@ BEGIN;
 
 -- Shared catalog entities remain country-neutral. Availability is a separate
 -- configuration layer so adding a market never forks catalog business logic.
-CREATE TABLE vehicle.generations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  model_id UUID NOT NULL REFERENCES vehicle.models(id) ON DELETE RESTRICT,
-  name TEXT NOT NULL,
-  slug TEXT NOT NULL,
-  is_active BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT vehicle_generations_name_not_empty_chk CHECK (char_length(trim(name)) > 0),
-  CONSTRAINT vehicle_generations_slug_format_chk CHECK (slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'),
-  CONSTRAINT vehicle_generations_model_slug_unique UNIQUE (model_id, slug),
-  CONSTRAINT vehicle_generations_id_model_unique UNIQUE (id, model_id)
-);
-
 ALTER TABLE vehicle.variants
   ADD COLUMN generation_id UUID;
 
@@ -23,11 +10,6 @@ ALTER TABLE vehicle.variants
   FOREIGN KEY (generation_id, model_id)
   REFERENCES vehicle.generations (id, model_id)
   ON DELETE RESTRICT;
-
-CREATE UNIQUE INDEX vehicle_models_id_make_unique_idx ON vehicle.models (id, make_id);
-
-CREATE INDEX vehicle_generations_model_active_name_idx
-  ON vehicle.generations (model_id, is_active, name);
 
 CREATE TABLE vehicle.catalog_country_availability (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -84,7 +66,7 @@ AS $$
     WHERE a.is_active
       AND (p_country_code IS NULL OR a.country_code = upper(p_country_code))
   )
-  SELECT 'make', m.id, NULL::UUID, m.name, m.slug
+  SELECT 'make'::TEXT AS entity_type, m.id AS entity_id, NULL::UUID AS parent_id, m.name AS name, m.slug AS slug
   FROM vehicle.makes AS m
   WHERE m.is_active AND (p_country_code IS NULL OR EXISTS (SELECT 1 FROM available a WHERE a.make_id = m.id))
   UNION ALL
@@ -102,20 +84,12 @@ AS $$
   ORDER BY entity_type, name;
 $$;
 
-ALTER TABLE vehicle.generations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE vehicle.catalog_country_availability ENABLE ROW LEVEL SECURITY;
-CREATE POLICY vehicle_generations_select_active ON vehicle.generations FOR SELECT TO anon, authenticated USING (
-  is_active AND EXISTS (
-    SELECT 1 FROM vehicle.models AS model
-    JOIN vehicle.makes AS make ON make.id = model.make_id
-    WHERE model.id = generations.model_id AND model.is_active AND make.is_active
-  )
-);
 CREATE POLICY vehicle_catalog_country_availability_select_active
   ON vehicle.catalog_country_availability FOR SELECT TO anon, authenticated
   USING (is_active);
 CREATE POLICY vehicle_catalog_country_availability_service_role_all ON vehicle.catalog_country_availability FOR ALL TO service_role USING (TRUE) WITH CHECK (TRUE);
-GRANT SELECT ON vehicle.generations TO anon, authenticated;
+
 GRANT SELECT ON vehicle.catalog_country_availability TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.get_vehicle_catalog(TEXT) TO anon, authenticated;
 

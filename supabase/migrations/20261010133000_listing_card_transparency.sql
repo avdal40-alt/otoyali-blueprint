@@ -43,7 +43,7 @@ INNER JOIN vehicle.vehicle_profiles vp ON vp.id = l.vehicle_profile_id
 INNER JOIN vehicle.makes ma ON ma.id = vp.make_id
 INNER JOIN vehicle.models mo ON mo.id = vp.model_id
 LEFT JOIN LATERAL (
-  SELECT pm.url FROM vehicle.profile_media pm
+  SELECT COALESCE(pm.card_url, pm.large_url, pm.url) AS url FROM vehicle.profile_media pm
   WHERE pm.vehicle_profile_id = vp.id
   ORDER BY (pm.id = l.cover_media_id) DESC, pm.is_cover DESC, pm.sort_order ASC, pm.created_at ASC
   LIMIT 1

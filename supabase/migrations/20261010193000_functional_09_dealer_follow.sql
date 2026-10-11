@@ -16,6 +16,11 @@ CREATE POLICY dealer_follows_select_own ON marketplace.dealer_follows
 REVOKE ALL ON marketplace.dealer_follows FROM PUBLIC, anon, authenticated;
 GRANT SELECT ON marketplace.dealer_follows TO authenticated;
 
+-- The preceding public profile RPC has fewer OUT columns. PostgreSQL cannot
+-- replace a function while changing its composite return type; this migration
+-- is transactional and no dependent database objects exist at this point.
+DROP FUNCTION public.get_public_dealer_profile(UUID);
+
 CREATE OR REPLACE FUNCTION public.toggle_dealer_follow(p_dealer_id UUID)
 RETURNS TABLE (is_following BOOLEAN, follower_count BIGINT)
 LANGUAGE plpgsql SECURITY DEFINER
@@ -47,7 +52,7 @@ SET search_path = public, marketplace, pg_catalog
 AS $$
   SELECT COALESCE(p.display_name, p.full_name, 'Dealer'), p.avatar_url, p.city, NULL::TEXT,
     public.is_verified_galeri(p.id),
-    (SELECT count(*) FROM marketplace.listings l WHERE l.seller_id = p.id AND l.status = 'published' AND l.moderation_status = 'approved'),
+    (SELECT count(*) FROM marketplace.listings l WHERE l.seller_id = p.id AND l.status = 'active' AND l.moderation_status = 'active'),
     (SELECT count(*) FROM marketplace.dealer_follows f WHERE f.dealer_id = p.id),
     (auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM marketplace.dealer_follows f WHERE f.dealer_id = p.id AND f.follower_id = auth.uid()))
   FROM public.profiles p WHERE p.id = p_dealer_id AND p.seller_type = 'dealer';

@@ -5,7 +5,7 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
 
-const priceMigration = read("..", "..", "supabase", "migrations", "20261010150000_listing_price_drop_alerts.sql");
+const priceMigration = read("..", "..", "supabase", "migrations", "20261010150001_listing_price_drop_alerts.sql");
 const extensibilityMigration = read("..", "..", "supabase", "migrations", "20261010233000_jlc_0414_notification_center_extensible_types.sql");
 const client = read("src", "app", "notifications", "_components", "NotificationsClient.tsx");
 const api = read("src", "app", "api", "notifications", "route.ts");

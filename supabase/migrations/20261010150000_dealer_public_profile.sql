@@ -9,7 +9,7 @@ AS $$
   SELECT COALESCE(p.display_name, p.full_name, 'Dealer'), p.avatar_url, p.city,
          NULL::TEXT, public.is_verified_galeri(p.id),
          (SELECT count(*) FROM marketplace.listings l
-          WHERE l.seller_id = p.id AND l.status = 'published' AND l.moderation_status = 'approved')
+          WHERE l.seller_id = p.id AND l.status = 'active' AND l.moderation_status = 'active')
   FROM public.profiles p
   WHERE p.id = p_dealer_id AND p.seller_type = 'dealer';
 $$;
