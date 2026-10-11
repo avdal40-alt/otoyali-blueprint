@@ -859,7 +859,7 @@
       "title": "Public browse/search/detail contract audit and Jolcar adaptation",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0107",
@@ -879,8 +879,8 @@
         "privacy tests",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 completion gate: added and passed apps/web/scripts/jlc-0401-public-contract.test.cjs against local Supabase, verifying canonical ff_home_listings/ff_listing_details and search_listings_v1 boundaries, no projected private seller/contact identifiers, security_invoker public views, anon SELECT/RPC grants, SECURITY INVOKER search behavior, and a country-neutral public source boundary. Security privacy/identity, raise-to-top projection, Search v1 cursor, multi-country regression, and apps/web TypeScript checks also passed.",
+      "notes": "Public browse/search/detail strings now resolve through dictionaries rather than Turkish fallback branches. No migration was needed or applied. The existing launch-03d3c6 public-buyer E2E test still fails locally because its unchanged +90 fixture receives no protected-contact result; the exact HEAD version was executed against the same untouched local DB and reproduced the same failure, so this task did not introduce or worsen it. No production/provider/remote action occurred."
     },
     {
       "id": "JLC-0402",

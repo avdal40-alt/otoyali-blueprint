@@ -181,7 +181,7 @@ export function SearchClient({
                   }}
                   className="h-10"
                 >
-                  {locale === "en" ? "All filters" : "Tüm filtreler"}
+                  {String(dictionary.search.advancedFilters)}
                 </Button>
                 <SortSelect value={filters.sort} onChange={setSort} />
               </div>
@@ -191,7 +191,7 @@ export function SearchClient({
             {nextCursor ? (
               <div className="mt-6 flex justify-center">
                 <Button type="button" variant="secondary" onClick={() => router.push(localizePath(buildSearchUrl({ ...filters, cursor: nextCursor }), locale))}>
-                  {locale === "en" ? "Next results" : "Sonraki ilanlar"}
+                  {String(dictionary.search.nextResults)}
                 </Button>
               </div>
             ) : null}

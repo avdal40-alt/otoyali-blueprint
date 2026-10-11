@@ -1,6 +1,7 @@
 import type { HomeListing, ListingMedia } from "@/lib/supabase/types";
 import { EmptyState } from "@/components/ui/States";
 import { localizePath } from "@/i18n/config";
+import { getDictionary } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 import { VehicleCard } from "./VehicleCard";
 
@@ -20,9 +21,10 @@ export function VehicleGrid({
   variant?: "default" | "home";
 }) {
   const mediaByListing = groupMediaByListing(listingMedia);
+  const dictionary = getDictionary(locale);
 
   if (listings.length === 0) {
-    return <EmptyState title={title} body={body} href={localizePath("/sell", locale)} action={locale === "en" ? "Publish listing" : "İlan yayınla"} />;
+    return <EmptyState title={title} body={body} href={localizePath("/sell", locale)} action={String(dictionary.common.publishListing)} />;
   }
 
   return (

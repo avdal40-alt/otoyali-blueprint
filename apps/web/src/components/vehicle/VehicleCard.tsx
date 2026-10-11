@@ -82,7 +82,7 @@ export function VehicleCard({
           <>
             <button
               type="button"
-              aria-label={activeLocale === "en" ? "Previous photo" : "Önceki fotoğraf"}
+              aria-label={String(dictionary.listing.previousPhoto)}
               onClick={(event) => shiftImage(event, -1)}
               className="absolute left-3 top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-lg font-black text-oto-text shadow-soft transition hover:bg-white group-hover:flex"
             >
@@ -90,7 +90,7 @@ export function VehicleCard({
             </button>
             <button
               type="button"
-              aria-label={activeLocale === "en" ? "Next photo" : "Sonraki fotoğraf"}
+              aria-label={String(dictionary.listing.nextPhoto)}
               onClick={(event) => shiftImage(event, 1)}
               className="absolute right-3 top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-lg font-black text-oto-text shadow-soft transition hover:bg-white group-hover:flex"
             >
@@ -133,8 +133,8 @@ export function VehicleCard({
           <span className="truncate text-right">{makeModel}</span>
         </div>
         <div className="mt-2 flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs text-oto-muted">
-          <span>{activeLocale === "en" ? "Published" : "Yayın tarihi"}: {formatDate(listing.published_at, activeLocale)}</span>
-          <span>{activeLocale === "en" ? "Views" : "Görüntülenme"}: {formatNumber(listing.views_count ?? 0, activeLocale)}</span>
+          <span>{String(dictionary.listing.publishedAt)}: {formatDate(listing.published_at, activeLocale)}</span>
+          <span>{String(dictionary.listing.views)}: {formatNumber(listing.views_count ?? 0, activeLocale)}</span>
         </div>
       </div>
     </article>

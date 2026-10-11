@@ -151,7 +151,8 @@ export const tr = {
     yearDesc: "Önce yeni yıl",
     mileageAsc: "Önce düşük kilometre",
     noResultsTitle: "İlan bulunamadı",
-    noResultsBody: "Filtreleri değiştirerek tekrar deneyin."
+    noResultsBody: "Filtreleri değiştirerek tekrar deneyin.",
+    nextResults: "Sonraki ilanlar"
   },
   listing: {
     details: "İlan detayları",
@@ -170,6 +171,9 @@ export const tr = {
     ownerCount: "Sahip sayısı",
     city: "Şehir",
     publishedAt: "Yayın tarihi",
+    views: "Görüntülenme",
+    previousPhoto: "Önceki fotoğraf",
+    nextPhoto: "Sonraki fotoğraf",
     negotiable: "Pazarlık var",
     videos: "Araç videoları",
     videoDescription: "Satıcının kısa araç tanıtımlarını OTOYALI Video içinde izleyin.",

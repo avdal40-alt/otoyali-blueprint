@@ -151,7 +151,8 @@ export const en = {
     yearDesc: "Newest model year",
     mileageAsc: "Lowest mileage first",
     noResultsTitle: "No listings found",
-    noResultsBody: "Try changing the filters and searching again."
+    noResultsBody: "Try changing the filters and searching again.",
+    nextResults: "Next results"
   },
   listing: {
     details: "Listing details",
@@ -170,6 +171,9 @@ export const en = {
     ownerCount: "Owner count",
     city: "City",
     publishedAt: "Published",
+    views: "Views",
+    previousPhoto: "Previous photo",
+    nextPhoto: "Next photo",
     negotiable: "Negotiable",
     videos: "Vehicle videos",
     videoDescription: "Watch the seller's short vehicle introductions in OTOYALI Video.",
