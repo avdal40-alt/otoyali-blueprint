@@ -126,6 +126,25 @@ export type MarketProfileKey = keyof typeof MARKET_PROFILES;
 export const ACTIVE_MARKET_PROFILE_KEY = "yolmodTurkey" satisfies MarketProfileKey;
 export const ACTIVE_MARKET_PROFILE = MARKET_PROFILES[ACTIVE_MARKET_PROFILE_KEY];
 
+export type MarketProfileResult =
+  | { status: "available"; profile: MarketProfile }
+  | { status: "unavailable"; error: "MARKET_PROFILE_UNAVAILABLE"; reason: "market-profile-not-configured" };
+
+/**
+ * Resolve an explicitly requested market without silently borrowing another
+ * country's defaults when a deployment/configuration value is absent or bad.
+ */
+export function getMarketProfile(marketKey: MarketProfileKey | string | null | undefined = ACTIVE_MARKET_PROFILE_KEY): MarketProfileResult {
+  if (!marketKey || typeof marketKey !== "string") {
+    return { status: "unavailable", error: "MARKET_PROFILE_UNAVAILABLE", reason: "market-profile-not-configured" };
+  }
+
+  const profile = MARKET_PROFILES[marketKey as MarketProfileKey];
+  return profile
+    ? { status: "available", profile }
+    : { status: "unavailable", error: "MARKET_PROFILE_UNAVAILABLE", reason: "market-profile-not-configured" };
+}
+
 // Compatibility alias for existing shared consumers. New code should use the
 // explicit profile name so country/brand dependencies stay visible.
 export const CURRENT_MARKET = ACTIVE_MARKET_PROFILE;

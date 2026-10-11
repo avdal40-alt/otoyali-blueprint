@@ -380,7 +380,7 @@
       "title": "Multi-country regression guard suite",
       "priority": "P0",
       "type": "testing",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0102",
@@ -402,8 +402,8 @@
         "new regression suite",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 added and passed apps/web/scripts/jlc-0107-multicountry-regression.test.cjs plus apps/web TypeScript typecheck. The regression suite locks explicit unknown-market and missing-country-dataset behavior, profile-driven public metadata, and the absence of Turkey-only host/phone/currency/contact assumptions in selected shared boundaries. Existing country configuration, formatting, phone-policy, location, vehicle-catalog, and routing-metadata contract suites also passed.",
+      "notes": "getMarketProfile now returns an explicit unavailable result for missing or invalid profile keys rather than silently borrowing another country profile. Active market selection, providers, domains, production configuration, and shared public/private data contracts remain unchanged."
     },
     {
       "id": "JLC-D003",
