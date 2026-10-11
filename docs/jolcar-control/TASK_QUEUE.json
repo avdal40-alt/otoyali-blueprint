@@ -2071,7 +2071,7 @@
       "title": "Dealer role/profile/verification state foundation",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0307"
@@ -2089,8 +2089,8 @@
         "role/RLS tests",
         "admin tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local verification: `npm run test:jlc-0901`, `npm run test:functional-02g`, and `npm run typecheck` passed. The local role/RLS matrix verifies owner submission on the existing profile identity, outsider privacy, anonymous denial, direct authenticated mutation denial, moderator-only approval/suspension/reinstatement, and the public-safe verified predicate.",
+      "notes": "Introduced forward-only local migration 20261011160000_jlc0901_dealer_verification_foundation.sql. It preserves the inherited Galeri verification predicate and its dependent import behavior while establishing the Jolcar dealer foundation with pending/verified/rejected/suspended states, Kazakhstan BIN/IIN-shaped identifier validation, an active verified account contact, dealer trade name, city, and authorized representative. Local migration dry-run, apply, physical-object verification, history check, and rollback-backed test fixtures passed; no remote database, provider, production system, deploy, or push was used."
     },
     {
       "id": "JLC-0902",
