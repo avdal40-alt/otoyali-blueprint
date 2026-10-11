@@ -712,7 +712,7 @@
       "title": "Password recovery and sensitive-action OTP boundaries",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0303"
@@ -731,8 +731,8 @@
         "recovery tests",
         "OTP economy source tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local source-contract verification: npm run test:jlc-0304 confirms recovery starts an explicit non-signup OTP transaction and routes only a verified recovery flow to password reset; OTP resend is user-triggered and cooldown-gated; routine login remains phone/password; seller-contact verification is authenticated and explicitly form-triggered. Complementary JLC-0302 and JLC-0303 source/runtime checks passed.",
+      "notes": "No migration or provider activation. Recovery and verified seller-contact boundaries retain existing server/database authorization."
     },
     {
       "id": "JLC-0305",
