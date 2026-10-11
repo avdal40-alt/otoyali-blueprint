@@ -1325,7 +1325,7 @@
       "title": "Protected seller-contact disclosure with durable abuse control",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0307",
@@ -1346,8 +1346,8 @@
         "buyer contact runtime",
         "privacy tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local implementation: 20261011200000_jlc0505_fix_contact_disclosure_lock.sql repairs the disclosure RPC's invalid advisory-lock overload while preserving selected-contact eligibility, authenticated-only execution, empty search_path, and existing RLS. Local transaction dry-run rolled back with zero history residue; physical local apply preceded local history repair. `npm run test:jlc-0505` passed its 62-check local DB/API-contract matrix (anon/service denial, buyer/non-owner access, self/ineligible blocking, no chat/message/favorite side effect, RLS ledger, and 20/hour rate limit), along with typecheck, JLC-0107 country regression, migration static check, duplicate-version scan, and git diff --check.",
+      "notes": "Local-only verification; no production database, credentials, providers, deployment, or push used."
     },
     {
       "id": "JLC-0506",

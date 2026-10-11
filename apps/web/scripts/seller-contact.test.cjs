@@ -114,6 +114,7 @@ async function runtime() {
   const ids = {
     seller: randomUUID(),
     buyer: randomUUID(),
+    contact: randomUUID(),
     listing: randomUUID(),
     missingListing: randomUUID(),
     vehicle: randomUUID(),
@@ -124,6 +125,12 @@ async function runtime() {
   const phone = "+905551234567";
   const contactSignature = "public.get_listing_seller_contact(uuid)";
   const contactCall = `public.get_listing_seller_contact('${ids.listing}'::uuid)`;
+  const disclosureSignature = "public.reserve_listing_seller_contact_disclosure(uuid)";
+  const disclosureCall = `public.reserve_listing_seller_contact_disclosure('${ids.listing}'::uuid)`;
+  const disclosureReservations = Array.from(
+    { length: 20 },
+    () => `SELECT allowed FROM ${disclosureCall}`
+  ).join(" UNION ALL ");
   const checks = [];
 
   function check(name, expression) {
@@ -193,6 +200,14 @@ async function runtime() {
     INSERT INTO identity.seller_phone_verifications (user_id, phone_e164)
     VALUES ('${ids.seller}', '+905551234567');
 
+    INSERT INTO identity.verified_seller_contact_phones (
+      id, user_id, phone_e164, verified_at, verification_source,
+      is_current_account_phone, is_active, revoked_at
+    ) VALUES (
+      '${ids.contact}', '${ids.seller}', '${phone}', pg_catalog.now(), 'seller_otp',
+      FALSE, TRUE, NULL
+    );
+
     INSERT INTO vehicle.makes (id, name, slug)
     VALUES
       ('${ids.make}', 'Seller Contact Test', 'seller-contact-${ids.make}');
@@ -214,10 +229,10 @@ async function runtime() {
 
     INSERT INTO marketplace.listings (
       id, vehicle_profile_id, seller_id, status, moderation_status,
-      title, price_amount, city, seller_type
+      title, price_amount, city, seller_type, seller_contact_phone_id
     ) VALUES (
       '${ids.listing}', '${ids.vehicle}', '${ids.seller}', 'active', 'active',
-      'Seller contact test', 100000, 'Istanbul', 'private'
+      'Seller contact test', 100000, 'Istanbul', 'private', '${ids.contact}'
     );
 
     ${check("function is SECURITY DEFINER with empty search_path", `
@@ -247,6 +262,19 @@ async function runtime() {
        JOIN pg_catalog.pg_namespace AS namespace ON namespace.oid = procedure.pronamespace
        WHERE namespace.nspname = 'public'
          AND procedure.proname = 'get_listing_seller_contact')
+    `)}
+    ${check("disclosure reservation is SECURITY DEFINER with empty search_path", `
+      EXISTS (
+        SELECT 1 FROM pg_catalog.pg_proc
+        WHERE oid = '${disclosureSignature}'::regprocedure
+          AND prosecdef
+          AND proconfig @> ARRAY['search_path=""']
+      )
+    `)}
+    ${check("disclosure ledger is RLS-protected and unreadable directly", `
+      (SELECT relrowsecurity FROM pg_catalog.pg_class WHERE oid = 'identity.listing_seller_contact_disclosures'::regclass)
+      AND NOT has_table_privilege('anon', 'identity.listing_seller_contact_disclosures', 'SELECT')
+      AND NOT has_table_privilege('authenticated', 'identity.listing_seller_contact_disclosures', 'SELECT')
     `)}
     ${check("PUBLIC execute absent", `
       NOT EXISTS (
@@ -283,6 +311,22 @@ async function runtime() {
 
     ${setRole("authenticated", ids.buyer)}
     ${contact("eligible buyer receives one canonical phone by default")}
+    RESET ROLE;
+    ${check("direct lookup creates no chat, message, favorite, or disclosure", `
+      NOT EXISTS (SELECT 1 FROM messaging.conversations WHERE listing_id = '${ids.listing}')
+      AND NOT EXISTS (SELECT 1 FROM messaging.messages)
+      AND NOT EXISTS (SELECT 1 FROM marketplace.listing_favorites WHERE listing_id = '${ids.listing}')
+      AND NOT EXISTS (SELECT 1 FROM identity.listing_seller_contact_disclosures WHERE listing_id = '${ids.listing}')
+    `)}
+    ${setRole("authenticated", ids.buyer)}
+    ${check("eligible buyer has twenty disclosure reservations", `
+      (SELECT count(*) = 20
+       FROM (${disclosureReservations}) AS reservation
+       WHERE reservation.allowed)
+    `)}
+    ${check("twenty-first disclosure is rate-limited", `
+      NOT EXISTS (SELECT 1 FROM ${disclosureCall} WHERE allowed)
+    `)}
     ${check("buyer cross-profile SELECT remains blocked", `NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = '${ids.seller}')`)}
     ${check("buyer own profile SELECT remains available", `EXISTS (SELECT 1 FROM public.profiles WHERE id = '${ids.buyer}')`)}
     ${check("seller UUID cannot act as listing lookup", `NOT EXISTS (SELECT 1 FROM public.get_listing_seller_contact('${ids.seller}'::uuid))`)}

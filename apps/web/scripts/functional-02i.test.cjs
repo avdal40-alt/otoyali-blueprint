@@ -12,6 +12,7 @@ const listingQueries = read("src", "lib", "queries", "listings.ts");
 
 for (const expected of [
   'supabase.auth.getUser()',
+  'supabase.rpc("reserve_listing_seller_contact_disclosure"',
   'supabase.rpc("get_listing_seller_contact"',
   "p_listing_id: payload.listingId",
   '"Cache-Control": "private, no-store, max-age=0"',
