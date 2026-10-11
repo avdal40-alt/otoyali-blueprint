@@ -1,12 +1,21 @@
 # Deployment
 
-## Current Normal Flow
+> **Jolcar safety notice (2026-10-11):** This is historical OTOYALI deployment
+> reference, not a Jolcar deployment runbook or authorization. Jolcar work is
+> local-only; do not push, deploy, access production, or apply remote migrations
+> without explicit separate authorization. The authoritative Jolcar release
+> gates are [MASTER_PLAN](../../../docs/jolcar-control/MASTER_PLAN.md) and
+> [TASK_QUEUE](../../../docs/jolcar-control/TASK_QUEUE.json).
+
+## Historical OTOYALI Flow
 
 ```text
 local commit -> git push -> GitHub main -> Vercel auto deploy
 ```
 
-Current issue: GitHub may be temporarily flagged. While flagged, do not push new changes. Prepare local commits only.
+This is retained as historical context only. It is not an executable Jolcar
+procedure; prepare local evidence only until a separate authorized release
+task permits remote action.
 
 ## Vercel Configuration
 
@@ -36,17 +45,18 @@ Official domain work is paused:
 - DOMAIN-01 stash exists according to task context.
 - Do not restore DOMAIN-01 until brand/domain decision is final.
 
-## Deployment Checklist
+## Historical Checklist
+
+Do not execute this checklist for Jolcar autonomous work. A future authorized
+release task must supply a Jolcar-specific procedure and production evidence.
 
 1. `git status -sb`
 2. `cd apps/web`
 3. `npm.cmd run lint`
 4. `npm.cmd run typecheck`
 5. `npm.cmd run build`
-6. If a migration exists: `cd ../..` then `npx.cmd supabase db push`
-7. `git push` only when GitHub is healthy
-8. Wait for Vercel status `Ready`
-9. Smoke check public and protected routes
+6. Review any migration under the applicable local-only migration rules.
+7. Stop before remote migration, push, deployment, or production smoke testing.
 
 Smoke routes:
 

@@ -1,5 +1,12 @@
 # Auth And Access
 
+> **Jolcar status (2026-10-11):** This document records inherited web
+> implementation. It does not define Jolcar auth policy. The current active
+> implementation remains Turkey-oriented; Jolcar’s approved target is in
+> [DECISIONS O-005](../../../docs/jolcar-control/DECISIONS.md) and its rollout
+> remains task-queue controlled. See the
+> [documentation reconciliation](../../../docs/jolcar-control/DOCUMENTATION_RECONCILIATION.md).
+
 ## Philosophy
 
 - Guest First: browsing must not require login.
@@ -43,15 +50,21 @@
 
 ## Auth Method
 
-Current product strategy:
+Current inherited implementation:
 
-- phone-first OTP
-- no email/password as the main product strategy
+- phone-first OTP and no email/password as the main product strategy
 - global international phone-number parsing with Türkiye selected by default
 - users may enter a national number for the selected country or paste an international `+` number
 - OTP phone transfer uses short-lived per-tab `sessionStorage`; full phone numbers are not placed in the OTP URL by the current flow
 - safe, categorized auth errors; raw provider messages are not shown in the browser UI
 - 60-second OTP resend cooldown in the client
+
+Approved Jolcar target (not yet implemented by this document): first
+registration uses one OTP followed by mandatory password enrollment; routine
+login uses phone plus password with no routine OTP. Jolcar uses `+7`; OTP is
+reserved for registration, recovery, phone change/additional verified contact,
+and genuinely sensitive actions. Production SMS activation remains separately
+authorized.
 
 Current production gap:
 

@@ -1,5 +1,12 @@
 # Product Roadmap
 
+> **Jolcar governance notice (2026-10-11):** This is a historical OTOYALI web
+> roadmap. Its completed, paused, and suggested stages do not determine Jolcar
+> task completion or execution order. Use the repository
+> [MASTER_PLAN](../../../docs/jolcar-control/MASTER_PLAN.md),
+> [TASK_QUEUE](../../../docs/jolcar-control/TASK_QUEUE.json), and
+> [DECISIONS](../../../docs/jolcar-control/DECISIONS.md) instead.
+
 ## Completed Stages
 
 - WEB-06: real listing publishing, photo upload, seller profile, listing quality.

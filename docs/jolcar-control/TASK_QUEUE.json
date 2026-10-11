@@ -69,7 +69,7 @@
       "title": "Reconcile repository documentation with Master Plan",
       "priority": "P0",
       "type": "documentation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0001"
@@ -88,8 +88,8 @@
         "diff review",
         "documentation inventory"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 documentation inventory and reconciliation: docs/jolcar-control/DOCUMENTATION_RECONCILIATION.md; reviewed Master Plan, Decisions, queue, baseline audit, legacy blueprints, and current web operational docs.",
+      "notes": "Control-document links and historical-state notices added; unresolved provider, legal/support, production-host, and implementation gaps are recorded without changing approved decisions."
     },
     {
       "id": "JLC-0003",

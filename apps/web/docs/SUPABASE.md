@@ -1,5 +1,12 @@
 # Supabase
 
+> **Jolcar safety notice (2026-10-11):** This is an implementation reference,
+> not authorization to mutate a remote database. Jolcar autonomous work is
+> local-only: do not run `supabase db push`, apply remote migrations, or access
+> production. Follow [MASTER_PLAN](../../../docs/jolcar-control/MASTER_PLAN.md),
+> [TASK_QUEUE](../../../docs/jolcar-control/TASK_QUEUE.json), and
+> [DECISIONS](../../../docs/jolcar-control/DECISIONS.md).
+
 ## Config
 
 Supabase config lives in `supabase/config.toml`.
@@ -27,14 +34,14 @@ Migrations live under:
 supabase/migrations
 ```
 
-Run:
+For local migration-history inspection only:
 
 ```powershell
-cd "C:\Проекты\Otoyali-blueprint"
-npx.cmd supabase db push
+npx.cmd supabase migration list --local
 ```
 
-If the output includes `Finished supabase db push`, the migration push succeeded. A `no SMS provider enabled` warning means phone auth is not production-ready yet.
+Do not treat a local result as production readiness. Remote migration apply and
+production SMS/provider activation require separate authorization.
 
 ## Schemas And Tables
 

@@ -1,5 +1,13 @@
 # OTOYALI — Supabase Setup Guide
 
+> **Jolcar governance notice (2026-10-11):** This is historical
+> OTOYALI/Turkey setup reference. It must not be used to access production,
+> apply remote migrations, or select Jolcar product behavior. For Jolcar work
+> use [MASTER_PLAN](./docs/jolcar-control/MASTER_PLAN.md),
+> [TASK_QUEUE](./docs/jolcar-control/TASK_QUEUE.json), and
+> [DECISIONS](./docs/jolcar-control/DECISIONS.md). See the
+> [documentation reconciliation](./docs/jolcar-control/DOCUMENTATION_RECONCILIATION.md).
+
 **Version:** 1.0.0  
 **Classification:** Internal — Engineering  
 **Last Updated:** 2026-06-29  
