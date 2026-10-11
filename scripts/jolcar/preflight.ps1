@@ -1,11 +1,15 @@
 [CmdletBinding()]
 param(
-  [string]$RepoRoot = (Join-Path $PSScriptRoot "..\.."),
+  [string]$RepoRoot,
   [switch]$RequireClean,
   [string]$ExpectedDatabaseContainer = "supabase_db_Otoyali-blueprint"
 )
 
 $ErrorActionPreference = "Stop"
+
+if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
+  $RepoRoot = Join-Path (Split-Path -Parent $PSScriptRoot) ".."
+}
 
 function Stop-Preflight([string]$Message) {
   Write-Host "FAIL $Message"
