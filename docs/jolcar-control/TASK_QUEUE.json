@@ -801,7 +801,7 @@
       "title": "Auth/contact security regression gate",
       "priority": "P0",
       "type": "testing",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0302",
@@ -824,8 +824,8 @@
         "auth/contact regression suite",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local verification: `npm run test:jlc-0307` and `npm run typecheck` passed. The regression command exercises anonymous, owner, non-owner, and service-role boundaries; public seller identity/contact projection privacy; password enrollment and password-first routine login; explicit recovery OTP and reusable-contact OTP-economy assertions; and the three-contact limit. Local tests use only local Supabase fixtures and a synthetic nonfunctional provider path; no production SMS or external provider was invoked.",
+      "notes": "JLC-0307 adds the reproducible `test:jlc-0307` regression command. Runtime fixtures are cleaned up by the exercised tests. No migration, remote action, provider call, production access, deployment, or push occurred."
     },
     {
       "id": "JLC-0308",
