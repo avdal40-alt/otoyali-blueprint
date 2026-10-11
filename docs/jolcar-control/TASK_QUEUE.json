@@ -1758,7 +1758,7 @@
       "title": "Buyer Request domain and owner-private management",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0303",
@@ -1777,8 +1777,8 @@
         "schema/RLS tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local verification: transaction dry-run created and rolled back the additive migration with zero residual buyer-request objects; physical local apply then recorded migration 20261011180000 in local history. npm run test:jlc-0801 passed a 12-case owner/private RLS matrix (anon, owner, non-owner, direct table denial, canonical criteria, edit, archive); npm run test:functional-03b-a1, typecheck, lint, migration-check, and git diff --check passed.",
+      "notes": "Added owner-private canonical Search v1 buyer request management through authenticated private API routes and owner-derived RPCs. There is intentionally no public buyer-request projection, identity field, or direct authenticated table access. Local database only; no production, provider, remote migration, deployment, or push action occurred."
     },
     {
       "id": "JLC-0802",
