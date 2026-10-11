@@ -683,7 +683,7 @@
       "title": "Routine login by phone + password",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0302"
@@ -702,8 +702,8 @@
         "local Auth runtime",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local verification: `npm run test:jlc-0303`, `npm run test:auth-return-path`, `npm run test:jlc-0302`, and `npm run typecheck` passed. With a temporary nonfunctional local-only SMS adapter (no OTP or provider call), a synthetic confirmed +7 user successfully completed `signInWithPassword`; invalid credentials issued no session. The committed default local configuration was restored afterward.",
+      "notes": "Login uses Supabase `signInWithPassword` with the parsed E.164 phone and password, with no `signInWithOtp` call. The return target is sanitized through `safeNextPath` before locale-aware navigation. The local stack has no configured SMS provider and consequently disables GoTrue phone login by default; runtime verification temporarily enabled only a fake local adapter and did not send SMS or contact a provider. No migration, production, provider, or remote operation occurred."
     },
     {
       "id": "JLC-0304",
