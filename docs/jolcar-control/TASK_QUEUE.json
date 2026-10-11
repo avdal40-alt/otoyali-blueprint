@@ -128,7 +128,7 @@
       "title": "Local Supabase/test environment readiness",
       "priority": "P0",
       "type": "tooling",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0003"
@@ -149,8 +149,8 @@
         "focused runtime smoke",
         "git diff -- supabase/config.toml"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local readiness smoke: scripts/jolcar/local-environment-readiness.ps1 dynamically obtained local runtime values, verified loopback Auth and PostgREST HTTP 200 responses, and confirmed supabase/config.toml stayed unchanged without printing runtime credentials.",
+      "notes": "No Windows port reservation or temporary configuration change was required; the check is reusable for later local-only task verification."
     },
     {
       "id": "JLC-D001",
