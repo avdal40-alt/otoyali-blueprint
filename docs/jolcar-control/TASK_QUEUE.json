@@ -654,7 +654,7 @@
       "title": "Registration: phone OTP then mandatory password enrollment",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0301"
@@ -673,8 +673,8 @@
         "local Auth/JWT runtime where available",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-11 local verification: `npm run test:jlc-0302`, `npm run test:jlc-0302:runtime`, `npm run test:phone-auth`, `npm run test:auth-signup-metadata`, `npm run test:launch-b01b1`, and `npm run typecheck` passed. The local JWT runtime test verifies actor-derived enrollment state and anonymous denial without sending an OTP or contacting a provider.",
+      "notes": "Registration OTP verification routes unenrolled users to password creation; the enrollment marker is written only after Supabase Auth accepts the password. Routine login remains phone plus password. Local Supabase phone/password login is disabled, so the runtime authorization check uses a locally generated magic-link JWT; source contracts cover the phone/password call and no automatic second OTP is issued. No provider, production, or remote operation occurred."
     },
     {
       "id": "JLC-0303",

@@ -12,6 +12,8 @@
     "test:phone-policy": "node scripts/phone-policy.test.cjs",
     "test:auth-return-path": "node scripts/auth-return-path.test.cjs",
     "test:auth-signup-metadata": "node scripts/auth-signup-metadata.test.cjs",
+    "test:jlc-0302": "node scripts/jlc-0302-registration-password-enrollment.test.cjs",
+    "test:jlc-0302:runtime": "node scripts/jlc-0302-password-enrollment-runtime.test.cjs",
     "test:security-lifecycle": "node scripts/security-lifecycle.test.cjs",
     "test:security-02a": "node scripts/security-02a.test.cjs",
     "test:security-02e": "node scripts/security-02e-release-compatibility.test.cjs",
