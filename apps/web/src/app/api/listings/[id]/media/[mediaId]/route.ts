@@ -24,5 +24,7 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
 
   const paths = [row.original_path, row.storage_path, row.large_path, row.card_path, row.thumb_path].filter((path): path is string => Boolean(path));
   const { error: cleanupError } = paths.length ? await trustedSanitizedStorage.remove(Array.from(new Set(paths))) : { error: null };
-  return NextResponse.json({ data: { removed: true, cleanupIncomplete: Boolean(cleanupError) } }, { headers: privateApiHeaders });
+  const cleanupTaskId = (await authenticated.supabase.rpc("get_own_pending_listing_media_cleanup_task", { p_listing_id: listingId.data, p_media_id: mediaId.data })).data;
+  if (!cleanupError && cleanupTaskId) await authenticated.supabase.rpc("complete_own_listing_media_cleanup_task", { p_listing_id: listingId.data, p_cleanup_task_id: cleanupTaskId });
+  return NextResponse.json({ data: { removed: true, cleanupIncomplete: Boolean(cleanupError), cleanupTaskId } }, { headers: privateApiHeaders });
 }

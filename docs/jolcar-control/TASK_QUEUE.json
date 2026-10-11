@@ -1465,8 +1465,8 @@
         "cleanup tests",
         "ownership tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local verification: `npm run test:jlc-0509`, `npm run test:jlc-0507`, and `npm run typecheck` passed. Local PostgreSQL dry-run/rollback and apply verified the retry queue, owner-scoped SECURITY DEFINER RPC grants (authenticated only; anon denied), enabled RLS, and no authenticated table DML grant.",
+      "notes": "Added a durable, owner-scoped cleanup task before deleting persisted media metadata. Storage cleanup is attempted immediately; its task ID is returned when incomplete and can be retried through the authenticated cleanup endpoint without reintroducing the deleted media row. Migration 20261012110000 was applied to local Supabase only with physical history verification; no production or remote operation occurred."
     },
     {
       "id": "JLC-0510",
