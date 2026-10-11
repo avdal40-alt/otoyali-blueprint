@@ -99,7 +99,9 @@ try {
   if ($containerState.Trim() -ne "true") { throw "Expected local Supabase database container is not running." }
   $databaseName = (Invoke-Checked docker @("exec", $ExpectedDatabaseContainer, "psql", "-U", "postgres", "-d", "postgres", "-Atqc", "select current_database()") "Expected local Postgres did not respond.") -join ""
   if ($databaseName.Trim() -ne "postgres") { throw "Database container did not identify the expected local postgres database." }
-  & npx.cmd supabase migration list --local *> $null
+  # Invoke through cmd so Supabase's informational stderr does not become a
+  # PowerShell NativeCommandError under ErrorActionPreference=Stop.
+  & cmd.exe /d /c "npx.cmd supabase migration list --local >NUL 2>&1"
   if ($LASTEXITCODE -ne 0) { throw "Local Supabase migration history is unavailable." }
   Pass-Preflight "local_database" "container=$ExpectedDatabaseContainer migration_history=available"
 
