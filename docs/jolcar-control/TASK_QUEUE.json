@@ -2263,7 +2263,7 @@
       "title": "Dealer bulk inventory canonical ingestion/reconciliation model",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0901",
@@ -2283,8 +2283,8 @@
         "import contract tests",
         "ownership tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "supabase/migrations/20261010194500_jlc0906_dealer_import_reconciliation.sql; supabase/migrations/20261012140000_jlc0906_qualify_external_id_reconciliation.sql; supabase/migrations/20261012150000_jlc0906_use_canonical_archive_lifecycle.sql; apps/web/scripts/jlc-0906-dealer-import-reconciliation.test.cjs; local runtime/import ownership tests passed 2026-10-12",
+      "notes": "Canonical dealer-scoped external IDs reconcile listing and vehicle catalog data deterministically. Invalid catalog rows persist observable issue records; archive uses the canonical removed/archived lifecycle. The authenticated verified-dealer RPC remains dealer-scoped and cannot target another dealer account. Local migrations were dry-run, applied, physically verified, and recorded in local history only."
     },
     {
       "id": "JLC-D008",
