@@ -1643,7 +1643,7 @@
       "title": "Send/reply/unread/reliable refresh",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0602"
@@ -1662,8 +1662,8 @@
         "unread tests",
         "realtime/polling tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local completion: added cursor-order unread accounting so a reply created in the same timestamp tick as a read remains unread. Passed JLC-0603 runtime unread matrix (sender/recipient/reply transitions), functional 03a1/03a2/03a3/03a4/03a4-ui/03a5 messaging regressions, functional 03a6 refresh contract, and apps/web TypeScript check. The local security matrix continues to verify anonymous denial, participant-only access, cross-user denial, self-contact denial, private no-store APIs, and no client direct table access.",
+      "notes": "Added and locally applied migration 20261012120000_jlc_0603_unread_cursor_order.sql. Transactional dry-run rolled back with zero residual function state; physical verification confirmed SECURITY DEFINER, authenticated-only EXECUTE, anon denial, tuple cursor ordering, and local migration history. No production access, provider activation, deployment, or Git push occurred."
     },
     {
       "id": "JLC-0604",

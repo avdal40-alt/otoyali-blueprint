@@ -24,6 +24,7 @@
     "test:jlc-0505": "node scripts/seller-contact.test.cjs --db && node scripts/functional-02i.test.cjs",
     "test:jlc-0507": "node scripts/jlc-0507-photo-pipeline.test.cjs",
     "test:jlc-0509": "node scripts/jlc-0509-media-cleanup.test.cjs",
+    "test:jlc-0603": "node scripts/jlc-0603-messaging-unread-runtime.test.cjs && node scripts/functional-03a6-refresh.test.cjs",
     "test:jlc-0704": "node scripts/jlc-0704-vehicle-owner-review-domain.test.cjs",
     "test:jlc-0801": "node scripts/jlc-0801-buyer-request-private-management.test.cjs",
     "test:jlc-0901": "node scripts/jlc-0901-dealer-verification-foundation.test.cjs",
