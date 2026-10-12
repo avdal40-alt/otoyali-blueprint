@@ -28,9 +28,10 @@ for (const token of ["/api/conversations?limit=20", "emptyTitle", "unreadCount",
   assert.ok(inbox.includes(token), token);
 }
 
-for (const token of ["/messages${query}", "/read", "Array.from(text).length>2000", "whitespace-pre-wrap", "maxLength={4000}", "sending"]) {
+for (const token of ["/messages${query}", "/read", "whitespace-pre-wrap", "maxLength={4000}", "sending"]) {
   assert.ok(chat.includes(token), token);
 }
+assert.match(chat, /Array\.from\(text\)\.length\s*>\s*2000/, "the client enforces the canonical message-length limit");
 
 assert.match(page, /StartConversationButton/);
 assert.doesNotMatch([cta, inbox, chat].join("\n"), /phone|vin|whatsapp|analytics|localStorage/i);

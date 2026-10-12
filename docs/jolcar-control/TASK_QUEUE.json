@@ -1729,7 +1729,7 @@
       "title": "Chat cross-system release gate",
       "priority": "P0",
       "type": "testing",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0604",
@@ -1748,8 +1748,8 @@
         "E2E browser/runtime",
         "security tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local completion: JLC-0606 release-gate suite passed twice. The runtime buyer/seller matrix covered conversation creation, send/reply, unread/read state, block/report authorization, notification ownership/read integration, and outsider/anonymous denial; responsive inbox/thread contracts and TypeScript check passed.",
+      "notes": "Added and locally applied migration 20261012180000_jlc_0606_message_sequence_unread_cursor.sql after a transactional dry-run rolled back with zero residual objects. It adds a monotonic private message cursor so same-transaction timestamps cannot miscount unread messages. Physical verification confirmed the identity column/index, RLS remained enabled, anonymous EXECUTE is denied, authenticated EXECUTE remains granted, and local migration history is aligned. No production/provider access, remote migration, deployment, or Git push occurred."
     },
     {
       "id": "JLC-0801",
