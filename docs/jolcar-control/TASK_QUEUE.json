@@ -1149,7 +1149,7 @@
       "title": "Price-change event and price-drop alerts",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0411"
@@ -1167,8 +1167,8 @@
         "price-change tests",
         "notification matching tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local verification: npm run test:jlc-0413 passed the canonical price-decrease, active-listing, seller-exclusion, matcher, deduplication, and no-payment contract; npm run test:functional-03b-d passed the unified notification event rendering/API contract; npm run typecheck passed. Local database inspection confirmed applied migrations 20261010150001 and 20261010250000, SECURITY DEFINER price-drop generation, the final price-aware lifecycle trigger, and marketplace notification/saved-search objects.",
+      "notes": "The existing committed implementation detects canonical active-listing price decreases, refreshes the search projection, and emits at most one private price_drop event per watching user/listing through canonical saved-search matching while excluding the seller. No new migration was created or applied; local verification only. No payment/transaction logic, production/provider access, remote migration, deployment, or push occurred."
     },
     {
       "id": "JLC-0414",
