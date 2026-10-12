@@ -212,11 +212,14 @@ function parseCursor(value: string, sort: SortOption): ListingSearchFilters["cur
       parsed.version !== "v1" ||
       parsed.sort !== sort ||
       !isUuid(parsed.listing_id) ||
-      Object.keys(parsed).some((key) => !["version", "sort", "listing_id", "published_at", "price_amount", "year", "mileage_km"].includes(key))
+      Object.keys(parsed).some((key) => !["version", "sort", "listing_id", "published_at", "ranked_at", "price_amount", "year", "mileage_km"].includes(key))
     ) {
       return null;
     }
-    if (sort === "newest") return typeof parsed.published_at === "string" && Number.isFinite(Date.parse(parsed.published_at)) ? parsed : null;
+    if (sort === "newest") {
+      const freshness = parsed.ranked_at ?? parsed.published_at;
+      return typeof freshness === "string" && Number.isFinite(Date.parse(freshness)) ? parsed : null;
+    }
     if (sort === "price_asc" || sort === "price_desc") return Number.isSafeInteger(parsed.price_amount) ? parsed : null;
     if (sort === "year_desc") return typeof parsed.year === "number" && Number.isInteger(parsed.year) && parsed.year >= -1 && parsed.year <= 32767 ? parsed : null;
     return typeof parsed.mileage_km === "number" && Number.isInteger(parsed.mileage_km) && parsed.mileage_km >= 0 && parsed.mileage_km <= 2147483647 ? parsed : null;

@@ -947,7 +947,7 @@
       "title": "Advanced filter/sort/pagination completeness",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0402"
@@ -966,8 +966,8 @@
         "pagination/filter tests",
         "performance sanity"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12: npm run test:jlc-0404, node scripts/launch-03d3b-r3-search-cursor.test.cjs, npm run test:functional-02c2, npm run test:jlc-0403, and npm run typecheck passed. Local anonymous Search v1 runtime verified every supported sort uses keyset pagination without repeating its anchor row and preserves the public-only response contract. Local EXPLAIN confirmed the canonical newest search is bounded to 24 rows; its tiny local projection selected a sequential scan rather than the existing ordering index.",
+      "notes": "The advanced UI filters map to the canonical validated Search v1 request, as do sort and pagination. Raised-listing newest cursors now survive the URL parse/build boundary via ranked_at, preserving raise-to-top ordering across pages. The mobile drawer renders the same controlled filter panel, preserving selected state. No migration, production access, provider call, deployment, or push occurred."
     },
     {
       "id": "JLC-0405",
