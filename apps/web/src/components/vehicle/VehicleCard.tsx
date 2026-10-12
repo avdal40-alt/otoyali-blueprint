@@ -84,7 +84,7 @@ export function VehicleCard({
               type="button"
               aria-label={String(dictionary.listing.previousPhoto)}
               onClick={(event) => shiftImage(event, -1)}
-              className="absolute left-3 top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-lg font-black text-oto-text shadow-soft transition hover:bg-white group-hover:flex"
+              className="absolute left-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-lg font-black text-oto-text shadow-soft transition hover:bg-white md:hidden md:group-hover:flex"
             >
               ‹
             </button>
@@ -92,7 +92,7 @@ export function VehicleCard({
               type="button"
               aria-label={String(dictionary.listing.nextPhoto)}
               onClick={(event) => shiftImage(event, 1)}
-              className="absolute right-3 top-1/2 z-20 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-lg font-black text-oto-text shadow-soft transition hover:bg-white group-hover:flex"
+              className="absolute right-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-lg font-black text-oto-text shadow-soft transition hover:bg-white md:hidden md:group-hover:flex"
             >
               ›
             </button>

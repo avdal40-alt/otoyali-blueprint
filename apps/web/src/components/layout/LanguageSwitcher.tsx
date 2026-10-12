@@ -44,7 +44,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
         candidate === locale ? (
           <span
             key={candidate}
-            className="rounded-full bg-oto-text px-2 py-1 text-white"
+            className="hidden rounded-full bg-oto-text px-2 py-1 text-white sm:inline-flex"
             lang={candidate}
             aria-current="true"
           >

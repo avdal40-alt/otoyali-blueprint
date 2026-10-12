@@ -29,7 +29,7 @@ export function MobileFilterDrawer({
           <div className="safe-bottom absolute inset-x-0 bottom-0 max-h-[88vh] overflow-y-auto rounded-t-2xl bg-white p-4 shadow-oto">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-lg font-black text-oto-text">{String(dictionary.search.filters)}</h2>
-              <button type="button" onClick={onClose} className="rounded-full px-3 py-2 text-sm font-bold text-oto-muted">
+              <button type="button" onClick={onClose} className="flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 py-2 text-sm font-bold text-oto-muted hover:bg-oto-surface">
                 {String(dictionary.common.close)}
               </button>
             </div>

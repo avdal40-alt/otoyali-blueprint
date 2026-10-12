@@ -515,7 +515,7 @@
       "title": "Mobile-first responsive shell and thumb-friendly controls",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0201"
@@ -533,8 +533,8 @@
         "responsive browser smoke",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12: local Next.js smoke via installed Chrome headless/CDP at 375px, 768px, and 1280px confirmed no horizontal overflow; usable header and responsive language switcher targets; 44px mobile filter trigger and close control; and mobile bottom navigation. Local search had no listing fixtures, so VehicleCard runtime instances were unavailable; the passing JLC-0203 contract test covers its 4:3 media ratio, mobile-reachable 44px arrows, and desktop hover reveal.",
+      "notes": "Completed locally without production access, deployment, or package installation."
     },
     {
       "id": "JLC-0204",

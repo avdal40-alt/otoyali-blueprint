@@ -46,7 +46,7 @@ export function AppHeader() {
     <header className="sticky top-0 z-40 border-b border-oto-border bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6 lg:px-8">
         <Link href={localizePath("/", locale)} className="flex items-center" aria-label="otoyali home">
-          <Image src="/brand/otoyali-logo-header.svg" alt="otoyali" width={146} height={35} priority className="h-8 w-auto" />
+          <Image src="/brand/otoyali-logo-header.svg" alt="otoyali" width={146} height={35} priority className="h-7 w-auto sm:h-8" />
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-semibold text-oto-muted md:flex">
           <Link href={localizePath("/search", locale)} className="hover:text-oto-text">
@@ -63,7 +63,7 @@ export function AppHeader() {
           </Link>
         </nav>
         <div className="flex items-center gap-2">
-          <LanguageSwitcher className="md:inline-flex" />
+          <LanguageSwitcher />
           <Link href={isAuthed ? localizePath("/notifications", locale) : `${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/notifications", locale))}`} className="relative flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={unreadCount > 0 ? `${String(dictionary.navigation.notifications)} (${unreadCount})` : String(dictionary.navigation.notifications)}>
             <BellIcon />
             {isAuthed && unreadCount > 0 ? <span className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-oto-orange px-1 text-center text-[10px] font-black leading-4 text-white" aria-hidden="true">{unreadCount > 99 ? "99+" : unreadCount}</span> : null}
