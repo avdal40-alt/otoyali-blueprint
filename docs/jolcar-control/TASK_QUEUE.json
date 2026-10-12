@@ -487,7 +487,7 @@
       "title": "Listing card aspect-ratio and stable-grid audit",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0201"
@@ -505,8 +505,8 @@
         "visual/source test",
         "desktop+compact inspection"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 verified the shared VehicleCard and VehicleGrid contract with npm run test:jlc-0202 and npm run typecheck. Cards reserve a 4:3 media region before images decode; the shared grids explicitly begin at one compact-safe column and widen only at the established breakpoints.",
+      "notes": "O-004 confirms the 4:3 choice. The audit adds a focused source guard for media sizing, lazy image behavior, and both shared grid variants."
     },
     {
       "id": "JLC-0203",
