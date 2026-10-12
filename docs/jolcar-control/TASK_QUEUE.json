@@ -1816,7 +1816,7 @@
       "title": "Matching engine for Buyer Requests and Saved Searches",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0801",
@@ -1836,8 +1836,8 @@
         "matcher tests",
         "performance sanity"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local completion: npm run test:jlc-0803 passed a seven-check deterministic canonical-matcher matrix across active buyer requests and alert-enabled saved searches, catalog mismatch rejection, malformed-criteria isolation, and anon/authenticated execution denial. Existing single-listing matcher, saved-search notification/private-read, buyer-request privacy, and TypeScript regression checks passed. The local query plan was inspected through EXPLAIN ANALYZE during the task matrix.",
+      "notes": "Added and locally applied migration 20261012190000_jlc0803_canonical_match_targets.sql. The service-role-only matcher returns only opaque target kind/ID/owner routing references, uses the existing canonical Search v1 matcher over the public-safe listing projection, excludes the listing seller, and does not create notifications or leads (reserved for JLC-0804). Transactional dry-run rolled back with zero residual objects; physical local verification confirmed SECURITY DEFINER with empty search path, service-role-only EXECUTE, and aligned local migration history. No production access, provider call, deployment, or Git push occurred."
     },
     {
       "id": "JLC-0804",
