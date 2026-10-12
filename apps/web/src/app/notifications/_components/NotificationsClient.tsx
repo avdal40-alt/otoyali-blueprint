@@ -8,7 +8,7 @@ import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 
-type NotificationRow = { id: string; type: string; listingId: string | null; createdAt: string; readAt: string | null };
+type NotificationRow = { id: string; type: string; listingId: string | null; conversationId: string | null; createdAt: string; readAt: string | null };
 type Cursor = { beforeAt: string; beforeId: string };
 
 export function NotificationsClient() {
@@ -77,8 +77,9 @@ export function NotificationsClient() {
     <div className="flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-2xl font-black text-oto-text">{String(copy.title)}</h1><p className="mt-1 text-sm text-oto-muted">{String(copy.account)}</p></div>{unread ? <Button variant="secondary" size="sm" onClick={() => void markAll()} disabled={markingAll}>{markingAll ? String(copy.marking) : String(copy.markAll)}</Button> : null}</div>
     {error ? <div className="mt-4"><ErrorState message={error} /></div> : null}
     <div className="mt-5 grid gap-3">{rows.map((row) => <article key={row.id} className={`rounded-oto border p-4 shadow-soft ${row.readAt ? "border-oto-border bg-white" : "border-oto-blue/30 bg-oto-blue/5"}`}>
-      <div className="flex items-start justify-between gap-3"><div><p className="font-black text-oto-text">{String(row.type === "price_drop" ? copy.priceDrop : row.type === "saved_search_match" ? copy.newMatch : copy.notificationUpdate)}</p><p className="mt-1 text-sm text-oto-muted">{new Intl.DateTimeFormat(locale === "en" ? "en-US" : "tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(row.createdAt))}</p></div>{!row.readAt ? <span className="rounded-full bg-oto-blue px-2 py-1 text-xs font-bold text-white">{String(copy.unread)}</span> : null}</div>
+      <div className="flex items-start justify-between gap-3"><div><p className="font-black text-oto-text">{String(row.type === "chat_message" ? copy.chatMessage : row.type === "price_drop" ? copy.priceDrop : row.type === "saved_search_match" ? copy.newMatch : copy.notificationUpdate)}</p><p className="mt-1 text-sm text-oto-muted">{new Intl.DateTimeFormat(locale === "en" ? "en-US" : "tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(row.createdAt))}</p></div>{!row.readAt ? <span className="rounded-full bg-oto-blue px-2 py-1 text-xs font-bold text-white">{String(copy.unread)}</span> : null}</div>
       {row.listingId ? <Link href={localizePath(`/listing/${row.listingId}`, locale)} onClick={() => void markRead(row.id)} className="mt-4 inline-flex rounded-button bg-oto-blue px-4 py-2 text-sm font-bold text-white hover:bg-oto-blue/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oto-blue/30" aria-busy={pendingId === row.id || undefined}>{String(copy.openListing)}</Link> : null}
+      {row.conversationId ? <Link href={localizePath(`/profile/messages/${row.conversationId}`, locale)} onClick={() => void markRead(row.id)} className="mt-4 inline-flex rounded-button bg-oto-blue px-4 py-2 text-sm font-bold text-white hover:bg-oto-blue/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oto-blue/30" aria-busy={pendingId === row.id || undefined}>{String(copy.openConversation)}</Link> : null}
     </article>)}</div>
     {nextCursor ? <div className="mt-5"><Button variant="secondary" onClick={() => void load(nextCursor, true)} disabled={loadingMore}>{loadingMore ? String(copy.loading) : String(copy.loadMore)}</Button></div> : null}
   </section>;

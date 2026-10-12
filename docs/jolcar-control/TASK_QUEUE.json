@@ -1702,7 +1702,7 @@
       "title": "Chat notification integration",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0603",
@@ -1719,8 +1719,8 @@
       "verification": [
         "notification tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local completion: JLC-0605 runtime matrix passed (6 checks): a sender receives no self-notification; only the counterpart receives the chat event; a conversation read marks that recipient's notification read; a non-participant receives no event; direct notification-table access and anonymous message/read RPC execution are denied. Existing notification-center, JLC-0603 unread/refresh, notification owner/RLS (24 checks), i18n shared UI, and TypeScript checks also passed. Local migration history is aligned through 20261012173722.",
+      "notes": "Added and locally applied migrations 20261012173547_jlc_0605_chat_notification_integration.sql and 20261012173722_jlc_0605_qualify_chat_notification_conflict.sql. Chat events store only conversation/message identifiers, not message bodies; the existing owner-derived notification facade remains private and a v2 facade exposes only the recipient's safe navigation IDs. Transactional dry-runs rolled back with no residual objects; physical verification confirmed RLS, no anon/authenticated table SELECT, SECURITY DEFINER empty search paths, authenticated-only RPC grants, unique migration versions, and aligned local history. No production/provider access, remote migration, deployment, or Git push occurred."
     },
     {
       "id": "JLC-0606",
