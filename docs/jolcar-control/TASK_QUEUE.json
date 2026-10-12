@@ -458,7 +458,7 @@
       "title": "Design token architecture for restrained palette",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0101"
@@ -477,8 +477,8 @@
         "UI token inspection/tests",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 verified the neutral-base and configurable-accent architecture with npm run test:jlc-0201 and npm run typecheck. The focused guard confirms core UI primitives avoid raw Tailwind palette utilities, all accent tokens resolve via CSS variables, and no literal final accent is embedded.",
+      "notes": "Market profiles now expose optional brandColors consumed by the root layout. Until an approved market accent is configured, tokens safely fall back to the neutral text color; no brand accent decision was made."
     },
     {
       "id": "JLC-0202",

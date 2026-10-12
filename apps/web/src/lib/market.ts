@@ -9,6 +9,14 @@ export type MarketProfile = {
   brandName: string;
   siteUrl: string | null;
   currencyCode: "TRY" | "KZT";
+  /**
+   * Brand colors are intentionally optional until a market has an approved
+   * accent. UI tokens fall back to the neutral text color in the meantime.
+   */
+  brandColors: {
+    accent: string | null;
+    accentStrong?: string | null;
+  };
   metadata: {
     defaultTitle: string;
     description: string;
@@ -55,6 +63,10 @@ export const MARKET_PROFILES = {
     brandName: "Yolmod",
     siteUrl: "https://yolmod.com",
     currencyCode: "TRY",
+    brandColors: {
+      accent: null,
+      accentStrong: null
+    },
     metadata: {
       defaultTitle: "Türkiye'nin akıllı araç pazarı",
       description: "Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.",
@@ -92,6 +104,10 @@ export const MARKET_PROFILES = {
     // The final Jolcar host/domain is an open product decision (O-002).
     siteUrl: null,
     currencyCode: "KZT",
+    brandColors: {
+      accent: null,
+      accentStrong: null
+    },
     metadata: {
       defaultTitle: "Қазақстанның ақылды көлік нарығы",
       description: "Көліктерді, қосалқы бөлшектерді және автокөлік қызметтерін бір платформадан табыңыз.",

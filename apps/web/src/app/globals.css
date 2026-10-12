@@ -13,9 +13,9 @@
   --oto-muted: #6b7280;
   --oto-border: #e5e7eb;
   --oto-border-strong: #cbd5e1;
-  /* Supplied by the active brand config; no accent decision is embedded here. */
-  --brand-accent: initial;
-  --brand-accent-strong: initial;
+  /* A market can override these through brand config after its accent is approved. */
+  --brand-accent: var(--oto-text);
+  --brand-accent-strong: var(--brand-accent);
   --oto-primary: var(--brand-accent);
   --oto-secondary: var(--brand-accent-strong, var(--brand-accent));
   --oto-cta: var(--brand-accent);

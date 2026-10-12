@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import type { CSSProperties } from "react";
 import { I18nProvider } from "@/i18n/client";
 import { getLocaleDirection, getLocaleTag } from "@/i18n/config";
 import { getClientDictionary } from "@/i18n/get-dictionary";
@@ -54,10 +55,15 @@ export default async function RootLayout({
 }>) {
   const locale = await getRequestLocale();
   const dictionary = getClientDictionary(locale);
+  const { accent, accentStrong } = ACTIVE_MARKET_PROFILE.brandColors;
+  const brandColorStyle = {
+    ...(accent ? { "--brand-accent": accent } : {}),
+    ...(accentStrong ? { "--brand-accent-strong": accentStrong } : {})
+  } as CSSProperties;
 
   return (
     <html lang={getLocaleTag(locale)} dir={getLocaleDirection(locale)}>
-      <body>
+      <body style={brandColorStyle}>
         <I18nProvider locale={locale} dictionary={dictionary}>
           {children}
         </I18nProvider>
