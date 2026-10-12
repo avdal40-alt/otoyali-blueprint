@@ -1672,7 +1672,7 @@
       "title": "Messaging blocking/reporting/rate limits",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0603"
@@ -1692,8 +1692,8 @@
         "block/report tests",
         "security matrix"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local completion: current database-backed messaging safety implementation enforces directional participant blocks below the API boundary, preserves readable history, exposes private/auditable conversation and message reports with server-derived reporter identity, and applies authenticated route-level send/safety rate limits. Passed functional-03a1, functional-03a2, functional-03a3, functional-03a4 (18-check local DB abuse/security matrix), functional-03a4-ui, functional-03a5, and apps/web TypeScript check.",
+      "notes": "Local DB inspection confirmed RLS-enabled private safety tables and SECURITY DEFINER safety RPCs with EXECUTE granted only to authenticated. No migration was required or created; the existing 20260915170302 messaging-safety migration and later 20260921063719 send-state owner remain applied. The JLC-0603 unread runtime test failed once before any task edits at starting HEAD 2b3dc0f, then passed immediately in isolation; no JLC-0604 code change could have caused it. No production access, provider activation, deployment, or Git push occurred."
     },
     {
       "id": "JLC-0605",
