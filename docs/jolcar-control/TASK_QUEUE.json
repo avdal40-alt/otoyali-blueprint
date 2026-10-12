@@ -1121,7 +1121,7 @@
       "title": "New-listing alerts for saved searches",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0411"
@@ -1139,8 +1139,8 @@
         "matcher/event tests",
         "owner privacy tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local verification: npm run test:functional-03b-b passed the 24-check canonical matcher, new-listing notification deduplication, disabled/non-matching exclusion, and anon/authenticated/owner/non-owner privacy matrix; npm run typecheck passed. Local database inspection confirmed the generator is service_role-only, notification table grants are service_role-only, the final listing lifecycle trigger invokes the generator, and migrations 20260922113929, 20261010150001, 20261010250000, and 20261010233000 are applied.",
+      "notes": "Existing committed implementation generates one deduplicated saved_search_match event per enabled canonical matching search, excludes the listing seller and malformed/legacy/non-matching searches, and exposes notification history only through owner-derived authenticated RPCs. No new migration was required or applied; local verification only. No production/provider access, remote migration, deployment, or push occurred."
     },
     {
       "id": "JLC-0413",
