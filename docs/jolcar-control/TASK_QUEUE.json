@@ -1177,7 +1177,7 @@
       "title": "Unified notification center baseline",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0412",
@@ -1198,8 +1198,8 @@
         "RLS tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local verification: npm run test:functional-03b-b passed the 24-check owner-scoped notification/RLS contract; node apps/web/scripts/functional-03b-d-unified-notifications.test.cjs passed the saved-search, price-drop, fallback-rendering, API, and UI contract; npm run test:jlc-0413 and npm run typecheck passed. Local database inspection confirmed owner-derived SECURITY DEFINER RPCs, authenticated-only execute grants, service-role-only table policy, type/reference constraints, and applied migrations 20260922113929, 20261010150001, 20261010233000, and 20261010250000.",
+      "notes": "Existing committed implementation provides private owner-scoped in-app notification history, unread/read and mark-all operations, saved-search and price-drop rendering, and a constrained extensible event-type contract for future chat/dealer-live producers. No new migration was created or applied; local verification only. No production/provider access, remote migration, deployment, or push occurred."
     },
     {
       "id": "JLC-0501",
