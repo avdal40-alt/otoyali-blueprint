@@ -543,7 +543,7 @@
       "title": "Accessibility baseline",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0203"
@@ -562,8 +562,8 @@
         "accessibility-focused tests/manual inspection",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12: added and passed npm run test:jlc-0204, then passed the design-token and responsive-shell regressions (npm run test:jlc-0201 and npm run test:jlc-0203) plus npm run typecheck. Manual inspection of the shared primitives confirms a 16px body token, 44px shared button/input/navigation targets, visible tokenized focus, explicit field labels, linked helper/error copy, announced textual errors, and toggle position in addition to color.",
+      "notes": "Shared Input, Textarea, and Select now accept an optional visible label and associate helper/error text through aria-describedby. Shared modal and drawer close controls now guarantee 44px hit areas. Completed locally only; no migration, production access, provider call, deployment, or push occurred."
     },
     {
       "id": "JLC-0205",

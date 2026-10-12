@@ -51,7 +51,7 @@ export function Modal({
             {title}
           </h2>
           {onClose ? (
-            <button type="button" onClick={onClose} className="rounded-full px-3 py-2 text-sm font-black text-oto-muted transition hover:bg-oto-surface">
+            <button type="button" onClick={onClose} className="min-h-11 min-w-11 rounded-full px-3 py-2 text-sm font-black text-oto-muted transition hover:bg-oto-surface">
               {String(dictionary.common.close)}
             </button>
           ) : null}
