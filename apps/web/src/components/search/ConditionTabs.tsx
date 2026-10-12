@@ -22,7 +22,7 @@ export function ConditionTabs({
   ];
 
   return (
-    <div className={cn("grid rounded-md bg-oto-surface p-1", includeAll ? "grid-cols-3" : "grid-cols-2", compact ? "gap-1" : "gap-1.5")}>
+    <div className={cn("grid w-full rounded-md bg-oto-surface p-1", includeAll ? "grid-cols-3" : "grid-cols-2", compact ? "gap-1" : "gap-1.5")}>
       {options.map((option) => {
         const active = value === option.value;
         return (
@@ -31,7 +31,7 @@ export function ConditionTabs({
             type="button"
             onClick={() => onChange(option.value)}
             className={cn(
-              "h-10 rounded-md px-2 text-xs font-black transition sm:text-sm",
+              "h-10 min-w-0 truncate rounded-md px-2 text-xs font-black transition sm:text-sm",
               active ? "bg-oto-blue text-white shadow-soft" : "text-oto-muted hover:bg-white hover:text-oto-text"
             )}
             aria-pressed={active}

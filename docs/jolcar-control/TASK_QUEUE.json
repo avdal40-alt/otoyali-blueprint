@@ -889,7 +889,7 @@
       "title": "Quick search: Make → Model → Price → All filters",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0401",
@@ -908,8 +908,8 @@
         "search UI tests",
         "desktop+compact inspection"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12: npm run test:jlc-0402, npm run test:jlc-0203, and npm run typecheck passed. Local Chrome headless inspection at desktop and compact widths confirmed Make, Model, price, and the All filters action are immediately available; year and remaining criteria are reachable through All filters.",
+      "notes": "Home quick search now follows the approved Make → Model → Price sequence. Search URL/filter semantics are unchanged. Completed locally only; no migration, production access, provider call, deployment, or push occurred."
     },
     {
       "id": "JLC-0403",

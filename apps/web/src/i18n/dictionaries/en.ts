@@ -114,6 +114,7 @@ export const en = {
     resultsCount: "{count} listings found",
     advanced: "Advanced",
     advancedFilters: "Advanced filters",
+    allFilters: "All filters",
     showListings: "Show listings",
     filters: "Filters",
     closeFilters: "Close filters",

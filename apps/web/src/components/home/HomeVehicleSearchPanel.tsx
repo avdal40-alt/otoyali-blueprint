@@ -58,15 +58,15 @@ export function HomeVehicleSearchPanel({
   }
 
   return (
-    <section className="rounded-oto border border-oto-border bg-white p-4 shadow-soft md:p-6">
-      <div className="max-w-2xl">
+    <section className="min-w-0 rounded-oto border border-oto-border bg-white p-4 shadow-soft md:p-6">
+      <div className="min-w-0 max-w-2xl">
         <h1 className="text-h2 text-oto-text md:text-h1">{String(dictionary.home.searchHeroTitle)}</h1>
       </div>
-      <div className="mt-5 max-w-md">
+      <div className="mt-5 w-full min-w-0 max-w-md">
         <ConditionTabs value={filters.condition} onChange={(value) => setValue("condition", value)} includeAll={false} />
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-6">
+      <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <label className="grid gap-1">
           <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.brand)}</span>
           <Select value={filters.make} onChange={(event) => setValue("make", event.target.value)}>
@@ -97,14 +97,6 @@ export function HomeVehicleSearchPanel({
           <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.priceMax)}</span>
           <Input value={filters.priceMax} onChange={(event) => setValue("priceMax", event.target.value)} placeholder={String(dictionary.search.priceMax)} inputMode="numeric" />
         </label>
-        <label className="grid gap-1">
-          <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.yearMin)}</span>
-          <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder={String(dictionary.search.yearMin)} inputMode="numeric" />
-        </label>
-        <label className="grid gap-1">
-          <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.yearMax)}</span>
-          <Input value={filters.yearMax} onChange={(event) => setValue("yearMax", event.target.value)} placeholder={String(dictionary.search.yearMax)} inputMode="numeric" />
-        </label>
       </div>
       <div className="mt-3 grid gap-2 sm:grid-cols-2 sm:max-w-md">
         <Button
@@ -115,7 +107,7 @@ export function HomeVehicleSearchPanel({
           aria-expanded={advancedOpen}
           aria-controls="home-advanced-filters"
         >
-          {String(dictionary.search.advancedFilters)}
+          {String(dictionary.search.allFilters)}
         </Button>
         <Button type="button" variant="primary" onClick={search} className="w-full">
           {String(dictionary.search.showListings)}
@@ -132,6 +124,14 @@ export function HomeVehicleSearchPanel({
       >
         <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <label className="grid gap-1">
+              <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.yearMin)}</span>
+              <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder={String(dictionary.search.yearMin)} inputMode="numeric" />
+            </label>
+            <label className="grid gap-1">
+              <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.yearMax)}</span>
+              <Input value={filters.yearMax} onChange={(event) => setValue("yearMax", event.target.value)} placeholder={String(dictionary.search.yearMax)} inputMode="numeric" />
+            </label>
             <label className="grid gap-1">
               <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.city)}</span>
               <Select value={filters.city} onChange={(event) => setValue("city", event.target.value)}>

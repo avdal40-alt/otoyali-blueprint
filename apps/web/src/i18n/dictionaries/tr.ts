@@ -114,6 +114,7 @@ export const tr = {
     resultsCount: "{count} ilan bulundu",
     advanced: "Gelişmiş",
     advancedFilters: "Gelişmiş filtreler",
+    allFilters: "Tüm filtreler",
     showListings: "İlanları göster",
     filters: "Filtreler",
     closeFilters: "Filtreleri kapat",
