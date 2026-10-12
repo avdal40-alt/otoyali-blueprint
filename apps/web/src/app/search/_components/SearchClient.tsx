@@ -20,6 +20,7 @@ import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import type { QueryResult } from "@/lib/queries/listings";
 import { buildSearchUrl, defaultSearchFilters, type ListingSearchFilters } from "@/lib/search/search-params";
 import { getUniqueCities } from "@/lib/search/filter-listings";
+import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { interpolate } from "@/i18n/get-dictionary";
@@ -65,6 +66,7 @@ export function SearchClient({
   const { locale, dictionary } = useI18n();
   const router = useRouter();
   const [filters, setFilters] = useState<ListingSearchFilters>(initialFilters);
+  const [resultCount, setResultCount] = useState<number | undefined>();
   const [isPending, startTransition] = useTransition();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   useEffect(() => setFilters(initialFilters), [initialFilters]);
@@ -76,6 +78,38 @@ export function SearchClient({
     return catalogCities.length > 0 ? catalogCities : getUniqueCities(listings);
   }, [cities, listings]);
   const savedSearchRequest = useMemo(() => buildSearchRequest(filters, { makes, models, cities: cities ?? [] }), [cities, filters, makes, models]);
+  const countRequest = useMemo(
+    () => buildSearchRequest({ ...filters, cursor: null }, { makes, models, cities: cities ?? [] }),
+    [cities, filters, makes, models]
+  );
+  useEffect(() => {
+    if (!hasSupabaseEnv()) {
+      setResultCount(undefined);
+      return;
+    }
+
+    let active = true;
+    setResultCount(undefined);
+    const timeout = window.setTimeout(() => {
+      void Promise.resolve(
+        getSupabaseBrowserClient()
+          .schema("marketplace")
+          .rpc("count_search_listings_v1", { p_request: countRequest })
+      )
+        .then(({ data, error }) => {
+          if (!active) return;
+          setResultCount(!error && typeof data === "number" && Number.isSafeInteger(data) && data >= 0 ? data : undefined);
+        })
+        .catch(() => {
+          if (active) setResultCount(undefined);
+        });
+    }, 250);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+    };
+  }, [countRequest]);
   const showAdvancedFilters =
     filters.advanced ||
     Boolean(
@@ -130,7 +164,6 @@ export function SearchClient({
   }
 
   function renderFilterPanel() {
-    const resultCount = !error && !isPending && JSON.stringify(filters) === JSON.stringify(initialFilters) ? listings.length : undefined;
     return (
       <SearchFilters
         filters={filters}

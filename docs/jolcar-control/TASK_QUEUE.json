@@ -918,7 +918,7 @@
       "title": "Live search result count on CTA",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0402"
@@ -937,8 +937,8 @@
         "UI interaction test",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12: npm run test:jlc-0403, node scripts/jlc-0401-public-contract.test.cjs, npm run typecheck, migration-check.ps1, and git diff --check passed. Local database verification confirmed the anonymous, SECURITY INVOKER count RPC returns the canonical public search-document total.",
+      "notes": "Added debounced live CTA counts through a public count RPC that reuses Search v1 request validation and matcher semantics. Counts clear while loading or unavailable, so stale values are not shown. Local migration 20261012160000 was dry-run, physically applied, verified, and recorded in local history only; no production access, provider call, deployment, or push occurred."
     },
     {
       "id": "JLC-0404",
