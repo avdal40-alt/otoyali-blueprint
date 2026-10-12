@@ -15,7 +15,6 @@ for (const token of [
   "unblockConfirmTitle",
   "/api/conversations/${conversationId}/block",
   "setBlocked(isBlock)",
-  "disabled={blocked || sending",
   "setBlocked(true)",
   "messages?.map",
   "safetyReminder",
@@ -29,7 +28,8 @@ for (const token of [
   "<fieldset"
 ]) assert.ok(chat.includes(token), token);
 
-assert.match(chat, /reportTarget\.kind === "conversation" \? `\/api\/conversations\/\$\{conversationId\}\/report` : `\/api\/conversations\/\$\{conversationId\}\/messages\/\$\{reportTarget\.messageId\}\/report`/);
+assert.match(chat, /reportTarget\.kind === "conversation"\s*\?\s*`\/api\/conversations\/\$\{conversationId\}\/report`\s*:\s*`\/api\/conversations\/\$\{conversationId\}\/messages\/\$\{reportTarget\.messageId\}\/report`/);
+assert.match(chat, /disabled=\{\s*blocked\s*\|\|\s*sending/, "message send remains disabled while blocked or pending");
 assert.match(chat, /authenticatedRequest\(path, "POST", \{ reason \}\)/, "report payload contains only the canonical reason");
 assert.doesNotMatch(chat, /console\.|localStorage|analytics|phone|vin|reporterId|moderation|queue/i, "chat safety UX must not leak private data or telemetry");
 assert.doesNotMatch(chat, /guarantee|guaranteed|garanti/i, "safety copy makes no transaction guarantee");

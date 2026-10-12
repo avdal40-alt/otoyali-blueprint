@@ -1787,7 +1787,7 @@
       "title": "Seller/dealer response with active listing",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0801",
@@ -1806,8 +1806,8 @@
         "ownership tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local verification: `npm run test:jlc-0802` passed a seven-case anonymous/authenticated/seller/non-seller/participant matrix covering active owned-listing attachment, foreign-listing denial, participant-only minimal response reads, direct-table denial, and response UI contract. `test:functional-03a1`, `test:functional-03a4-ui`, TypeScript, lint, migration static validation, JSON validation, and `git diff --check` passed.",
+      "notes": "Added and locally applied migration 20261012130000_jlc0802_listing_response_conflict_fix.sql to correct the previously applied response function's PL/pgSQL conflict-target ambiguity. Transactional dry-run rolled back cleanly; physical verification confirmed the local history entry, authenticated-only EXECUTE, anon denial, and corrected constraint-target path. The conversation UI now renders participant-safe listing-response links only. No production access, provider call, deployment, push, or remote migration occurred."
     },
     {
       "id": "JLC-0803",

@@ -3,33 +3,128 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { ErrorState, LoadingState } from "@/components/ui/States";
-import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
+import {
+  getSupabaseBrowserClient,
+  hasSupabaseEnv,
+} from "@/lib/supabase/client";
 import { useI18n } from "@/i18n/client";
+import { localizePath } from "@/i18n/config";
 
-type Message = { messageId: string; isOwn: boolean; text: string; createdAt: string };
-type ReportReason = "fraud" | "wrong_information" | "duplicate" | "inappropriate_content" | "suspicious_seller" | "other";
-type ReportTarget = { kind: "conversation" } | { kind: "message"; messageId: string };
-const reportReasons: ReportReason[] = ["fraud", "wrong_information", "duplicate", "inappropriate_content", "suspicious_seller", "other"];
+type Message = {
+  messageId: string;
+  isOwn: boolean;
+  text: string;
+  createdAt: string;
+};
+type ListingResponse = { listing_id: string; created_at: string };
+type ReportReason =
+  | "fraud"
+  | "wrong_information"
+  | "duplicate"
+  | "inappropriate_content"
+  | "suspicious_seller"
+  | "other";
+type ReportTarget =
+  { kind: "conversation" } | { kind: "message"; messageId: string };
+const reportReasons: ReportReason[] = [
+  "fraud",
+  "wrong_information",
+  "duplicate",
+  "inappropriate_content",
+  "suspicious_seller",
+  "other",
+];
 
-export function ConversationClient({ conversationId }: { conversationId: string }) {
+export function ConversationClient({
+  conversationId,
+}: {
+  conversationId: string;
+}) {
   const { locale, dictionary } = useI18n();
   const copy = dictionary.messages;
   const [messages, setMessages] = useState<Message[] | null>(null);
+  const [responses, setResponses] = useState<ListingResponse[]>([]);
   const [error, setError] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [before, setBefore] = useState<{ at: string; id: string } | null>(null);
   const [blocked, setBlocked] = useState(false);
-  const [safetyAction, setSafetyAction] = useState<"block" | "unblock" | null>(null);
+  const [safetyAction, setSafetyAction] = useState<"block" | "unblock" | null>(
+    null,
+  );
   const [reportTarget, setReportTarget] = useState<ReportTarget | null>(null);
   const [reason, setReason] = useState<ReportReason | "">("");
   const [pendingSafety, setPendingSafety] = useState(false);
-  const session = async () => hasSupabaseEnv() ? (await getSupabaseBrowserClient().auth.getSession()).data.session : null;
-  const load = async (older = false) => { setError(false); const activeSession = await session(); if (!activeSession) return setError(true); const query = older && before ? `?limit=50&beforeAt=${encodeURIComponent(before.at)}&beforeId=${before.id}` : "?limit=50"; try { const [response, stateResponse] = await Promise.all([fetch(`/api/conversations/${conversationId}/messages${query}`, { cache: "no-store", headers: { Authorization: `Bearer ${activeSession.access_token}` } }), older ? Promise.resolve(null) : fetch(`/api/conversations/${conversationId}/block`, { cache: "no-store", headers: { Authorization: `Bearer ${activeSession.access_token}` } })]); const payload = await response.json() as { data?: Message[] }; const statePayload = stateResponse ? await stateResponse.json() as { data?: { blocked?: boolean } } : null; if (!response.ok || !Array.isArray(payload.data) || (stateResponse && (!stateResponse.ok || typeof statePayload?.data?.blocked !== "boolean"))) throw new Error("messages unavailable"); if (statePayload) setBlocked(statePayload.data!.blocked!); const ordered = [...payload.data].reverse(); setMessages((current) => older ? [...ordered, ...(current ?? [])] : ordered); const oldest = ordered[0]; setBefore(oldest ? { at: oldest.createdAt, id: oldest.messageId } : null); if (!older && payload.data.length) await fetch(`/api/conversations/${conversationId}/read`, { method: "POST", cache: "no-store", headers: { "content-type": "application/json", Authorization: `Bearer ${activeSession.access_token}` }, body: JSON.stringify({ messageId: payload.data[0].messageId }) }); } catch { setError(true); } };
+  const session = async () =>
+    hasSupabaseEnv()
+      ? (await getSupabaseBrowserClient().auth.getSession()).data.session
+      : null;
+  const load = async (older = false) => {
+    setError(false);
+    const activeSession = await session();
+    if (!activeSession) return setError(true);
+    const query =
+      older && before
+        ? `?limit=50&beforeAt=${encodeURIComponent(before.at)}&beforeId=${before.id}`
+        : "?limit=50";
+    try {
+      const [response, stateResponse] = await Promise.all([
+        fetch(`/api/conversations/${conversationId}/messages${query}`, {
+          cache: "no-store",
+          headers: { Authorization: `Bearer ${activeSession.access_token}` },
+        }),
+        older
+          ? Promise.resolve(null)
+          : fetch(`/api/conversations/${conversationId}/block`, {
+              cache: "no-store",
+              headers: {
+                Authorization: `Bearer ${activeSession.access_token}`,
+              },
+            }),
+      ]);
+      const payload = (await response.json()) as {
+        data?: Message[];
+        responses?: ListingResponse[];
+      };
+      const statePayload = stateResponse
+        ? ((await stateResponse.json()) as { data?: { blocked?: boolean } })
+        : null;
+      if (
+        !response.ok ||
+        !Array.isArray(payload.data) ||
+        !Array.isArray(payload.responses) ||
+        (stateResponse &&
+          (!stateResponse.ok ||
+            typeof statePayload?.data?.blocked !== "boolean"))
+      )
+        throw new Error("messages unavailable");
+      if (statePayload) setBlocked(statePayload.data!.blocked!);
+      if (!older) setResponses(payload.responses);
+      const ordered = [...payload.data].reverse();
+      setMessages((current) =>
+        older ? [...ordered, ...(current ?? [])] : ordered,
+      );
+      const oldest = ordered[0];
+      setBefore(oldest ? { at: oldest.createdAt, id: oldest.messageId } : null);
+      if (!older && payload.data.length)
+        await fetch(`/api/conversations/${conversationId}/read`, {
+          method: "POST",
+          cache: "no-store",
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${activeSession.access_token}`,
+          },
+          body: JSON.stringify({ messageId: payload.data[0].messageId }),
+        });
+    } catch {
+      setError(true);
+    }
+  };
   useEffect(() => {
     void load();
 
@@ -47,12 +142,342 @@ export function ConversationClient({ conversationId }: { conversationId: string 
       document.removeEventListener("visibilitychange", refresh);
     };
   }, [conversationId]);
-  async function authenticatedRequest(path: string, method: "POST" | "DELETE", body?: object) { const activeSession = await session(); if (!activeSession) return false; const response = await fetch(path, { method, cache: "no-store", headers: { "content-type": "application/json", Authorization: `Bearer ${activeSession.access_token}` }, body: body ? JSON.stringify(body) : undefined }); return response.ok; }
-  async function send(event: FormEvent) { event.preventDefault(); if (sending || blocked) return; if (!text.trim() || Array.from(text).length>2000) { setFeedback(String(copy.invalidMessage)); return; } const activeSession = await session(); if (!activeSession) { setError(true); return; } setSending(true); setFeedback(null); try { const response = await fetch(`/api/conversations/${conversationId}/messages`, { method: "POST", cache: "no-store", headers: { "content-type": "application/json", Authorization: `Bearer ${activeSession.access_token}` }, body: JSON.stringify({ text }) }); if (!response.ok) { if (response.status === 404 && messages !== null) { setBlocked(true); setFeedback(String(copy.blocked)); return; } throw new Error("send unavailable"); } setText(""); await load(); } catch { setFeedback(String(copy.unavailable)); } finally { setSending(false); } }
-  async function confirmBlockAction() { if (!safetyAction) return; setPendingSafety(true); setFeedback(null); const isBlock = safetyAction === "block"; const success = await authenticatedRequest(`/api/conversations/${conversationId}/block`, isBlock ? "POST" : "DELETE"); setPendingSafety(false); if (!success) { setFeedback(String(copy.safetyError)); return; } setBlocked(isBlock); setSafetyAction(null); setFeedback(String(isBlock ? copy.blockedSuccess : copy.unblockedSuccess)); }
-  async function submitReport() { if (!reportTarget || !reason) return; setPendingSafety(true); setFeedback(null); const path = reportTarget.kind === "conversation" ? `/api/conversations/${conversationId}/report` : `/api/conversations/${conversationId}/messages/${reportTarget.messageId}/report`; const success = await authenticatedRequest(path, "POST", { reason }); setPendingSafety(false); if (!success) { setFeedback(String(copy.safetyError)); return; } setReportTarget(null); setReason(""); setFeedback(String(copy.reportSuccess)); }
-  const reportReasonLabel = (value: ReportReason) => String(copy[`reportReason${value.split("_").map((part) => part[0].toUpperCase() + part.slice(1)).join("")}` as keyof typeof copy]);
-  if (messages === null && !error) return <LoadingState label={String(copy.loading)} />;
-  if (error && messages === null) return <ErrorState message={String(copy.inaccessible)} />;
-  return <section className="mx-auto max-w-3xl"><div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-black text-oto-text">{String(copy.conversation)}</h1><div className="flex flex-wrap gap-2"><Button size="sm" variant="secondary" onClick={() => setReportTarget({ kind: "conversation" })}>{String(copy.reportConversation)}</Button><Button size="sm" variant={blocked ? "secondary" : "danger"} onClick={() => setSafetyAction(blocked ? "unblock" : "block")}>{String(blocked ? copy.unblock : copy.block)}</Button></div></div><p className="mt-3 rounded-oto border border-oto-border bg-oto-surface p-3 text-sm text-oto-muted">{String(copy.safetyReminder)}</p>{before ? <Button className="mt-4" variant="secondary" onClick={() => void load(true)}>{String(copy.loadEarlier)}</Button> : null}<ol className="mt-5 grid gap-3" aria-live="polite">{messages?.map((message) => <li key={message.messageId} className={message.isOwn ? "ml-auto max-w-[85%] rounded-oto bg-oto-blue p-3 text-white" : "mr-auto max-w-[85%] rounded-oto bg-oto-surface p-3 text-oto-text"}><p className="whitespace-pre-wrap break-words text-sm">{message.text}</p><div className="mt-1 flex items-center justify-between gap-3 text-xs opacity-75"><time>{new Intl.DateTimeFormat(locale === "en" ? "en-US" : "tr-TR", { timeStyle: "short" }).format(new Date(message.createdAt))}</time><button type="button" className="font-bold underline" onClick={() => setReportTarget({ kind: "message", messageId: message.messageId })}>{String(copy.reportMessage)}</button></div></li>)}</ol>{feedback ? <p className="mt-3 text-sm text-oto-muted" role="status">{feedback}</p> : null}{error ? <div className="mt-3"><ErrorState message={String(copy.unavailable)} /></div> : null}<form onSubmit={send} className="mt-5 grid gap-2"><label className="text-sm font-bold text-oto-text" htmlFor="message-text">{String(copy.write)}</label><textarea id="message-text" value={text} onChange={(event) => setText(event.target.value)} maxLength={4000} rows={4} disabled={blocked} aria-describedby="message-count blocked-message" className="rounded-md border border-oto-border p-3 disabled:bg-oto-surface"/><p id="message-count" className="text-xs text-oto-muted">{String(copy.messageCount).replace("{count}", String(2000 - Array.from(text).length))}</p>{blocked ? <p id="blocked-message" className="text-sm text-oto-muted" role="status">{String(copy.blocked)}</p> : null}<Button type="submit" disabled={blocked || sending || !text.trim() || Array.from(text).length>2000}>{sending ? String(copy.sending) : String(copy.send)}</Button></form><Modal open={safetyAction !== null} title={String(safetyAction === "block" ? copy.blockConfirmTitle : copy.unblockConfirmTitle)} onClose={() => !pendingSafety && setSafetyAction(null)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setSafetyAction(null)} disabled={pendingSafety}>{String(copy.cancel)}</Button><Button variant={safetyAction === "block" ? "danger" : "primary"} onClick={() => void confirmBlockAction()} isLoading={pendingSafety}>{String(safetyAction === "block" ? copy.block : copy.unblock)}</Button></div>}><p className="text-sm text-oto-muted">{String(safetyAction === "block" ? copy.blockConfirmBody : copy.unblockConfirmBody)}</p></Modal><Modal open={reportTarget !== null} title={String(reportTarget?.kind === "message" ? copy.reportMessage : copy.reportConversation)} onClose={() => !pendingSafety && setReportTarget(null)} footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setReportTarget(null)} disabled={pendingSafety}>{String(copy.cancel)}</Button><Button onClick={() => void submitReport()} disabled={!reason} isLoading={pendingSafety}>{String(copy.confirmReport)}</Button></div>}><fieldset className="grid gap-2"><legend className="text-sm font-bold text-oto-text">{String(copy.reportReason)}</legend>{reportReasons.map((value) => <label key={value} className="flex items-center gap-2 text-sm text-oto-text"><input type="radio" name="report-reason" value={value} checked={reason === value} onChange={() => setReason(value)} />{reportReasonLabel(value)}</label>)}</fieldset></Modal></section>;
+  async function authenticatedRequest(
+    path: string,
+    method: "POST" | "DELETE",
+    body?: object,
+  ) {
+    const activeSession = await session();
+    if (!activeSession) return false;
+    const response = await fetch(path, {
+      method,
+      cache: "no-store",
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${activeSession.access_token}`,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return response.ok;
+  }
+  async function send(event: FormEvent) {
+    event.preventDefault();
+    if (sending || blocked) return;
+    if (!text.trim() || Array.from(text).length > 2000) {
+      setFeedback(String(copy.invalidMessage));
+      return;
+    }
+    const activeSession = await session();
+    if (!activeSession) {
+      setError(true);
+      return;
+    }
+    setSending(true);
+    setFeedback(null);
+    try {
+      const response = await fetch(
+        `/api/conversations/${conversationId}/messages`,
+        {
+          method: "POST",
+          cache: "no-store",
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${activeSession.access_token}`,
+          },
+          body: JSON.stringify({ text }),
+        },
+      );
+      if (!response.ok) {
+        if (response.status === 404 && messages !== null) {
+          setBlocked(true);
+          setFeedback(String(copy.blocked));
+          return;
+        }
+        throw new Error("send unavailable");
+      }
+      setText("");
+      await load();
+    } catch {
+      setFeedback(String(copy.unavailable));
+    } finally {
+      setSending(false);
+    }
+  }
+  async function confirmBlockAction() {
+    if (!safetyAction) return;
+    setPendingSafety(true);
+    setFeedback(null);
+    const isBlock = safetyAction === "block";
+    const success = await authenticatedRequest(
+      `/api/conversations/${conversationId}/block`,
+      isBlock ? "POST" : "DELETE",
+    );
+    setPendingSafety(false);
+    if (!success) {
+      setFeedback(String(copy.safetyError));
+      return;
+    }
+    setBlocked(isBlock);
+    setSafetyAction(null);
+    setFeedback(String(isBlock ? copy.blockedSuccess : copy.unblockedSuccess));
+  }
+  async function submitReport() {
+    if (!reportTarget || !reason) return;
+    setPendingSafety(true);
+    setFeedback(null);
+    const path =
+      reportTarget.kind === "conversation"
+        ? `/api/conversations/${conversationId}/report`
+        : `/api/conversations/${conversationId}/messages/${reportTarget.messageId}/report`;
+    const success = await authenticatedRequest(path, "POST", { reason });
+    setPendingSafety(false);
+    if (!success) {
+      setFeedback(String(copy.safetyError));
+      return;
+    }
+    setReportTarget(null);
+    setReason("");
+    setFeedback(String(copy.reportSuccess));
+  }
+  const reportReasonLabel = (value: ReportReason) =>
+    String(
+      copy[
+        `reportReason${value
+          .split("_")
+          .map((part) => part[0].toUpperCase() + part.slice(1))
+          .join("")}` as keyof typeof copy
+      ],
+    );
+  if (messages === null && !error)
+    return <LoadingState label={String(copy.loading)} />;
+  if (error && messages === null)
+    return <ErrorState message={String(copy.inaccessible)} />;
+  return (
+    <section className="mx-auto max-w-3xl">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-black text-oto-text">
+          {String(copy.conversation)}
+        </h1>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => setReportTarget({ kind: "conversation" })}
+          >
+            {String(copy.reportConversation)}
+          </Button>
+          <Button
+            size="sm"
+            variant={blocked ? "secondary" : "danger"}
+            onClick={() => setSafetyAction(blocked ? "unblock" : "block")}
+          >
+            {String(blocked ? copy.unblock : copy.block)}
+          </Button>
+        </div>
+      </div>
+      <p className="mt-3 rounded-oto border border-oto-border bg-oto-surface p-3 text-sm text-oto-muted">
+        {String(copy.safetyReminder)}
+      </p>
+      {before ? (
+        <Button
+          className="mt-4"
+          variant="secondary"
+          onClick={() => void load(true)}
+        >
+          {String(copy.loadEarlier)}
+        </Button>
+      ) : null}
+      <ol className="mt-5 grid gap-3" aria-live="polite">
+        {messages?.map((message) => (
+          <li
+            key={message.messageId}
+            className={
+              message.isOwn
+                ? "ml-auto max-w-[85%] rounded-oto bg-oto-blue p-3 text-white"
+                : "mr-auto max-w-[85%] rounded-oto bg-oto-surface p-3 text-oto-text"
+            }
+          >
+            <p className="whitespace-pre-wrap break-words text-sm">
+              {message.text}
+            </p>
+            <div className="mt-1 flex items-center justify-between gap-3 text-xs opacity-75">
+              <time>
+                {new Intl.DateTimeFormat(locale === "en" ? "en-US" : "tr-TR", {
+                  timeStyle: "short",
+                }).format(new Date(message.createdAt))}
+              </time>
+              <button
+                type="button"
+                className="font-bold underline"
+                onClick={() =>
+                  setReportTarget({
+                    kind: "message",
+                    messageId: message.messageId,
+                  })
+                }
+              >
+                {String(copy.reportMessage)}
+              </button>
+            </div>
+          </li>
+        ))}
+      </ol>
+      {responses.length > 0 ? (
+        <section
+          className="mt-5 rounded-oto border border-oto-border bg-oto-surface p-4"
+          aria-label={String(copy.listingResponses)}
+        >
+          <h2 className="text-sm font-black text-oto-text">
+            {String(copy.listingResponses)}
+          </h2>
+          <ul className="mt-2 grid gap-2">
+            {responses.map((response) => (
+              <li key={response.listing_id}>
+                <Link
+                  href={localizePath(`/listing/${response.listing_id}`, locale)}
+                  className="font-bold text-oto-blue underline"
+                >
+                  {String(copy.viewListingResponse)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {feedback ? (
+        <p className="mt-3 text-sm text-oto-muted" role="status">
+          {feedback}
+        </p>
+      ) : null}
+      {error ? (
+        <div className="mt-3">
+          <ErrorState message={String(copy.unavailable)} />
+        </div>
+      ) : null}
+      <form onSubmit={send} className="mt-5 grid gap-2">
+        <label
+          className="text-sm font-bold text-oto-text"
+          htmlFor="message-text"
+        >
+          {String(copy.write)}
+        </label>
+        <textarea
+          id="message-text"
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          maxLength={4000}
+          rows={4}
+          disabled={blocked}
+          aria-describedby="message-count blocked-message"
+          className="rounded-md border border-oto-border p-3 disabled:bg-oto-surface"
+        />
+        <p id="message-count" className="text-xs text-oto-muted">
+          {String(copy.messageCount).replace(
+            "{count}",
+            String(2000 - Array.from(text).length),
+          )}
+        </p>
+        {blocked ? (
+          <p
+            id="blocked-message"
+            className="text-sm text-oto-muted"
+            role="status"
+          >
+            {String(copy.blocked)}
+          </p>
+        ) : null}
+        <Button
+          type="submit"
+          disabled={
+            blocked || sending || !text.trim() || Array.from(text).length > 2000
+          }
+        >
+          {sending ? String(copy.sending) : String(copy.send)}
+        </Button>
+      </form>
+      <Modal
+        open={safetyAction !== null}
+        title={String(
+          safetyAction === "block"
+            ? copy.blockConfirmTitle
+            : copy.unblockConfirmTitle,
+        )}
+        onClose={() => !pendingSafety && setSafetyAction(null)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => setSafetyAction(null)}
+              disabled={pendingSafety}
+            >
+              {String(copy.cancel)}
+            </Button>
+            <Button
+              variant={safetyAction === "block" ? "danger" : "primary"}
+              onClick={() => void confirmBlockAction()}
+              isLoading={pendingSafety}
+            >
+              {String(safetyAction === "block" ? copy.block : copy.unblock)}
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-oto-muted">
+          {String(
+            safetyAction === "block"
+              ? copy.blockConfirmBody
+              : copy.unblockConfirmBody,
+          )}
+        </p>
+      </Modal>
+      <Modal
+        open={reportTarget !== null}
+        title={String(
+          reportTarget?.kind === "message"
+            ? copy.reportMessage
+            : copy.reportConversation,
+        )}
+        onClose={() => !pendingSafety && setReportTarget(null)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => setReportTarget(null)}
+              disabled={pendingSafety}
+            >
+              {String(copy.cancel)}
+            </Button>
+            <Button
+              onClick={() => void submitReport()}
+              disabled={!reason}
+              isLoading={pendingSafety}
+            >
+              {String(copy.confirmReport)}
+            </Button>
+          </div>
+        }
+      >
+        <fieldset className="grid gap-2">
+          <legend className="text-sm font-bold text-oto-text">
+            {String(copy.reportReason)}
+          </legend>
+          {reportReasons.map((value) => (
+            <label
+              key={value}
+              className="flex items-center gap-2 text-sm text-oto-text"
+            >
+              <input
+                type="radio"
+                name="report-reason"
+                value={value}
+                checked={reason === value}
+                onChange={() => setReason(value)}
+              />
+              {reportReasonLabel(value)}
+            </label>
+          ))}
+        </fieldset>
+      </Modal>
+    </section>
+  );
 }
