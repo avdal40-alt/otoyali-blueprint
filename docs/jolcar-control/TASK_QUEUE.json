@@ -1092,7 +1092,7 @@
       "title": "Saved search create/manage",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0404",
@@ -1111,8 +1111,8 @@
         "saved-search tests",
         "RLS tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local verification: npm run test:functional-03b-a1 passed the 15-check owner/RLS and canonical Search v1 saved-search matrix; npm run test:functional-03b-a2 passed the authenticated no-store API/client contract; npm run test:functional-03b-b passed the 24-check canonical matcher alert/private-read contract; npm run typecheck passed. Local database inspection confirmed owner-derived saved-search RPCs, RLS enabled, and table grants restricted to service_role.",
+      "notes": "The existing implementation persists canonical Search v1 criteria through owner-derived SECURITY DEFINER RPCs, exposes management only through authenticated private no-store routes, retains legacy rows read-only, and enforces a transaction-safe five-search limit. No migration was created or applied. No production/provider access, remote migration, deployment, or push occurred."
     },
     {
       "id": "JLC-0412",
