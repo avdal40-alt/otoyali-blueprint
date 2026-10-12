@@ -1613,7 +1613,7 @@
       "title": "Conversation create/reuse and inbox",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0601",
@@ -1633,8 +1633,8 @@
         "RLS tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-12 local completion: passed functional-03a1, -03a2, -03a3, -03a4, -03a4-ui, -03a5, and -03a6-refresh against the local Supabase database, plus apps/web TypeScript check. The rollback-only runtime matrices verified canonical create-or-reuse, unique listing/buyer conversation keys, participant-only inbox/history, self-contact denial, and unrelated-user denial. The UI regression was updated to preserve the later public seller-identity privacy boundary: the listing CTA sends only listingId and server/DB authorization decides eligibility.",
+      "notes": "No migration was created or applied. Messaging reuses the existing SECURITY DEFINER RPC contracts and private no-store bearer-authenticated APIs. Local test transactions roll back; production, providers, deployment, and Git push were untouched."
     },
     {
       "id": "JLC-0603",
