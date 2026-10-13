@@ -2404,7 +2404,7 @@
       "title": "CRM pipeline/status/notes/follow-up/history",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0909"
@@ -2423,8 +2423,8 @@
         "UI tests",
         "RLS tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "Implemented locally in JLC-0910 commit. Local verification on 2026-10-13: npm run test:jlc-0910 passed (12-case CRM pipeline/RLS matrix covering owner/manager/staff/outsider/anonymous access); npm run test:jlc-0909 passed; scripts/jolcar/jlc-0908-dealer-staff-roles-runtime.test.ps1 passed; npm run typecheck passed; migration-check.ps1, duplicate migration-version scan, TASK_QUEUE JSON validation, and git diff --check passed. Local migration 20261013114500 was physically applied only to the local Supabase database after transactional SQL validation.",
+      "notes": "Adds only the approved private lightweight CRM workflow: new/contacted/thinking/meeting/sold/lost statuses, guarded manager assignment, private notes, assigned due follow-ups, append-only history, and owner/manager/staff authorization. CRM records remain private to the dealer team; anonymous and cross-dealer access/direct writes are denied. No accounting, payroll, ERP, payments, or other dealer scope was added. No production/remote Supabase access, deployment, push, or secrets change occurred."
     },
     {
       "id": "JLC-0911",
