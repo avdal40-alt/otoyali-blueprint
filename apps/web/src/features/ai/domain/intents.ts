@@ -30,7 +30,7 @@ const allVerticals: MarketplaceVerticalId[] = [
 
 export const AI_INTENTS: AiIntentDefinition[] = [
   intent("general_help", allVerticals, [], false, "local_preview", "assistant_chat", "general"),
-  intent("search_vehicles", ["cars"], ["home", "search", "vertical_landing"], false, "planned", "natural_language_search", "marketplace_guidance"),
+  intent("search_vehicles", ["cars"], ["home", "search", "vertical_landing"], false, "local_preview", "natural_language_search", "marketplace_guidance"),
   intent("compare_vehicles", ["cars"], ["search", "listing_detail"], false, "planned", "vehicle_comparison", "marketplace_guidance"),
   intent("explain_listing", ["cars"], ["listing_detail"], false, "planned", "listing_explanation", "marketplace_guidance"),
   intent("interpret_price", ["cars"], ["listing_detail", "sell"], false, "planned", "price_interpretation", "price_guidance"),

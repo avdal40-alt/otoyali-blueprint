@@ -19,7 +19,7 @@ export type AiServerConfig = {
   debug: boolean;
 };
 
-const localPreviewCapabilities: AiCapabilityId[] = ["assistant_chat", "trust_guidance", "publishing_assistance"];
+const localPreviewCapabilities: AiCapabilityId[] = ["assistant_chat", "trust_guidance", "publishing_assistance", "natural_language_search"];
 
 export function getAiServerConfig(): AiServerConfig {
   const enabled = readBoolean(process.env.AI_ENABLED, false);

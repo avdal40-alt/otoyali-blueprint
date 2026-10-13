@@ -2722,7 +2722,7 @@
       "title": "AI natural-language vehicle search",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1002",
@@ -2742,8 +2742,8 @@
         "tool tests",
         "search regression"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "Local deterministic AI preview now exposes natural-language vehicle search through typed Search v1 criteria and canonical public RPC only. Verified 2026-10-13 with npm run test:jlc-1003, test:jlc-1002, test:jlc-0404, and typecheck.",
+      "notes": "Search results return only an explicit public DTO. Search and listing navigation actions pass the existing internal URL/query allow-list; no seller contact, identity, saved-search, service-role, or private RPC access is introduced. O-011 remains open; no external provider was configured or called."
     },
     {
       "id": "JLC-1004",

@@ -3,6 +3,7 @@ import "server-only";
 import { getCities } from "@/lib/queries/cities";
 import { getMakes, getModels } from "@/lib/queries/makes";
 import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
+import { createAssistantAction } from "../domain/actions";
 import type { AiRequest, AiResponse, AiStructuredData, AiWarningCode } from "../domain/types";
 import { mapSearchIntentToSearchV1, mergeSearchIntent, resolveSearchText, searchIntentSchema, type CatalogRow, type SearchCatalog, type SearchIntent } from "./search-intent";
 
@@ -21,7 +22,16 @@ export async function executeNaturalLanguageSearch(request: AiRequest): Promise<
   const { data, error } = await getSupabaseServerClient().schema("marketplace").rpc("search_listings_v1", { p_request: mapSearchIntentToSearchV1(intent) });
   if (error) return unavailable(request, "Search is temporarily unavailable.");
   const items = Array.isArray((data as { items?: unknown })?.items) ? ((data as { items: PublicSearchItem[] }).items).map(publicItem) : [];
-  return response(request, "success", request.locale === "tr" ? `${items.length} ilan bulundu.` : `${items.length} listings found.`, { type: "search_results", intent, count: items.length, listings: items });
+  return response(
+    request,
+    "success",
+    request.locale === "tr" ? `${items.length} ilan bulundu.` : `${items.length} listings found.`,
+    { type: "search_results", intent, count: items.length, listings: items },
+    [
+      createAssistantAction("open_search", "Open search results", searchHref(intent, catalog), request.locale),
+      ...items.slice(0, 3).map((item) => createAssistantAction("view_listing", listingLabel(item), `/listing/${item.listingId}`, request.locale))
+    ].filter((action): action is NonNullable<typeof action> => action !== null)
+  );
 }
 
 async function loadCatalog(): Promise<SearchCatalog> {
@@ -51,5 +61,31 @@ function validateCatalogRelations(intent: SearchIntent, catalog: SearchCatalog) 
   return null;
 }
 function publicItem(item: PublicSearchItem) { return { listingId: item.listing_id, make: item.make_name, model: item.model_name, variant: item.variant_name, city: item.city_name, district: item.district_name, priceAmount: item.price_amount, currency: item.currency, year: item.year, mileageKm: item.mileage_km, fuel: item.fuel_type, transmission: item.transmission, bodyType: item.body_type, sellerType: item.seller_type, photoCount: item.photo_count, hasVideo: item.has_video }; }
-function response(request: AiRequest, status: AiResponse["status"], message: string, structuredData: AiStructuredData): AiResponse { const warnings: AiWarningCode[] = status === "success" ? ["informational_only"] : ["informational_only", "feature_not_connected"]; return { requestId: request.requestId, status, message, structuredData: [structuredData], warnings, provider: "local", latencyMs: 0 }; }
+function response(request: AiRequest, status: AiResponse["status"], message: string, structuredData: AiStructuredData, actions?: AiResponse["actions"]): AiResponse { const warnings: AiWarningCode[] = status === "success" ? ["informational_only"] : ["informational_only", "feature_not_connected"]; return { requestId: request.requestId, status, message, structuredData: [structuredData], actions, warnings, provider: "local", latencyMs: 0 }; }
 function unavailable(request: AiRequest, message: string) { return response(request, "unavailable", message, { type: "search_clarification", field: "availability", options: [], unsupported: true }); }
+
+function searchHref(intent: SearchIntent, catalog: SearchCatalog) {
+  const params = new URLSearchParams();
+  addCatalogName(params, "make", intent.makeId, catalog.makes);
+  addCatalogName(params, "model", intent.modelId, catalog.models);
+  addCatalogName(params, "city", intent.cityId, catalog.cities);
+  add(params, "q", intent.query);
+  add(params, "price_min", intent.priceMin);
+  add(params, "price_max", intent.priceMax);
+  add(params, "year_min", intent.yearMin);
+  add(params, "year_max", intent.yearMax);
+  add(params, "max_mileage", intent.mileageMax);
+  add(params, "fuel_type", intent.fuel);
+  add(params, "transmission", intent.transmission);
+  add(params, "body_type", intent.bodyType);
+  add(params, "drive_type", intent.drivetrain);
+  add(params, "color", intent.color);
+  add(params, "condition", intent.condition);
+  add(params, "seller_type", intent.sellerType);
+  add(params, "sort", intent.sort);
+  return `/search${params.size ? `?${params.toString()}` : ""}`;
+}
+
+function addCatalogName(params: URLSearchParams, key: string, id: string | undefined, rows: CatalogRow[]) { const name = rows.find((row) => row.id === id)?.name; if (name) params.append(key, name); }
+function add(params: URLSearchParams, key: string, value: string | number | undefined) { if (value !== undefined) params.set(key, String(value)); }
+function listingLabel(item: ReturnType<typeof publicItem>) { return [item.make, item.model, item.year].filter((value) => value !== null && value !== undefined).join(" ") || "View listing"; }

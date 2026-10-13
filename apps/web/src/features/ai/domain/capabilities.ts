@@ -25,7 +25,7 @@ export const AI_CAPABILITIES: AiCapabilityDefinition[] = [
   capability("assistant_chat", "local_preview", allVerticals),
   capability("trust_guidance", "local_preview", allVerticals),
   capability("publishing_assistance", "local_preview", ["cars"]),
-  capability("natural_language_search", "planned", ["cars"]),
+  capability("natural_language_search", "local_preview", ["cars"]),
   capability("listing_explanation", "planned", ["cars"]),
   capability("vehicle_comparison", "planned", ["cars"]),
   capability("price_interpretation", "planned", ["cars"]),
