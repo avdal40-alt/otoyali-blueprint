@@ -1846,7 +1846,7 @@
       "title": "Matching notifications and dealer lead integration",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0802",
@@ -1866,8 +1866,8 @@
         "event tests",
         "notification tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local completion: npm run test:jlc-0804 passed a nine-case lifecycle, owner-private notification, deduplication, anon/authenticated/service-role privilege matrix. JLC-0803 canonical matcher, JLC-0605 unified-notification regression, JLC-0413 price-drop lifecycle regression, seller analytics event contract, and TypeScript check passed.",
+      "notes": "Added and locally applied migration 20261012200000_jlc0804_buyer_request_match_notifications.sql after a transactional dry-run rolled back with zero residual objects. It creates owner-private buyer-request match notifications using the canonical matcher, preserves saved-search/price-drop/raised-at lifecycle behavior, and prevents duplicate storms with partial unique indexes. Existing privacy-preserving seller message events remain the approved attributed lead-event boundary; CRM lead records remain deferred to JLC-0909. Local migration history and physical privileges/RLS were verified. No production access, provider call, deployment, or Git push occurred."
     },
     {
       "id": "JLC-0701",

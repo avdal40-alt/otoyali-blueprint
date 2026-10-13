@@ -35,6 +35,7 @@
     "test:jlc-0801": "node scripts/jlc-0801-buyer-request-private-management.test.cjs",
     "test:jlc-0802": "node scripts/jlc-0802-listing-response.test.cjs",
     "test:jlc-0803": "node scripts/jlc-0803-canonical-match-targets.test.cjs",
+    "test:jlc-0804": "node scripts/jlc-0804-matching-notifications.test.cjs",
     "test:jlc-0901": "node scripts/jlc-0901-dealer-verification-foundation.test.cjs",
     "test:jlc-0906": "node scripts/jlc-0906-dealer-import-reconciliation.test.cjs",
     "test:security-lifecycle": "node scripts/security-lifecycle.test.cjs",
