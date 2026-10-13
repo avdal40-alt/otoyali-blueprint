@@ -6,7 +6,8 @@ import { createListingSchema, createOwnListingDraft, editListingSchema, listingI
 import { applySellDraftPatch, extractSellerDeclarations, getMissingRequiredFields, getNextSellQuestion, getSellAmbiguity, normalizeSellNumber, processSellDraftTurn, sellDraftPatchSchema, sellDraftSchema, type SellDraft, type SellDraftPatch } from "./sell-draft";
 
 const actionSchema = z.enum(["turn", "prepare_create", "prepare_update", "confirm_create", "confirm_update", "confirm_submit", "cancel", "generate_description", "regenerate_description", "discard_description", "apply_description"]);
-export const sellAssistantRequestSchema = z.object({ locale: z.enum(["tr", "en"]), message: z.string().trim().max(2000).optional(), draft: sellDraftSchema, listingId: listingIdSchema.optional(), action: actionSchema.default("turn"), descriptionMode: z.enum(["concise", "standard", "detailed"]).default("standard"), descriptionPreview: z.string().trim().max(8000).optional() }).strict();
+const maxDescriptionLength = 4000;
+export const sellAssistantRequestSchema = z.object({ locale: z.enum(["tr", "en"]), message: z.string().trim().max(2000).optional(), draft: sellDraftSchema, listingId: listingIdSchema.optional(), action: actionSchema.default("turn"), descriptionMode: z.enum(["concise", "standard", "detailed"]).default("standard"), descriptionPreview: z.string().trim().max(maxDescriptionLength).optional() }).strict();
 type SellAssistantRequest = z.infer<typeof sellAssistantRequestSchema>;
 type PendingAction = "create" | "update" | "submit" | null;
 
@@ -32,8 +33,9 @@ export async function runSellAssistant(authenticated: AuthenticatedRequestSupaba
 
   if (request.action === "cancel") return { ok: true, state: state() };
   if (["generate_description", "regenerate_description"].includes(request.action)) {
-    if (!readyForReview) return { ok: false, code: "not_ready", status: 422 };
+    if (!canGenerateDescription(draft)) return { ok: false, code: "not_ready", status: 422 };
     const preview = generateDescription(draft, request.locale, request.descriptionMode, request.message ?? "");
+    if (!isSafeDescription(preview)) return { ok: false, code: "invalid_output", status: 422 };
     return { ok: true, state: state({ phase: "description_preview", descriptionPreview: preview }) };
   }
   if (request.action === "discard_description") return { ok: true, state: state() };
@@ -84,8 +86,9 @@ function extractDeterministicPatch(message: string, current: SellDraft): SellDra
 
 function generateDescription(draft: SellDraft, locale: "tr" | "en", mode: "concise" | "standard" | "detailed", sellerText: string) {
   const facts = [draft.year, draft.color, draft.fuelType, draft.transmission, draft.mileageKm !== undefined ? `${draft.mileageKm} km` : undefined].filter(Boolean).join(" · ");
-  const declarations = extractSellerDeclarations(sellerText).map((item) => locale === "tr" ? `Satıcının beyanına göre ${item.text}` : `According to the seller's declaration: ${item.text}`);
+  const declarations = extractSellerDeclarations(sellerText).filter((item) => isSafeDescription(item.text)).map((item) => locale === "tr" ? `Satıcının beyanına göre ${item.text}` : `According to the seller's declaration: ${item.text}`);
   const base = locale === "tr" ? `${draft.year ?? ""} ${draft.color ?? ""} araç. ${facts}`.trim() : `${draft.year ?? ""} ${draft.color ?? ""} vehicle. ${facts}`.trim();
-  return [base, mode === "detailed" && draft.city ? (locale === "tr" ? `Araç ${draft.city} konumundadır.` : `The vehicle is located in ${draft.city}.`) : "", ...declarations].filter(Boolean).join(" ").slice(0, 8000);
+  return [base, mode === "detailed" && draft.city ? (locale === "tr" ? `Araç ${draft.city} konumundadır.` : `The vehicle is located in ${draft.city}.`) : "", ...declarations].filter(Boolean).join(" ").slice(0, maxDescriptionLength);
 }
-function isSafeDescription(value: string) { return !/(?:\+?\d[\d\s().-]{7,}\d|[\w.+-]+@[\w.-]+\.[a-z]{2,}|https?:\/\/|whatsapp|telegram)/i.test(value); }
+function canGenerateDescription(draft: SellDraft) { return [draft.year, draft.mileageKm, draft.condition, draft.fuelType, draft.transmission].every((value) => value !== undefined && value !== null); }
+function isSafeDescription(value: string) { return value.trim().length > 0 && value.length <= maxDescriptionLength && !/(?:\+?\d[\d\s().-]{7,}\d|[\w.+-]+@[\w.-]+\.[a-z]{2,}|https?:\/\/|whatsapp|telegram)/i.test(value); }

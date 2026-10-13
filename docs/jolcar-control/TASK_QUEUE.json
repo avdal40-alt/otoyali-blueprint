@@ -2781,7 +2781,7 @@
       "title": "AI listing description assistance",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1002",
@@ -2800,8 +2800,8 @@
         "description tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13: Added the authenticated, local deterministic description-draft flow to the listing wizard. Verified with npm run test:jlc-1005, npm run test:jlc-1002, npm run test:jlc-1003, and npm run typecheck in apps/web.",
+      "notes": "Generated copy is length-bounded and contact/link-safe; the owner may edit it and must explicitly apply it to the form. No listing save, submission, provider activation, or external AI call occurs from this flow."
     },
     {
       "id": "JLC-1006",

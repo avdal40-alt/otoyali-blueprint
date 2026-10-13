@@ -20,6 +20,7 @@ import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
 import { normalizeEditEngineVolume } from "@/lib/listings/edit-payload";
 import { isCurrentEditTarget, LatestRequestGuard } from "../sell-route-state";
 import { getSellCatalogDisplayName, getSellCopy, getSellModelRequestContextKey, getVariantUploadStatus, isSellCatalogOther, type SellCopy } from "../sell-copy";
+import { ListingDescriptionAssistant } from "./ListingDescriptionAssistant";
 
 type PhotoItem = {
   id: string;
@@ -1204,13 +1205,13 @@ export function SellWizard({
           <div className="grid gap-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <label className="text-xs font-bold text-oto-muted">{copy.description}</label>
-              <span className="rounded-full bg-oto-surface px-3 py-1 text-xs font-black text-oto-muted">{copy.aiDescriptionSoon}</span>
             </div>
             <Textarea
               value={state.description}
               onChange={(event) => update("description", event.target.value)}
               placeholder={copy.descriptionPlaceholder}
             />
+            <ListingDescriptionAssistant locale={locale} draft={{ makeId: state.makeId || undefined, modelId: state.modelId || undefined, year: state.year ? Number(state.year) : undefined, mileageKm: state.mileageKm ? Number(state.mileageKm) : undefined, condition: state.condition, fuelType: state.fuelType, transmission: state.transmission, bodyType: state.bodyType || undefined, driveType: state.driveType || undefined, color: state.color || undefined, engineVolumeL: state.engineVolumeL ? Number(state.engineVolumeL) : undefined, damageState: state.damageState || undefined, ownerCount: state.ownerCount ? Number(state.ownerCount) : undefined, priceAmount: state.priceAmount || undefined, currency: state.currency, priceNegotiable: state.priceNegotiable, city: state.city || undefined }} onApply={(description) => update("description", description)} />
             <div className="grid gap-1 text-xs font-semibold text-oto-muted sm:grid-cols-2">
               {copy.descriptionPrompts.map((prompt) => <span key={prompt}>{prompt}</span>)}
             </div>

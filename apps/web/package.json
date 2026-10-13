@@ -115,6 +115,7 @@
     "test:ai-01a": "node scripts/ai-01a.test.cjs",
     "test:jlc-1002": "node scripts/jlc-1002-secure-ai-runtime.test.cjs",
     "test:jlc-1003": "node scripts/jlc-1003-ai-natural-language-search.test.cjs",
+    "test:jlc-1005": "node scripts/jlc-1005-ai-listing-description.test.cjs",
     "test:ai-01b": "node scripts/ai-01b.test.cjs",
     "test:ai-01c": "node scripts/ai-01c.test.cjs",
     "test:ai-01d-a": "node scripts/ai-01d-a.test.cjs",
