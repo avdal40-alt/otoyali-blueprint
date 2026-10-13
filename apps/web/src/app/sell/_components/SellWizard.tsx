@@ -21,6 +21,7 @@ import { normalizeEditEngineVolume } from "@/lib/listings/edit-payload";
 import { isCurrentEditTarget, LatestRequestGuard } from "../sell-route-state";
 import { getSellCatalogDisplayName, getSellCopy, getSellModelRequestContextKey, getVariantUploadStatus, isSellCatalogOther, type SellCopy } from "../sell-copy";
 import { ListingDescriptionAssistant } from "./ListingDescriptionAssistant";
+import { SellAssistant, type AssistedListingDraft } from "./SellAssistant";
 
 type PhotoItem = {
   id: string;
@@ -483,6 +484,15 @@ export function SellWizard({
       [key]: value,
       ...(key === "fuelType" && value === "electric" ? { engineVolumeL: "" } : {})
     }));
+  }
+
+  function applyAssistantDraft(draft: AssistedListingDraft) {
+    const stringFields = ["year", "mileageKm", "condition", "fuelType", "transmission", "bodyType", "driveType", "color", "engineVolumeL", "damageState", "ownerCount", "priceAmount", "currency", "city", "description"] as const;
+    for (const field of stringFields) {
+      const value = draft[field];
+      if (typeof value === "string" || typeof value === "number") update(field, String(value));
+    }
+    if (typeof draft.priceNegotiable === "boolean") update("priceNegotiable", draft.priceNegotiable);
   }
 
   function updateMake(makeId: string) {
@@ -1070,6 +1080,7 @@ export function SellWizard({
       ) : null}
       {mode === "create" ? <section className="rounded-oto border border-oto-border bg-white p-4"><h2 className="text-base font-black text-oto-text">{copy.sellerContactTitle}</h2>{sellerContacts.length === 0 ? <><p className="mt-2 text-sm text-oto-muted">{copy.sellerContactMissing}</p><ButtonLink className="mt-3" variant="secondary" href={localizePath("/profile/seller-contacts", locale)}>{copy.sellerContactManage}</ButtonLink></> : <label className="mt-3 grid gap-1 text-sm font-bold text-oto-text">{copy.sellerContactLabel}<Select value={sellerContactId} onChange={(event) => setSellerContactId(event.target.value)}>{sellerContacts.map((contact) => <option key={contact.contact_id} value={contact.contact_id}>{contact.masked_phone}{contact.is_current_account_phone ? ` — ${copy.sellerContactAccount}` : ""}</option>)}</Select></label>}</section> : null}
       {mode === "editRejected" ? <section className="rounded-oto border border-oto-border bg-white p-4"><h2 className="text-base font-black text-oto-text">{copy.listingContactTitle}</h2><p className="mt-2 text-sm text-oto-muted">{copy.listingContactHelp}</p>{sellerContacts.length === 0 ? <><p className="mt-3 text-sm text-oto-muted">{copy.listingContactUnavailable}</p><ButtonLink className="mt-3" variant="secondary" href={localizePath("/profile/seller-contacts", locale)}>{copy.sellerContactManage}</ButtonLink></> : <label className="mt-3 grid gap-1 text-sm font-bold text-oto-text">{copy.listingContactLabel}<Select value={selectedSellerContactPhoneId} onChange={(event) => setSelectedSellerContactPhoneId(event.target.value)}><option value="">{persistedSellerContactPhoneId ? copy.keepCurrentContact : copy.existingContact}</option>{sellerContacts.map((contact) => <option key={contact.contact_id} value={contact.contact_id}>{contact.masked_phone}{contact.is_current_account_phone ? ` — ${copy.sellerContactAccount}` : ""}</option>)}</Select></label>}{!persistedSellerContactPhoneId ? <p className="mt-3 text-sm text-oto-muted">{copy.existingContactHelp}</p> : null}</section> : null}
+      <SellAssistant locale={locale} draft={{ year: state.year ? Number(state.year) : undefined, mileageKm: state.mileageKm ? Number(state.mileageKm) : undefined, condition: state.condition || undefined, fuelType: state.fuelType || undefined, transmission: state.transmission || undefined, bodyType: state.bodyType || undefined, driveType: state.driveType || undefined, color: state.color || undefined, engineVolumeL: state.engineVolumeL ? Number(state.engineVolumeL) : undefined, damageState: state.damageState || undefined, ownerCount: state.ownerCount ? Number(state.ownerCount) : undefined, priceAmount: state.priceAmount || undefined, currency: state.currency || undefined, priceNegotiable: state.priceNegotiable, city: state.city || undefined, description: state.description || undefined }} onApply={applyAssistantDraft} />
       <div className="flex gap-2 overflow-x-auto pb-1">
         {steps.map((label, index) => {
           const item = index + 1;

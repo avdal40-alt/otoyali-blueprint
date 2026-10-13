@@ -2810,7 +2810,7 @@
       "title": "AI/voice assisted listing form orchestration",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1005"
@@ -2830,8 +2830,8 @@
         "validation tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13: Integrated the authenticated local deterministic assistant into the canonical listing wizard. Verified with npm run test:jlc-1006, npm run test:jlc-1005, npm run test:jlc-1002, and npm run typecheck in apps/web.",
+      "notes": "Assistant suggestions require an explicit owner apply action and then use the existing wizard review/save/publish flow. The assistant has no direct listing-write or submit action. External AI and voice provider activation remain unconfigured pending O-011/O-012."
     },
     {
       "id": "JLC-D007",

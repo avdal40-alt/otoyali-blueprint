@@ -16,7 +16,6 @@ import { t } from "@/i18n/get-dictionary";
 import { canPublishVertical, getPublishVerticalFromSearchParam } from "@/lib/marketplace/publish";
 import { getMarketplaceVertical } from "@/lib/marketplace/verticals";
 import { SellWizard } from "./_components/SellWizard";
-import { SellAssistant } from "./_components/SellAssistant";
 import { SellerEntryGate } from "./_components/SellerEntryGate";
 import { getSellEditTarget } from "./sell-route-state";
 import { getSellCopy } from "./sell-copy";
@@ -96,7 +95,6 @@ export default async function SellPage({
           <SellWizard mode="editRejected" editListingId={editTarget.listingId} locale={locale} makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />
         ) : (
           <SellerEntryGate>
-            <SellAssistant locale={locale} editListingId={null} />
             <SellWizard mode="create" editListingId={null} locale={locale} makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />
           </SellerEntryGate>
         )}
