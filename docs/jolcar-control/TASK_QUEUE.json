@@ -2520,7 +2520,7 @@
       "title": "Live comments/reporting/admin stop",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0913",
@@ -2539,8 +2539,8 @@
         "comment/report/admin tests",
         "rate-limit tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local completion: added private Dealer Live comment and report storage, authenticated SECURITY DEFINER RPCs, a database-enforced 10-comments-per-minute actor limit serialized by advisory lock, public visible-comment projection, moderator-only comment blocking, and immutable admin audit logging. Existing JLC-0912 moderator stop remains the stream-stop control. Passed JLC-0912, JLC-0913, and JLC-0914 local role/runtime matrices plus TypeScript check and static migration validation.",
+      "notes": "Applied locally only: 20261013130000_jlc0914_dealer_live_comments_moderation.sql and forward-only 20261013130500_jlc0914_comment_rate_limit_fix.sql. Local physical inspection confirmed both private tables have RLS, direct anon/authenticated table access is denied, only authenticated gets the mutation RPCs, and public comment projection excludes author/report/moderation data. No production access, provider call, deployment, or Git push occurred."
     },
     {
       "id": "JLC-0915",
