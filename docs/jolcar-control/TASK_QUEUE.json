@@ -2462,7 +2462,7 @@
       "title": "Provider-neutral Dealer Live domain and state machine",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0901",
@@ -2482,8 +2482,8 @@
         "live authorization tests",
         "state-machine tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local verification: `npm run test:jlc-0912`, `npm run test:jlc-0901`, `npm run test:jlc-0904`, `npm run test:jlc-0905`, and `npm run typecheck` passed. The local role matrix verifies verified-dealer create/start, dealer-owned eligible-listing attachment, unverified-account denial, non-owner denial, moderator stop, direct-table denial, and the immutable created → live → stopped transition history.",
+      "notes": "Introduced forward-only local migration 20261013123000_jlc0912_dealer_live_domain.sql with private live metadata, ordered eligible-listing attachments, transition history, RLS, RPC-only mutation, moderator stop audit, and no public provider reference. Added a typed `local_fake` transport adapter that performs no network/provider call. Transactional dry-run and zero-residual rollback check passed; local physical-object, privilege/RLS, and migration-history verification passed. No production/provider account, deploy, remote migration, or push was used."
     },
     {
       "id": "JLC-0913",
