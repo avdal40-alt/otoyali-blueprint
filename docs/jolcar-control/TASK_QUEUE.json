@@ -1876,7 +1876,7 @@
       "title": "Optional private VIN foundation",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0501"
@@ -1894,8 +1894,8 @@
         "VIN privacy tests",
         "RLS tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/jlc-0701-private-vin-foundation.test.cjs; npm run test:jlc-0701; npm run test:functional-02b3; npm run test:ai-01f-b; npm run typecheck (2026-10-13 local). Local PostgreSQL confirms vehicle.private_vins exists, its migration is recorded, RLS is enabled, anon/authenticated SELECT is denied, service_role SELECT remains available, authenticated alone can execute vehicle.submit_own_vin, and no public/marketplace view projects private_vins.",
+      "notes": "Optional seller-supplied VIN is stored only in vehicle.private_vins with a unique SHA-256 fingerprint and no browser-table grants. Owner submission is enforced by auth.uid() plus vehicle.is_current_profile_owner; duplicate VIN conflicts return a generic review_required result. The existing not-configured provider boundary sends no raw VIN and makes no verified-history claim. No external VIN provider, production access, migration apply, deployment, or push occurred."
     },
     {
       "id": "JLC-0702",
