@@ -2099,7 +2099,7 @@
       "title": "Public Dealer Social profile shell",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0901",
@@ -2119,8 +2119,8 @@
         "privacy tests",
         "visual QA"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local verification: `npm run test:jlc-0902`, `npm run test:jlc-0901`, `npm run test:jlc-0203`, and `npm run typecheck` passed. Local database verification confirmed the current public projection exposes only display name, avatar, city, description, verification, stock count, and follow-state fields; anonymous/authenticated execute grants are intentional and direct profile data remains unavailable.",
+      "notes": "The public dealer shell and its forward-only public projection already existed in the inherited local history (`20261010150000_dealer_public_profile.sql`), with `20261010193000_functional_09_dealer_follow.sql` later replacing the function to add follow counts/state while retaining the public-safe field set. This task adds its focused static privacy/responsiveness regression contract and records fresh local DB verification. No migration, remote database, provider, production system, deploy, or push was used."
     },
     {
       "id": "JLC-0903",
