@@ -3023,7 +3023,7 @@
       "title": "Mobile-web/PWA quality pass",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0203",
@@ -3045,8 +3045,8 @@
         "responsive browser matrix",
         "performance/mobile audit"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/jlc-1202-mobile-pwa-quality.test.cjs; npm run test:jlc-1202; npm run test:jlc-0203; npm run test:jlc-0204; npm run typecheck; npm run build (2026-10-13 local).",
+      "notes": "Restored compact bottom navigation and marketplace footer on seller listings, dealer CRM, and dealer cross-channel analytics. Existing standalone manifest and icon architecture remains installable; no offline/provider architecture was added."
     },
     {
       "id": "JLC-1203",

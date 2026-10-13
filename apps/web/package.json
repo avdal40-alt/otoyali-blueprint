@@ -80,6 +80,7 @@
     "test:jlc-0202": "node scripts/jlc-0202-listing-card-grid.test.cjs",
     "test:jlc-0203": "node scripts/jlc-0203-responsive-shell.test.cjs",
     "test:jlc-0204": "node scripts/jlc-0204-accessibility-baseline.test.cjs",
+    "test:jlc-1202": "node scripts/jlc-1202-mobile-pwa-quality.test.cjs",
     "test:location-contract": "node scripts/location-contract.test.cjs",
     "test:format": "node scripts/format.test.cjs",
     "test:i18n-routing": "node scripts/i18n-routing-runtime.test.cjs",
