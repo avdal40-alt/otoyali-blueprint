@@ -169,6 +169,7 @@
     "test:launch-b01b2": "node scripts/launch-b01b2-seller-contact.test.cjs",
     "test:seller-contact-flow": "node scripts/seller-contact-verification-flow.test.cjs",
     "test:seller-analytics-events": "node scripts/seller-analytics-event-contract.test.cjs",
+    "test:jlc-0511": "node scripts/jlc-0511-seller-analytics-ui.test.cjs",
     "test:seller-contact-manager": "node scripts/seller-contact-manager.test.cjs",
     "test:listing-contact-switch-boundary": "node scripts/listing-contact-switch-boundary.test.cjs",
     "test:listing-contact-edit-flow": "node scripts/listing-contact-edit-flow.test.cjs",

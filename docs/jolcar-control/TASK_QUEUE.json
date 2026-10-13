@@ -1505,7 +1505,7 @@
       "title": "Seller cabinet analytics UI",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0510"
@@ -1523,8 +1523,8 @@
         "owner isolation tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local completion: seller My Listings cards render owner-scoped views, contact intent, favorites, and buyer messages from public.list_own_seller_analytics(), with a mobile-first two-column / desktop four-column metric grid and a localized unavailable state. npm run test:jlc-0511, node scripts/seller-analytics-ingestion-local.test.cjs (9-check local Postgres owner-isolation/read-model matrix), npm run test:seller-analytics-events, npm run typecheck, and git diff --check passed.",
+      "notes": "The analytics read model is callable only by authenticated users and filters listings through auth.uid(); local runtime verification confirms the listing owner receives aggregates while a non-owner receives no row. Analytics-read failures are logged client-side and shown as a localized non-sensitive unavailable state. No migration was created or applied for this UI task; no production access, provider activation, deployment, or Git push occurred."
     },
     {
       "id": "JLC-D009",

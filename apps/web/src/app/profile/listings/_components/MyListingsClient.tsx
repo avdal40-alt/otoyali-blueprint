@@ -73,6 +73,7 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
   const [videoError, setVideoError] = useState<string | null>(null);
   const [videoSuccess, setVideoSuccess] = useState<string | null>(null);
   const [analytics, setAnalytics] = useState<Record<string, ListingAnalytics>>({});
+  const [analyticsUnavailable, setAnalyticsUnavailable] = useState(false);
 
   const loadListings = useCallback(async function loadListings() {
     const loadGeneration = ++listingLoadGeneration.current;
@@ -115,8 +116,16 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
       }
 
       const listingRows = (data ?? []) as MyListing[];
-      const { data: analyticsRows } = await supabase.rpc("list_own_seller_analytics");
-      setAnalytics(Object.fromEntries(((analyticsRows ?? []) as Array<ListingAnalytics & { listing_id: string }>).map((row) => [row.listing_id, row])));
+      const { data: analyticsRows, error: analyticsError } = await supabase.rpc("list_own_seller_analytics");
+      if (!isCurrentLoad()) return;
+      if (analyticsError) {
+        logClientError("myListings.loadAnalytics", analyticsError);
+        setAnalytics({});
+        setAnalyticsUnavailable(true);
+      } else {
+        setAnalytics(Object.fromEntries(((analyticsRows ?? []) as Array<ListingAnalytics & { listing_id: string }>).map((row) => [row.listing_id, row])));
+        setAnalyticsUnavailable(false);
+      }
       const profileIds = listingRows.map((item) => item.vehicle_profile_id).filter(Boolean);
       if (profileIds.length === 0) {
         setItems(listingRows);
@@ -392,7 +401,7 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
                     <div key={label} className="rounded-md bg-oto-surface p-2 text-center"><p className="text-lg font-black text-oto-text">{value}</p><p className="text-[11px] font-bold text-oto-muted">{label}</p></div>
                   ))}
                 </section>
-              ) : null}
+              ) : analyticsUnavailable ? <p className="mt-4 text-sm font-semibold text-oto-muted" role="status">{copy.analyticsUnavailable}</p> : null}
               {workflow.body ? (
                 <p className="mt-3 rounded-md bg-oto-surface p-3 text-sm font-semibold leading-6 text-oto-muted">{workflow.body}</p>
               ) : null}
