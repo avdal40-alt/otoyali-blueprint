@@ -159,7 +159,7 @@
       "title": "Decide Kazakhstan launch locale set",
       "priority": "P1",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0002"
@@ -172,8 +172,8 @@
         "User-approved locale set recorded in DECISIONS.md"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Explicit user approval recorded 2026-10-13 for O-001: kk-KZ, ru-KZ, and en only.",
+      "notes": "Approved locale set is exactly kk-KZ, ru-KZ, and en. Do not add or remove locales beyond this set."
     },
     {
       "id": "JLC-D002",
@@ -2293,7 +2293,7 @@
       "title": "Approve launch dealer feed formats/API auth",
       "priority": "P0",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0906"
@@ -2306,8 +2306,8 @@
         "Feed formats and API auth scheme approved"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Explicit user approval recorded 2026-10-13 for O-008: XLSX, UTF-8 CSV, HTTPS JSON API, and Bearer-token authentication.",
+      "notes": "Verified dealers only; tokens are securely handled (hashed where applicable), dealer-inventory scoped, rate-limited, revocable, and preserve dealer ownership boundaries. No real external dealer integration is activated."
     },
     {
       "id": "JLC-0907",
@@ -2942,7 +2942,7 @@
       "title": "Approve automotive news content source/licensing approach",
       "priority": "P1",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1101"
@@ -2955,8 +2955,8 @@
         "Approved news source/licensing/editorial approach recorded"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Explicit user approval recorded 2026-10-13 for O-017: first-party editorial is allowed; licensed external content may be considered later.",
+      "notes": "Unapproved scraping/copying of third-party copyrighted feeds is prohibited. External provider/source integration is deferred until a specific licensed/approved source is chosen; existing first-party editorial/news foundation may continue."
     },
     {
       "id": "JLC-1102",
