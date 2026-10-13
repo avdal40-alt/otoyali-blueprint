@@ -16,13 +16,13 @@ export async function GET(request: NextRequest) {
   if (!authenticated) return privateJson({ error: "Oturum gerekli." }, 401);
   const cursor = parseCursor(request.nextUrl.searchParams, 50);
   if (!cursor) return privateJson({ error: "Geçersiz bildirim sayfası." }, 422);
-  const { data, error } = await authenticated.supabase.schema("marketplace").rpc("list_own_notifications_v2", {
+  const { data, error } = await authenticated.supabase.schema("marketplace").rpc("list_own_notifications_v3", {
     p_limit: cursor.limit,
     p_before_created_at: cursor.beforeAt,
     p_before_id: cursor.beforeId
   });
   if (error) return privateJson({ error: rpcStatus(error.code) === 422 ? "Geçersiz bildirim sayfası." : "Bildirimler yüklenemedi." }, rpcStatus(error.code));
-  const rows = (data ?? []) as Array<{ notification_id: string; notification_type: string; saved_search_id: string | null; listing_id: string | null; conversation_id: string | null; message_id: string | null; created_at: string; read_at: string | null }>;
+  const rows = (data ?? []) as Array<{ notification_id: string; notification_type: string; saved_search_id: string | null; listing_id: string | null; conversation_id: string | null; message_id: string | null; live_stream_id: string | null; created_at: string; read_at: string | null }>;
   const last = rows.at(-1);
-  return privateJson({ data: rows.map((row) => ({ id: row.notification_id, type: row.notification_type, savedSearchId: row.saved_search_id, listingId: row.listing_id, conversationId: row.conversation_id, messageId: row.message_id, createdAt: row.created_at, readAt: row.read_at })), nextCursor: last ? { beforeAt: last.created_at, beforeId: last.notification_id } : null }, 200);
+  return privateJson({ data: rows.map((row) => ({ id: row.notification_id, type: row.notification_type, savedSearchId: row.saved_search_id, listingId: row.listing_id, conversationId: row.conversation_id, messageId: row.message_id, liveStreamId: row.live_stream_id, createdAt: row.created_at, readAt: row.read_at })), nextCursor: last ? { beforeAt: last.created_at, beforeId: last.notification_id } : null }, 200);
 }

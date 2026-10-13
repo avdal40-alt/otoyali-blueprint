@@ -50,6 +50,7 @@
     "test:jlc-0913": "node scripts/jlc-0913-dealer-live-viewer.test.cjs",
     "test:jlc-0914": "node scripts/jlc-0914-dealer-live-comments-moderation.test.cjs",
     "test:jlc-0915": "node scripts/jlc-0915-dealer-live-history.test.cjs",
+    "test:jlc-0916": "node scripts/jlc-0916-live-notifications-and-leads.test.cjs",
     "test:security-lifecycle": "node scripts/security-lifecycle.test.cjs",
     "test:security-02a": "node scripts/security-02a.test.cjs",
     "test:security-02e": "node scripts/security-02e-release-compatibility.test.cjs",

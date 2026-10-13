@@ -2577,7 +2577,7 @@
       "title": "Live notifications and CRM lead attribution",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0915",
@@ -2596,8 +2596,8 @@
       "verification": [
         "notification/lead integration tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local DB migration 20261013134500 applied and history recorded; npm run test:jlc-0916 (7 checks), test:jlc-0912, test:jlc-0909, test:jlc-0605, and typecheck passed.",
+      "notes": "Private follower live-start notifications use an opaque stream reference and a unique per-follower/stream event key. Authenticated live interest is idempotent per viewer/stream and creates an attributed dealer_live CRM lead without copying viewer identity or contact data into CRM. No provider call, production access, deployment, or push occurred."
     },
     {
       "id": "JLC-0917",
