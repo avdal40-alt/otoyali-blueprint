@@ -2316,7 +2316,7 @@
       "title": "Dealer feed/API adapters",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0906",
@@ -2336,8 +2336,8 @@
         "auth tests",
         "large-batch sanity"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/jlc-0907-dealer-feed-api.test.cjs; npm run test:jlc-0907; npm run test:jlc-0906; npm run typecheck; local migration dry-run/apply and physical DB verification (2026-10-13 local).",
+      "notes": "Adds dealer-scoped, SHA-256-hashed, revocable inventory API tokens; verified-dealer enforcement; 60 requests/minute per-token local DB guard; and a local HTTPS JSON feed adapter that delegates to the canonical reconciliation importer. XLSX remains on the existing authenticated importer and CSV/HTTPS JSON are represented in the shared source contract. No external dealer integration, production access, provider call, deployment, or push occurred."
     },
     {
       "id": "JLC-0908",

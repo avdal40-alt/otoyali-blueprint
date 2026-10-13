@@ -48,6 +48,7 @@
     "test:jlc-0904": "node scripts/jlc-0904-dealer-posts.test.cjs",
     "test:jlc-0905": "node scripts/jlc-0905-dealer-social-tabs.test.cjs",
     "test:jlc-0906": "node scripts/jlc-0906-dealer-import-reconciliation.test.cjs",
+    "test:jlc-0907": "node scripts/jlc-0907-dealer-feed-api.test.cjs",
     "test:jlc-0909": "node scripts/jlc-0909-dealer-crm-leads.test.cjs",
     "test:jlc-0910": "node scripts/jlc-0910-dealer-crm-pipeline.test.cjs",
     "test:jlc-0911": "node scripts/jlc-0911-dealer-crm-analytics.test.cjs",

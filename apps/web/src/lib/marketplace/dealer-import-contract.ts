@@ -1,4 +1,4 @@
-export const DEALER_IMPORT_SOURCES = ["excel"] as const;
+export const DEALER_IMPORT_SOURCES = ["excel", "csv", "https_json"] as const;
 export const DEALER_IMPORT_OPERATIONS = ["upsert", "archive"] as const;
 export const DEALER_IMPORT_ROW_STATUSES = ["pending", "valid", "invalid", "applied", "archived"] as const;
 
