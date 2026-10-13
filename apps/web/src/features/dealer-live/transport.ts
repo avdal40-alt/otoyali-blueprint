@@ -6,6 +6,8 @@ export type DealerLiveTransportSession = {
 };
 
 export interface DealerLiveTransportAdapter {
+  /** Recording playback must remain unavailable until a provider adapter opts in. */
+  supportsRecordings: boolean;
   provision(input: { streamId: string }): Promise<DealerLiveTransportSession>;
 }
 
@@ -15,6 +17,7 @@ export interface DealerLiveTransportAdapter {
  */
 export function createLocalFakeDealerLiveTransport(): DealerLiveTransportAdapter {
   return {
+    supportsRecordings: false,
     async provision({ streamId }) {
       return { providerKey: "local_fake", providerStreamRef: `local:${streamId}` };
     }

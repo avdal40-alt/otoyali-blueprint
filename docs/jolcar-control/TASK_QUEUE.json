@@ -2549,7 +2549,7 @@
       "title": "Live ended/recorded state and social profile integration",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0914",
@@ -2567,8 +2567,8 @@
       "verification": [
         "state/UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "Implemented locally in the JLC-0915 commit. Local verification: npm run test:jlc-0912, npm run test:jlc-0913, npm run test:jlc-0914, npm run test:jlc-0915, and npm run typecheck; migration static validation, local transactional dry-run/rollback, local physical apply/history verification, JSON validation, duplicate migration-version scan, and git diff --check.",
+      "notes": "Public Dealer Live now separates current verified-dealer streams from ended eligible history. Ended stream detail remains a stable metadata/listing page; recording and provider references are never exposed, and the local provider adapter explicitly does not support recordings. No production/provider access, deployment, or push occurred."
     },
     {
       "id": "JLC-0916",
