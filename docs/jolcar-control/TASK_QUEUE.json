@@ -572,7 +572,7 @@
       "title": "Functional microanimation pass",
       "priority": "P2",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0203"
@@ -590,8 +590,8 @@
         "UI inspection",
         "reduced-motion check"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/jlc-0205-microanimation.test.cjs; npm run test:jlc-0205; npm run test:jlc-0203; npm run test:jlc-0204; npm run typecheck; npm run build (2026-10-13 local).",
+      "notes": "The shared UI keeps feedback motion short (120–240ms), purposeful (button press, transient states, drawers/modals, and listing-card feedback), and globally honors prefers-reduced-motion. No provider, production, deployment, or push occurred."
     },
     {
       "id": "JLC-0206",
