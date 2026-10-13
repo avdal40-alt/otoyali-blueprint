@@ -40,6 +40,7 @@
     "test:jlc-0902": "node scripts/jlc-0902-public-dealer-profile.test.cjs",
     "test:jlc-0903": "node scripts/jlc-0903-dealer-follow.test.cjs",
     "test:jlc-0906": "node scripts/jlc-0906-dealer-import-reconciliation.test.cjs",
+    "test:jlc-0909": "node scripts/jlc-0909-dealer-crm-leads.test.cjs",
     "test:security-lifecycle": "node scripts/security-lifecycle.test.cjs",
     "test:security-02a": "node scripts/security-02a.test.cjs",
     "test:security-02e": "node scripts/security-02e-release-compatibility.test.cjs",
