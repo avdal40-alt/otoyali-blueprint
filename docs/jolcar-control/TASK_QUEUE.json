@@ -2188,7 +2188,7 @@
       "title": "Dealer social tabs: Posts / Cars / Videos / Live",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0904",
@@ -2207,8 +2207,8 @@
         "UI tests",
         "responsive visual QA"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "Local UI contract: npm run test:jlc-0905; dependent public-post contract: npm run test:jlc-0904; TypeScript: npm run typecheck.",
+      "notes": "Dealer profile provides query-parameter tabs for public-safe posts, eligible vehicle cards, public-video listings, and a safe empty Live state. No provider or live transport is introduced."
     },
     {
       "id": "JLC-D005",
