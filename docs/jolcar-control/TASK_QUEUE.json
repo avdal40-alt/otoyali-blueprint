@@ -1904,7 +1904,7 @@
       "title": "VIN trust provider abstraction",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0701"
@@ -1922,8 +1922,8 @@
         "adapter tests",
         "privacy tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/jlc-0702-vin-trust-provider.test.cjs; npm run test:jlc-0702; npm run test:jlc-0701; npm run typecheck (2026-10-13 local).",
+      "notes": "Verified the existing server-only not-configured VIN provider boundary: no external provider or secret is needed locally, consent/raw-VIN transmission is prohibited by the contract, and the authenticated derived-status route plus database grants/RLS expose no raw VIN or public private-VIN projection. No provider activation, production access, migration, deployment, or push occurred."
     },
     {
       "id": "JLC-0703",
