@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { releaseHeaders } from "@/lib/release/compatibility";
+import { safeLog } from "@/lib/observability/safe-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -57,16 +58,15 @@ export async function POST(request: NextRequest) {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) {
     if (userError) {
-      console.warn("Service application review auth failed", { message: userError.message });
+      safeLog("warn", "service_application_review_auth_failed", { code: userError.code ?? null });
     }
     return NextResponse.json({ error: "Admin oturumu doğrulanamadı." }, { status: 401 });
   }
 
   const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin", { uid: userData.user.id });
   if (adminError) {
-    console.error("Service application review admin check failed", {
+    safeLog("error", "service_application_review_admin_check_failed", {
       code: adminError.code,
-      message: adminError.message,
       userId: userData.user.id
     });
     return NextResponse.json({ error: "Admin yetkisi doğrulanamadı." }, { status: 500 });
@@ -134,20 +134,13 @@ function logReviewRpcError(
   publicError: PublicReviewError,
   context: { applicationId: string; decision: string; userId: string }
 ) {
-  const payload = {
+  safeLog(publicError.status >= 500 ? "error" : "warn", "service_application_review_rpc_failed", {
     code: error.code ?? null,
     publicStatus: publicError.status,
     applicationId: context.applicationId,
     decision: context.decision,
     userId: context.userId
-  };
-
-  if (publicError.status >= 500) {
-    console.error("Service application review RPC failed", payload);
-    return;
-  }
-
-  console.warn("Service application review RPC rejected request", payload);
+  });
 }
 
 function createRequestSupabaseClient(authorization: string) {

@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { releaseHeaders } from "@/lib/release/compatibility";
+import { safeLog } from "@/lib/observability/safe-logger";
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) {
     if (userError) {
-      console.warn("Listing review auth failed", { code: userError.code ?? null });
+      safeLog("warn", "listing_review_auth_failed", { code: userError.code ?? null });
     }
     return NextResponse.json({ error: "Admin oturumu doğrulanamadı." }, { status: 401 });
   }
@@ -135,20 +136,13 @@ function logReviewRpcError(
   publicError: PublicReviewError,
   context: { listingId: string; decision: string; userId: string }
 ) {
-  const payload = {
+  safeLog(publicError.status >= 500 ? "error" : "warn", "listing_review_rpc_failed", {
     code: error.code ?? null,
     publicStatus: publicError.status,
     listingId: context.listingId,
     decision: context.decision,
     userId: context.userId
-  };
-
-  if (publicError.status >= 500) {
-    console.error("Listing review RPC failed", payload);
-    return;
-  }
-
-  console.warn("Listing review RPC rejected request", payload);
+  });
 }
 
 function createRequestSupabaseClient(authorization: string) {

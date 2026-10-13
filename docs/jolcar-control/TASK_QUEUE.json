@@ -3113,7 +3113,7 @@
       "title": "Observability/error-contract readiness without provider lock-in",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0003"
@@ -3131,8 +3131,8 @@
         "logging tests",
         "redaction tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/observability-safe-logger.test.cjs; npm run test:jlc-1205; npm run test:security-lifecycle; npm run typecheck (2026-10-13 local).",
+      "notes": "Safe structured logging redacts sensitive field names, phone/email values, circular references, and bigint values. Listing writes and both server-side admin moderation review routes use the redacting logger while retaining public error mappings. No telemetry provider, production access, provider activation, deployment, or push occurred."
     },
     {
       "id": "JLC-1206",
