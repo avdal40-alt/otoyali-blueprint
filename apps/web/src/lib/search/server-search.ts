@@ -30,6 +30,7 @@ type SearchListing = {
   photo_count: number;
   has_video: boolean;
   published_at: string | null;
+  views_count: number | null;
   price_amount: number | null;
   currency: string | null;
   year: number | null;
@@ -152,6 +153,7 @@ function toHomeListing(listing: SearchListing, coverImageUrl: string | null): Ho
     price_negotiable: listing.price_negotiable,
     city: listing.city_name,
     published_at: listing.published_at,
+    views_count: listing.views_count,
     make_name: listing.make_name,
     model_name: listing.model_name,
     year: listing.year,

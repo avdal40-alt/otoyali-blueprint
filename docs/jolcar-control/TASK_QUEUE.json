@@ -976,7 +976,7 @@
       "title": "Listing card transparency: publication date and views",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0401",
@@ -996,8 +996,8 @@
         "public contract tests",
         "visual inspection"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "20261013113000_jlc0405_search_card_transparency.sql; npm run test:jlc-0405; node scripts/jlc-0401-public-contract.test.cjs; npm run test:jlc-0404; npm run test:jlc-0202; npm run typecheck; local DB apply/history verification 2026-10-13",
+      "notes": "Search v1 now projects only the active listing aggregate views_count alongside canonical published_at; no private analytics, identity, or viewer-event data is exposed. Existing raised_at ordering, has_video projection, card/large/original image fallback, and security-invoker public boundaries were preserved."
     },
     {
       "id": "JLC-0406",
