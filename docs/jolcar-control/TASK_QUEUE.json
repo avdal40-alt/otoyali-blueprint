@@ -1006,7 +1006,7 @@
       "title": "Listing view-count event integrity",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0405"
@@ -1024,8 +1024,8 @@
         "view-event tests",
         "authorization/abuse tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "20261013143000_jlc0406_harden_listing_view_events.sql; npm run test:jlc-0406; npm run test:jlc-0405; npm run test:seller-analytics-events; npm run typecheck; local migration dry-run/rollback, apply, privilege/RLS, and history verification (2026-10-13 local).",
+      "notes": "View collection uses a trusted Next.js server client and an httpOnly browser UUID. The database retains one active-listing event per viewer key per hour, while the RPC is now service_role-only; anon and authenticated callers cannot invoke it or directly mutate the private events table. The seller-analytics trigger remains intact. No production, provider, deployment, or push action occurred."
     },
     {
       "id": "JLC-0407",
