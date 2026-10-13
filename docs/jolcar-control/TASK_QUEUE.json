@@ -1475,7 +1475,7 @@
       "title": "Marketplace event model for seller analytics",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0406",
@@ -1495,8 +1495,8 @@
         "event contract tests",
         "privacy tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local completion: canonical source-table triggers record typed view, contact-intent, favorite, and buyer-message events with hourly idempotency while retaining only opaque source identifiers. Added migration 20261013090000 to revoke API-role execution of the legacy generic analytics RPC, removing its caller-controlled forgery path. `npm run test:seller-analytics-events` passed, including the 9-check local Postgres ingestion/privacy/RLS/read-model matrix; `npm run typecheck`, migration static validation, transactional dry-run/rollback, physical local verification, and git diff --check passed.",
+      "notes": "Migration 20261013090000_jlc0510_harden_analytics_ingestion.sql was applied to local Supabase only after a rollback dry-run, then entered into local migration history after physical verification. Canonical analytics ingestion stays private to source-table triggers; no buyer contact, message body, IP, user agent, or direct API-event path is stored/exposed. No production access, provider activation, deployment, or Git push occurred."
     },
     {
       "id": "JLC-0511",

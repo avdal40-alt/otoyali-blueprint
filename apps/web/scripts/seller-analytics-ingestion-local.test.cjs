@@ -41,7 +41,8 @@ const sql = `BEGIN;
     ('self favorite excluded', NOT EXISTS (SELECT 1 FROM marketplace.seller_analytics_events WHERE event_key='${ids.selfFavorite}')),
     ('seller message excluded', NOT EXISTS (SELECT 1 FROM marketplace.seller_analytics_events WHERE event_key='${ids.sellerMessage}')),
     ('only source identifiers stored', NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='marketplace' AND table_name='seller_analytics_events' AND column_name IN ('phone','email','body','message_body','ip_address','user_agent','raw_payload','provider_reference','auth_token'))),
-    ('analytics direct dml private', NOT has_table_privilege('authenticated','marketplace.seller_analytics_events','SELECT,INSERT,UPDATE,DELETE'));
+    ('analytics direct dml private', NOT has_table_privilege('authenticated','marketplace.seller_analytics_events','SELECT,INSERT,UPDATE,DELETE')),
+    ('generic analytics RPC private', NOT has_function_privilege('anon','public.record_seller_analytics_event(uuid,text,uuid)','EXECUTE') AND NOT has_function_privilege('authenticated','public.record_seller_analytics_event(uuid,text,uuid)','EXECUTE'));
 
   SET LOCAL ROLE authenticated;
   SET LOCAL request.jwt.claims TO '{"role":"authenticated","sub":"${ids.seller}"}';
@@ -54,5 +55,5 @@ const sql = `BEGIN;
 
 const rows = query(sql).split(/\r?\n/).filter((line) => line.includes("|")).map((line) => line.split("|"));
 assert.deepEqual(rows.filter(([, ok]) => ok !== "t"), [], JSON.stringify(rows));
-assert.equal(rows.length, 8, JSON.stringify(rows));
+assert.equal(rows.length, 9, JSON.stringify(rows));
 console.log(`seller analytics local ingestion: PASS (${rows.length} checks)`);

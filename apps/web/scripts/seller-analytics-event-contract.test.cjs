@@ -5,6 +5,7 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..", "..", "..");
 const migration = fs.readFileSync(path.join(root, "supabase", "migrations", "20261010150002_seller_analytics_event_model.sql"), "utf8");
 const ingestionMigration = fs.readFileSync(path.join(root, "supabase", "migrations", "20261010240000_seller_analytics_ingestion.sql"), "utf8");
+const hardeningMigration = fs.readFileSync(path.join(root, "supabase", "migrations", "20261013090000_jlc0510_harden_analytics_ingestion.sql"), "utf8");
 
 for (const event of ["view", "contact_intent", "favorite", "message"]) assert.match(migration, new RegExp(`'${event}'`));
 assert.match(migration, /record_seller_analytics_event\(\s*p_listing_id UUID,\s*p_event_type TEXT,\s*p_event_key UUID/);
@@ -27,4 +28,5 @@ assert.match(ingestionMigration, /listing\.seller_id = conversation\.seller_id/)
 assert.match(ingestionMigration, /ON CONFLICT \(listing_id, event_type, event_key, event_hour\) DO NOTHING/);
 assert.match(ingestionMigration, /REVOKE ALL ON FUNCTION marketplace\.ingest_seller_analytics_from_message\(\) FROM PUBLIC, anon, authenticated, service_role/);
 assert.doesNotMatch(ingestionMigration, /NEW\.(?:body|phone|email|ip|user_agent)|raw_payload|provider_reference|auth_token/i);
+assert.match(hardeningMigration, /REVOKE ALL ON FUNCTION public\.record_seller_analytics_event\(UUID, TEXT, UUID\)\s+FROM PUBLIC, anon, authenticated, service_role/);
 console.log("seller analytics event contract: PASS");
