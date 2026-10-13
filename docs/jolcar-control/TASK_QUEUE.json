@@ -1417,7 +1417,7 @@
       "title": "Listing video pipeline baseline",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0507",
@@ -1437,8 +1437,8 @@
         "video lifecycle tests",
         "moderation tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local verification: npm run test:functional-03c-a, test:functional-03c-a-storage, test:functional-03c-b0-a, test:functional-03c-b1, test:functional-03c-b1a, test:functional-03c-b, test:functional-03c-c, test:launch-03d3c5-admin-moderation, and typecheck passed. Local PostgreSQL verification confirms RLS, no authenticated direct DML on video metadata/intents, a private listing-videos bucket, owner-only signed upload intents, and approved-public eligibility.",
+      "notes": "The inherited pipeline is acceptance-verified for Jolcar: authenticated owner RPCs issue/revoke/finalize one-time upload intents; video metadata remains pending review until moderation makes it active/public; public reads use the published-eligibility predicate and private storage policy; upload eligibility is restricted to verified dealers. No external video provider is invoked or assumed; no new migration was required or applied. Existing later search/card projections retain has_video, raised_at, published_at, card_url/large_url/url fallback, and Search v1 cursor behavior. Local-only verification; no production/provider/remote action, deployment, or push occurred."
     },
     {
       "id": "JLC-0509",
