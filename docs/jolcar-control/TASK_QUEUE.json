@@ -2492,7 +2492,7 @@
       "title": "Dealer Live viewer page and attached listings",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0912"
@@ -2510,8 +2510,8 @@
         "UI tests",
         "privacy tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "Implemented locally in the JLC-0913 commit. Local verification on 2026-10-13: npm run test:jlc-0912, npm run test:jlc-0913, and npm run typecheck passed; migration-check.ps1, JSON validation, duplicate migration-version scan, and git diff --check passed. Local migration 20261013124500 was transactionally dry-run with rollback/zero-residual verification, then physically applied through the local Supabase CLI with local migration-history verification.",
+      "notes": "Adds a responsive public /live/[id] viewer and dealer Live-tab links. The public SECURITY DEFINER projections expose only currently-live verified-dealer streams and already-public eligible listing fields/media (card_url/large_url/url fallback and has_video); provider references, private dealer data, contacts, audit/stop data, and direct live tables remain inaccessible. Playback is provider-neutral and makes no provider/network call. No production/remote Supabase access, provider activation, deploy, push, or secrets change occurred."
     },
     {
       "id": "JLC-0914",

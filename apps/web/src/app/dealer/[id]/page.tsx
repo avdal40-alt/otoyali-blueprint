@@ -16,6 +16,7 @@ type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: st
 type PublicDealer = { display_name: string; avatar_url: string | null; city: string | null; description: string | null; is_verified: boolean; stock_count: number; follower_count: number; is_following: boolean };
 type DealerListing = { listing_id: string; title: string | null; price_amount: number | null; currency: string | null; city: string | null; cover_image_url: string | null; video_count: number | null };
 type DealerPost = { post_id: string; body: string | null; created_at: string; attachments: Array<{ listing_id: string; title: string | null; price_amount: number | null; currency: string | null; image_url: string | null; has_video: boolean }> };
+type DealerLive = { stream_id: string; title: string; started_at: string };
 
 const tabs = ["posts", "cars", "videos", "live"] as const;
 type Tab = (typeof tabs)[number];
@@ -45,7 +46,9 @@ export default async function PublicDealerPage({ params, searchParams }: Props) 
   const { data: rawStock } = await supabase.from("ff_home_listings").select("listing_id,title,price_amount,currency,city,cover_image_url,video_count").eq("seller_type", "dealer").eq("seller_display_name", profile.display_name).limit(24);
   const stock = (rawStock ?? []) as DealerListing[];
   const { data: rawPosts } = tab === "posts" ? await supabase.rpc("get_public_dealer_posts", { p_dealer_id: id, p_limit: 20 }) : { data: [] };
+  const { data: rawLiveStreams } = tab === "live" ? await supabase.rpc("list_public_dealer_live_streams", { p_dealer_id: id, p_limit: 12 }) : { data: [] };
   const posts = (rawPosts ?? []) as DealerPost[];
+  const liveStreams = (rawLiveStreams ?? []) as DealerLive[];
   const videoListings = stock.filter((listing) => (listing.video_count ?? 0) > 0);
   const tabHref = (value: Tab) => localizePath(`/dealer/${id}?tab=${value}`, locale);
 
@@ -65,7 +68,7 @@ export default async function PublicDealerPage({ params, searchParams }: Props) 
         {tab === "posts" ? (posts.length ? <div className="space-y-3">{posts.map((post) => <article key={post.post_id} className="rounded-oto border border-oto-border bg-white p-4"><time className="text-xs font-bold text-oto-muted" dateTime={post.created_at}>{new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(post.created_at))}</time>{post.body ? <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-oto-text">{post.body}</p> : null}{post.attachments.length ? <div className="mt-3 grid gap-3 sm:grid-cols-2">{post.attachments.map((listing) => <Link key={listing.listing_id} href={localizePath(`/listing/${listing.listing_id}`, locale)} className="overflow-hidden rounded-oto border border-oto-border focus-visible:outline focus-visible:outline-2 focus-visible:outline-oto-blue">{listing.image_url ? <div className="aspect-[4/3] bg-oto-surface"><SafeImage src={listing.image_url} alt="" /></div> : null}<div className="p-3"><h3 className="font-bold text-oto-text">{listing.title || "Vehicle"}</h3><p className="mt-1 text-sm font-black text-oto-text">{listing.price_amount ?? ""} {listing.currency ?? ""}</p>{listing.has_video ? <span className="mt-2 inline-block rounded-full bg-oto-blue px-2 py-1 text-xs font-bold text-white">Video</span> : null}</div></Link>)}</div> : null}</article>)}</div> : <EmptyTab title="No posts yet" body="This dealer has not published any public posts." />) : null}
         {tab === "cars" ? <DealerListings listings={stock} locale={locale} emptyTitle="No vehicles available" emptyBody="This dealer has no eligible public listings right now." /> : null}
         {tab === "videos" ? <DealerListings listings={videoListings} locale={locale} emptyTitle="No videos available" emptyBody="This dealer has no eligible public listing videos right now." /> : null}
-        {tab === "live" ? <EmptyTab title="No live streams right now" body="Live streams will appear here when this dealer is live." /> : null}
+        {tab === "live" ? (liveStreams.length ? <div className="grid gap-3 sm:grid-cols-2">{liveStreams.map((stream) => <Link key={stream.stream_id} href={localizePath(`/live/${stream.stream_id}`, locale)} className="rounded-oto border border-oto-border bg-white p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-oto-blue"><span className="inline-flex rounded-full bg-red-600 px-2 py-1 text-xs font-black text-white">LIVE</span><h3 className="mt-3 font-black text-oto-text">{stream.title}</h3><time className="mt-2 block text-sm text-oto-muted" dateTime={stream.started_at}>{new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(stream.started_at))}</time></Link>)}</div> : <EmptyTab title="No live streams right now" body="Live streams will appear here when this dealer is live." />) : null}
       </section></section>
   </main></PageContainer><MarketplaceFooter /><MobileBottomNav /></>;
 }
