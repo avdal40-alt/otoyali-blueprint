@@ -1,8 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useRef } from "react";
 import { cn } from "@/lib/cn";
 import { useI18n } from "@/i18n/client";
+import { useDialogFocus } from "./useDialogFocus";
 
 type DrawerSide = "left" | "right" | "bottom";
 
@@ -30,12 +32,16 @@ export function Drawer({
   className?: string;
 }) {
   const { dictionary } = useI18n();
+  const dialogRef = useRef<HTMLElement>(null);
+  useDialogFocus(open, dialogRef, onClose);
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-drawer bg-oto-text/60" role="presentation">
       {onClose ? <button type="button" aria-label={String(dictionary.common.close)} className="absolute inset-0 cursor-default" onClick={onClose} /> : null}
       <aside
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="otoyali-drawer-title"

@@ -1,7 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/Button";
+import { useDialogFocus } from "@/components/ui/useDialogFocus";
 import { useI18n } from "@/i18n/client";
 
 export function MobileFilterDrawer({
@@ -16,6 +18,8 @@ export function MobileFilterDrawer({
   children: ReactNode;
 }) {
   const { dictionary } = useI18n();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(open, dialogRef, onClose);
   return (
     <>
       <div className="mb-4 lg:hidden">
@@ -26,9 +30,9 @@ export function MobileFilterDrawer({
       {open ? (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button type="button" aria-label={String(dictionary.search.closeFilters)} className="absolute inset-0 bg-black/30" onClick={onClose} />
-          <div className="safe-bottom absolute inset-x-0 bottom-0 max-h-[88vh] overflow-y-auto rounded-t-2xl bg-white p-4 shadow-oto">
+          <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="mobile-filter-drawer-title" className="safe-bottom absolute inset-x-0 bottom-0 max-h-[88vh] overflow-y-auto rounded-t-2xl bg-white p-4 shadow-oto">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-lg font-black text-oto-text">{String(dictionary.search.filters)}</h2>
+              <h2 id="mobile-filter-drawer-title" className="text-lg font-black text-oto-text">{String(dictionary.search.filters)}</h2>
               <button type="button" onClick={onClose} className="flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 py-2 text-sm font-bold text-oto-muted hover:bg-oto-surface">
                 {String(dictionary.common.close)}
               </button>

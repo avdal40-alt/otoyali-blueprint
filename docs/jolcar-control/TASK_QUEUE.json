@@ -3055,7 +3055,7 @@
       "title": "Final accessibility release audit",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0204",
@@ -3073,8 +3073,8 @@
         "accessibility audit",
         "keyboard/focus smoke"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/jlc-1203-accessibility-release.test.cjs; npm run test:jlc-1203; npm run test:jlc-0204; npm run test:jlc-1202; npm run typecheck; npm run build (2026-10-13 local).",
+      "notes": "Final primary-flow audit fixed shared dialog and mobile-filter keyboard behavior: focus now enters the dialog, remains contained while open, restores to the trigger on close, and Escape closes dialogs with a close handler. Shared typography, target-size, labelled/error-state, focus-indicator, and mobile-navigation contracts remain covered. Local-only; no migration, production/provider access, deployment, or push occurred."
     },
     {
       "id": "JLC-1204",

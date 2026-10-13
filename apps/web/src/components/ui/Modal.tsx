@@ -1,8 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useRef } from "react";
 import { cn } from "@/lib/cn";
 import { useI18n } from "@/i18n/client";
+import { useDialogFocus } from "./useDialogFocus";
 
 type ModalSize = "sm" | "md" | "lg" | "xl";
 
@@ -31,12 +33,16 @@ export function Modal({
   className?: string;
 }) {
   const { dictionary } = useI18n();
+  const dialogRef = useRef<HTMLElement>(null);
+  useDialogFocus(open, dialogRef, onClose);
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-modal flex items-end justify-center bg-oto-text/60 p-0 md:items-center md:p-4" role="presentation">
       {onClose ? <button type="button" aria-label={String(dictionary.common.close)} className="absolute inset-0 cursor-default" onClick={onClose} /> : null}
       <section
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="otoyali-modal-title"
