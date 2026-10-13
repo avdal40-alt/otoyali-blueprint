@@ -1932,7 +1932,7 @@
       "title": "Launch anti-fraud rules and review queue",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0503",
@@ -1951,8 +1951,8 @@
         "anti-fraud rule tests",
         "admin authorization tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local completion: `npm run test:jlc-0703` verifies deterministic duplicate-listing and suspicious-bulk indicators are review-only, preserves the full later moderation vocabulary, and confirms private-signal/RPC privilege boundaries. `test:ai-01g-d1a` passed the 15-check anonymous/ordinary/inactive-admin/admin moderator decision and immutable audit matrix; `test:ai-01g-e2e` and TypeScript typecheck passed. Local Postgres physical verification confirmed migration 20261013100000 and the complete signal constraint.",
+      "notes": "The prior unrecorded JLC-0703 migration narrowed the shared signal check and excluded later AI/moderation classifications. Additive migration 20261013100000 restores the complete closed vocabulary while retaining duplicate-listing and suspicious-bulk review signals. Signals remain private and review-only; no automated punishment, production access, provider activation, deployment, or Git push occurred. The migration guard warning for DROP/ADD CHECK was manually reviewed as necessary constraint replacement with no privilege/RLS change."
     },
     {
       "id": "JLC-0704",
