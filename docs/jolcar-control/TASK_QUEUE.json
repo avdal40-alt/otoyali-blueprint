@@ -2632,7 +2632,7 @@
       "title": "Dealer cross-channel analytics dashboard",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0911",
@@ -2654,8 +2654,8 @@
         "event aggregation tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local verification: migration 20261013140000 was transactionally dry-run with zero-residual verification, then applied only to the local Supabase database and recorded in local migration history. npm run test:jlc-0918 passed the owner/staff/outsider/anonymous isolation and cross-channel event-aggregation matrix; npm run test:jlc-0911, npm run test:jlc-0916, and npm run typecheck passed. migration-check.ps1, duplicate migration-version scan, TASK_QUEUE JSON validation, and git diff --check passed.",
+      "notes": "Adds a responsive dealer analytics dashboard backed by a SECURITY DEFINER aggregate RPC. It returns only team-scoped counts for listings and their existing seller-analytics events, active dealer posts, live streams/interests, and CRM lead source/funnel dimensions. CRM source values are read directly from the canonical lead source enum; no raw event, viewer, buyer, contact, message, or provider data is exposed. Authenticated dealer owners and assigned staff are permitted; outsiders receive no rows and anonymous execution is denied. Local only: no production/remote Supabase access, provider call, deployment, push, or secrets change occurred."
     },
     {
       "id": "JLC-1001",
