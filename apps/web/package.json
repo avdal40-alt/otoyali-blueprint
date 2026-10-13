@@ -27,6 +27,7 @@
     "test:jlc-0410": "node scripts/jlc-0410-favorites-runtime.test.cjs",
     "test:jlc-0413": "node scripts/jlc-0413-price-drop-alerts.test.cjs",
     "test:jlc-0501": "npm run test:launch-03d3c3-draft-lifecycle && npm run test:launch-03d3c3-draft-runtime-rls",
+    "test:jlc-0504": "node scripts/jlc-0504-unsaved-listing-changes.test.cjs",
     "test:jlc-0505": "node scripts/seller-contact.test.cjs --db && node scripts/functional-02i.test.cjs",
     "test:jlc-0507": "node scripts/jlc-0507-photo-pipeline.test.cjs",
     "test:jlc-0509": "node scripts/jlc-0509-media-cleanup.test.cjs",

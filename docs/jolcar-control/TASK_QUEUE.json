@@ -1296,7 +1296,7 @@
       "title": "Unsaved listing changes protection",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0501"
@@ -1315,8 +1315,8 @@
         "desktop+compact inspection",
         "i18n"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/jlc-0504-unsaved-listing-changes.test.cjs; npm run test:jlc-0504; npm run test:jlc-0501; npm run test:sell-03h; npm run typecheck (2026-10-13 local).",
+      "notes": "The create-listing leave guard compares against a hydrated baseline, so an auto-saved draft does not trigger a false warning. Meaningful field, photo-count, or verified-contact selection changes intercept same-origin navigation and present localized Save draft and leave / Discard changes and leave / Continue editing choices. The dialog remains compact and desktop usable and has an accessible dismissal path. No provider, production, deployment, or push occurred."
     },
     {
       "id": "JLC-0505",

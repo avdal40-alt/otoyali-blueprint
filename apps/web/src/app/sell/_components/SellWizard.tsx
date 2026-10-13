@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, type MouseEvent, type ReactNode, useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { FormEvent, type ReactNode, useCallback, useMemo, useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { City, HomeListing, Make, Model, Profile } from "@/lib/supabase/types";
@@ -22,6 +22,7 @@ import { isCurrentEditTarget, LatestRequestGuard } from "../sell-route-state";
 import { getSellCatalogDisplayName, getSellCopy, getSellModelRequestContextKey, getVariantUploadStatus, isSellCatalogOther, type SellCopy } from "../sell-copy";
 import { ListingDescriptionAssistant } from "./ListingDescriptionAssistant";
 import { SellAssistant, type AssistedListingDraft } from "./SellAssistant";
+import { createListingDraftChangeSnapshot, hasMeaningfulListingChanges, type ListingDraftChangeState } from "../unsaved-listing-changes";
 
 type PhotoItem = {
   id: string;
@@ -180,6 +181,7 @@ export function SellWizard({
   const [loadedRouteKey, setLoadedRouteKey] = useState<string | null>(null);
   const [loadedEditListingId, setLoadedEditListingId] = useState<string | null>(null);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [createDraftBaseline, setCreateDraftBaseline] = useState<string | null>(null);
   const routeRequestGuard = useRef(new LatestRequestGuard());
   const submissionRequestGuard = useRef(new LatestRequestGuard());
   const profileRequestGuard = useRef(new LatestRequestGuard());
@@ -281,6 +283,7 @@ export function SellWizard({
     setExistingTitleGenerated(true);
     setExistingQualityScore(null);
     setRejectionReason("");
+    setCreateDraftBaseline(null);
 
     async function checkAuth() {
       if (!hasSupabaseEnv()) {
@@ -308,7 +311,8 @@ export function SellWizard({
       if (!isCurrentRequest()) return;
       const activeContacts = (Array.isArray(contacts) ? contacts : []).filter((contact): contact is SellerContact => Boolean(contact && typeof contact === "object" && "contact_id" in contact && (contact as SellerContact).is_active));
       setSellerContacts(activeContacts);
-      setSellerContactId(activeContacts[0]?.contact_id ?? "");
+      const initialSellerContactId = activeContacts[0]?.contact_id ?? "";
+      setSellerContactId(initialSellerContactId);
       const { data: profileRow } = await supabase.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
       if (!isCurrentRequest()) return;
       const sellerProfile = toSellerProfile((profileRow as Profile | null) ?? null, data.user.phone ?? "", locale);
@@ -408,13 +412,15 @@ export function SellWizard({
         return;
       }
       const savedDraft = readStoredDraft(data.user.id);
-      setState((current) => ({
-        ...current,
+      const hydratedState: WizardState = {
+        ...initialState,
         ...(savedDraft ?? {}),
         photos: [],
-        city: savedDraft?.city || sellerProfile.city || current.city,
-        sellerType: sellerProfile.sellerType || savedDraft?.sellerType || current.sellerType
-      }));
+        city: savedDraft?.city || sellerProfile.city || initialState.city,
+        sellerType: sellerProfile.sellerType || savedDraft?.sellerType || initialState.sellerType
+      };
+      setState(hydratedState);
+      setCreateDraftBaseline(createListingDraftChangeSnapshot(toListingDraftChangeState(hydratedState, initialSellerContactId)));
       if (savedDraft?.makeId) {
         void loadModelsForMake(savedDraft.makeId);
       }
@@ -433,8 +439,13 @@ export function SellWizard({
     saveStoredDraft(userId, state);
   }, [checkingAuth, loadedRouteKey, mode, publishedListingId, routeKey, state, userId]);
 
+  const hasUnsavedChanges = mode === "create" && hasMeaningfulListingChanges(
+    createDraftBaseline,
+    toListingDraftChangeState(state, sellerContactId)
+  );
+
   useEffect(() => {
-    if (mode !== "create" || !userId || publishedListingId || submitting || !hasUnsavedDraft(state)) return;
+    if (!userId || publishedListingId || submitting || !hasUnsavedChanges) return;
 
     function warnBeforeUnload(event: BeforeUnloadEvent) {
       event.preventDefault();
@@ -443,7 +454,26 @@ export function SellWizard({
 
     window.addEventListener("beforeunload", warnBeforeUnload);
     return () => window.removeEventListener("beforeunload", warnBeforeUnload);
-  }, [publishedListingId, state, submitting, userId]);
+  }, [hasUnsavedChanges, publishedListingId, submitting, userId]);
+
+  useEffect(() => {
+    if (mode !== "create" || !userId || submitting || publishedListingId || !hasUnsavedChanges) return;
+
+    function interceptSameOriginNavigation(event: MouseEvent) {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      const link = target?.closest("a[href]") as HTMLAnchorElement | null;
+      if (!link || link.target || link.hasAttribute("download")) return;
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin || url.href === window.location.href) return;
+      event.preventDefault();
+      event.stopPropagation();
+      setPendingNavigation(url.pathname + url.search + url.hash);
+    }
+
+    document.addEventListener("click", interceptSameOriginNavigation, true);
+    return () => document.removeEventListener("click", interceptSameOriginNavigation, true);
+  }, [hasUnsavedChanges, mode, publishedListingId, submitting, userId]);
 
   const selectedMake = makes.find((make) => make.make_id === state.makeId);
   const selectedModel = modelsForMake.find((item) => item.model_id === state.modelId);
@@ -1051,15 +1081,6 @@ export function SellWizard({
     );
   }
 
-  function handleNavigation(event: MouseEvent<HTMLFormElement>) {
-    const link = (event.target as HTMLElement).closest("a[href]") as HTMLAnchorElement | null;
-    if (mode !== "create" || !link || !userId || submitting || publishedListingId || !hasUnsavedDraft(state)) return;
-    const url = new URL(link.href, window.location.href);
-    if (url.origin !== window.location.origin || url.href === window.location.href) return;
-    event.preventDefault();
-    setPendingNavigation(url.pathname + url.search + url.hash);
-  }
-
   function continueNavigation(save: boolean) {
     if (!pendingNavigation || !userId) return;
     if (save) saveStoredDraft(userId, state);
@@ -1071,7 +1092,7 @@ export function SellWizard({
 
   return (
     <>
-    <form onSubmit={publish} onClick={handleNavigation} className="grid gap-5">
+    <form onSubmit={publish} className="grid gap-5">
       {mode === "editRejected" && rejectionReason ? (
         <section className="rounded-oto border border-red-200 bg-red-50 p-5" aria-live="polite">
           <h2 className="text-base font-black text-red-900">{sell03.rejectionReasonHeading}</h2>
@@ -1384,7 +1405,7 @@ export function SellWizard({
         ) : null}
       </div>
     </form>
-    <Modal open={Boolean(pendingNavigation)} title={copy.unsavedChangesTitle}>
+    <Modal open={Boolean(pendingNavigation)} title={copy.unsavedChangesTitle} onClose={() => setPendingNavigation(null)}>
       <p className="text-sm leading-6 text-oto-muted">{copy.unsavedChangesBody}</p>
       <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <Button type="button" variant="secondary" onClick={() => setPendingNavigation(null)}>{copy.continueEditing}</Button>
@@ -1710,23 +1731,30 @@ function extensionFromMimeType(mimeType: string, fileName: string) {
   return fileName.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
 }
 
-function hasUnsavedDraft(state: WizardState) {
-  return Boolean(
-    state.makeId ||
-    state.modelId ||
-    state.year ||
-    state.mileageKm ||
-    state.priceAmount ||
-    state.description.trim() ||
-    state.bodyType ||
-    state.driveType ||
-    state.color ||
-    state.engineVolumeL ||
-    state.damageState !== "unknown" ||
-    state.ownerCount ||
-    !state.priceNegotiable ||
-    state.photos.length > 0
-  );
+function toListingDraftChangeState(state: WizardState, sellerContactId: string): ListingDraftChangeState {
+  return {
+    makeId: state.makeId,
+    modelId: state.modelId,
+    year: state.year,
+    city: state.city,
+    condition: state.condition,
+    sellerType: state.sellerType,
+    mileageKm: state.mileageKm,
+    fuelType: state.fuelType,
+    transmission: state.transmission,
+    bodyType: state.bodyType,
+    driveType: state.driveType,
+    color: state.color,
+    engineVolumeL: state.engineVolumeL,
+    damageState: state.damageState,
+    ownerCount: state.ownerCount,
+    priceAmount: state.priceAmount,
+    currency: state.currency,
+    priceNegotiable: state.priceNegotiable,
+    description: state.description,
+    photoCount: state.photos.length,
+    sellerContactId
+  };
 }
 
 function draftStorageKey(userId: string) {
