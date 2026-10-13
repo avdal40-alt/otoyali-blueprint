@@ -2691,7 +2691,7 @@
       "title": "Secure AI runtime: actor, redaction, validation, limits, tool allow-list",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1001"
@@ -2712,8 +2712,8 @@
         "tool authorization tests",
         "typecheck"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local verification: added apps/web/scripts/jlc-1002-secure-ai-runtime.test.cjs and passed it; the complete inherited AI regression suite (AI-01A through AI-01H2) and apps/web TypeScript typecheck pass.",
+      "notes": "Verified server-derived Supabase actor identity; canonical public listing-context reconstruction with outbound PII/private-field redaction; strict Zod request/provider contracts; an explicit four-tool allow-list without private-contact/RPC/service-role access; and local rate/cost limiting that blocks production OpenAI traffic without the distributed-limiter gate. O-011 remains open: no provider credentials were inspected and no external AI provider was called."
     },
     {
       "id": "JLC-1003",
