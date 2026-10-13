@@ -2373,7 +2373,7 @@
       "title": "CRM lead domain and source attribution",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0908",
@@ -2394,8 +2394,8 @@
         "lead contract tests",
         "cross-dealer security tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "Implemented in dcb35d8. Local verification on 2026-10-13: npm run test:jlc-0909 passed (10-case lead contract and cross-dealer security matrix); scripts/jolcar/jlc-0908-dealer-staff-roles-runtime.test.ps1 passed; local Postgres confirms migrations 20261013110000, 20261013111500, and 20261013112000 are recorded and marketplace.dealer_leads has authenticated SELECT only, owner/staff SELECT RLS, and service-role-only write access.",
+      "notes": "Private dealer CRM lead records link dealer, optional authorized manager, optional dealer-owned listing/vehicle, and opaque source records. Listing, chat, contact, and matcher-validated buyer-request sources are locally ingestible; dealer post/live sources are explicitly reserved for later trusted producers. The unique dealer/source/source-record index makes retries deterministic. No buyer-request criteria, contact details, or message content is copied into leads."
     },
     {
       "id": "JLC-0910",
