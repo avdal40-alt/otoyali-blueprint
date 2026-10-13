@@ -3083,7 +3083,7 @@
       "title": "Performance and query/index sanity",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0404",
@@ -3103,8 +3103,8 @@
         "query explain/test where safe",
         "build/perf audit"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local completion: apps/web/scripts/jlc-1204-performance-sanity.test.cjs; npm run test:jlc-1204; npm run test:jlc-0404; npm run test:jlc-0907; npm run typecheck; npm run build; static migration check; local transactional dry-run/rollback and physical index/history verification.",
+      "notes": "Measured baseline EXPLAIN for the canonical newest/raised Search v1 order used a sequential scan plus sort because the prior two-column raised/published index did not match the COALESCE ranking expression. Added migration 20261013160000 with the exact expression keyset index; local EXPLAIN with sequential scans disabled now uses it without an explicit sort. Listing detail video lookup now starts concurrently with the other independent bounded reads. Local only: no production access, provider call, deployment, or push occurred."
     },
     {
       "id": "JLC-1205",

@@ -90,6 +90,7 @@
     "test:jlc-0206": "node scripts/jlc-0206-dark-mode-readiness.test.cjs",
     "test:jlc-1202": "node scripts/jlc-1202-mobile-pwa-quality.test.cjs",
     "test:jlc-1203": "node scripts/jlc-1203-accessibility-release.test.cjs",
+    "test:jlc-1204": "node scripts/jlc-1204-performance-sanity.test.cjs",
     "test:jlc-1201": "node scripts/jlc-1201-country-seo-routes.test.cjs",
     "test:jlc-1205": "node scripts/observability-safe-logger.test.cjs",
     "test:jlc-1303": "node scripts/jlc-1303-responsive-design-qa.test.cjs",

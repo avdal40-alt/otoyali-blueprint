@@ -51,13 +51,13 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
   const priceIntelligenceEnabled = isAiFeatureEnabled("ai_price");
   const vinTrustEnabled = isAiFeatureEnabled("ai_vin");
   const resolvedParams = await params;
-  const [detailsResult, mediaResult, fallbackListingResult, similarResult] = await Promise.all([
+  const [detailsResult, mediaResult, fallbackListingResult, similarResult, videosResult] = await Promise.all([
     getListingDetails(resolvedParams.id),
     getListingMedia(resolvedParams.id),
     getHomeListingById(resolvedParams.id),
-    getHomeListings(12)
+    getHomeListings(12),
+    getListingVideos(resolvedParams.id, 3)
   ]);
-  const videosResult = await getListingVideos(resolvedParams.id, 3);
 
   if (!detailsResult.data && !detailsResult.error) {
     notFound();
