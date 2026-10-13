@@ -2158,7 +2158,7 @@
       "title": "Dealer posts with listing attachments",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0902",
@@ -2178,8 +2178,8 @@
         "media tests",
         "privacy tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local verification: applied local migration 20261013120000_jlc0904_dealer_posts after a transactional dry run with rollback/residual-object check, then recorded local migration history. npm run test:jlc-0904 passed the transactional PostgreSQL ownership/media/privacy matrix; apps/web npm run typecheck and git diff --check passed. The public projection returns only body, timestamp, listing title/price/currency, sanitized card/large/url fallback, and the canonical public-video eligibility signal.",
+      "notes": "Verified dealers create posts only through an authenticated SECURITY DEFINER boundary. Attachments are capped, de-duplicated, dealer-owned active/moderated/search-eligible listings; photos/videos reuse existing public listing-media rules and no new storage path is exposed. Tables have no anon/authenticated direct access. Local only: production/provider access, remote migrations, deployment, secrets changes, and push were not performed."
     },
     {
       "id": "JLC-0905",

@@ -40,6 +40,7 @@
     "test:jlc-0901": "node scripts/jlc-0901-dealer-verification-foundation.test.cjs",
     "test:jlc-0902": "node scripts/jlc-0902-public-dealer-profile.test.cjs",
     "test:jlc-0903": "node scripts/jlc-0903-dealer-follow.test.cjs",
+    "test:jlc-0904": "node scripts/jlc-0904-dealer-posts.test.cjs",
     "test:jlc-0906": "node scripts/jlc-0906-dealer-import-reconciliation.test.cjs",
     "test:jlc-0909": "node scripts/jlc-0909-dealer-crm-leads.test.cjs",
     "test:jlc-0910": "node scripts/jlc-0910-dealer-crm-pipeline.test.cjs",
