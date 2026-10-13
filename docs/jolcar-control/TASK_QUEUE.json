@@ -2129,7 +2129,7 @@
       "title": "Follow dealer",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0902",
@@ -2148,8 +2148,8 @@
         "follow tests",
         "RLS tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local verification: npm run test:jlc-0903 passed an 11-check transactional PostgreSQL role/privacy matrix against the applied 20261010193000_functional_09_dealer_follow migration. It verifies anonymous direct/RPC denial, authenticated follow/unfollow, aggregate count consistency, self/non-dealer rejection, direct-write denial, follower-row isolation, and anonymous aggregate-only public projection. Static contract test confirms RLS and authenticated-only RPC grant. No migration was created or applied during this task.",
+      "notes": "The implementation is supplied by inherited commit cdd776c and migration 20261010193000_functional_09_dealer_follow.sql, already present in local migration history. This completion adds the focused regression/RLS contract and records fresh local evidence. Local only: production/provider access, remote migration, deployment, secrets changes, and push were not performed."
     },
     {
       "id": "JLC-0904",
