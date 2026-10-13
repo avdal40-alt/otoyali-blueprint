@@ -12,8 +12,8 @@ const openai = read("src", "features", "ai", "providers", "openai-provider.ts");
 const runtime = read("src", "features", "ai", "moderation", "listing-image-moderation-runtime.ts");
 const plate = read("src", "lib", "media", "sanitized-photo-pipeline.ts");
 const deterministic = read("src", "features", "ai", "moderation", "image-moderation-deterministic.ts")
-  .replace('import "server-only";\n', "")
-  .replace(/import \{ imageModerationOutputSchema, type ImageModerationProviderInput \} from "\.\/image-moderation";\n/, "");
+  .replace(/import "server-only";\r?\n/, "")
+  .replace(/import \{ imageModerationOutputSchema, type ImageModerationProviderInput \} from "\.\/image-moderation";\r?\n/, "");
 const c1 = read("..", "..", "supabase", "migrations", "20260929135207_ai_01g_c_multimodal_moderation_signal_contract.sql");
 
 for (const code of ["CONTACT_IN_IMAGE", "QR_CODE_PRESENT", "LOW_QUALITY_IMAGE", "POSSIBLE_VISIBLE_DAMAGE"]) {

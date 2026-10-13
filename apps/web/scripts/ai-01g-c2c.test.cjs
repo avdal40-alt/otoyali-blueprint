@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, "..");
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
 const compile = (source) => {
   const module = { exports: {} };
-  const output = ts.transpileModule(source.replace('import "server-only";\n', ""), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const output = ts.transpileModule(source.replace(/import "server-only";\r?\n/, ""), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   new Function("exports", "module", output)(module.exports, module);
   return module.exports;
 };

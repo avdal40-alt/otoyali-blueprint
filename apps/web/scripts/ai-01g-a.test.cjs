@@ -5,8 +5,8 @@ const ts = require("typescript");
 
 const root = path.resolve(__dirname, "..");
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
-const engineSource = read("src", "features", "ai", "moderation", "deterministic-text-moderation.ts").replace('import "server-only";\n', "").replace(/import \{ ([^}]+) \} from "\.\/deterministic-rules";/, "const { $1 } = rules;");
-const rulesSource = read("src", "features", "ai", "moderation", "deterministic-rules.ts").replace('import "server-only";\n', "");
+const engineSource = read("src", "features", "ai", "moderation", "deterministic-text-moderation.ts").replace(/import "server-only";\r?\n/, "").replace(/import \{ ([^}]+) \} from "\.\/deterministic-rules";/, "const { $1 } = rules;");
+const rulesSource = read("src", "features", "ai", "moderation", "deterministic-rules.ts").replace(/import "server-only";\r?\n/, "");
 const compile = (source, bindings = {}) => { const module = { exports: {} }; const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText; new Function("exports", "module", ...Object.keys(bindings), output)(module.exports, module, ...Object.values(bindings)); return module.exports; };
 const rules = compile(rulesSource);
 const { moderateListingText, normalizeModerationText } = compile(engineSource, { rules });
