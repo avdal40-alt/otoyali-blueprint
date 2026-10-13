@@ -2433,7 +2433,7 @@
       "title": "Dealer CRM funnel and staff analytics",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0910",
@@ -2452,8 +2452,8 @@
         "analytics isolation tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "Implemented locally in JLC-0911 commit. Local verification on 2026-10-13: npm run test:jlc-0911 passed (owner/staff/outsider/anonymous analytics isolation matrix); npm run test:jlc-0909 and npm run test:jlc-0910 passed; npm run typecheck passed; migration-check.ps1, duplicate migration-version scan, TASK_QUEUE JSON validation, and git diff --check passed. Local migration 20261013121500 was transactionally dry-run, rollback-verified, physically applied only to the local Supabase database, and recorded in local migration history.",
+      "notes": "Adds a responsive dealer CRM dashboard showing aggregate funnel, lead-source, assigned-manager, open-follow-up, and overdue-follow-up metrics. The SECURITY DEFINER RPC derives accessible dealers solely from auth.uid() owner/staff membership and returns aggregates only; it exposes no lead notes, buyer data, activity contents, or cross-dealer analytics. Anonymous execution and cross-dealer reads are denied. No production/remote Supabase access, deployment, push, or secrets change occurred."
     },
     {
       "id": "JLC-0912",
