@@ -2913,7 +2913,7 @@
       "title": "Automotive news feed foundation",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0106",
@@ -2932,8 +2932,8 @@
         "news tests",
         "UI tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/jlc-1101-news-foundation.test.cjs; npm run test:jlc-1101; npm run typecheck; npm run build (2026-10-13 local).",
+      "notes": "First-party Jolcar editorial news domain and local list/detail UI are present. The explicit content-source policy blocks external ingestion; seed content carries no third-party URLs. Any future external source requires explicit license review and a separately approved adapter. No scraping, provider call, production action, deployment, or push occurred."
     },
     {
       "id": "JLC-D012",

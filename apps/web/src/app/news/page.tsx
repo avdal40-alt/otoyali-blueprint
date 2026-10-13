@@ -11,9 +11,9 @@ export default function NewsPage() {
     <>
       <AppHeader />
       <PageContainer>
-        <SectionHeader title="Otomotiv haberleri" eyebrow="Gundem" />
+        <SectionHeader title="Автокөлік жаңалықтары" eyebrow="Шолу" />
         <div className="mb-5 flex flex-wrap gap-2">
-          {["Güncel", "Elektrikli", "Rehber", "Piyasa", "Güvenlik", "Bakım"].map((item) => (
+          {["Жаңалық", "Электрлі көлік", "Нұсқаулық", "Нарық", "Қауіпсіздік", "Күтім"].map((item) => (
             <Badge key={item}>{item}</Badge>
           ))}
         </div>

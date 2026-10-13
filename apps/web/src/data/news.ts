@@ -27,42 +27,42 @@ export type NewsArticle = {
 
 export const newsArticles: NewsArticle[] = [
   {
-    slug: "turkiyede-elektrikli-arac-ilgisi-artiyor",
-    title: "Türkiye'de elektrikli araç ilgisi artıyor",
-    excerpt: "Yeni modeller, şarj ağı yatırımları ve düşen kullanım maliyetleri pazarı hızlandırıyor.",
-    category: "Elektrikli",
+    slug: "elektr-kolikpen-saparga-daiyndyk",
+    title: "Электромобильмен сапарға қалай дайындалуға болады?",
+    excerpt: "Күнделікті маршрут, зарядтау жоспары және маусымдық қорды алдын ала бағалау жол жүруді жеңілдетеді.",
+    category: "Электрлі көлік",
     publishedAt: "2026-07-01",
     source: NEWS_CONTENT_SOURCE,
     body: [
-      "Elektrikli araçlar Türkiye'de sadece teknoloji meraklılarının değil, ailelerin ve filo kullanıcılarının da gündemine giriyor.",
-      "Şarj altyapısının genişlemesi, daha uzun menzilli modeller ve toplam sahip olma maliyetindeki avantajlar bu ilgiyi destekliyor.",
-      "OTOYALI, kullanıcıların araçları sadece fiyatla değil, kullanım ihtiyacı ve güven unsurlarıyla birlikte değerlendirmesini hedefler."
+      "Электромобильді таңдарда тек паспорттағы жүріс қорына емес, өзіңіздің күнделікті бағытыңызға және маусымдық жағдайға назар аударыңыз.",
+      "Ұзақ сапар алдында зарядтау нүктелерін, аялдау уақытын және балама бағыттарды жоспарлаған дұрыс.",
+      "Jolcar материалдары көлікті бағаға ғана емес, нақты пайдалану қажеттілігі мен қауіпсіздікке сай бағалауға көмектеседі."
     ]
   },
   {
-    slug: "ikinci-el-arac-alirken-kontrol-listesi",
-    title: "İkinci el araç alırken sade kontrol listesi",
-    excerpt: "İlk görüşmeden ekspertize kadar dikkat edilmesi gereken temel noktalar.",
-    category: "Rehber",
+    slug: "qoldanylgan-kolik-tekseru-paragy",
+    title: "Қолданылған көлікті қараудың қысқа чек-парағы",
+    excerpt: "Алғашқы хабарласудан бастап техникалық тексеріске дейінгі негізгі қадамдар.",
+    category: "Нұсқаулық",
     publishedAt: "2026-06-30",
     source: NEWS_CONTENT_SOURCE,
     body: [
-      "İkinci el araç alırken ilanın tutarlılığı, bakım kayıtları, kilometre bilgisi ve fotoğraf kalitesi ilk sinyalleri verir.",
-      "Görüşme öncesi fiyat aralığı, model yılı ve motor seçeneklerini karşılaştırmak karar sürecini hızlandırır.",
-      "Görüşmeden sonra ekspertiz, noter süreci ve ödeme güvenliği adım adım ilerlemelidir."
+      "Жарияланымдағы сипаттама, қызмет көрсету жазбалары, жүріс дерегі және фотолардың сәйкестігі алғашқы пайдалы белгілер болады.",
+      "Кездесуге дейін ұқсас модельдердің бағасын, шығарылған жылын және қозғалтқыш нұсқаларын салыстырыңыз.",
+      "Көлікті міндетті түрде жеке тексеріп, тәуелсіз техникалық сараптаманы ұйымдастырыңыз. Jolcar сатып алушы мен сатушы арасындағы төлемге араласпайды."
     ]
   },
   {
-    slug: "sehir-ici-kullanim-icin-dogru-arac",
-    title: "Şehir içi kullanım için doğru araç nasıl seçilir?",
-    excerpt: "Yakıt, boyut, park kolaylığı ve güvenlik donanımları arasında denge kurun.",
-    category: "Piyasa",
+    slug: "qala-ishi-kolikke-tandau-zhasau",
+    title: "Қала ішінде жүретін көлікті қалай таңдауға болады?",
+    excerpt: "Жанармай шығыны, өлшем, тұраққа қою ыңғайлылығы және қауіпсіздік жабдықтарының тепе-теңдігін табыңыз.",
+    category: "Нарық",
     publishedAt: "2026-06-28",
     source: NEWS_CONTENT_SOURCE,
     body: [
-      "Şehir içinde kullanılacak araçlarda sadece fiyat değil, yakıt tüketimi, donanım ve park kolaylığı da önemlidir.",
-      "Kompakt hatchback, sedan ve küçük SUV modeller farklı ihtiyaçlara cevap verir.",
-      "OTOYALI arama deneyimi, kullanıcının ihtiyacına göre filtreleme yapmasını kolaylaştıracak şekilde tasarlanır."
+      "Қалада жүретін көлікте баға ғана емес, жанармай шығыны, жабдықталуы және тұраққа қоюға ыңғайлылығы да маңызды.",
+      "Шағын хэтчбек, седан және кроссовер әртүрлі отбасы мен жұмыс тәртібіне сай келеді.",
+      "Jolcar іздеуі өз қажеттілігіңізге қарай көліктерді салыстыруға көмектеседі."
     ]
   }
 ];
