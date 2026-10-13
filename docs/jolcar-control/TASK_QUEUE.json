@@ -2994,7 +2994,7 @@
       "title": "Country-aware SEO/canonical/sitemap/robots",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0106",
@@ -3013,8 +3013,8 @@
         "SEO tests",
         "route metadata tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-13 local verification: `npm.cmd run test:jlc-1201`, `node scripts/jlc-0106-routing-metadata.test.cjs`, `npm.cmd run test:jlc-0107`, `npm.cmd run test:country-config`, `npm.cmd run typecheck`, and `npm.cmd run build` passed in apps/web. The build completed with the pre-existing SafeImage `<img>` performance warning only.",
+      "notes": "Sitemap and robots derive country-owned route inventories, dynamic route prefixes, crawl exclusions, and sitemap host behavior from the market boundary. The hostless planned Jolcar profile emits no sitemap entries and no sitemap URL, so it cannot borrow the Turkey host or route inventory. Country metadata remains profile-driven. No domain, DNS, provider, production, deployment, or remote action occurred."
     },
     {
       "id": "JLC-1202",

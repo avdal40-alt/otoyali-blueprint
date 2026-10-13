@@ -1,83 +1,29 @@
 import type { MetadataRoute } from "next";
+import { ACTIVE_MARKET_PROFILE, getMarketSeoRouteConfig } from "@/lib/market";
 import { getPublicSiteUrl } from "@/lib/seo/metadata";
 import { getSitemapVerticals } from "@/lib/marketplace/verticals";
 
 export default function robots(): MetadataRoute.Robots {
   const siteUrl = getPublicSiteUrl();
+  const routeConfig = getMarketSeoRouteConfig(ACTIVE_MARKET_PROFILE);
+  const configuredRoutes = routeConfig.locales.flatMap((locale) => [
+    ...locale.staticPaths,
+    `${locale.makePrefix}/`,
+    `${locale.makePrefix}/*`,
+    `${locale.cityPrefix}/`,
+    `${locale.cityPrefix}/*`,
+    `${locale.listingPrefix}/`,
+    `${locale.listingPrefix}/*`,
+    `${locale.serviceProviderPrefix}/`,
+    `${locale.serviceProviderPrefix}/*`
+  ]);
   const verticalRoutes = getSitemapVerticals().flatMap((vertical) => [vertical.routes.tr, vertical.routes.en]);
 
   return {
     rules: {
       userAgent: "*",
-      allow: [
-        "/",
-        "/en",
-        "/en/",
-        "/en/search",
-        "/en/listing/",
-        "/en/listing/*",
-        "/en/video",
-        "/en/used-cars",
-        "/en/new-cars",
-        "/en/electric-vehicles",
-        "/en/automatic-cars",
-        "/en/suv",
-        ...verticalRoutes,
-        "/servisler/",
-        "/servisler/*",
-        "/en/services/",
-        "/en/services/*",
-        "/en/make/",
-        "/en/make/*",
-        "/en/city/",
-        "/en/city/*",
-        "/en/terms",
-        "/en/privacy",
-        "/en/cookies",
-        "/en/listing-rules",
-        "/en/moderation-policy",
-        "/en/trust",
-        "/en/contact",
-        "/search",
-        "/listing/",
-        "/listing/*",
-        "/video",
-        "/ikinci-el-araba",
-        "/sifir-km-araba",
-        "/marka/",
-        "/marka/*",
-        "/sehir/",
-        "/sehir/*",
-        "/elektrikli-araclar",
-        "/otomatik-vites-araclar",
-        "/suv-araclar",
-        "/ai-asistan",
-        "/terms",
-        "/privacy",
-        "/cookies",
-        "/listing-rules",
-        "/moderation-policy",
-        "/trust",
-        "/contact"
-      ],
-      disallow: [
-        "/profile",
-        "/en/profile",
-        "/my-listings",
-        "/en/my-listings",
-        "/settings",
-        "/en/settings",
-        "/admin",
-        "/admin/*",
-        "/en/admin",
-        "/en/admin/*",
-        "/login",
-        "/en/login",
-        "/otp",
-        "/en/otp",
-        "/debug",
-        "/api/private"
-      ]
+      allow: [...new Set(["/", ...configuredRoutes, ...verticalRoutes])],
+      disallow: [...routeConfig.disallow]
     },
     ...(siteUrl ? { sitemap: `${siteUrl}/sitemap.xml` } : {})
   };

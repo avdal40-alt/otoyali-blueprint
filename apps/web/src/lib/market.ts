@@ -44,6 +44,24 @@ export type MarketProfile = {
 export type CurrencyPlacement = "prefix" | "suffix";
 
 /**
+ * Public indexable routes are country-owned configuration. Keeping these here
+ * prevents shared sitemap and robots code from encoding one market's language
+ * or URL structure.
+ */
+export type MarketSeoRouteLocale = {
+  staticPaths: readonly string[];
+  makePrefix: string;
+  cityPrefix: string;
+  listingPrefix: string;
+  serviceProviderPrefix: string;
+};
+
+export type MarketSeoRouteConfig = {
+  locales: readonly MarketSeoRouteLocale[];
+  disallow: readonly string[];
+};
+
+/**
  * Formatting is a market concern. UI language can select an override, while
  * the country profile remains the safe fallback for requests without one.
  */
@@ -132,6 +150,38 @@ export const MARKET_PROFILES = {
     status: "planned"
   }
 } as const satisfies Record<string, MarketProfile>;
+
+export const MARKET_SEO_ROUTE_CONFIG = {
+  TR: {
+    locales: [
+      {
+        staticPaths: ["/", "/search", "/video", "/ikinci-el-araba", "/sifir-km-araba", "/elektrikli-araclar", "/otomatik-vites-araclar", "/suv-araclar", "/ai-asistan", "/terms", "/privacy", "/cookies", "/listing-rules", "/moderation-policy", "/trust", "/contact"],
+        makePrefix: "/marka",
+        cityPrefix: "/sehir",
+        listingPrefix: "/listing",
+        serviceProviderPrefix: "/servisler"
+      },
+      {
+        staticPaths: ["/en", "/en/search", "/en/video", "/en/used-cars", "/en/new-cars", "/en/electric-vehicles", "/en/automatic-cars", "/en/suv", "/en/ai-assistant", "/en/terms", "/en/privacy", "/en/cookies", "/en/listing-rules", "/en/moderation-policy", "/en/trust", "/en/contact"],
+        makePrefix: "/en/make",
+        cityPrefix: "/en/city",
+        listingPrefix: "/en/listing",
+        serviceProviderPrefix: "/en/services"
+      }
+    ],
+    disallow: ["/profile", "/en/profile", "/my-listings", "/en/my-listings", "/settings", "/en/settings", "/admin", "/admin/*", "/en/admin", "/en/admin/*", "/login", "/en/login", "/otp", "/en/otp", "/debug", "/api/private"]
+  },
+  KZ: {
+    // These launch locales are configured now, but cannot be emitted until a
+    // Jolcar host and public route implementation are explicitly enabled.
+    locales: [],
+    disallow: ["/profile", "/my-listings", "/settings", "/admin", "/admin/*", "/login", "/otp", "/debug", "/api/private"]
+  }
+} as const satisfies Record<MarketProfile["countryCode"], MarketSeoRouteConfig>;
+
+export function getMarketSeoRouteConfig(profile: MarketProfile = ACTIVE_MARKET_PROFILE): MarketSeoRouteConfig {
+  return MARKET_SEO_ROUTE_CONFIG[profile.countryCode];
+}
 
 export type MarketProfileKey = keyof typeof MARKET_PROFILES;
 

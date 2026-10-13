@@ -33,6 +33,10 @@ assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
   brandName: "Yolmod",
   siteUrl: "https://yolmod.com",
   currencyCode: "TRY",
+  brandColors: {
+    accent: null,
+    accentStrong: null
+  },
   metadata: {
     defaultTitle: "Türkiye'nin akıllı araç pazarı",
     description: "Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.",
@@ -67,6 +71,10 @@ assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
   brandName: "Jolcar",
   siteUrl: null,
   currencyCode: "KZT",
+  brandColors: {
+    accent: null,
+    accentStrong: null
+  },
   metadata: {
     defaultTitle: "Қазақстанның ақылды көлік нарығы",
     description: "Көліктерді, қосалқы бөлшектерді және автокөлік қызметтерін бір платформадан табыңыз.",
