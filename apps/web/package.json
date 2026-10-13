@@ -86,6 +86,7 @@
     "test:jlc-0203": "node scripts/jlc-0203-responsive-shell.test.cjs",
     "test:jlc-0204": "node scripts/jlc-0204-accessibility-baseline.test.cjs",
     "test:jlc-0205": "node scripts/jlc-0205-microanimation.test.cjs",
+    "test:jlc-0206": "node scripts/jlc-0206-dark-mode-readiness.test.cjs",
     "test:jlc-1202": "node scripts/jlc-1202-mobile-pwa-quality.test.cjs",
     "test:jlc-1203": "node scripts/jlc-1203-accessibility-release.test.cjs",
     "test:jlc-1205": "node scripts/observability-safe-logger.test.cjs",

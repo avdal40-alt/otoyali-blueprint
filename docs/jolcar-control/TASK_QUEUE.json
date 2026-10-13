@@ -600,7 +600,7 @@
       "title": "Dark-mode readiness of tokens",
       "priority": "P2",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": false,
       "dependencies": [
         "JLC-0201"
@@ -615,8 +615,8 @@
       "verification": [
         "source inspection"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/jlc-0206-dark-mode-readiness.test.cjs; npm run test:jlc-0206; npm run test:jlc-0201; npm run typecheck (2026-10-13 local).",
+      "notes": "Verified the existing theme-variable architecture with a dedicated regression guard: semantic UI tokens resolve through CSS variables and the dark scope overrides all neutral foundation variables. No user-facing theme switch, provider, production action, or final accent decision was added."
     },
     {
       "id": "JLC-0301",
