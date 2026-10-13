@@ -3245,7 +3245,7 @@
       "title": "Final mobile/responsive/design QA",
       "priority": "P0",
       "type": "testing",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1202",
@@ -3265,8 +3265,8 @@
       "verification": [
         "visual QA matrix"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/jlc-1303-responsive-design-qa.test.cjs; npm run test:jlc-1303; npm run test:jlc-0202; npm run test:jlc-0203; npm run test:jlc-0204; npm run test:jlc-1202; npm run test:jlc-1203; npm run typecheck; npm run build (2026-10-13 local).",
+      "notes": "Release QA matrix confirms desktop and compact shell parity for marketplace, search, listing detail, seller listings, dealer CRM, and dealer analytics. It confirms the O-004 4:3 card/grid contract, tokenized restrained palette, short reduced-motion-safe interaction timing, 16px/tap-target/focus/dialog requirements, and retained optional dark-theme tokens. Visual evidence is source-contract plus local production build; no provider, production, deployment, or push occurred."
     },
     {
       "id": "JLC-1304",
