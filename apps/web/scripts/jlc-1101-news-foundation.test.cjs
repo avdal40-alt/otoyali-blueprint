@@ -41,10 +41,10 @@ for (const article of newsArticles) {
 }
 assert.equal(getArticle("missing-article"), null, "unknown slugs do not resolve");
 
-assert.match(newsPage, /<NewsGrid articles=\{newsArticles\}/, "news index renders the feed through the shared grid");
-assert.match(articlePage, /getArticle\(resolvedParams\.slug\)/, "article pages use the news domain reader");
+assert.match(newsPage, /<NewsGrid articles=\{getNewsArticles\(/, "news index renders the feed through the shared grid");
+assert.match(articlePage, /getArticle\(resolvedParams\.slug/, "article pages use the news domain reader");
 assert.match(articlePage, /notFound\(\)/, "unknown article pages return 404");
-assert.match(articlePage, /- Jolcar/, "article attribution uses the Jolcar brand");
+assert.match(articlePage, /article\.attribution/, "article attribution is rendered from the news domain");
 assert.match(newsCard, /href=\{`\/news\/\$\{article\.slug\}`\}/, "cards link only to the local article route");
 assert.match(newsCard, /SafeImage/, "cards safely handle optional editorial imagery");
 assert.match(newsGrid, /articles\.map/, "the grid renders the supplied domain articles");

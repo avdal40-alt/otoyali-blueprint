@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { City, HomeListing, Make, Model } from "@/lib/supabase/types";
-import { newsArticles } from "@/data/news";
+import { getNewsArticles } from "@/data/news";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
@@ -71,7 +71,7 @@ export function HomePageContent({
             title={String(dictionary.home.newsTitle)}
             action={<Link href={localizePath("/news", locale)} className="text-sm font-bold text-oto-blue">{String(dictionary.footer.news)}</Link>}
           />
-          <NewsGrid articles={newsArticles.slice(0, 3)} />
+          <NewsGrid articles={getNewsArticles({ countryCode: "KZ", limit: 3 })} />
         </section>
       </PageContainer>
       <MarketplaceFooter />

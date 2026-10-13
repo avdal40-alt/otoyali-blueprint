@@ -36,6 +36,7 @@
     "test:jlc-0606": "node scripts/jlc-0606-chat-release-gate.test.cjs",
     "test:jlc-0704": "node scripts/jlc-0704-vehicle-owner-review-domain.test.cjs",
     "test:jlc-1101": "node scripts/jlc-1101-news-foundation.test.cjs",
+    "test:jlc-1102": "node scripts/jlc-1102-news-source-integration.test.cjs",
     "test:jlc-0701": "node scripts/jlc-0701-private-vin-foundation.test.cjs",
     "test:jlc-0702": "node scripts/jlc-0702-vin-trust-provider.test.cjs",
     "test:jlc-0801": "node scripts/jlc-0801-buyer-request-private-management.test.cjs",

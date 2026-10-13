@@ -2965,7 +2965,7 @@
       "title": "Approved automotive news source integration",
       "priority": "P1",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1101",
@@ -2984,8 +2984,8 @@
         "ingestion tests",
         "content attribution tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "apps/web/scripts/jlc-1102-news-source-integration.test.cjs; npm run test:jlc-1101; npm run test:jlc-1102; npm run typecheck; npm run build (2026-10-13 local).",
+      "notes": "Implemented the approved repository-versioned first-party Jolcar Editorial provider boundary. Articles carry Jolcar-owned provenance; source metadata declares first-party-original licensing, attribution, copyright notice, Kazakhstan scope, and approved launch locales. Reads are bounded and server/static-friendly with no network dependency, external provider secret, scraping, or third-party copyrighted content. A future licensed source must implement the provider contract after separate approval."
     },
     {
       "id": "JLC-1201",

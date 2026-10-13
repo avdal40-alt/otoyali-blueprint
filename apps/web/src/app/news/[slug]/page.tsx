@@ -11,7 +11,7 @@ import { getArticle } from "@/data/news";
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
-  const article = getArticle(resolvedParams.slug);
+  const article = getArticle(resolvedParams.slug, { countryCode: "KZ" });
 
   if (!article) {
     notFound();
@@ -23,7 +23,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <PageContainer className="max-w-4xl">
         <Badge>{article.category}</Badge>
         <h1 className="mt-4 text-4xl font-black tracking-tight text-oto-text">{article.title}</h1>
-        <p className="mt-3 text-sm font-semibold text-oto-muted">{formatDate(article.publishedAt)} - Jolcar</p>
+        <p className="mt-3 text-sm font-semibold text-oto-muted">{formatDate(article.publishedAt)} - {article.attribution}</p>
         <div className="mt-6 aspect-[16/9] overflow-hidden rounded-oto bg-oto-surface">
           <SafeImage src={article.imageUrl} alt={article.title} />
         </div>

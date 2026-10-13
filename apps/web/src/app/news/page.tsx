@@ -4,7 +4,7 @@ import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer, SectionHeader } from "@/components/layout/PageContainer";
 import { NewsGrid } from "@/components/news/NewsGrid";
 import { Badge } from "@/components/ui/Badge";
-import { newsArticles } from "@/data/news";
+import { getNewsArticles } from "@/data/news";
 
 export default function NewsPage() {
   return (
@@ -17,7 +17,7 @@ export default function NewsPage() {
             <Badge key={item}>{item}</Badge>
           ))}
         </div>
-        <NewsGrid articles={newsArticles} />
+        <NewsGrid articles={getNewsArticles({ countryCode: "KZ" })} />
       </PageContainer>
       <MarketplaceFooter />
       <MobileBottomNav />
