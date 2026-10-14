@@ -3474,7 +3474,7 @@
       "title": "Architecture and domain-boundary audit",
       "priority": "P0",
       "type": "audit",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1304", "JLC-1406"],
       "requires_user_authorization": false,
@@ -3483,8 +3483,8 @@
       "description": "Audit Accounts, Listings, Search, Dealers, CRM, Messaging, Reviews, Live, AI, and Analytics boundaries; prevent database implementation leaking into UI and preserve future standalone API extraction.",
       "acceptance_criteria": ["Domain ownership and public contract boundaries are explicit", "UI does not depend on database implementation details", "Findings preserve a future standalone API without premature service extraction"],
       "verification": ["dependency review", "contract review", "architecture test/audit"],
-      "evidence": null,
-      "notes": "No premature microservices."
+      "evidence": "2026-10-15 local completion: docs/jolcar-control/JLC-1501-ARCHITECTURE-DOMAIN-BOUNDARY-AUDIT.md; apps/web/scripts/jlc-1501-architecture-domain-boundary.test.cjs; npm run test:jlc-1501; npm run typecheck; npm run test:jlc-1406; and npm run test:jlc-1304 passed. The audit maps Accounts, Listings, Search, Dealers, CRM, Messaging, Reviews, Live, AI, and Analytics ownership and public contracts. It confirms SearchService/SQL as the current PostgreSQL source-of-truth boundary and preserves RLS/RPC authorization, API privacy, and a future standalone API extraction seam.",
+      "notes": "No premature microservices. No migration, RLS/privilege change, provider activation, production access, deployment, or Git push occurred. Existing anonymous-browser Supabase transport remains limited to established public projections, Auth/session, or database-owned RPCs and is not an authorization exception; new cross-domain flows must use named contracts."
     },
     {
       "id": "JLC-1502",
