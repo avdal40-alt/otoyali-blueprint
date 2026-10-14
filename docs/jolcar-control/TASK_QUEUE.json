@@ -3455,7 +3455,7 @@
       "title": "Performance regression release gate",
       "priority": "P0",
       "type": "testing",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1302", "JLC-1401", "JLC-1402", "JLC-1403", "JLC-1404", "JLC-1405", "JLC-1406"],
       "requires_user_authorization": false,
@@ -3464,8 +3464,8 @@
       "description": "Enforce baseline → change → re-measure across critical performance work.",
       "acceptance_criteria": ["All critical-flow budgets are re-measured after changes", "Critical performance regressions fail the gate", "PASS cannot be based on documenting an unresolved critical regression"],
       "verification": ["baseline comparison", "budget gate", "critical-flow regression suite"],
-      "evidence": null,
-      "notes": null
+      "evidence": "docs/jolcar-control/JLC-1407-PERFORMANCE-REGRESSION-GATE.md; apps/web: npm run test:jlc-1407 (JLC-1401 through JLC-1406 plus JLC-1204 passed; local critical-flow warm responses 10-89ms against 1000ms/3000ms budgets; First Load JS 208-289 kB against 300 kB).",
+      "notes": "Local-only gate. Browser LCP/INP/CLS remain documented targets because the local environment lacks an authenticated seller session and dealer fixture; this limitation did not waive automated critical response, bundle, query/index, media, or contract checks. No migration, provider, production access, deployment, or push occurred."
     },
     {
       "id": "JLC-1501",

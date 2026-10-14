@@ -34,6 +34,7 @@ const planOutput = runLocalSql(`
   WHERE schemaname = 'marketplace'
     AND indexname = 'listing_search_documents_freshness_keyset_idx';
   SET enable_seqscan = off;
+  SET enable_indexonlyscan = off;
   EXPLAIN (COSTS OFF)
   SELECT listing_id
   FROM marketplace.listing_search_documents

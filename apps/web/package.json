@@ -103,6 +103,7 @@
     "test:jlc-1404": "node scripts/jlc-1404-frontend-performance.test.cjs",
     "test:jlc-1405": "node scripts/jlc-1405-background-work-boundary.test.cjs",
     "test:jlc-1406": "node scripts/jlc-1406-search-scaling-boundary.test.cjs",
+    "test:jlc-1407": "node scripts/jlc-1407-performance-regression-gate.test.cjs",
     "test:jlc-1201": "node scripts/jlc-1201-country-seo-routes.test.cjs",
     "test:jlc-1205": "node scripts/observability-safe-logger.test.cjs",
     "test:jlc-1303": "node scripts/jlc-1303-responsive-design-qa.test.cjs",
