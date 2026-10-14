@@ -1,6 +1,6 @@
 const assert = require("node:assert/strict");
 const { execFileSync, execSync } = require("node:child_process");
-const { randomUUID } = require("node:crypto");
+const { randomInt, randomUUID } = require("node:crypto");
 const path = require("node:path");
 const { createClient } = require("@supabase/supabase-js");
 
@@ -9,8 +9,9 @@ const env = Object.fromEntries(execSync("npx supabase status -o env", { cwd: roo
 assert.match(env.API_URL || "", /^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/, "refusing non-local Supabase URL");
 const service = createClient(env.API_URL, env.SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
 const anon = createClient(env.API_URL, env.ANON_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
-const ids = Object.fromEntries(["seller", "buyer", "admin"].map((name) => [name, randomUUID()]));
+const ids = Object.fromEntries(["seller", "buyer", "admin", "contact"].map((name) => [name, randomUUID()]));
 const tag = `LOCAL_C6_PUBLIC_${randomUUID()}`;
+const sellerPhone = `+90555${randomInt(1_000_000, 10_000_000)}`;
 let listingId = null;
 const sql = (statement) => execFileSync("docker", ["exec", "supabase_db_Otoyali-blueprint", "psql", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-At", "-c", statement], { encoding: "utf8" }).trim();
 const count = (statement) => Number(sql(statement));
@@ -51,7 +52,10 @@ async function session(id, name) {
   try {
     const [seller, buyer, admin] = await Promise.all([session(ids.seller, "seller"), session(ids.buyer, "buyer"), session(ids.admin, "admin")]);
     sql(`UPDATE public.profiles SET seller_type='private', city='Ankara' WHERE id='${ids.seller}';
-      INSERT INTO identity.seller_phone_verifications(user_id, phone_e164) VALUES ('${ids.seller}','+905550000006');
+      INSERT INTO identity.verified_seller_contact_phones (
+        id, user_id, phone_e164, verified_at, verification_source,
+        is_current_account_phone, is_active, revoked_at
+      ) VALUES ('${ids.contact}', '${ids.seller}', '${sellerPhone}', now(), 'seller_otp', FALSE, TRUE, NULL);
       INSERT INTO public.admin_users(user_id,role,is_active) VALUES ('${ids.admin}','admin',true);`);
     const [makeId, modelId] = sql("SELECT m.make_id || '|' || m.id FROM vehicle.models m JOIN vehicle.makes mk ON mk.id=m.make_id WHERE mk.is_active AND m.is_active ORDER BY m.id LIMIT 1").split("|");
     const create = await seller.rpc("create_own_private_listing_draft", {
@@ -63,6 +67,11 @@ async function session(id, name) {
     assert.ifError(create.error);
     listingId = create.data?.[0]?.listing_id;
     assert.match(listingId || "", /^[0-9a-f-]{36}$/i);
+    const setContact = await seller.rpc("set_own_listing_seller_contact_phone", {
+      p_listing_id: listingId,
+      p_seller_contact_phone_id: ids.contact
+    });
+    assert.ifError(setContact.error);
     const submit = await seller.rpc("submit_own_listing_for_review", { p_listing_id: listingId });
     assert.ifError(submit.error);
     const approve = await admin.rpc("review_listing_moderation", { p_listing_id: listingId, p_decision: "approve", p_rejection_reason: null });
@@ -105,7 +114,7 @@ async function session(id, name) {
     assert.ok(anonymousFavorite.error, "anonymous favorite must be blocked");
     const contact = await buyer.rpc("get_listing_seller_contact", { p_listing_id: listingId });
     assert.ifError(contact.error);
-    assert.match(contact.data?.[0]?.phone || "", /^\+905550000006$/, "buyer contact must resolve only through the protected RPC");
+    assert.equal(contact.data?.[0]?.phone, sellerPhone, "buyer contact must resolve only through the protected RPC");
     assert.equal(count(`SELECT count(*) FROM marketplace.listing_favorites WHERE user_id='${ids.buyer}' AND listing_id='${listingId}'`), 1, "contact must not mutate favorite state");
     const unfavorite = await buyer.schema("marketplace").from("listing_favorites").delete().eq("user_id", ids.buyer).eq("listing_id", listingId);
     assert.ifError(unfavorite.error);

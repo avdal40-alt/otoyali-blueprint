@@ -28,7 +28,7 @@ export type PublicSearchItem = {
   photo_count: number;
   has_video: boolean;
   published_at: string | null;
-  views_count?: number | null;
+  views_count: number | null;
   price_amount: number | null;
   currency: string | null;
   year: number | null;

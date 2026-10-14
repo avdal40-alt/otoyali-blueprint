@@ -3205,7 +3205,7 @@
       "title": "Master functional E2E regression",
       "priority": "P0",
       "type": "testing",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0414",
@@ -3235,8 +3235,8 @@
         "runtime regression",
         "typecheck/build"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-14 local completion: npm run test:jlc-1302 passed the master guest browse/search/detail, local auth buyer, seller draft/publish/edit/verified-contact/media, chat/notification, buyer-request, vehicle-review, dealer CRM/social/live, AI-assisted listing, and first-party news regression. npm run typecheck and npm run build passed. The local public buyer E2E fixture now creates an isolated selected verified contact, and the public Search v1 contract again requires views_count.",
+      "notes": "Provider activation remains deliberately unconfigured and excluded from the local regression: no external SMS, AI, live-stream, analytics, or news provider was called. The suite only uses local Supabase/Postgres and deterministic first-party/provider-neutral paths. No migration was created or applied; no production access, remote operation, deployment, or Git push occurred."
     },
     {
       "id": "JLC-1303",
