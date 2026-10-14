@@ -59,6 +59,7 @@ Status values:
 | D-044 | CONFIRMED | Autonomy | Autonomous development may not access production Supabase, secrets, paid providers, deployment, DNS or remote migrations without separate permission. | Local-only overnight execution. |
 | D-045 | CONFIRMED | Verification | Task completion requires Git/test evidence. | Historical prose is not completion evidence. |
 | D-046 | CONFIRMED | Scope control | Do not invent unapproved functions or change approved architecture without consent. | Open questions stay blocked, not guessed. |
+| D-047 | CONFIRMED | Canonical vehicle catalog | Jolcar owns and operates the canonical vehicle catalog: Brand → Model → Generation → Configuration/Modification → Specs. Production runtime has no external catalog API dependency; external licensed/open data may only bootstrap, verify, or controlled-update normalized Jolcar data with identifiable provenance/version. | Stable internal IDs remain the product contract. Catalog imports are server-authorized, deterministic/idempotent by source dataset/version and source keys, and country overrides stay separate from the shared catalog. No generation/modification/specification data may be invented; population requires an approved authoritative dataset/import package. |
 
 ## Revoked / removed directions
 
