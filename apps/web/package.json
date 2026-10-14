@@ -106,6 +106,7 @@
     "test:jlc-1407": "node scripts/jlc-1407-performance-regression-gate.test.cjs",
     "test:jlc-1503": "node scripts/jlc-1503-security-hardening-regression.test.cjs",
     "test:jlc-1501": "node scripts/jlc-1501-architecture-domain-boundary.test.cjs",
+    "test:jlc-1502": "node scripts/jlc-1502-mobile-api-readiness.test.cjs",
     "test:jlc-1504": "node scripts/jlc-1504-reliability-resilience.test.cjs",
     "test:jlc-1505": "node scripts/jlc-1505-observability-slo.test.cjs",
     "test:jlc-1507": "node scripts/jlc-1507-release-pipeline-readiness.test.cjs",

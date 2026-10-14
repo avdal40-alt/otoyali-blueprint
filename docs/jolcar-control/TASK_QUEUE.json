@@ -3493,7 +3493,7 @@
       "title": "Mobile API readiness",
       "priority": "P1",
       "type": "architecture",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1501"],
       "requires_user_authorization": false,
@@ -3502,8 +3502,8 @@
       "description": "Ensure stable typed API semantics reusable by future React Native/Expo clients without WebView-only assumptions.",
       "acceptance_criteria": ["Mobile-reusable typed semantics documented/tested for critical client flows", "Authentication, errors, pagination, media, and authorization contracts are client-neutral", "No native application is introduced by this task"],
       "verification": ["contract tests", "client-neutral API review", "auth/error/pagination matrix"],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-15 local completion: docs/jolcar-control/JLC-1502-MOBILE-API-READINESS.md and apps/web/scripts/jlc-1502-mobile-api-readiness.test.cjs document and lock client-neutral typed critical-flow semantics for Search v1, auth, JSON errors, cursors, secure media, messaging/notifications, seller contact, and dealer feed. npm run test:jlc-1502, npm run test:jlc-1501, npm run test:jlc-1406, and npm run typecheck passed.",
+      "notes": "No native client, standalone API, migration, RLS/privilege change, provider activation, production access, deployment, or Git push occurred. Future client extraction must preserve existing route/RPC authorization and public/private DTO boundaries."
     },
     {
       "id": "JLC-1503",
