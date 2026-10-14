@@ -3550,7 +3550,7 @@
       "title": "Observability and SLO readiness",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1205", "JLC-1504"],
       "requires_user_authorization": false,
@@ -3559,8 +3559,8 @@
       "description": "Extend safe structured logging with request/correlation identifiers and provider-neutral latency/error telemetry for DB, API, and jobs; define locally verifiable SLO readiness.",
       "acceptance_criteria": ["Logs and telemetry exclude PII and secrets", "Correlation and latency/error signals cover critical DB/API/job paths", "Telemetry remains provider-neutral without production vendor activation"],
       "verification": ["redaction tests", "telemetry contract tests", "SLO/readiness review"],
-      "evidence": null,
-      "notes": "Builds on JLC-1205 rather than duplicating it."
+      "evidence": "2026-10-15 local completion: apps/web/src/lib/observability/telemetry.ts; docs/jolcar-control/JLC-1505-OBSERVABILITY-SLO-READINESS.md; apps/web/scripts/jlc-1505-observability-slo.test.cjs; npm run test:jlc-1505; npm run test:jlc-1205; npm run test:jlc-1504; npm run test:jlc-1401; and npm run typecheck passed. The provider-neutral contract emits only safe path/operation/correlation/outcome/duration fields across critical API, DB, and job paths.",
+      "notes": "Builds on JLC-1205 rather than duplicating it. No telemetry vendor, network export, provider activation, production access, deployment, or Git push occurred. Production percentile/error-rate alerting remains pending explicit telemetry-vendor approval (O-014); local readiness is limited to structured contract signals and existing response-budget gates."
     },
     {
       "id": "JLC-1506",

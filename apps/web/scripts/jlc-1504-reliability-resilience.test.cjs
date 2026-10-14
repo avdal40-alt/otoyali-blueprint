@@ -28,6 +28,7 @@ const resilienceModule = { exports: {} };
 new Function("exports", "module", "require", resilienceJs)(resilienceModule.exports, resilienceModule, (name) => {
   if (name === "server-only") return {};
   if (name === "./contracts") return contractModule.exports;
+  if (name === "../observability/telemetry") return { recordTelemetry: () => {} };
   return require(name);
 });
 

@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { BackgroundWorkCommand, BackgroundWorkDispatcher, BackgroundWorkResult } from "./contracts";
+import { recordTelemetry } from "../observability/telemetry";
 
 export const BACKGROUND_WORK_RETRY_POLICY_VERSION = "jlc-1504-v1";
 
@@ -40,6 +41,16 @@ export async function dispatchBackgroundWorkWithResilience(
   sleep: Wait = wait
 ): Promise<BackgroundWorkExecution> {
   validatePolicy(policy);
+  const startedAt = performance.now();
+
+  const complete = (execution: BackgroundWorkExecution): BackgroundWorkExecution => {
+    recordTelemetry(
+      { path: "job", operation: "background_work.dispatch", correlationId: command.correlationId },
+      execution.result.status === "completed" ? "success" : execution.result.status === "retryable_failure" ? "retryable_failure" : "failure",
+      startedAt
+    );
+    return execution;
+  };
 
   for (let attempt = 1; attempt <= policy.maxAttempts; attempt += 1) {
     const controller = new AbortController();
@@ -55,20 +66,20 @@ export async function dispatchBackgroundWorkWithResilience(
     try {
       const result = await Promise.race([dispatcher.dispatch(command, { attempt, signal: controller.signal }), timeoutFailure]);
       if (result.idempotencyKey !== command.idempotencyKey) {
-        return { attempts: attempt, result: { status: "permanent_failure", idempotencyKey: command.idempotencyKey, reason: "idempotency_key_mismatch" } };
+        return complete({ attempts: attempt, result: { status: "permanent_failure", idempotencyKey: command.idempotencyKey, reason: "idempotency_key_mismatch" } });
       }
-      if (result.status !== "retryable_failure" || attempt === policy.maxAttempts) return { attempts: attempt, result };
+      if (result.status !== "retryable_failure" || attempt === policy.maxAttempts) return complete({ attempts: attempt, result });
       await sleep(backoffForAttempt(attempt, policy));
     } catch {
       if (attempt === policy.maxAttempts) {
-        return {
+        return complete({
           attempts: attempt,
           result: {
             status: "retryable_failure",
             idempotencyKey: command.idempotencyKey,
             retryAfterSeconds: Math.max(1, Math.ceil(backoffForAttempt(attempt, policy) / 1_000))
           }
-        };
+        });
       }
       await sleep(backoffForAttempt(attempt, policy));
     } finally {
@@ -76,10 +87,10 @@ export async function dispatchBackgroundWorkWithResilience(
     }
   }
 
-  return {
+  return complete({
     attempts: policy.maxAttempts,
     result: { status: "retryable_failure", idempotencyKey: command.idempotencyKey, retryAfterSeconds: Math.max(1, Math.ceil(policy.maxBackoffMs / 1_000)) }
-  };
+  });
 }
 
 export function backoffForAttempt(attempt: number, policy: BackgroundWorkRetryPolicy = DEFAULT_BACKGROUND_WORK_RETRY_POLICY): number {

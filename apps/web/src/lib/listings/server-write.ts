@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { AuthenticatedRequestSupabase } from "@/lib/supabase/request";
 import type { LocationIdentifier } from "@/lib/location";
 import { safeLog } from "@/lib/observability/safe-logger";
+import { createCorrelationId, observeOperation } from "@/lib/observability/telemetry";
 
 export const listingIdSchema = z.string().uuid();
 
@@ -119,9 +120,9 @@ export function logListingWriteFailure(action: string, error: ListingWriteRpcErr
 
 /** The sole application write boundary for listing create, edit, and lifecycle submission. */
 export async function createOwnListingDraft(authenticated: AuthenticatedRequestSupabase, payload: z.infer<typeof createListingSchema>) {
-  const { data, error } = await authenticated.supabase.rpc("create_own_listing_draft_v2", {
+  const { data, error } = await observeOperation({ path: "db", operation: "listing.create_draft", correlationId: createCorrelationId("db") }, () => authenticated.supabase.rpc("create_own_listing_draft_v2", {
     p_make_id: payload.makeId, p_model_id: payload.modelId, p_variant_id: payload.variantId, p_year: payload.year, p_mileage_km: payload.mileageKm, p_condition: payload.condition, p_fuel_type: payload.fuelType, p_transmission: payload.transmission, p_body_type: payload.bodyType, p_drive_type: payload.driveType, p_color: payload.color, p_engine_volume_l: payload.engineVolumeL, p_damage_state: payload.damageState, p_owner_count: payload.ownerCount, p_description: payload.description, p_price_amount_text: payload.priceAmount, p_currency: payload.currency, p_price_negotiable: payload.priceNegotiable, p_city: payload.city, p_seller_contact_phone_id: payload.sellerContactPhoneId, p_city_id: payload.cityId, p_district_id: payload.districtId
-  });
+  }), (result) => Boolean(result.error));
   if (error) return { error: listingWriteError(error), rawError: error } as const;
   const row = Array.isArray(data) ? data[0] : data;
   const result = row && typeof row === "object" ? row as { listing_id?: string; vehicle_profile_id?: string; created_at?: string } : null;

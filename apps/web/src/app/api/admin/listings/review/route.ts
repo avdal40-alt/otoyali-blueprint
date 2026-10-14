@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { releaseHeaders } from "@/lib/release/compatibility";
 import { safeLog } from "@/lib/observability/safe-logger";
+import { correlationIdFromRequest, observeOperation } from "@/lib/observability/telemetry";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,7 @@ const genericReviewError: PublicReviewError = {
 };
 
 export async function POST(request: NextRequest) {
+  const correlationId = correlationIdFromRequest(request.headers);
   const authorization = request.headers.get("authorization");
   if (!authorization?.startsWith("Bearer ")) {
     return NextResponse.json({ error: "Admin oturumu bulunamadı." }, { status: 401 });
@@ -64,18 +66,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Admin oturumu doğrulanamadı." }, { status: 401 });
   }
 
-  const { data, error } = await supabase.rpc("review_listing_moderation", {
+  const { data, error } = await observeOperation({ path: "api", operation: "admin.listing_review", correlationId }, () => supabase.rpc("review_listing_moderation", {
     p_listing_id: payload.data.listingId,
     p_decision: payload.data.decision,
     p_rejection_reason: payload.data.rejectionReason
-  });
+  }), (result) => Boolean(result.error));
 
   if (error) {
     const publicError = mapReviewRpcError(error);
     logReviewRpcError(error, publicError, {
       listingId: payload.data.listingId,
       decision: payload.data.decision,
-      userId: userData.user.id
+      userId: userData.user.id,
+      correlationId
     });
     return NextResponse.json({ error: publicError.message }, { status: publicError.status });
   }
@@ -134,14 +137,15 @@ function mapReviewRpcError(error: RpcError): PublicReviewError {
 function logReviewRpcError(
   error: RpcError,
   publicError: PublicReviewError,
-  context: { listingId: string; decision: string; userId: string }
+  context: { listingId: string; decision: string; userId: string; correlationId: string }
 ) {
   safeLog(publicError.status >= 500 ? "error" : "warn", "listing_review_rpc_failed", {
     code: error.code ?? null,
     publicStatus: publicError.status,
     listingId: context.listingId,
     decision: context.decision,
-    userId: context.userId
+    userId: context.userId,
+    correlationId: context.correlationId
   });
 }
 
