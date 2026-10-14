@@ -8,6 +8,7 @@ const config = read("src", "features", "ai", "config.ts");
 const capabilities = read("src", "features", "ai", "domain", "capabilities.ts");
 const intents = read("src", "features", "ai", "domain", "intents.ts");
 const service = read("src", "features", "ai", "search", "search-service.ts");
+const searchService = read("src", "lib", "search", "search-service.ts");
 const intent = read("src", "features", "ai", "search", "search-intent.ts");
 const actions = read("src", "features", "ai", "domain", "actions.ts");
 const registry = read("src", "features", "ai", "tools", "registry.ts");
@@ -16,7 +17,8 @@ assert.match(config, /"natural_language_search"/, "local preview enables the app
 assert.match(capabilities, /capability\("natural_language_search", "local_preview", \["cars"\]\)/);
 assert.match(intents, /intent\("search_vehicles"[\s\S]*?"local_preview"/);
 
-assert.match(service, /search_listings_v1/, "search uses only the canonical public Search v1 RPC");
+assert.match(service, /createPostgresSearchService/, "AI search uses the shared public search-domain boundary");
+assert.match(searchService, /search_listings_v1/, "the shared search boundary uses only the canonical public Search v1 RPC");
 assert.match(service, /type PublicSearchItem/, "search response is reduced to an explicit public DTO");
 assert.doesNotMatch(service, /seller_contact|phone|auth\.users|service_role|saved_search/i, "search executor has no private-contact or identity access");
 assert.match(intent, /searchIntentSchema/, "typed, bounded search criteria are validated");

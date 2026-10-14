@@ -55,10 +55,12 @@ assert.deepEqual(deterministicOne, deterministicTwo);
 
 const route = fs.readFileSync(path.join(root, "src", "app", "api", "ai", "price", "route.ts"), "utf8");
 const runtime = fs.readFileSync(path.join(root, "src", "features", "ai", "price", "price-runtime.ts"), "utf8");
+const searchService = fs.readFileSync(path.join(root, "src", "lib", "search", "search-service.ts"), "utf8");
 assert.match(route, /z\.object\(\{ listingId: z\.string\(\)\.uuid\(\) \}\)\.strict\(\)/);
 assert.match(route, /isAiFeatureEnabled\("ai_price"\)/);
 assert.match(route, /getAiRateLimiter/);
-assert.match(runtime, /rpc\("search_listings_v1"/);
+assert.match(runtime, /createPostgresSearchService/);
+assert.match(searchService, /rpc\("search_listings_v1"/);
 assert.match(runtime, /listing_search_documents/);
 assert.doesNotMatch(source + route + runtime, /openai|service_role|seller_id|phone|email|vin|moderation|private/i);
 console.log("AI-01F-A deterministic price intelligence contract passed");

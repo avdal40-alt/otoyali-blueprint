@@ -28,7 +28,7 @@ export type ListingSearchFilters = {
   tradeOnly: boolean;
   advanced: boolean;
   sort: SortOption;
-  cursor?: import("./server-search").SearchCursor | null;
+  cursor?: import("./search-service").SearchCursor | null;
 };
 
 export const defaultSearchFilters: ListingSearchFilters = {

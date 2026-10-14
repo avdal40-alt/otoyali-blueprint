@@ -2,6 +2,7 @@ import "server-only";
 
 import { getCities } from "@/lib/queries/cities";
 import { getMakes, getModels } from "@/lib/queries/makes";
+import { createPostgresSearchService } from "@/lib/search/search-service";
 import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import { createAssistantAction } from "../domain/actions";
 import type { AiRequest, AiResponse, AiStructuredData, AiWarningCode } from "../domain/types";
@@ -19,7 +20,7 @@ export async function executeNaturalLanguageSearch(request: AiRequest): Promise<
   const intent = mergeSearchIntent(previous.success ? previous.data : {}, parsed.patch);
   const catalogIssue = validateCatalogRelations(intent, catalog);
   if (catalogIssue) return response(request, "needs_clarification", catalogIssue, { type: "search_clarification", field: "catalog", options: [], unsupported: false });
-  const { data, error } = await getSupabaseServerClient().schema("marketplace").rpc("search_listings_v1", { p_request: mapSearchIntentToSearchV1(intent) });
+  const { data, error } = await createPostgresSearchService(getSupabaseServerClient()).search(mapSearchIntentToSearchV1(intent));
   if (error) return unavailable(request, "Search is temporarily unavailable.");
   const items = Array.isArray((data as { items?: unknown })?.items) ? ((data as { items: PublicSearchItem[] }).items).map(publicItem) : [];
   return response(

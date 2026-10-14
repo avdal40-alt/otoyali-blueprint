@@ -5,6 +5,7 @@ const root = path.resolve(__dirname, "..");
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
 const intent = read("src", "features", "ai", "search", "search-intent.ts");
 const service = read("src", "features", "ai", "search", "search-service.ts");
+const searchService = read("src", "lib", "search", "search-service.ts");
 const validator = read("src", "features", "ai", "services", "request-validator.ts");
 const route = read("src", "app", "api", "ai", "assistant", "route.ts");
 
@@ -19,7 +20,8 @@ assert.match(intent, /milyon|million/);
 assert.match(intent, /mileageMax/);
 assert.match(intent, /The model does not belong to the selected make/);
 assert.match(intent, /The district does not belong to the selected city/);
-assert.match(service, /schema\("marketplace"\)\.rpc\("search_listings_v1"/);
+assert.match(service, /createPostgresSearchService/);
+assert.match(searchService, /schema\("marketplace"\)\.rpc\("search_listings_v1"/);
 assert.doesNotMatch(service, /seller_contact|service_role|from\("listings"\)/);
 assert.match(service, /publicItem/);
 assert.doesNotMatch(service, /cover_image_url/);

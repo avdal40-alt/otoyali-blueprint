@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
+import { createPostgresSearchService } from "@/lib/search/search-service";
 import {
   PRICE_INTELLIGENCE_RULES,
   calculatePriceIntelligence,
@@ -64,8 +65,8 @@ async function searchTier(supabase: ReturnType<typeof getSupabaseServerClient>, 
   if (requiredSpecifications.includes("transmission") && target.transmission) filters.transmissions = [target.transmission];
   if (requiredSpecifications.includes("bodyType") && target.bodyType) filters.body_types = [target.bodyType];
 
-  const { data, error } = await supabase.schema("marketplace").rpc("search_listings_v1", {
-    p_request: { version: "v1", limit: PRICE_INTELLIGENCE_RULES.maximumComparableCount, sort: "newest", filters }
+  const { data, error } = await createPostgresSearchService(supabase).search({
+    version: "v1", limit: PRICE_INTELLIGENCE_RULES.maximumComparableCount, sort: "newest", filters
   });
   if (error || !data || typeof data !== "object") return [];
   const items = (data as SearchResponse).items;

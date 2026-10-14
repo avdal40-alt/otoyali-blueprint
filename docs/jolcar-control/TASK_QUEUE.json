@@ -3436,7 +3436,7 @@
       "title": "Search scaling boundary",
       "priority": "P1",
       "type": "architecture",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-0404", "JLC-1204"],
       "requires_user_authorization": false,
@@ -3445,8 +3445,8 @@
       "description": "Keep PostgreSQL as the current search implementation while establishing a clean SearchService/domain boundary for a future measured OpenSearch need.",
       "acceptance_criteria": ["UI and business flows use a stable search-domain contract", "PostgreSQL remains the current source of truth and implementation", "No OpenSearch installation occurs without measured need"],
       "verification": ["search contract tests", "architecture review", "search regression suite"],
-      "evidence": null,
-      "notes": "Not an authorization to adopt a search platform."
+      "evidence": "2026-10-14 local completion: docs/jolcar-control/JLC-1406-SEARCH-SCALING-BOUNDARY.md; npm run test:jlc-1406, npm run test:jlc-0404, npm run test:jlc-1003, npm run test:ai-01b, npm run test:ai-01f-a, npm run test:jlc-1204, and npm run typecheck passed. The shared SearchService contract is used by web, AI, and price-comparison search flows; PostgreSQL Search v1 remains authoritative.",
+      "notes": "No OpenSearch/secondary index, migration, provider, privilege change, production access, deployment, or push occurred. A future adoption requires representative measured need and a separately reviewed rollout."
     },
     {
       "id": "JLC-1407",

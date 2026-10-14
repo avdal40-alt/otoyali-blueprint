@@ -3,48 +3,9 @@ import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import type { QueryResult } from "@/lib/queries/listings";
 import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
 import { selectedValues, type ListingSearchFilters } from "./search-params";
+import { createPostgresSearchService, type PublicSearchItem as SearchListing, type SearchCursor, type SearchV1Request } from "./search-service";
 
-export type SearchCursor = {
-  version: "v1";
-  sort: ListingSearchFilters["sort"];
-  listing_id: string;
-  published_at?: string;
-  ranked_at?: string;
-  price_amount?: number;
-  year?: number;
-  mileage_km?: number;
-};
-
-type SearchResponse = {
-  version: "v1";
-  items: SearchListing[];
-  next_cursor: SearchCursor | null;
-};
-
-type SearchListing = {
-  listing_id: string;
-  make_name: string | null;
-  model_name: string | null;
-  city_name: string | null;
-  cover_image_url: string | null;
-  photo_count: number;
-  has_video: boolean;
-  published_at: string | null;
-  views_count: number | null;
-  price_amount: number | null;
-  currency: string | null;
-  year: number | null;
-  mileage_km: number | null;
-  fuel_type: string | null;
-  transmission: string | null;
-  body_type: string | null;
-  condition: string | null;
-  seller_type: string | null;
-  drive_type: string | null;
-  color: string | null;
-  engine_volume_l: number | null;
-  price_negotiable: boolean | null;
-};
+export type { SearchCursor } from "./search-service";
 
 export type SearchListingsResult = QueryResult<HomeListing[]> & {
   nextCursor: SearchCursor | null;
@@ -60,16 +21,13 @@ export async function searchListings(
   }
 
   const supabase = getSupabaseServerClient();
-  const { data, error } = await supabase.schema("marketplace").rpc("search_listings_v1", {
-    p_request: buildSearchRequest(filters, catalogs)
-  });
-  const response = data as SearchResponse | null;
+  const { data: response, error } = await createPostgresSearchService(supabase).search(buildSearchRequest(filters, catalogs));
   const items = Array.isArray(response?.items) ? response.items : [];
   const signed = await signImageStorageUrlMap(supabase, items.map((item) => item.cover_image_url));
 
   return {
     data: items.map((item) => toHomeListing(item, signed.get(item.cover_image_url ?? "") ?? null)),
-    error: error?.message ?? null,
+    error,
     count: items.length,
     queryName,
     nextCursor: response?.next_cursor ?? null
@@ -79,7 +37,7 @@ export async function searchListings(
 export function buildSearchRequest(
   filters: ListingSearchFilters,
   { makes, models, cities }: { makes: Make[]; models: Model[]; cities: City[] }
-) {
+): SearchV1Request {
   const matchIds = (
     values: string,
     rows: object[],
@@ -134,7 +92,7 @@ export function buildSearchRequest(
     sort: filters.sort,
     cursor,
     filters: filtersRequest
-  });
+  }) as SearchV1Request;
 }
 
 function compact<T extends Record<string, unknown>>(value: T) {
