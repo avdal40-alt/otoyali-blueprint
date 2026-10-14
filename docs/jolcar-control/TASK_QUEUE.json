@@ -3512,7 +3512,7 @@
       "title": "Security hardening regression",
       "priority": "P0",
       "type": "testing",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1301"],
       "requires_user_authorization": false,
@@ -3521,8 +3521,8 @@
       "description": "Deepen completed security foundations across RLS/authorization, rate limits, enumeration/OTP abuse, upload validation, secure headers, applicable XSS/CSRF/SSRF boundaries, dependencies, and secret safety.",
       "acceptance_criteria": ["Authorization and RLS matrices remain enforced server-side/database-side", "Abuse, upload, browser, server-side request, dependency, and secret risks are tested or release-blocking", "No security control is weakened for performance"],
       "verification": ["security/RLS regression", "abuse and upload tests", "dependency/secret scan"],
-      "evidence": null,
-      "notes": "Extends rather than repeats JLC-1301."
+      "evidence": "2026-10-15 local completion: apps/web/scripts/jlc-1503-security-hardening-regression.test.cjs; npm run test:jlc-1503; npm run typecheck; npm run build; npm audit --omit=dev --audit-level=high (zero production vulnerabilities) passed. The release gate composes JLC-1301 RLS/authorization/privacy/security regression with sanitized upload and anti-fraud contracts, checks browser client files for service-credential references, and pins Next.js 15.5.28, Sharp 0.35.5, and source-map-js 1.2.2 after audit findings.",
+      "notes": "Extends rather than repeats JLC-1301. Full npm audit reports ten high-severity development-only ESLint/Tailwind toolchain findings; the production dependency audit is clean, but the development toolchain upgrade remains an explicit release-readiness blocker rather than a waived risk. No migration, RLS/privilege weakening, production access, deployment, provider call, or Git push occurred."
     },
     {
       "id": "JLC-1504",
