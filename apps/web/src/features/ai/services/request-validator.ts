@@ -6,7 +6,7 @@ import type { AiServerConfig } from "../config";
 import { isAiIntentId } from "../domain/intents";
 import { cleanOptionalText, sanitizeAssistantContext } from "../domain/safety";
 import { searchIntentSchema } from "../search/search-intent";
-import { compareListingIdsSchema } from "../listing/listing-expert";
+import { compareGenerationIdsSchema, compareListingIdsSchema } from "../listing/listing-expert";
 import type { AiActor, AiContext, AiConversationMessage, AiIntentId, AiRequest, AiResponse, AiSurface, AiUserState } from "../domain/types";
 
 type ValidationResult =
@@ -197,8 +197,10 @@ function readContext(value: unknown, locale: Locale) {
   if (isObject(value.search)) {
     const intent = value.search.intent === undefined ? undefined : searchIntentSchema.safeParse(value.search.intent);
     const compareListingIds = value.search.compareListingIds === undefined ? undefined : compareListingIdsSchema.safeParse(value.search.compareListingIds);
+    const compareGenerationIds = value.search.compareGenerationIds === undefined ? undefined : compareGenerationIdsSchema.safeParse(value.search.compareGenerationIds);
     if (intent && !intent.success) return { ok: false as const, code: "invalid_search_state", messageKey: "ai.errors.invalidRequest" };
     if (compareListingIds && !compareListingIds.success) return { ok: false as const, code: "invalid_compare_state", messageKey: "ai.errors.invalidRequest" };
+    if (compareGenerationIds && !compareGenerationIds.success) return { ok: false as const, code: "invalid_compare_state", messageKey: "ai.errors.invalidRequest" };
     context.search = {
       query: cleanOptionalText(value.search.query, 120),
       make: cleanOptionalText(value.search.make, 60),
@@ -207,6 +209,7 @@ function readContext(value: unknown, locale: Locale) {
       condition: cleanOptionalText(value.search.condition, 40),
       intent: intent?.data
       ,compareListingIds: compareListingIds?.data
+      ,compareGenerationIds: compareGenerationIds?.data
     };
   }
 

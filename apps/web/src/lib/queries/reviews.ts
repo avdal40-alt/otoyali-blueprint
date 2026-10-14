@@ -5,6 +5,7 @@ const PAGE_SIZE = 20;
 export type VehicleReview = { id: string; make_id: string; model_id: string; generation_id: string; modification_id: string | null; rating: number; pros: string[]; cons: string[]; body: string | null; ownership_status: "current_owner" | "former_owner"; created_at: string };
 export type ReviewIdentity = { makeId: string; makeName: string; makeSlug: string; modelId: string; modelName: string; modelSlug: string; generationId: string; generationName: string; generationSlug: string };
 export type ReviewListing = { listing_id: string; title: string | null; price_amount: number | null; currency: string | null; city: string | null; published_at: string | null };
+export type ApprovedReviewSummary = { generationId: string; count: number; averageRating: number | null };
 
 function unavailable<T>(data: T) { return { data, error: "Supabase environment variables are missing." }; }
 
@@ -44,6 +45,27 @@ export async function getListingReviewTarget(listingId: string) {
   if (!data || error) return { data: null, error: error?.message ?? null };
   const row = data as Record<string, string>;
   return { data: { makeId: row.make_id, makeName: row.make_name, makeSlug: row.make_slug, modelId: row.model_id, modelName: row.model_name, modelSlug: row.model_slug, generationId: row.generation_id, generationName: row.generation_name, generationSlug: row.generation_slug }, error: null };
+}
+
+/** A bounded, approved-only aggregate for public comparison surfaces. */
+export async function getApprovedReviewSummaries(generationIds: readonly string[]): Promise<ApprovedReviewSummary[]> {
+  const ids = [...new Set(generationIds)].slice(0, 4);
+  if (!ids.length || !hasSupabaseEnv()) return ids.map((generationId) => ({ generationId, count: 0, averageRating: null }));
+  const { data } = await getSupabaseServerClient().schema("vehicle").from("owner_reviews")
+    .select("generation_id,rating")
+    .eq("moderation_status", "approved")
+    .in("generation_id", ids)
+    .order("created_at", { ascending: false })
+    .limit(80);
+  const values = new Map(ids.map((generationId) => [generationId, [] as number[]]));
+  for (const row of (data ?? []) as Array<{ generation_id: string; rating: number }>) {
+    const ratings = values.get(row.generation_id);
+    if (ratings && ratings.length < 20) ratings.push(row.rating);
+  }
+  return ids.map((generationId) => {
+    const ratings = values.get(generationId) ?? [];
+    return { generationId, count: ratings.length, averageRating: ratings.length ? Number((ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(2)) : null };
+  });
 }
 
 export function reviewGenerationPath(identity: Pick<ReviewIdentity, "makeId" | "modelId" | "generationId">) {

@@ -57,6 +57,11 @@ function normalizeStructuredData(data?: AiStructuredData[]) {
     if (item.type === "search_clarification") return { type: item.type, field: item.field.slice(0, 60), options: normalizeStringList(item.options, 5, 80), unsupported: item.unsupported };
     if (item.type === "listing_answer") return { type: item.type, listingId: item.listingId, facts: item.facts.slice(0, 16), missingFields: normalizeStringList(item.missingFields, 16, 60) };
     if (item.type === "listing_comparison") return { type: item.type, listings: item.listings.slice(0, 4), matrix: item.matrix.slice(0, 16) };
+    if (item.type === "vehicle_comparison") return {
+      type: item.type,
+      items: item.items.slice(0, 4).map((comparisonItem) => ({ id: comparisonItem.id.slice(0, 80), source: comparisonItem.source, label: comparisonItem.label.slice(0, 160), missingFields: normalizeStringList(comparisonItem.missingFields, 16, 60) })),
+      matrix: item.matrix.slice(0, 20).map((row) => ({ field: row.field.slice(0, 60), values: row.values.slice(0, 4).map((value) => ({ itemId: value.itemId.slice(0, 80), value: value.value, provenance: value.provenance })) }))
+    };
 
     return {
       type: item.type,

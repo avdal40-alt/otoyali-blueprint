@@ -7,7 +7,7 @@ export type AiActor =
   | { kind: "guest"; rateLimitKey: string }
   | { kind: "authenticated"; userId: string; rateLimitKey: string };
 
-export type AiProvenance = "listing" | "seller" | "catalog" | "vin" | "external_report" | "market_data" | "ai" | "rule";
+export type AiProvenance = "listing" | "seller" | "catalog" | "review" | "vin" | "external_report" | "market_data" | "ai" | "rule";
 
 export type AiResponseStatus =
   | "success"
@@ -104,6 +104,7 @@ export type AiSearchContext = {
   /** Validated again against the canonical public catalog before every execution. */
   intent?: unknown;
   compareListingIds?: unknown;
+  compareGenerationIds?: unknown;
 };
 
 export type AiPublishingContext = {
@@ -218,7 +219,12 @@ export type AiStructuredData =
       unsupported: boolean;
     }
   | { type: "listing_answer"; listingId: string; facts: Array<{ label: string; value: string | number | boolean; provenance: AiProvenance }>; missingFields: string[] }
-  | { type: "listing_comparison"; listings: Array<{ listingId: string; missingFields: string[] }>; matrix: Array<{ field: string; listings: Array<{ listingId: string; value: string | number | boolean | null; provenance: AiProvenance }> }> };
+  | { type: "listing_comparison"; listings: Array<{ listingId: string; missingFields: string[] }>; matrix: Array<{ field: string; listings: Array<{ listingId: string; value: string | number | boolean | null; provenance: AiProvenance }> }> }
+  | {
+      type: "vehicle_comparison";
+      items: Array<{ id: string; source: "listing" | "catalog"; label: string; missingFields: string[] }>;
+      matrix: Array<{ field: string; values: Array<{ itemId: string; value: string | number | boolean | null; provenance: AiProvenance }> }>;
+    };
 
 export type AiResponse = {
   requestId: string;

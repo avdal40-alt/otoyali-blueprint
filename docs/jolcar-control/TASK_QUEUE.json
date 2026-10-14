@@ -2752,7 +2752,7 @@
       "title": "AI vehicle/listing comparison",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+    "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1002",
@@ -2771,8 +2771,8 @@
         "comparison grounding tests",
         "privacy tests"
       ],
-      "evidence": null,
-      "notes": null
+    "evidence": "2026-10-14 local completion: added a typed, deterministic comparison contract for two to four public active listings and/or active canonical generations. It uses the active-only public listing projection, the public listing-to-generation boundary, active canonical catalog rows, and capped approved-review aggregates. Verified with npm run test:jlc-1004, test:ai-01c, test:jlc-1002, test:jlc-1003, test:jlc-0705, test:jlc-0706, test:jlc-1406, typecheck, and production build.",
+    "notes": "No migration and no external provider were used. Comparison responses expose only public listing facts, active catalog facts, and a bounded approved-review count/average; missing fields are explicit. Non-public listings and unknown/inactive canonical targets fail closed; private VIN/contact/identity/moderation/report data are excluded. JLC-1007 remains pending and no provider gate was changed."
     },
     {
       "id": "JLC-1005",
