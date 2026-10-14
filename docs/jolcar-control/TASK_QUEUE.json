@@ -3569,7 +3569,7 @@
       "title": "Backup, restore, and disaster-recovery readiness",
       "priority": "P0",
       "type": "audit",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-0004", "JLC-1504"],
       "requires_user_authorization": false,
@@ -3578,8 +3578,8 @@
       "description": "Document and test safe backup/restore/disaster-recovery procedures using non-production environments only.",
       "acceptance_criteria": ["Safe non-production backup/restore procedure is documented and exercised", "Existing local database is never destroyed", "Real production restore remains a separately authorized action"],
       "verification": ["non-production restore exercise", "procedure review", "data-integrity checks"],
-      "evidence": null,
-      "notes": "No production backup or restore access."
+      "evidence": "2026-10-15 local completion: docs/jolcar-control/JLC-1506-BACKUP-RESTORE-DR-READINESS.md and scripts/jolcar/jlc-1506-backup-restore-exercise.ps1 document and execute an isolated local Postgres custom-format pg_dump/pg_restore rehearsal. The exercise restored deterministic synthetic data (3:87:alpha,beta,gamma), then removed its archive and generated source/target databases. scripts/jolcar/preflight.ps1, the JLC-1506 exercise, JSON validation, migration uniqueness scan, and git diff --check passed.",
+      "notes": "No production backup or restore access. Existing local application data is never reset, restored over, dropped, truncated, or used by the exercise. Production backup/restore remains separately authorized."
     },
     {
       "id": "JLC-1507",
