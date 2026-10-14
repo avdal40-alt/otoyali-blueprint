@@ -108,6 +108,7 @@
     "test:jlc-1501": "node scripts/jlc-1501-architecture-domain-boundary.test.cjs",
     "test:jlc-1504": "node scripts/jlc-1504-reliability-resilience.test.cjs",
     "test:jlc-1505": "node scripts/jlc-1505-observability-slo.test.cjs",
+    "test:jlc-1507": "node scripts/jlc-1507-release-pipeline-readiness.test.cjs",
     "test:jlc-1201": "node scripts/jlc-1201-country-seo-routes.test.cjs",
     "test:jlc-1205": "node scripts/observability-safe-logger.test.cjs",
     "test:jlc-1303": "node scripts/jlc-1303-responsive-design-qa.test.cjs",

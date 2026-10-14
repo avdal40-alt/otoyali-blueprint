@@ -3588,7 +3588,7 @@
       "title": "Staging and release-pipeline readiness",
       "priority": "P0",
       "type": "audit",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1407", "JLC-1503", "JLC-1505", "JLC-1506"],
       "requires_user_authorization": false,
@@ -3597,8 +3597,8 @@
       "description": "Define the local → staging → production flow and required automated test, security, performance, and E2E gates without creating or mutating cloud staging/production resources.",
       "acceptance_criteria": ["Promotion flow and mandatory gates are explicit", "Automated test/security/performance/E2E evidence requirements are defined", "Cloud staging/production creation and mutation remain manual authorization"],
       "verification": ["pipeline specification review", "gate simulation/local checks", "manual-authorization audit"],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-15 local completion: docs/jolcar-control/JLC-1507-STAGING-RELEASE-PIPELINE-READINESS.md and apps/web/scripts/jlc-1507-release-pipeline-readiness.test.cjs define and validate the local candidate → manually authorized staging → manually authorized production promotion contract. apps/web: npm run test:jlc-1507; JSON validation; git diff --check; and scripts/jolcar/preflight.ps1 passed.",
+      "notes": "JLC-1507 neither creates nor mutates staging/production. JLC-9001 through JLC-9005 remain the controlling manual authorization chain. Current full development-dependency audit findings remain an explicit release blocker recorded by JLC-1503; no risk is waived by this specification."
     },
     {
       "id": "JLC-1508",
