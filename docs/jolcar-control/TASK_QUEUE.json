@@ -1990,7 +1990,7 @@
       "title": "Vehicle review create/read/model pages",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+    "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0704"
@@ -2009,8 +2009,8 @@
         "review UI/API tests",
         "public privacy tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-14: JLC-0705 adds authenticated owner-review submission with server-side canonical make/model/generation validation, public approved-only bounded reads, generic generation review pages, and safe active-listing/review links. Verified locally with apps/web/scripts/jlc-0705-vehicle-review-pages.test.cjs, JLC-0704 regression, canonical catalog bootstrap/foundation local tests, typecheck, production build, local migration/RLS inspection, and a real canonical generation discovered from vehicle.generations.",
+      "notes": "Migration 20261014110000_jlc_0705_vehicle_review_pages.sql is additive and leaves generation nullable for catalog-incomplete listings. JLC-0706 moderation/reporting and JLC-1004 comparison remain pending."
     },
     {
       "id": "JLC-0706",

@@ -41,6 +41,7 @@ import { StartConversationButton } from "./_components/StartConversationButton";
 import { ShareListingButton } from "./_components/ShareListingButton";
 import { ReportListingButton } from "./_components/ReportListingButton";
 import { ListingViewEvent } from "./_components/ListingViewEvent";
+import { getListingReviewTarget, reviewGenerationPath } from "@/lib/queries/reviews";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -51,12 +52,13 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
   const priceIntelligenceEnabled = isAiFeatureEnabled("ai_price");
   const vinTrustEnabled = isAiFeatureEnabled("ai_vin");
   const resolvedParams = await params;
-  const [detailsResult, mediaResult, fallbackListingResult, similarResult, videosResult] = await Promise.all([
+  const [detailsResult, mediaResult, fallbackListingResult, similarResult, videosResult, reviewTargetResult] = await Promise.all([
     getListingDetails(resolvedParams.id),
     getListingMedia(resolvedParams.id),
     getHomeListingById(resolvedParams.id),
     getHomeListings(12),
-    getListingVideos(resolvedParams.id, 3)
+    getListingVideos(resolvedParams.id, 3),
+    getListingReviewTarget(resolvedParams.id)
   ]);
 
   if (!detailsResult.data && !detailsResult.error) {
@@ -89,7 +91,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
             <div>
               <VehicleGallery media={mediaRows} title={title} fallbackImageUrl={fallbackCoverImage} />
               <div className="mt-6">
-                <Link href="/reviews" className="mb-4 inline-block text-sm font-semibold text-oto-primary underline">Осы көлікке қатысты иелер пікірін қарау</Link>
+                {reviewTargetResult.data ? <Link href={reviewGenerationPath(reviewTargetResult.data)} className="mb-4 inline-block text-sm font-semibold text-oto-primary underline">Осы көлікке қатысты иелер пікірін қарау</Link> : null}
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <div className="flex flex-wrap gap-2">
