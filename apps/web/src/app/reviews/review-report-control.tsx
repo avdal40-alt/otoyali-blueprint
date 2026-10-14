@@ -1,0 +1,12 @@
+"use client";
+
+import { useState } from "react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+
+const reasons = [["spam", "Спам"], ["abuse", "Қорлау"], ["wrong_information", "Дұрыс емес ақпарат"], ["duplicate", "Қайталанған пікір"], ["other", "Басқа себеп"]] as const;
+
+export function ReviewReportControl({ reviewId }: { reviewId: string }) {
+  const [open, setOpen] = useState(false); const [reason, setReason] = useState<(typeof reasons)[number][0]>("spam"); const [busy, setBusy] = useState(false); const [message, setMessage] = useState<string | null>(null);
+  async function submit() { setBusy(true); setMessage(null); try { const token = (await getSupabaseBrowserClient().auth.getSession()).data.session?.access_token; if (!token) { setMessage("Шағымдану үшін жүйеге кіріңіз."); return; } const response = await fetch(`/api/reviews/${reviewId}/report`, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ reason }) }); const payload = await response.json().catch(() => null); if (!response.ok) { setMessage(typeof payload?.error === "string" ? payload.error : "Шағым жіберілмеді."); return; } setMessage(payload?.data?.duplicate ? "Бұл пікірге шағым бұрын жіберілген." : "Шағым модерацияға жіберілді."); setOpen(false); } finally { setBusy(false); } }
+  return <div className="mt-4"><button type="button" className="text-sm font-bold text-oto-muted underline" aria-expanded={open} aria-controls={`review-report-${reviewId}`} onClick={() => setOpen((value) => !value)}>Пікірге шағымдану</button>{open ? <div id={`review-report-${reviewId}`} className="mt-3 rounded-oto border border-oto-border bg-oto-surface p-3"><label className="block text-sm font-bold" htmlFor={`review-report-reason-${reviewId}`}>Шағым себебі</label><select id={`review-report-reason-${reviewId}`} className="mt-2 min-h-11 w-full rounded border border-oto-border bg-white px-3" value={reason} onChange={(event) => setReason(event.target.value as typeof reason)}>{reasons.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><button type="button" className="mt-3 min-h-11 rounded bg-oto-primary px-4 font-bold text-white disabled:opacity-60" disabled={busy} onClick={() => void submit()}>{busy ? "Жіберілуде" : "Шағым жіберу"}</button></div> : null}{message ? <p className="mt-2 text-sm" role="status">{message}</p> : null}</div>;
+}

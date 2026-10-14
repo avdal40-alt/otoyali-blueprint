@@ -2019,7 +2019,7 @@
       "title": "Vehicle review moderation/reporting",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0705",
@@ -2038,8 +2038,8 @@
         "moderation tests",
         "abuse tests"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-14 local completion: authenticated bounded review reporting, duplicate/idempotent protection, a 15-per-24-hour report limit, admin-only approve/reject/hide/restore transitions, private report/audit data, and append-only moderation events. Verified locally with npm run test:jlc-0706, npm run test:jlc-0703, npm run test:jlc-0704, npm run test:jlc-0705, npm run typecheck, and npm run build; local migration history confirms 20261014120000, 20261014121000, 20261014122000, and 20261014123000 are applied.",
+      "notes": "Public reads remain RLS-limited to approved owner reviews; pending/rejected reviews, reporter identity, report details, and moderation history remain private. No seller/dealer ratings were introduced. JLC-0705 canonical generation behavior is preserved."
     },
     {
       "id": "JLC-D010",
