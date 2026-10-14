@@ -1,7 +1,7 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
-const { randomUUID } = require("node:crypto");
+const { randomInt, randomUUID } = require("node:crypto");
 
 const projectRoot = path.resolve(__dirname, "..");
 const repoRoot = path.resolve(projectRoot, "..", "..");
@@ -122,7 +122,8 @@ async function runtime() {
     parentMake: randomUUID(),
     model: randomUUID()
   };
-  const phone = "+905551234567";
+  const phone = `+90555${randomInt(1_000_000, 10_000_000)}`;
+  const verificationPhone = `+90555${randomInt(1_000_000, 10_000_000)}`;
   const contactSignature = "public.get_listing_seller_contact(uuid)";
   const contactCall = `public.get_listing_seller_contact('${ids.listing}'::uuid)`;
   const disclosureSignature = "public.reserve_listing_seller_contact_disclosure(uuid)";
@@ -198,7 +199,7 @@ async function runtime() {
     -- Seller-contact authority is the current seller-purpose verification,
     -- not the profile/Auth fixture phone above.
     INSERT INTO identity.seller_phone_verifications (user_id, phone_e164)
-    VALUES ('${ids.seller}', '+905551234567');
+    VALUES ('${ids.seller}', '${verificationPhone}');
 
     INSERT INTO identity.verified_seller_contact_phones (
       id, user_id, phone_e164, verified_at, verification_source,

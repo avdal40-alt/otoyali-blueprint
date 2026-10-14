@@ -50,10 +50,6 @@ function requireSuccessfulSupabaseOutput(result, args) {
   return result.stdout;
 }
 
-function supabase(...args) {
-  return requireSuccessfulSupabaseOutput(spawnSupabase(...args), args);
-}
-
 function getSupabaseJsonStatus(result = spawnSupabase("status", "--output", "json")) {
   return requireSuccessfulSupabaseOutput(result, ["status", "--output", "json"]);
 }
@@ -290,7 +286,24 @@ const status = requireLocalSupabaseStatus({
   jsonStatusOutput: getSupabaseJsonStatus()
 });
 
-supabase("db", "reset", "--local");
+const fixture = {
+  userA: crypto.randomUUID(),
+  userB: crypto.randomUUID(),
+  userC: crypto.randomUUID(),
+  authPhoneA: `90555${crypto.randomInt(10_000_000, 99_999_999)}`,
+  authPhoneB: `90556${crypto.randomInt(10_000_000, 99_999_999)}`,
+  authPhoneC: `7701${crypto.randomInt(10_000_000, 99_999_999)}`
+};
+const fixtureReplacements = new Map([
+  ["040a0000-0000-0000-0000-000000000001", fixture.userA],
+  ["040a0000-0000-0000-0000-000000000002", fixture.userB],
+  ["040a0000-0000-0000-0000-000000000003", fixture.userC],
+  ["905551110001", fixture.authPhoneA],
+  ["905551110002", fixture.authPhoneB],
+  ["77011234567", fixture.authPhoneC]
+]);
+const renderFixtureSql = (sql) => [...fixtureReplacements]
+  .reduce((result, [from, to]) => result.replaceAll(from, to), sql);
 
 const validationSql = String.raw`
 \set QUIET 1
@@ -512,10 +525,12 @@ SELECT jsonb_build_object(
 ) AS security04a_runtime_matrix;
 `;
 
-const output = psql(validationSql);
+let output;
+try {
+output = psql(renderFixtureSql(validationSql));
 
-const userA = "040a0000-0000-0000-0000-000000000001";
-const userB = "040a0000-0000-0000-0000-000000000002";
+const userA = fixture.userA;
+const userB = fixture.userB;
 const token = localAuthenticatedJwt(status.JWT_SECRET, userA);
 
 const directRestAttack = restPatch({ status, token, userId: userA, body: { phone: "+905559990001" } });
@@ -539,7 +554,7 @@ const foreignRestEdit = restPatch({ status, token, userId: userB, body: { city: 
 assert.equal(foreignRestEdit.httpStatus, 200, "RLS-hidden foreign PostgREST PATCH should complete with zero rows");
 assert.deepEqual(JSON.parse(foreignRestEdit.body), [], "Foreign PostgREST PATCH must return no rows");
 
-const restState = psql(String.raw`
+const restState = psql(renderFixtureSql(String.raw`
 SELECT jsonb_build_object(
   'own_auth_phone', u.phone,
   'own_profile_phone', p.phone,
@@ -549,9 +564,9 @@ SELECT jsonb_build_object(
 )
 FROM auth.users u JOIN public.profiles p ON p.id = u.id
 WHERE u.id = '040a0000-0000-0000-0000-000000000001';
-`);
-assert.match(restState, /"own_auth_phone": "905551110001"/);
-assert.match(restState, /"own_profile_phone": "\+905551110001"/);
+`));
+assert.match(restState, new RegExp(`"own_auth_phone": "${fixture.authPhoneA}"`));
+assert.match(restState, new RegExp(`"own_profile_phone": "\\+${fixture.authPhoneA}"`));
 assert.match(restState, /"own_seller_type": "private"/);
 assert.match(restState, /"own_city": "Almaty"/);
 assert.match(restState, /"foreign_city": null/);
@@ -562,7 +577,7 @@ FROM supabase_migrations.schema_migrations
 WHERE version IN ('20260822120000', '20260825120000', '20260826120000', '20260827121000');
 `);
 assert.match(history, /20260822120000,20260825120000,20260826120000,20260827121000/,
-  "Clean reset must apply SECURITY-02A, SECURITY-02F, SECURITY-04A, and final seller identity in order");
+  "Existing local database must apply SECURITY-02A, SECURITY-02F, SECURITY-04A, and final seller identity in order");
 
 console.log(output.trim());
 console.log("SECURITY-04A PostgREST passed: direct and mixed phone PATCH denied; own edit allowed; foreign edit isolated");
@@ -570,4 +585,7 @@ console.log("SECURITY-FINAL seller identity passed: direct own seller_type PATCH
 console.log("SECURITY-04A runtime passed: own phone, mixed payload, NULL/empty, and upsert attacks denied");
 console.log("SECURITY-04A profile behavior passed: intended own fields editable; foreign row isolated");
 console.log("SECURITY-04A identity passed: digits-only Auth storage and E.164 profile semantics preserved");
-console.log("SECURITY-04A local isolation passed: unlinked localhost Supabase; clean full migration chain applied");
+console.log("SECURITY-04A local isolation passed: unlinked localhost Supabase; existing full migration chain applied");
+} finally {
+  psql(`DELETE FROM auth.users WHERE id IN ('${fixture.userA}'::uuid, '${fixture.userB}'::uuid, '${fixture.userC}'::uuid);`);
+}

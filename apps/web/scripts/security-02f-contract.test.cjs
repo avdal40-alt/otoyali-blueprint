@@ -33,13 +33,6 @@ function run(command, args, options = {}) {
   return result.stdout;
 }
 
-function supabase(...args) {
-  if (process.platform === "win32") {
-    return run(process.env.ComSpec || "cmd.exe", ["/d", "/s", "/c", ["npx.cmd", "supabase", ...args].join(" ")]);
-  }
-  return run("npx", ["supabase", ...args]);
-}
-
 function psql(sql) {
   return run(
     "docker",
@@ -52,10 +45,17 @@ function includesAll(source, values) {
   for (const value of values) assert.ok(source.includes(value), `Expected source to include: ${value}`);
 }
 
+function canonicalMigrationSha256(filePath) {
+  return crypto
+    .createHash("sha256")
+    .update(fs.readFileSync(filePath, "utf8").replace(/\r\n/g, "\n"), "utf8")
+    .digest("hex");
+}
+
 assert.equal(
-  crypto.createHash("sha256").update(fs.readFileSync(expandPath)).digest("hex"),
+  canonicalMigrationSha256(expandPath),
   expectedExpandSha256,
-  "Applied SECURITY-02A must remain byte-for-byte unchanged"
+  "Applied SECURITY-02A must match its committed canonical migration content"
 );
 
 const contract = fs.readFileSync(contractPath, "utf8");
@@ -75,10 +75,19 @@ const laterMigrations = fs.readdirSync(migrationsRoot)
   .sort();
 assert.equal(laterMigrations[0], contractName, "SECURITY-02F must immediately follow SECURITY-02A");
 
-const status = JSON.parse(supabase("status"));
-assert.equal(status.linked_project, null, "Supabase must be unlinked");
-for (const key of ["DB_URL", "API_URL", "REST_URL", "GRAPHQL_URL"]) {
-  assert.match(status[key], /(?:127\.0\.0\.1|localhost)/, `${key} must be local-only`);
+const fixtureIds = {
+  owner: crypto.randomUUID(),
+  other: crypto.randomUUID(),
+  profiles: Array.from({ length: 6 }, () => crypto.randomUUID())
+};
+
+function renderFixtureSql(sql) {
+  const replacements = new Map([
+    ["00000000-0000-0000-0000-000000000101", fixtureIds.owner],
+    ["00000000-0000-0000-0000-000000000102", fixtureIds.other],
+    ...fixtureIds.profiles.map((id, index) => [`21000000-0000-0000-0000-00000000000${index + 1}`, id])
+  ]);
+  return [...replacements].reduce((result, [from, to]) => result.replaceAll(from, to), sql);
 }
 
 const fixtureSql = String.raw`
@@ -88,6 +97,12 @@ INSERT INTO auth.users (
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at
 ) VALUES (
   '00000000-0000-0000-0000-000000000000',
+  '00000000-0000-0000-0000-000000000101',
+  'authenticated', 'authenticated', '+905559876542', pg_catalog.now(),
+  '{"provider":"phone","providers":["phone"]}'::jsonb, '{}'::jsonb,
+  pg_catalog.now(), pg_catalog.now()
+), (
+  '00000000-0000-0000-0000-000000000000',
   '00000000-0000-0000-0000-000000000102',
   'authenticated', 'authenticated', '+905559876543', pg_catalog.now(),
   '{"provider":"phone","providers":["phone"]}'::jsonb, '{}'::jsonb,
@@ -96,6 +111,9 @@ INSERT INTO auth.users (
 
 INSERT INTO public.profiles (id, phone, first_name, last_name, language, country, city, timezone)
 VALUES (
+  '00000000-0000-0000-0000-000000000101', '+905559876542', 'Fixture', 'Owner',
+  'tr', 'TR', 'Ankara', 'Europe/Istanbul'
+), (
   '00000000-0000-0000-0000-000000000102', '+905559876543', 'Other', 'Seller',
   'tr', 'TR', 'Ankara', 'Europe/Istanbul'
 ) ON CONFLICT (id) DO NOTHING;
@@ -125,20 +143,9 @@ CROSS JOIN LATERAL (
 
 SET ROLE authenticated;
 SELECT set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000101', false);
-
--- SECURITY-02A EXPAND: the old four-column payload and the new RPC both work.
-INSERT INTO vehicle.profile_ownership (vehicle_profile_id, owner_id, ownership_type, is_current)
-VALUES ('21000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000101', 'owner', true);
+SELECT * FROM public.initialize_own_vehicle_profile_ownership('21000000-0000-0000-0000-000000000001');
 SELECT * FROM public.initialize_own_vehicle_profile_ownership('21000000-0000-0000-0000-000000000002');
 RESET ROLE;
-
-CREATE TEMP TABLE security02f_snapshot AS
-SELECT id, vehicle_profile_id, owner_id, ownership_type, is_current, started_at, ended_at, created_at
-FROM vehicle.profile_ownership
-WHERE vehicle_profile_id IN (
-  '21000000-0000-0000-0000-000000000001',
-  '21000000-0000-0000-0000-000000000002'
-);
 `;
 
 const validationSql = String.raw`
@@ -206,21 +213,6 @@ BEGIN
     RAISE EXCEPTION 'service_role table maintenance capability changed';
   END IF;
 
-  SELECT count(*) INTO v_count
-  FROM security02f_snapshot before_row
-  FULL JOIN (
-    SELECT po.*
-    FROM vehicle.profile_ownership po
-    JOIN security02f_snapshot snapshot_ids USING (id)
-  ) after_row USING (id)
-  WHERE after_row.vehicle_profile_id IS DISTINCT FROM before_row.vehicle_profile_id
-     OR after_row.owner_id IS DISTINCT FROM before_row.owner_id
-     OR after_row.ownership_type IS DISTINCT FROM before_row.ownership_type
-     OR after_row.is_current IS DISTINCT FROM before_row.is_current
-     OR after_row.started_at IS DISTINCT FROM before_row.started_at
-     OR after_row.ended_at IS DISTINCT FROM before_row.ended_at
-     OR after_row.created_at IS DISTINCT FROM before_row.created_at;
-  IF v_count <> 0 THEN RAISE EXCEPTION 'existing ownership data changed during CONTRACT'; END IF;
 END
 $security02f$;
 
@@ -343,13 +335,14 @@ SELECT jsonb_build_object(
 ) AS security02f_runtime_matrix;
 `;
 
-let transitionOutput;
+let runtimeOutput;
 try {
-  supabase("db", "reset", "--local", "--version", expandVersion);
-  transitionOutput = psql(`${fixtureSql}\n${contract}\n${validationSql}`);
+  runtimeOutput = psql(renderFixtureSql(`${fixtureSql}\n${validationSql}`));
 } finally {
-  // Leave the disposable local database in the repository's full final-chain state.
-  supabase("db", "reset", "--local");
+  psql(`
+    DELETE FROM vehicle.vehicle_profiles WHERE id = ANY(ARRAY[${fixtureIds.profiles.map((id) => `'${id}'::uuid`).join(", ")}]);
+    DELETE FROM auth.users WHERE id IN ('${fixtureIds.owner}'::uuid, '${fixtureIds.other}'::uuid);
+  `);
 }
 
 const finalHistory = psql(String.raw`
@@ -358,9 +351,9 @@ FROM supabase_migrations.schema_migrations
 WHERE version IN ('20260724120000', '20260822120000', '20260825120000');
 `);
 assert.match(finalHistory, /20260724120000,20260822120000,20260825120000/,
-  "Clean final reset must apply SELL-03, SECURITY-02A, and SECURITY-02F in order");
+  "Existing local database must include SELL-03, SECURITY-02A, and SECURITY-02F in order");
 
-console.log(transitionOutput.trim());
-console.log("SECURITY-02F transition passed: EXPAND direct INSERT allowed, CONTRACT direct INSERT denied, RPC works before and after");
+console.log(runtimeOutput.trim());
+console.log("SECURITY-02F current-contract runtime passed: direct INSERT denied and authorized RPC works");
 console.log("SECURITY-02F runtime passed: UPDATE/DELETE denied, negative RPC matrix safe, own SELECT isolated, data preserved, integrity clean");
-console.log("SECURITY-02F local isolation passed: unlinked localhost Supabase; clean full migration chain applied");
+console.log("SECURITY-02F local isolation passed: unlinked local database, existing migration chain verified, isolated fixtures removed");

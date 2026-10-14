@@ -3168,7 +3168,7 @@
       "title": "Master security/privacy/RLS regression",
       "priority": "P0",
       "type": "testing",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0307",
@@ -3195,8 +3195,8 @@
         "RLS/runtime suite",
         "privacy suite"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-14 local completion: reset-free JLC-1301 master gate passed via npm run test:jlc-1301, including anonymous/authenticated/owner/non-owner/admin RLS, profile/contact privacy, listing lifecycle, messaging, vehicle-review moderation, dealer/team, AI, storage/media, RPC grants and service-role boundaries. npm run typecheck and npm run build passed. The JLC-0706 moderation runtime gate passed within the aggregate suite.",
+      "notes": "Recovered the local canonical catalog using the committed approved Wikidata bootstrap package after the prior local reset removed its rows; deterministic re-import/idempotency passed. Current local catalog counts: makes 75, models 718, generations 7, variants 0, modifications 0. All 166 repository migration versions are physically applied locally, including JLC-0706 20261014120000/121000/122000/123000. Legacy SECURITY-02F and SECURITY-04A tests now use isolated cleanup-safe fixtures against the existing local database; JLC-1301 has a reset-path guard. Seller-contact test fixtures now generate valid unique E.164 numbers inside its rollback transaction to avoid the seed-user phone collision."
     },
     {
       "id": "JLC-1302",
