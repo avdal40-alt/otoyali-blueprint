@@ -3417,7 +3417,7 @@
       "title": "Background-work and event boundary",
       "priority": "P1",
       "type": "architecture",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-0412", "JLC-0803", "JLC-1205"],
       "requires_user_authorization": false,
@@ -3426,8 +3426,8 @@
       "description": "Identify slow work that must not block user HTTP requests and prepare provider-neutral job/event interfaces for image processing, notifications, analytics, saved-search matching, imports, AI, and search indexing.",
       "acceptance_criteria": ["Blocking-path inventory and deferral criteria documented", "Provider-neutral interfaces preserve idempotency, authorization, and observability", "No Kafka, SQS, Redis, or other broker is introduced solely for this task"],
       "verification": ["critical request-path review", "interface/contract tests", "failure-mode review"],
-      "evidence": null,
-      "notes": "Implementation follows measured need; existing synchronous correctness remains intact."
+      "evidence": "2026-10-14 local verification: npm run test:jlc-1405 and npm run typecheck passed. The contract test covers the seven work areas, idempotency/correlation/actor fields, typed retry/permanent results, unsafe identifier rejection, preserved authorization/RLS/Search v1 boundaries, and no broker binding.",
+      "notes": "Added provider-neutral command/dispatcher contracts and the request-path/failure-mode inventory in docs/jolcar-control/JLC-1405-BACKGROUND-WORK-EVENT-BOUNDARY.md. No worker, broker, provider, migration, database behavior change, production access, deployment, or push occurred; existing synchronous canonical matching, notification creation, analytics source events, lifecycle behavior, and search semantics remain intact."
     },
     {
       "id": "JLC-1406",
