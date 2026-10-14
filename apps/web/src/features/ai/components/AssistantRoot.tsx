@@ -48,7 +48,7 @@ export function AssistantRoot() {
           <span>{readAiCopy(dictionary, "launcher", "Rif")}</span>
         </button>
       ) : null}
-      <AssistantPanel open={open} context={context} onClose={() => setOpen(false)} />
+      {open ? <AssistantPanel open={open} context={context} onClose={() => setOpen(false)} /> : null}
     </>
   );
 }

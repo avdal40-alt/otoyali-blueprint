@@ -3398,7 +3398,7 @@
       "title": "Frontend bundle, render, and caching hardening",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1202", "JLC-1204"],
       "requires_user_authorization": false,
@@ -3407,8 +3407,8 @@
       "description": "Set client-JS budgets and harden dynamic/lazy loading, Server Component usage, Next.js caching/revalidation, and hydration boundaries on critical flows.",
       "acceptance_criteria": ["Client-JS budget evidence exists for critical routes", "Heavy optional UI is dynamically/lazily loaded where measured", "Caching/revalidation and Server Component choices preserve freshness, SEO, security, and correctness"],
       "verification": ["bundle analysis", "render/hydration audit", "cache behavior tests"],
-      "evidence": null,
-      "notes": "Measured improvements only; no cache may expose private data."
+      "evidence": "docs/jolcar-control/JLC-1404-FRONTEND-PERFORMANCE-HARDENING.md; apps/web: npm run test:jlc-1404 (optimized-build First Load JS gate: 208-289 kB across six critical routes); npm run test:jlc-1401 (local response baseline passed after change); npm run test:jlc-1204 (shared search/listing performance regression passed); npm run typecheck (passed).",
+      "notes": "Completed locally 2026-10-14. Optional client-only AI panel remains code-split and now mounts only after explicit user open. Homepage, search, and listing detail remain request-dynamic/revalidate=0 to preserve fresh request-scoped content and avoid unsafe shared caching. No migration, production access, provider call, push, or deploy."
     },
     {
       "id": "JLC-1405",
