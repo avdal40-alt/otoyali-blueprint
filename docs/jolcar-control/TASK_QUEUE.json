@@ -3607,7 +3607,7 @@
       "title": "Post-hardening master E2E, security, and performance regression",
       "priority": "P0",
       "type": "testing",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1407", "JLC-1502", "JLC-1503", "JLC-1504", "JLC-1505", "JLC-1506", "JLC-1507"],
       "requires_user_authorization": false,
@@ -3616,8 +3616,8 @@
       "description": "Run the final local regression across hardened critical flows, security/privacy/RLS, resilience, and performance budgets.",
       "acceptance_criteria": ["Critical E2E, security/privacy/RLS, and performance suites pass", "No critical regression is waived as PASS", "Provider/production actions remain unapplied"],
       "verification": ["master E2E suite", "master security suite", "performance budget suite"],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-15 local completion: apps/web/scripts/jlc-1508-post-hardening-master-regression.test.cjs and docs/jolcar-control/JLC-1508-POST-HARDENING-MASTER-REGRESSION.md establish and record the final local gate. apps/web: npm run test:jlc-1508 passed, composing JLC-1302 master functional E2E, JLC-1503 security/privacy/RLS, JLC-1407 performance, JLC-1504 resilience, JLC-1505 observability, typecheck, build, and npm audit --omit=dev --audit-level=high (zero production vulnerabilities).",
+      "notes": "Expected-denial messages from authorization/RLS tests were observed as assertions, not failures. Existing full development-dependency audit findings remain an explicit release blocker from JLC-1503 and are not waived. No provider, staging/production access, remote migration, deployment, or Git push occurred."
     },
     {
       "id": "JLC-1509",
