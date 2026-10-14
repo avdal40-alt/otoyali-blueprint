@@ -503,9 +503,20 @@ Jolcar is not public-launch ready until applicable mandatory modules pass:
 19. News feed.
 20. Mobile-first/responsive/accessibility QA.
 21. Security/privacy/RLS regression.
-22. SEO/performance/operational readiness.
-23. Final master E2E release gate.
-24. Separately authorized production/provider/domain/deploy steps.
+22. Existing SEO/performance/operational readiness foundations.
+23. **Performance Hardening:** measurable critical-flow budgets, database/query/index audit, media delivery, frontend bundle/render/cache work, background-work boundaries, search scaling boundary, and a mandatory regression gate.
+24. **Production Engineering Hardening:** domain/API boundaries, mobile API readiness, security, resilience, observability/SLOs, backup/restore, staging/release pipeline, and post-hardening E2E/security/performance regression.
+25. Final local launch-readiness package, after both hardening-phase reports/gates pass.
+26. Separately authorized production/provider/domain/deploy steps.
+
+### Hardening principles
+
+- Do not introduce microservices, NestJS, Redis, OpenSearch, Kafka, Kubernetes, or a full AWS migration merely to appear enterprise-ready.
+- PostgreSQL remains the current source of truth and Next.js/TypeScript remain the valid current web stack.
+- Add infrastructure only when architecture or measured load justifies it; retain provider-neutral boundaries where a future provider may be needed.
+- Optimization must be measurable: baseline → change → re-measure. A critical regression fails its release gate; it cannot be recorded as PASS.
+- Performance work must not weaken security, RLS, accessibility, SEO, or correctness.
+- All hardening work remains local until a separately authorized production action. No new task authorizes production infrastructure, provider activation, secrets, DNS, deployment, or remote database access.
 
 ## 20. Explicit exclusions
 
