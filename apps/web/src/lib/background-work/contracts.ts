@@ -42,8 +42,13 @@ export type BackgroundWorkResult =
   | Readonly<{ status: "permanent_failure"; idempotencyKey: string; reason: string }>;
 
 /** A provider adapter must preserve the command unchanged and return only this result contract. */
+export type BackgroundWorkDispatchContext = Readonly<{
+  attempt: number;
+  signal: AbortSignal;
+}>;
+
 export interface BackgroundWorkDispatcher {
-  dispatch(command: BackgroundWorkCommand): Promise<BackgroundWorkResult>;
+  dispatch(command: BackgroundWorkCommand, context: BackgroundWorkDispatchContext): Promise<BackgroundWorkResult>;
 }
 
 const IDENTIFIER = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/;

@@ -3531,7 +3531,7 @@
       "title": "Reliability and resilience hardening",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1205", "JLC-1501"],
       "requires_user_authorization": false,
@@ -3540,8 +3540,8 @@
       "description": "Harden provider timeouts, appropriate retries/backoff, idempotency, graceful degradation, and isolation so one external-provider outage cannot crash unrelated Jolcar functions.",
       "acceptance_criteria": ["External integration failure modes are explicit and bounded", "Retries/backoff and idempotency avoid duplication", "Unrelated critical Jolcar flows remain available during a provider outage"],
       "verification": ["failure-injection tests", "idempotency tests", "degradation smoke"],
-      "evidence": null,
-      "notes": "No provider activation or paid calls."
+      "evidence": "2026-10-15 local completion: apps/web/src/lib/background-work/resilience.ts; apps/web/scripts/jlc-1504-reliability-resilience.test.cjs; docs/jolcar-control/JLC-1504-RELIABILITY-RESILIENCE.md; npm run test:jlc-1504; npm run typecheck; npm run test:jlc-1405; and npm run test:jlc-1205 passed. Failure injection covers bounded abortable timeout, retryable and permanent outcomes, exponential backoff, stable idempotency keys on every retry, mismatched-key rejection, and a degraded typed outcome.",
+      "notes": "The provider-neutral background-work boundary remains broker-free and no adapter/provider was activated. Durable idempotency remains required at a future canonical handler/store boundary; no process-memory dedupe is claimed. Existing AI safety behavior remains fail-safe (assistant/moderation degrade safely; media privacy remains fail-closed). No migration, RLS/privilege change, production access, paid call, deployment, or Git push occurred."
     },
     {
       "id": "JLC-1505",
