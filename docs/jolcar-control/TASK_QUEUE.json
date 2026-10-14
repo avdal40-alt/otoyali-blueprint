@@ -3341,7 +3341,7 @@
       "title": "Critical-flow performance baseline and budgets",
       "priority": "P0",
       "type": "audit",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1202", "JLC-1203", "JLC-1204"],
       "requires_user_authorization": false,
@@ -3350,8 +3350,8 @@
       "description": "Measure homepage, search, listing detail, sell, dealer, and CRM critical flows locally; record Web Vitals and relevant server timings with explicit budgets.",
       "acceptance_criteria": ["Baseline and repeatable local measurement method recorded", "Healthy locally measurable Core Web Vitals targets and server-timing budgets defined", "Results distinguish local limitations from actionable regressions"],
       "verification": ["local Web Vitals capture", "server-timing evidence", "budget review"],
-      "evidence": null,
-      "notes": "Builds on JLC-1204; does not repeat its completed query/index sanity work."
+      "evidence": "2026-10-14 local completion: docs/jolcar-control/JLC-1401-PERFORMANCE-BASELINE.md; npm run test:jlc-1401 (build plus loopback cold/warm baseline: warm 11-54 ms); npm run typecheck; git diff --check. The harness enforces public <=3000 ms and unauthenticated entry <=1000 ms local warm budgets, records LCP/INP/CLS targets and browser-capture procedure without remote telemetry.",
+      "notes": "Builds on JLC-1204; does not repeat its completed query/index sanity work. The local database contained no active listing/dealer fixtures, so listing/dealer timing is explicitly limited to route-boundary evidence; browser authenticated/populated-flow Vitals require synthetic local fixtures. Local only: no production/provider access, deploy, or push occurred."
     },
     {
       "id": "JLC-1402",
