@@ -1,0 +1,17 @@
+{
+  "format": "jolcar-catalog/v1",
+  "sourceName": "wikidata",
+  "sourceVersion": "wikidata-camry-generations-v1",
+  "contentSha256": "5486a543ecb0e08ba9b47a434ed896f6588409d9b6636d34be5adb8e74c5c380",
+  "records": [
+    { "entityType": "make", "sourceKey": "Q53268", "name": "Toyota", "slug": "toyota" },
+    { "entityType": "model", "sourceKey": "Q500035", "parentSourceKey": "Q53268", "name": "Toyota Camry", "slug": "camry" },
+    { "entityType": "generation", "sourceKey": "Q860065", "parentSourceKey": "Q500035", "name": "Toyota Camry (XV10)", "slug": "toyota-camry-xv10" },
+    { "entityType": "generation", "sourceKey": "Q7830759", "parentSourceKey": "Q500035", "name": "Toyota Camry (XV20)", "slug": "toyota-camry-xv20" },
+    { "entityType": "generation", "sourceKey": "Q7830761", "parentSourceKey": "Q500035", "name": "Toyota Camry (XV30)", "slug": "toyota-camry-xv30" },
+    { "entityType": "generation", "sourceKey": "Q7830762", "parentSourceKey": "Q500035", "name": "Toyota Camry (XV40)", "slug": "toyota-camry-xv40" },
+    { "entityType": "generation", "sourceKey": "Q7830760", "parentSourceKey": "Q500035", "name": "Toyota Camry (XV50)", "slug": "toyota-camry-xv50" },
+    { "entityType": "generation", "sourceKey": "Q104541218", "parentSourceKey": "Q500035", "name": "Toyota Camry (XV70)", "slug": "toyota-camry-xv70" },
+    { "entityType": "generation", "sourceKey": "Q125228953", "parentSourceKey": "Q500035", "name": "Toyota Camry (XV80)", "slug": "toyota-camry-xv80" }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "snapshotVersion": "wikidata-camry-generations-v1",
+  "sourceCandidatesConsidered": 10,
+  "rejections": [
+    { "sourceKey": "Q727218", "name": "Toyota Aurion", "category": "unsupported_or_ambiguous_relationship", "reason": "P179 points to Camry but it is an Australian/Asian variant, not an unambiguous Camry generation." },
+    { "sourceKey": "Q2001711", "name": "Toyota Camry Solara", "category": "unsupported_or_ambiguous_relationship", "reason": "A distinct model line; it is not imported as a Camry generation." },
+    { "sourceKey": "Q7830766", "name": "Toyota Camry TS-01", "category": "unsupported_or_ambiguous_relationship", "reason": "Competition vehicle relationship is not an approved canonical generation relationship." }
+  ]
+}

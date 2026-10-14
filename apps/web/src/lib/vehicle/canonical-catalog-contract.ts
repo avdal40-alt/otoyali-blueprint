@@ -31,7 +31,7 @@ export type CanonicalCatalogImportDataset = {
 
 export type CanonicalCatalogImportIssue = {
   recordIndex: number;
-  code: "duplicate_source_key" | "invalid_hash" | "invalid_name" | "invalid_slug" | "invalid_year_range" | "missing_parent";
+  code: "duplicate_source_key" | "invalid_hash" | "invalid_name" | "invalid_slug" | "invalid_year_range" | "missing_parent" | "invalid_parent_type";
   message: string;
 };
 
@@ -45,17 +45,26 @@ export function catalogImportIdentity(dataset: Pick<CanonicalCatalogImportDatase
 export function validateCanonicalCatalogImport(dataset: CanonicalCatalogImportDataset): CanonicalCatalogImportIssue[] {
   const issues: CanonicalCatalogImportIssue[] = [];
   const seen = new Set<string>();
+  const entityTypeBySourceKey = new Map<string, CanonicalCatalogEntityType>();
+  const expectedParentType: Partial<Record<CanonicalCatalogEntityType, CanonicalCatalogEntityType>> = {
+    model: "make",
+    generation: "model",
+    variant: "generation",
+    modification: "variant",
+    specification: "modification",
+  };
 
   if (!sha256Pattern.test(dataset.contentSha256)) {
     issues.push({ recordIndex: -1, code: "invalid_hash", message: "contentSha256 must be a SHA-256 hex digest." });
   }
 
   dataset.records.forEach((record, recordIndex) => {
-    const key = `${record.entityType}:${record.sourceKey.trim()}`;
+    const key = record.sourceKey.trim();
     if (!record.sourceKey.trim() || seen.has(key)) {
-      issues.push({ recordIndex, code: "duplicate_source_key", message: "Each entity type/source key pair must be unique within a dataset." });
+      issues.push({ recordIndex, code: "duplicate_source_key", message: "Each source key must be unique within a dataset." });
     }
     seen.add(key);
+    entityTypeBySourceKey.set(key, record.entityType);
     if (!record.name.trim()) issues.push({ recordIndex, code: "invalid_name", message: "Catalog names must not be empty." });
     if (!slugPattern.test(record.slug)) issues.push({ recordIndex, code: "invalid_slug", message: "Catalog slugs must be canonical lowercase slugs." });
     if ((record.productionYearStart === undefined) !== (record.productionYearEnd === undefined) || (record.productionYearStart !== undefined && (record.productionYearStart < 1886 || record.productionYearEnd! < record.productionYearStart))) {
@@ -63,6 +72,13 @@ export function validateCanonicalCatalogImport(dataset: CanonicalCatalogImportDa
     }
     if (["model", "generation", "variant", "modification", "specification"].includes(record.entityType) && !record.parentSourceKey?.trim()) {
       issues.push({ recordIndex, code: "missing_parent", message: "Non-root catalog records require a parent source key." });
+    }
+  });
+
+  dataset.records.forEach((record, recordIndex) => {
+    const expectedType = expectedParentType[record.entityType];
+    if (expectedType && record.parentSourceKey?.trim() && entityTypeBySourceKey.get(record.parentSourceKey.trim()) !== expectedType) {
+      issues.push({ recordIndex, code: "invalid_parent_type", message: `${record.entityType} records must reference a ${expectedType} parent source key.` });
     }
   });
 

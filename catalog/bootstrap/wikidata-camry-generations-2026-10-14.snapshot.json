@@ -1,0 +1,119 @@
+{
+  "format": "jolcar-wikidata-snapshot/v1",
+  "source": {
+    "name": "Wikidata",
+    "license": "CC0-1.0",
+    "licenseReference": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+    "retrievedAt": "2026-10-14T06:39:51Z",
+    "extractionVersion": "wikidata-camry-generations-v1",
+    "endpoints": [
+      "https://query.wikidata.org/sparql",
+      "https://www.wikidata.org/w/api.php"
+    ],
+    "requests": [
+      {
+        "method": "GET",
+        "endpoint": "https://query.wikidata.org/sparql",
+        "purpose": "verify_model_make",
+        "query": "SELECT ?make ?model WHERE { VALUES (?make ?model) { (wd:Q53268 wd:Q500035) } ?model wdt:P176 ?make . }"
+      },
+      {
+        "method": "GET",
+        "endpoint": "https://query.wikidata.org/sparql",
+        "purpose": "discover_parent_linked_candidates",
+        "query": "SELECT ?generation ?generationLabel WHERE { ?generation wdt:P179 wd:Q500035 . SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". } } ORDER BY ?generationLabel"
+      },
+      {
+        "method": "GET",
+        "endpoint": "https://query.wikidata.org/sparql",
+        "purpose": "extract_generation_candidates",
+        "query": "SELECT ?generation ?generationLabel WHERE { ?generation wdt:P179 wd:Q500035 ; wdt:P31 wd:Q3231690 . SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\". } } ORDER BY ?generationLabel"
+      },
+      {
+        "method": "GET",
+        "endpoint": "https://www.wikidata.org/w/api.php",
+        "purpose": "verify_labels_and_relationships",
+        "parameters": {
+          "action": "wbgetentities",
+          "format": "json",
+          "props": "labels|claims",
+          "languages": "en",
+          "ids": ["Q53268", "Q500035", "Q860065", "Q7830759", "Q7830761", "Q7830762", "Q7830760", "Q104541218", "Q125228953"]
+        }
+      }
+    ]
+  },
+  "entities": [
+    {
+      "entityType": "make",
+      "sourceKey": "Q53268",
+      "name": "Toyota",
+      "canonicalAnchor": { "slug": "toyota" }
+    },
+    {
+      "entityType": "model",
+      "sourceKey": "Q500035",
+      "parentSourceKey": "Q53268",
+      "relationship": { "property": "P176", "targetSourceKey": "Q53268" },
+      "name": "Toyota Camry",
+      "canonicalAnchor": { "slug": "camry", "makeSlug": "toyota" }
+    },
+    {
+      "entityType": "generation",
+      "sourceKey": "Q860065",
+      "parentSourceKey": "Q500035",
+      "relationship": { "property": "P179", "targetSourceKey": "Q500035" },
+      "name": "Toyota Camry (XV10)",
+      "slug": "toyota-camry-xv10"
+    },
+    {
+      "entityType": "generation",
+      "sourceKey": "Q7830759",
+      "parentSourceKey": "Q500035",
+      "relationship": { "property": "P179", "targetSourceKey": "Q500035" },
+      "name": "Toyota Camry (XV20)",
+      "slug": "toyota-camry-xv20"
+    },
+    {
+      "entityType": "generation",
+      "sourceKey": "Q7830761",
+      "parentSourceKey": "Q500035",
+      "relationship": { "property": "P179", "targetSourceKey": "Q500035" },
+      "name": "Toyota Camry (XV30)",
+      "slug": "toyota-camry-xv30"
+    },
+    {
+      "entityType": "generation",
+      "sourceKey": "Q7830762",
+      "parentSourceKey": "Q500035",
+      "relationship": { "property": "P179", "targetSourceKey": "Q500035" },
+      "name": "Toyota Camry (XV40)",
+      "slug": "toyota-camry-xv40"
+    },
+    {
+      "entityType": "generation",
+      "sourceKey": "Q7830760",
+      "parentSourceKey": "Q500035",
+      "relationship": { "property": "P179", "targetSourceKey": "Q500035" },
+      "name": "Toyota Camry (XV50)",
+      "slug": "toyota-camry-xv50"
+    },
+    {
+      "entityType": "generation",
+      "sourceKey": "Q104541218",
+      "parentSourceKey": "Q500035",
+      "relationship": { "property": "P179", "targetSourceKey": "Q500035" },
+      "name": "Toyota Camry (XV70)",
+      "slug": "toyota-camry-xv70"
+    },
+    {
+      "entityType": "generation",
+      "sourceKey": "Q125228953",
+      "parentSourceKey": "Q500035",
+      "relationship": { "property": "P179", "targetSourceKey": "Q500035" },
+      "name": "Toyota Camry (XV80)",
+      "slug": "toyota-camry-xv80"
+    }
+  ],
+  "contentSha256": "5486a543ecb0e08ba9b47a434ed896f6588409d9b6636d34be5adb8e74c5c380"
+}

@@ -1,0 +1,20 @@
+const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
+const { approvedPackage, loadApprovedPackage, loadSnapshot, snapshotPayload, stable, validateSnapshot } = require("./jlc-wikidata-catalog-bootstrap.cjs");
+
+const snapshot = loadSnapshot();
+assert.deepEqual(validateSnapshot(snapshot), [], "approved Wikidata snapshot must validate");
+const pkg = approvedPackage(snapshot);
+assert.equal(stable(loadApprovedPackage()), stable(pkg), "repository-versioned approved package must exactly match the validated snapshot");
+assert.equal(pkg.format, "jolcar-catalog/v1");
+const generationRecords = pkg.records.filter((record) => record.entityType === "generation");
+assert.equal(generationRecords.length, 7, "bootstrap must contain real non-empty generation data");
+assert.ok(generationRecords.every((record) => record.parentSourceKey === "Q500035"));
+assert.ok(generationRecords.every((record) => !("productionYearStart" in record)), "unsupported production years must not be invented");
+const duplicate = structuredClone(snapshot); duplicate.entities.push(structuredClone(duplicate.entities[2])); duplicate.contentSha256 = crypto.createHash("sha256").update(stable(snapshotPayload(duplicate))).digest("hex");
+assert.ok(validateSnapshot(duplicate).some((issue) => issue.startsWith("duplicate_source_key")), "duplicate source keys must reject");
+const wrongParent = structuredClone(snapshot); wrongParent.entities[2].relationship.targetSourceKey = "Q53268"; wrongParent.contentSha256 = crypto.createHash("sha256").update(stable(snapshotPayload(wrongParent))).digest("hex");
+assert.ok(validateSnapshot(wrongParent).some((issue) => issue.startsWith("wrong_model_relationship")), "ambiguous/wrong parent relationships must reject");
+const badYear = structuredClone(snapshot); badYear.entities[2].productionYearStart = 2025; badYear.entities[2].productionYearEnd = 2024; badYear.contentSha256 = crypto.createHash("sha256").update(stable(snapshotPayload(badYear))).digest("hex");
+assert.ok(validateSnapshot(badYear).some((issue) => issue.startsWith("invalid_year_range")), "invalid year ranges must reject");
+console.log("Jolcar Wikidata catalog snapshot and normalizer validation passed");

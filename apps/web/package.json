@@ -36,6 +36,7 @@
     "test:jlc-0606": "node scripts/jlc-0606-chat-release-gate.test.cjs",
     "test:jlc-0704": "node scripts/jlc-0704-vehicle-owner-review-domain.test.cjs",
     "test:jlc-catalog-foundation": "node scripts/jlc-canonical-catalog-foundation.test.cjs && node scripts/jlc-canonical-catalog-foundation-local.test.cjs",
+    "test:jlc-wikidata-catalog-bootstrap": "node scripts/jlc-wikidata-catalog-bootstrap.test.cjs && node scripts/jlc-wikidata-catalog-bootstrap-local.test.cjs",
     "test:jlc-1101": "node scripts/jlc-1101-news-foundation.test.cjs",
     "test:jlc-1102": "node scripts/jlc-1102-news-source-integration.test.cjs",
     "test:jlc-0701": "node scripts/jlc-0701-private-vin-foundation.test.cjs",
