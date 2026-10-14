@@ -22,11 +22,8 @@ function loadTypeScript(relativePath, mocks = {}) {
 }
 
 const searchParams = loadTypeScript("apps/web/src/lib/search/search-params.ts");
-const { buildSearchRequest } = loadTypeScript("apps/web/src/lib/search/server-search.ts", {
-  "@/lib/supabase/server": { getSupabaseServerClient: () => undefined, hasSupabaseEnv: () => false },
-  "@/lib/media/storage-urls": { signImageStorageUrlMap: async () => new Map() },
-  "./search-params": searchParams,
-  "./search-service": {}
+const { buildSearchRequest } = loadTypeScript("apps/web/src/lib/search/search-request.ts", {
+  "./search-params": searchParams
 });
 const { buildSearchUrl, parseSearchParams } = searchParams;
 

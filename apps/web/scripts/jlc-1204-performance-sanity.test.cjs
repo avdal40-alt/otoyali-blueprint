@@ -15,12 +15,13 @@ const runLocalSql = (sql) => childProcess.execFileSync(
 const listingPage = read("src/app/listing/[id]/page.tsx");
 const dealerPage = read("src/app/dealer/[id]/page.tsx");
 const searchRuntime = read("src/lib/search/server-search.ts");
+const searchRequest = read("src/lib/search/search-request.ts");
 const migration = fs.readFileSync(
   path.join(repoRoot, "supabase", "migrations", "20261013160000_jlc1204_search_freshness_expression_index.sql"),
   "utf8"
 );
 
-assert.match(searchRuntime, /limit: 24/, "Search v1 must retain its bounded 24-card page");
+assert.match(searchRequest, /limit: 24/, "Search v1 must retain its bounded 24-card page");
 assert.match(listingPage, /getHomeListings\(12\)/, "listing detail recommendations must remain bounded");
 assert.match(listingPage, /getListingVideos\(resolvedParams\.id, 3\)/, "listing detail video reads must remain bounded");
 assert.match(listingPage, /const \[detailsResult, mediaResult, fallbackListingResult, similarResult, videosResult, reviewTargetResult\] = await Promise\.all\(/, "independent listing reads must start concurrently");

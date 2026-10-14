@@ -24,8 +24,8 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { interpolate } from "@/i18n/get-dictionary";
-import type { SearchCursor } from "@/lib/search/server-search";
-import { buildSearchRequest } from "@/lib/search/server-search";
+import type { SearchCursor } from "@/lib/search/search-contract";
+import { buildSearchRequest } from "@/lib/search/search-request";
 
 const searchFilterSupport = {
   photos: true,

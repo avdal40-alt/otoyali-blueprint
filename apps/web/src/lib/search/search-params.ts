@@ -1,4 +1,5 @@
 import type { LocationIdentifier } from "@/lib/location";
+import type { SearchCursor } from "./search-contract";
 
 export type SortOption = "newest" | "price_asc" | "price_desc" | "year_desc" | "mileage_asc";
 
@@ -28,7 +29,7 @@ export type ListingSearchFilters = {
   tradeOnly: boolean;
   advanced: boolean;
   sort: SortOption;
-  cursor?: import("./search-service").SearchCursor | null;
+  cursor?: SearchCursor | null;
 };
 
 export const defaultSearchFilters: ListingSearchFilters = {
