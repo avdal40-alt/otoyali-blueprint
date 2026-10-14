@@ -23,7 +23,7 @@ const migration = fs.readFileSync(
 assert.match(searchRuntime, /limit: 24/, "Search v1 must retain its bounded 24-card page");
 assert.match(listingPage, /getHomeListings\(12\)/, "listing detail recommendations must remain bounded");
 assert.match(listingPage, /getListingVideos\(resolvedParams\.id, 3\)/, "listing detail video reads must remain bounded");
-assert.match(listingPage, /const \[detailsResult, mediaResult, fallbackListingResult, similarResult, videosResult\] = await Promise\.all\(/, "independent listing reads must start concurrently");
+assert.match(listingPage, /const \[detailsResult, mediaResult, fallbackListingResult, similarResult, videosResult, reviewTargetResult\] = await Promise\.all\(/, "independent listing reads must start concurrently");
 assert.match(dealerPage, /\.limit\(24\)/, "dealer stock must remain bounded");
 assert.match(migration, /COALESCE\(raised_at, published_at, 'epoch'::TIMESTAMPTZ\)/, "freshness index must match the public newest rank expression");
 
@@ -32,7 +32,7 @@ const planOutput = runLocalSql(`
   FROM pg_indexes
   WHERE schemaname = 'marketplace'
     AND indexname = 'listing_search_documents_freshness_keyset_idx';
-  SET LOCAL enable_seqscan = off;
+  SET enable_seqscan = off;
   EXPLAIN (COSTS OFF)
   SELECT listing_id
   FROM marketplace.listing_search_documents

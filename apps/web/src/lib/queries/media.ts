@@ -24,6 +24,10 @@ const LISTING_MEDIA_COLUMNS = [
   "size_bytes"
 ].join(",");
 
+// The sell flow permits at most 20 photos. Keep the public gallery read
+// bounded as a server-side backstop if data is inserted outside that UI.
+const MAX_LISTING_MEDIA = 20;
+
 async function signListingMedia(supabase: ReturnType<typeof getSupabaseServerClient>, rows: ListingMedia[]) {
   const fields = ["url", "original_url", "large_url", "card_url", "thumb_url"] as const;
   const signed = await signImageStorageUrlMap(supabase, rows.flatMap((row) => fields.map((field) => row[field])));
@@ -46,7 +50,8 @@ export async function getListingMedia(listingId: string): Promise<QueryResult<Li
     .select(LISTING_MEDIA_COLUMNS)
     .eq("listing_id", listingId)
     .order("is_cover", { ascending: false })
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    .limit(MAX_LISTING_MEDIA);
   const rows = await signListingMedia(supabase, (data ?? []) as unknown as ListingMedia[]);
 
   return {
@@ -69,7 +74,8 @@ export async function getListingMediaByVehicleProfileId(vehicleProfileId: string
     .select(LISTING_MEDIA_COLUMNS)
     .eq("vehicle_profile_id", vehicleProfileId)
     .order("is_cover", { ascending: false })
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    .limit(MAX_LISTING_MEDIA);
   const rows = await signListingMedia(supabase, (data ?? []) as unknown as ListingMedia[]);
 
   return {

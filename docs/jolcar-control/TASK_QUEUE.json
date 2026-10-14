@@ -3360,7 +3360,7 @@
       "title": "Deep PostgreSQL query and index audit",
       "priority": "P0",
       "type": "audit",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1204"],
       "requires_user_authorization": false,
@@ -3369,8 +3369,8 @@
       "description": "Audit critical database paths beyond the completed sanity pass: safe EXPLAIN/EXPLAIN ANALYZE evidence, N+1 detection, bounded pagination, unnecessary reads, and query/index regression evidence.",
       "acceptance_criteria": ["Critical query inventory and safe plan evidence recorded", "N+1, unbounded pagination, and unnecessary-read risks resolved or release-blocking", "Index changes are justified by measured plans and regression evidence"],
       "verification": ["safe local EXPLAIN/EXPLAIN ANALYZE", "query-count checks", "pagination and index regression tests"],
-      "evidence": null,
-      "notes": "No production database access or destructive query execution."
+      "evidence": "2026-10-14 local completion: docs/jolcar-control/JLC-1402_QUERY_INDEX_AUDIT.md records the critical query inventory, safe local EXPLAIN/EXPLAIN ANALYZE evidence, zero-fixture limitation, and index review. npm run test:jlc-1402, npm run test:jlc-1204, npm run test:jlc-0404, node scripts/jlc-0512-search-projection-regression.test.cjs, and npm run typecheck passed.",
+      "notes": "No migration was added: the local database has zero representative rows, so no new index could be justified without speculative write/storage cost. Listing-detail primary and fallback media reads now have the sell-flow 20-photo server-side cap; Search v1 keyset ordering, raised_at/published_at semantics, public image variants, has_video, saved-search and price-drop lifecycle behavior remain preserved. Local only; no production access or destructive query execution."
     },
     {
       "id": "JLC-1403",
