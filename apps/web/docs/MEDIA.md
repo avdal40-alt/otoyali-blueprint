@@ -17,6 +17,14 @@ Fallback order:
 - Listing detail main image: `large_url` -> `original_url` -> `url` -> `card_url` -> `thumb_url`.
 - Gallery/admin thumbnail: `thumb_url` -> `card_url` -> `large_url` -> `url` -> `original_url`.
 
+`SafeImage` additionally emits a `srcset` only when persisted dimensions are
+available. It uses the already-authorized derivative URLs and conservative
+width descriptors, allowing browsers to select thumbnail/card/large assets for
+their rendered size. The fallback `src` preserves legacy media and signed-URL
+rendering. Current server-side sanitization produces WebP; the browser is free
+to consume future AVIF derivatives when the approved storage/RPC contract is
+extended. Do not add client-side AVIF paths without updating that contract.
+
 Legacy media rows with only `url` and `storage_path` continue to render.
 
 ## Upload Flow

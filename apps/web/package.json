@@ -97,6 +97,7 @@
     "test:jlc-1204": "node scripts/jlc-1204-performance-sanity.test.cjs",
     "test:jlc-1401": "node scripts/jlc-1401-performance-baseline.test.cjs",
     "test:jlc-1402": "node scripts/jlc-1402-query-index-audit.test.cjs",
+    "test:jlc-1403": "node scripts/jlc-1403-media-delivery.test.cjs",
     "test:jlc-1201": "node scripts/jlc-1201-country-seo-routes.test.cjs",
     "test:jlc-1205": "node scripts/observability-safe-logger.test.cjs",
     "test:jlc-1303": "node scripts/jlc-1303-responsive-design-qa.test.cjs",

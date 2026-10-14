@@ -3379,7 +3379,7 @@
       "title": "Media and image delivery hardening",
       "priority": "P0",
       "type": "implementation",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-0507", "JLC-1204"],
       "requires_user_authorization": false,
@@ -3388,8 +3388,8 @@
       "description": "Harden responsive image sizes, supported WebP/AVIF delivery, thumbnail/card/detail/original separation, and lazy loading using the existing storage/CDN-compatible architecture.",
       "acceptance_criteria": ["Small cards never intentionally use multi-megabyte originals", "Responsive sizes and derivative selection are correct for card/detail contexts", "Lazy loading and supported modern formats preserve accessibility and correctness"],
       "verification": ["network payload audit", "responsive image tests", "local visual/accessibility smoke"],
-      "evidence": null,
-      "notes": "Do not activate paid infrastructure or change storage authorization boundaries."
+      "evidence": "2026-10-14 local completion: docs/jolcar-control/JLC-1403_MEDIA_DELIVERY_AUDIT.md; npm run test:jlc-1403, npm run test:jlc-0507, npm run test:jlc-0202, npm run test:jlc-1204, npm run typecheck, and npm run test:jlc-1401 passed. The final local critical-flow re-measurement recorded 16-68ms warm responses within existing budgets.",
+      "notes": "SafeImage now uses direct sanitized derivative URLs with dimension-validated responsive srcset/sizes for card, detail, and thumbnail contexts while preserving legacy fallback URLs, lazy loading, async decoding, fixed layout ratios, card_url/large_url/url behavior, and security boundaries. No migration, CDN/provider activation, storage-policy change, production access, deploy, or push occurred. Local profile_media is empty, so populated browser byte-size/visual capture remains explicitly limited to a future synthetic local fixture."
     },
     {
       "id": "JLC-1404",

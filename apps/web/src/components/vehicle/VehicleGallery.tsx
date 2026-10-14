@@ -14,7 +14,7 @@ export function VehicleGallery({ media, title, fallbackImageUrl }: { media: List
   return (
     <div className="space-y-3">
       <div className="relative aspect-[16/10] overflow-hidden rounded-oto bg-oto-surface md:aspect-[21/9]">
-        <SafeImage src={activeImage?.largeUrl} alt={title} fallbackClassName="text-lg" />
+        <SafeImage src={activeImage?.largeUrl} media={activeImage?.media} variant="large" alt={title} fallbackClassName="text-lg" />
         {activeImage?.processing ? (
           <span className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-oto-muted shadow-soft">
             Görsel işleniyor
@@ -44,7 +44,7 @@ export function VehicleGallery({ media, title, fallbackImageUrl }: { media: List
               )}
               aria-label={`${index + 1}. fotoğrafı göster`}
             >
-              <SafeImage src={item.thumbUrl} alt={title} />
+              <SafeImage src={item.thumbUrl} media={item.media} variant="thumb" alt={title} />
             </button>
           ))}
         </div>
@@ -59,13 +59,14 @@ function getGalleryImages(media: ListingMedia[], fallbackImageUrl?: string | nul
       key: item.media_id ?? item.url ?? item.storage_path ?? "",
       largeUrl: getBestImageUrl(item, "large"),
       thumbUrl: getBestImageUrl(item, "thumb"),
+      media: item,
       processing: isImageProcessing(item),
       failed: isImageProcessingFailed(item)
     }))
     .filter((item) => item.largeUrl);
 
   if (images.length === 0 && fallbackImageUrl) {
-    return [{ key: fallbackImageUrl, largeUrl: fallbackImageUrl, thumbUrl: fallbackImageUrl, processing: false, failed: false }];
+    return [{ key: fallbackImageUrl, largeUrl: fallbackImageUrl, thumbUrl: fallbackImageUrl, media: undefined, processing: false, failed: false }];
   }
 
   return images;

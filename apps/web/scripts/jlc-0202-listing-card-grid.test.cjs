@@ -11,7 +11,7 @@ const safeImage = read("src/components/ui/SafeImage.tsx");
 
 // A fixed media box reserves space before image decoding, preventing card-grid reflow.
 assert.match(vehicleCard, /relative aspect-\[4\/3\] bg-oto-surface/);
-assert.match(vehicleCard, /<SafeImage src=\{currentImage\}/);
+assert.match(vehicleCard, /<SafeImage src=\{currentImage\?\.url\} media=\{currentImage\?\.media\} variant="card"/);
 assert.match(safeImage, /"h-full w-full object-cover"/);
 assert.match(safeImage, /loading=\{priority \? "eager" : "lazy"\}/);
 

@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { HomeListing, ListingMedia } from "@/lib/supabase/types";
 import { cn } from "@/lib/cn";
 import { cityLabel, conditionLabel, formatDate, formatMileage, formatNumber, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
-import { getBestImageUrl } from "@/lib/media/image-variants";
+import { getBestImageUrl, type ImageSource } from "@/lib/media/image-variants";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
@@ -33,7 +33,7 @@ export function VehicleCard({
   const makeModel = [listing.make_name, listing.model_name].filter(Boolean).join(" ") || String(dictionary.common.noInfo);
   const images = getPreviewImages(listing, media);
   const imageCount = images.length;
-  const currentImage = images[previewIndex] ?? images[0] ?? listing.cover_image_url;
+  const currentImage = images[previewIndex] ?? images[0];
 
   function shiftImage(event: MouseEvent<HTMLButtonElement>, direction: -1 | 1) {
     event.preventDefault();
@@ -50,7 +50,7 @@ export function VehicleCard({
     >
       <div className="relative aspect-[4/3] bg-oto-surface">
         <Link href={localizePath(`/listing/${listing.listing_id}`, activeLocale)} className="block h-full">
-          <SafeImage src={currentImage} alt={title} className="transition duration-300 group-hover:scale-[1.02]" />
+          <SafeImage src={currentImage?.url} media={currentImage?.media} variant="card" alt={title} className="transition duration-300 group-hover:scale-[1.02]" />
         </Link>
 
         <div className="absolute right-3 top-3 z-20">
@@ -142,13 +142,16 @@ export function VehicleCard({
 }
 
 function getPreviewImages(listing: HomeListing, media: ListingMedia[]) {
-  const urls = media
-    .map((item) => getBestImageUrl(item, "card"))
-    .filter(Boolean) as string[];
+  const images: Array<{ url: string; media?: ImageSource }> = media
+    .map((item) => {
+      const url = getBestImageUrl(item, "card");
+      return url ? { url, media: item as ImageSource } : null;
+    })
+    .filter((item): item is { url: string; media: ImageSource } => Boolean(item));
 
   if (listing.cover_image_url) {
-    urls.unshift(listing.cover_image_url);
+    images.unshift({ url: listing.cover_image_url, media: undefined });
   }
 
-  return Array.from(new Set(urls));
+  return Array.from(new Map(images.map((image) => [image.url, image])).values());
 }

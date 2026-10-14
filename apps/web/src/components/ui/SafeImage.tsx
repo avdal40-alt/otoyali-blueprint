@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/cn";
-import { getBestImageUrl, type ImageSource, type ImageVariant } from "@/lib/media/image-variants";
+import { getBestImageUrl, getResponsiveImageSrcSet, type ImageSource, type ImageVariant } from "@/lib/media/image-variants";
+
+const defaultSizes: Record<ImageVariant, string> = {
+  thumb: "96px",
+  card: "(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw",
+  large: "(max-width: 767px) 100vw, (max-width: 1279px) 67vw, 960px",
+  original: "100vw"
+};
 
 export function SafeImage({
   src,
@@ -13,7 +20,8 @@ export function SafeImage({
   fallbackClassName,
   priority = false,
   width,
-  height
+  height,
+  sizes
 }: {
   src?: string | null;
   media?: ImageSource | null;
@@ -24,9 +32,11 @@ export function SafeImage({
   priority?: boolean;
   width?: number;
   height?: number;
+  sizes?: string;
 }) {
   const [failed, setFailed] = useState(false);
   const cleanSrc = (src?.trim() || getBestImageUrl(media, variant))?.trim();
+  const srcSet = getResponsiveImageSrcSet(media, variant);
 
   if (!cleanSrc || failed) {
     return <ImagePlaceholder className={fallbackClassName} />;
@@ -43,6 +53,8 @@ export function SafeImage({
       decoding="async"
       width={width}
       height={height}
+      srcSet={srcSet}
+      sizes={srcSet ? (sizes ?? defaultSizes[variant]) : undefined}
     />
   );
 }
