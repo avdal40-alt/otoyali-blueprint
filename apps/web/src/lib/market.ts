@@ -10,6 +10,11 @@ export type MarketProfile = {
   siteUrl: string | null;
   currencyCode: "TRY" | "KZT";
   /**
+   * Approved launch languages for this market. This is country configuration,
+   * not an instruction to expose routes before that market is activated.
+   */
+  launchLocales: readonly string[];
+  /**
    * Brand colors are intentionally optional until a market has an approved
    * accent. UI tokens fall back to the neutral text color in the meantime.
    */
@@ -81,6 +86,7 @@ export const MARKET_PROFILES = {
     brandName: "Yolmod",
     siteUrl: "https://yolmod.com",
     currencyCode: "TRY",
+    launchLocales: ["tr", "en"],
     brandColors: {
       accent: null,
       accentStrong: null
@@ -122,6 +128,7 @@ export const MARKET_PROFILES = {
     // The final Jolcar host/domain is an open product decision (O-002).
     siteUrl: null,
     currencyCode: "KZT",
+    launchLocales: ["kk-KZ", "ru-KZ", "en"],
     brandColors: {
       accent: null,
       accentStrong: null

@@ -3275,7 +3275,7 @@
       "title": "International-readiness regression",
       "priority": "P0",
       "type": "testing",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0107",
@@ -3295,8 +3295,8 @@
         "country config tests",
         "architecture review"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-14 local completion: apps/web/scripts/jlc-1304-international-readiness.test.cjs; npm run test:jlc-1304; npm run test:country-config; npm run test:jlc-0107; npm run test:format; npm run typecheck; npm run build. The regression verifies profile-driven location, formatting, and SEO contracts, absence of critical country values from shared core files, and approved Jolcar launch locales kk-KZ, ru-KZ, en in country configuration.",
+      "notes": "Jolcar locale configuration records only the approved launch set and does not activate public routes, fabricate the deferred host, or change the active YOLMOD/Turkey deployment. No migrations, providers, production access, deployment, or Git push occurred."
     },
     {
       "id": "JLC-1305",

@@ -87,6 +87,7 @@
     "test:i18n-foundation": "node scripts/i18n-foundation.test.cjs",
     "test:country-config": "node scripts/country-config.test.cjs",
     "test:jlc-0107": "node scripts/jlc-0107-multicountry-regression.test.cjs",
+    "test:jlc-1304": "node scripts/jlc-1304-international-readiness.test.cjs",
     "test:jlc-0201": "node scripts/jlc-0201-design-tokens.test.cjs",
     "test:jlc-0202": "node scripts/jlc-0202-listing-card-grid.test.cjs",
     "test:jlc-0203": "node scripts/jlc-0203-responsive-shell.test.cjs",

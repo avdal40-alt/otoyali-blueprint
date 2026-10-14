@@ -33,6 +33,7 @@ assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
   brandName: "Yolmod",
   siteUrl: "https://yolmod.com",
   currencyCode: "TRY",
+  launchLocales: ["tr", "en"],
   brandColors: {
     accent: null,
     accentStrong: null
@@ -71,6 +72,7 @@ assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
   brandName: "Jolcar",
   siteUrl: null,
   currencyCode: "KZT",
+  launchLocales: ["kk-KZ", "ru-KZ", "en"],
   brandColors: {
     accent: null,
     accentStrong: null
