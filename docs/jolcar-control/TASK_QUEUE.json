@@ -3626,7 +3626,7 @@
       "title": "Final Production Engineering Hardening report",
       "priority": "P0",
       "type": "audit",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1508"],
       "requires_user_authorization": false,
@@ -3635,8 +3635,8 @@
       "description": "Produce the final local hardening report with exact SHAs, tests, unresolved manual/provider decisions, and production actions still requiring explicit authorization.",
       "acceptance_criteria": ["Exact SHAs and test evidence are recorded", "Unresolved manual/provider decisions are explicit", "Report confirms no production action was performed"],
       "verification": ["queue/evidence audit", "git status review", "manual-authorization audit"],
-      "evidence": null,
-      "notes": "This gate must pass before JLC-1305 can establish final local launch readiness."
+      "evidence": "2026-10-15 local completion: docs/jolcar-control/JLC-1509-FINAL-PRODUCTION-ENGINEERING-HARDENING.md records exact JLC-1401–JLC-1508 SHAs, command evidence, migration position, and unresolved manual/provider authority. npm run test:jlc-1508 re-passed locally, composing functional, security/RLS, performance, resilience, observability, typecheck, build, and production-dependency audit gates.",
+      "notes": "All evidence is local only. Full development-dependency audit findings, O-014 telemetry-vendor approval, O-015 legal/support content, and the provider/manual authorization chain remain explicit release blockers; no production/provider/domain/deployment/remote migration action occurred."
     },
     {
       "id": "JLC-9001",
