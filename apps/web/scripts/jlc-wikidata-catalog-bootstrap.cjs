@@ -8,6 +8,7 @@ const snapshotPath = path.join(root, "catalog", "bootstrap", "wikidata-camry-gen
 const rejectionPath = path.join(root, "catalog", "bootstrap", "wikidata-camry-generations-2026-10-14.rejections.json");
 const approvedPackagePath = path.join(root, "catalog", "bootstrap", "approved", "wikidata-camry-generations-2026-10-14.jolcar-catalog-v1.json");
 const container = "supabase_db_Otoyali-blueprint";
+const remoteDatabaseUrlEnvironmentVariable = "JOLCAR_CATALOG_DATABASE_URL";
 const sha256 = (value) => crypto.createHash("sha256").update(value).digest("hex");
 const stable = (value) => Array.isArray(value) ? `[${value.map(stable).join(",")}]` : value && typeof value === "object" ? `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stable(value[key])}`).join(",")}}` : JSON.stringify(value);
 const snapshotPayload = (snapshot) => { const copy = structuredClone(snapshot); delete copy.contentSha256; return copy; };
@@ -65,7 +66,7 @@ const sqlLiteral = (value) => `'${String(value).replaceAll("'", "''")}'`;
 const psql = (sql) => execFileSync("docker", ["exec", container, "psql", "-q", "-U", "postgres", "-d", "postgres", "-v", "ON_ERROR_STOP=1", "-At", "-F", "|", "-c", sql], { encoding: "utf8" }).trim();
 const counts = () => Object.fromEntries(psql("SELECT 'makes', count(*) FROM vehicle.makes UNION ALL SELECT 'models', count(*) FROM vehicle.models UNION ALL SELECT 'generations', count(*) FROM vehicle.generations UNION ALL SELECT 'variants', count(*) FROM vehicle.variants UNION ALL SELECT 'modifications', count(*) FROM vehicle.modifications ORDER BY 1;").split(/\r?\n/).filter(Boolean).map((row) => { const [key, value] = row.split("|"); return [key, Number(value)]; }));
 
-function importLocal(snapshot) {
+function importSql(snapshot) {
   const issues = validateSnapshot(snapshot);
   if (issues.length) throw new Error(`Snapshot validation failed: ${issues.join(", ")}`);
   const pkg = loadApprovedPackage();
@@ -98,8 +99,64 @@ DO $$ BEGIN
   END IF;
 END $$;
 COMMIT;`;
+  return { pkg, sql };
+}
+
+function importLocal(snapshot) {
+  const { pkg, sql } = importSql(snapshot);
   psql(sql);
   return { package: pkg, counts: counts() };
+}
+
+function remoteOptions(args, environment = process.env) {
+  const remoteFlag = args.includes("--import-remote");
+  const expectedIndex = args.indexOf("--expected-project-ref");
+  const expectedProjectRef = expectedIndex === -1 ? undefined : args[expectedIndex + 1];
+  if (!remoteFlag) throw new Error("Remote catalog import requires --import-remote.");
+  if (!/^[a-z0-9]{20}$/i.test(expectedProjectRef || "")) throw new Error("Remote catalog import requires a valid --expected-project-ref.");
+  const databaseUrl = environment[remoteDatabaseUrlEnvironmentVariable];
+  if (!databaseUrl) throw new Error(`Remote catalog import requires ${remoteDatabaseUrlEnvironmentVariable} in the environment.`);
+  let target;
+  try {
+    target = new URL(databaseUrl);
+  } catch {
+    throw new Error(`Remote catalog import requires a valid ${remoteDatabaseUrlEnvironmentVariable} value.`);
+  }
+  if (!/^postgres(?:ql)?:$/.test(target.protocol) || !target.username || !target.password) throw new Error(`Remote catalog import requires a credentialed PostgreSQL URL in ${remoteDatabaseUrlEnvironmentVariable}.`);
+  const expectedHost = `db.${expectedProjectRef}.supabase.co`;
+  if (target.hostname.toLowerCase() !== expectedHost.toLowerCase()) throw new Error("Remote catalog import target does not match --expected-project-ref.");
+  if (target.searchParams.get("sslmode") !== "require") throw new Error("Remote catalog import requires sslmode=require.");
+  return { connectionString: databaseUrl, expectedProjectRef, expectedHost };
+}
+
+async function remoteCounts(client) {
+  const result = await client.query("SELECT 'makes' AS key, count(*)::int AS value FROM vehicle.makes UNION ALL SELECT 'models', count(*)::int FROM vehicle.models UNION ALL SELECT 'generations', count(*)::int FROM vehicle.generations UNION ALL SELECT 'variants', count(*)::int FROM vehicle.variants UNION ALL SELECT 'modifications', count(*)::int FROM vehicle.modifications ORDER BY 1;");
+  return Object.fromEntries(result.rows.map((row) => [row.key, Number(row.value)]));
+}
+
+async function importRemote(snapshot, args = process.argv.slice(2), environment = process.env) {
+  const options = remoteOptions(args, environment);
+  let Client;
+  try {
+    ({ Client } = require("pg"));
+  } catch {
+    throw new Error("Remote catalog import requires the repository development dependency pg.");
+  }
+  const client = new Client({ connectionString: options.connectionString, ssl: { rejectUnauthorized: true } });
+  try {
+    await client.connect();
+    // A successful read-only connection to the exact direct project host is the
+    // final target check before the transactional import is allowed to write.
+    await client.query("SELECT current_database()");
+    const { pkg, sql } = importSql(snapshot);
+    await client.query(sql);
+    return { package: pkg, counts: await remoteCounts(client), target: options.expectedProjectRef };
+  } catch {
+    try { await client.query("ROLLBACK"); } catch { /* no transaction to roll back */ }
+    throw new Error("Remote catalog import did not complete successfully.");
+  } finally {
+    await client.end().catch(() => undefined);
+  }
 }
 
 function report(snapshot) {
@@ -113,8 +170,9 @@ if (require.main === module) {
   const snapshot = loadSnapshot();
   if (process.argv.includes("--validate")) console.log(JSON.stringify({ issues: validateSnapshot(snapshot), package: approvedPackage(snapshot) }, null, 2));
   else if (process.argv.includes("--import-local")) console.log(JSON.stringify(importLocal(snapshot), null, 2));
+  else if (process.argv.includes("--import-remote")) importRemote(snapshot).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => { console.error(error.message); process.exitCode = 1; });
   else if (process.argv.includes("--report")) console.log(JSON.stringify(report(snapshot), null, 2));
-  else throw new Error("Use --validate, --import-local, or --report.");
+  else throw new Error("Use --validate, --import-local, --import-remote --expected-project-ref <ref>, or --report.");
 }
 
-module.exports = { approvedPackage, counts, importLocal, loadApprovedPackage, loadSnapshot, report, snapshotPayload, stable, validateSnapshot };
+module.exports = { approvedPackage, counts, importLocal, importRemote, importSql, loadApprovedPackage, loadSnapshot, remoteOptions, report, snapshotPayload, stable, validateSnapshot };
