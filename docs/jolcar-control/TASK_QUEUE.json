@@ -3305,7 +3305,7 @@
       "title": "Local launch-readiness package and unresolved-decision report",
       "priority": "P0",
       "type": "audit",
-      "status": "pending",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1301",
@@ -3331,8 +3331,8 @@
         "queue/evidence audit",
         "git status clean"
       ],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-15 local completion: docs/jolcar-control/JLC-1305-LOCAL-LAUNCH-READINESS.md and apps/web/scripts/jlc-1305-local-launch-readiness.test.cjs provide a machine-checked dependency, SHA, test, migration-position, unresolved-decision, and manual-authority ledger. apps/web: npm run test:jlc-1305 passed; scripts/jolcar/preflight.ps1 passed before and after the local commit.",
+      "notes": "This is a local readiness package only, not production launch approval. JLC-D003/D004/D005/D006/D007/D011, O-014, O-015, the JLC-1503 development-dependency audit finding, and JLC-9001 through JLC-9005 remain explicit release blockers/manual authority. No production/staging/provider/domain/DNS/deployment/remote-migration/real-SMS/push action occurred."
     },
     {
       "id": "JLC-1401",
