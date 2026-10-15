@@ -435,7 +435,7 @@
       "title": "Approve Kazakhstan geo dataset source",
       "priority": "P1",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0104"
@@ -448,8 +448,8 @@
         "Approved city/location data source recorded"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Reconciled 2026-10-15: DECISIONS.md O-006 approves a repository-versioned Kazakhstan region/city dataset for development and MVP, with a replaceable/syncable boundary for any later approved official source.",
+      "notes": "Governance-only reconciliation of the approved MVP geo-data decision; no source replacement or external-data action was performed."
     },
     {
       "id": "JLC-0201",
@@ -1533,7 +1533,7 @@
       "title": "Decide Raise-to-top policy",
       "priority": "P1",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0511"
@@ -1546,8 +1546,8 @@
         "Entitlement/frequency/duration/ranking rule approved"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Reconciled 2026-10-15: DECISIONS.md O-009 approves a separate raised_at signal, one free raise per active listing every 7 days, fresh standard-ranking placement after raising, and no payment flow; true publication date remains immutable.",
+      "notes": "Governance-only reconciliation of the approved MVP raise-to-top policy; no entitlement or ranking substance changed."
     },
     {
       "id": "JLC-0512",
@@ -2048,7 +2048,7 @@
       "title": "Approve Kazakhstan VIN/history source",
       "priority": "P1",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0702"
@@ -2061,8 +2061,8 @@
         "Approved legal/provider source recorded"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Reconciled 2026-10-15: DECISIONS.md O-013 approves no external Kazakhstan VIN/history provider for the first public release; VIN remains optional, the provider boundary remains replaceable, and verified-history claims stay prohibited until a separately approved official/licensed source is activated.",
+      "notes": "Governance-only reconciliation of the explicit first-release provider deferment; no provider was selected, activated, or called."
     },
     {
       "id": "JLC-0901",
@@ -2217,7 +2217,7 @@
       "title": "Approve Kazakhstan dealer verification requirements",
       "priority": "P1",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0901"
@@ -2230,8 +2230,8 @@
         "Required documents/criteria approved"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Reconciled 2026-10-15: DECISIONS.md O-007 approves Kazakhstan legal-entity or registered-individual-entrepreneur verification, BIN/IIN as applicable, verified phone, trade name, city/location, authorized representative, admin review, and pending/verified/rejected/suspended states; identity-document scans are not required by default.",
+      "notes": "Governance-only reconciliation of the approved dealer-verification criteria; no verification workflow or production authority changed."
     },
     {
       "id": "JLC-D006",
@@ -2240,7 +2240,7 @@
       "title": "Approve live-streaming provider",
       "priority": "P0",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0902"
@@ -2253,8 +2253,8 @@
         "Approved provider/integration constraints recorded"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Reconciled 2026-10-15: DECISIONS.md O-010 approves Amazon IVS behind a replaceable provider abstraction and authorizes local contracts/adapter work only; production account activation, credentials, paid usage, and live provider calls remain separately guarded.",
+      "notes": "Governance-only reconciliation of the approved provider and local-integration constraints; no provider service was activated or called."
     },
     {
       "id": "JLC-0906",
