@@ -182,7 +182,7 @@
       "title": "Decide Jolcar domain/brand kit/accent/card ratio as needed",
       "priority": "P1",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0002"
@@ -195,8 +195,8 @@
         "Final decisions recorded or explicit deferment approved"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Reconciled 2026-10-15: DECISIONS.md O-002 records Jolcar / Жолкар with exact production host explicitly deferred to the DNS/release gate; O-003 records accent as a configurable token with final value deferred; O-004 records the final 4:3 listing-card ratio.",
+      "notes": "Governance-only reconciliation of already-approved decisions; no brand, domain, accent, or card-ratio substance changed."
     },
     {
       "id": "JLC-0101",
@@ -412,7 +412,7 @@
       "title": "Approve Kazakhstan phone/SMS production policy",
       "priority": "P0",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0103"
@@ -425,8 +425,8 @@
         "Approved seller-phone policy and provider recorded"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Reconciled 2026-10-15: DECISIONS.md O-005 records the +7 Kazakhstan phone policy, OTP-to-password registration, password-only routine login, permitted OTP cases, and that production SMS vendor selection/activation is deferred to production rollout behind the provider abstraction.",
+      "notes": "Governance-only reconciliation of the approved policy; production SMS vendor activation remains separately authorized."
     },
     {
       "id": "JLC-D004",
