@@ -2840,7 +2840,7 @@
       "title": "Approve external AI provider/model/cost policy",
       "priority": "P0",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1002"
@@ -2853,8 +2853,8 @@
         "Provider/model/cost/timeout policy approved"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Reconciled 2026-10-15: DECISIONS.md D-050 and O-011 record the approved OpenAI provider policy: server-side provider-neutral adapter, server-only credentials, gpt-6-luna default, explicitly governed gpt-6.1-sol use, standard tier, bounded tokens/timeout/retry window, server-side cost accounting, and USD 50 monthly hard stop.",
+      "notes": "Governance-only reconciliation of policy approval. No API key, secret, billing, paid provider call, staging/production integration, deployment, or provider activation occurred; JLC-1007 and JLC-900* manual authorization boundaries remain unchanged."
     },
     {
       "id": "JLC-1007",
@@ -2890,7 +2890,7 @@
       "title": "Approve production voice/speech approach if needed",
       "priority": "P1",
       "type": "decision_gate",
-      "status": "awaiting_decision",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1002"
@@ -2903,8 +2903,8 @@
         "Voice/STT approach approved or browser-native approach accepted"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "Reconciled 2026-10-15: DECISIONS.md D-051 and O-012 record browser/native speech-to-text as optional progressive enhancement, mandatory text fallback, no Jolcar raw-audio persistence/upload, text-only AI orchestration input, and a provider-neutral future-native boundary.",
+      "notes": "Governance-only reconciliation of the launch approach. No external speech vendor, API key, billing, paid call, staging/production integration, deployment, or provider activation occurred; JLC-1007 and JLC-900* manual authorization boundaries remain unchanged."
     },
     {
       "id": "JLC-1101",

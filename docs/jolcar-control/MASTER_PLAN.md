@@ -262,7 +262,9 @@ Preferred safe pattern:
 
 Historical YOLMOD AI work supports actor derivation, redaction, structured validation, tool allow-list and rate/cost controls as necessary safeguards.
 
-**Open:** exact external AI provider.
+**Approved launch policy:** OpenAI is the initial external AI provider behind the existing server-side provider-neutral adapter; credentials are server-only and browser-to-provider calls are prohibited. `gpt-6-luna` is the default model. `gpt-6.1-sol` requires an explicit feature flag or task-level routing policy with measured quality justification and is not an automatic fallback. Default use is standard service tier, approximately 8,000 input tokens, 1,000 output tokens, a 15-second timeout, and at most one transient-only retry within an approximately 25-second attempt window. Server-side accounting warns at USD 25 and USD 40 and stops calls at USD 50/month. Provider/model policy is not provider activation: secrets, paid calls, billing, staging/production integration, and deployment remain separately authorized.
+
+**Approved launch voice policy:** browser/native speech-to-text is progressive enhancement only; text input remains mandatory and universal. Jolcar does not persist raw voice recordings or require raw-audio upload, and its AI orchestration receives text. Unsupported platforms, permission denial, and recognition errors fall back to text. Keep a provider-neutral speech boundary for future native clients; no external speech provider is approved for MVP.
 
 ## 10. Buyer Requests and matching
 
@@ -549,7 +551,6 @@ Future mobile clients must reuse the same backend/domain contracts.
 
 - React Native + Expo for future mobile apps;
 - 4:3 as preferred card ratio;
-- a specific AI provider;
 - a specific live provider such as Mux/AWS IVS/Cloudflare-class service;
 - a particular analytics vendor;
 - a particular SMS vendor;
@@ -568,13 +569,11 @@ Future mobile clients must reuse the same backend/domain contracts.
 8. Dealer feed formats/API authentication.
 9. Raise-to-top rule.
 10. Live provider.
-11. AI provider/model/cost limits.
-12. Voice/STT approach if external service is needed.
-13. VIN/history data source.
-14. Production analytics/telemetry provider.
-15. Final legal/privacy/terms/support content.
-16. Timing/scope of native iOS/Android relative to web launch.
-17. Approved/licensed automotive news content source/editorial approach.
+11. VIN/history data source.
+12. Production analytics/telemetry provider.
+13. Final legal/privacy/terms/support content.
+14. Timing/scope of native iOS/Android relative to web launch.
+15. Approved/licensed automotive news content source/editorial approach.
 
 Tasks depending on these remain blocked rather than guessed.
 
