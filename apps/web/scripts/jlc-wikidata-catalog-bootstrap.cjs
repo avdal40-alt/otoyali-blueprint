@@ -128,7 +128,10 @@ function remoteOptions(args, environment = process.env) {
   const isDirectTarget = hostname === expectedHost.toLowerCase();
   const isPoolerTarget = hostname.endsWith(".pooler.supabase.com") && hostname !== "pooler.supabase.com";
   if (!isDirectTarget && !isPoolerTarget) throw new Error("Remote catalog import target does not match --expected-project-ref.");
-  if (target.searchParams.get("sslmode") !== "require") throw new Error("Remote catalog import requires sslmode=require.");
+  // `pg` is configured with rejectUnauthorized below; accept the explicit
+  // libpq verification mode used by Supabase pooler URLs as well as the
+  // established direct-connection form.
+  if (!["require", "verify-full"].includes(target.searchParams.get("sslmode"))) throw new Error("Remote catalog import requires certificate-verifying TLS.");
   if (isPoolerTarget) {
     if (target.username !== `postgres.${expectedProjectRef}`) throw new Error("Remote catalog import pooler username does not match --expected-project-ref.");
     if (target.pathname !== "/postgres") throw new Error("Remote catalog import pooler target requires the postgres database.");
