@@ -124,9 +124,17 @@ function remoteOptions(args, environment = process.env) {
   }
   if (!/^postgres(?:ql)?:$/.test(target.protocol) || !target.username || !target.password) throw new Error(`Remote catalog import requires a credentialed PostgreSQL URL in ${remoteDatabaseUrlEnvironmentVariable}.`);
   const expectedHost = `db.${expectedProjectRef}.supabase.co`;
-  if (target.hostname.toLowerCase() !== expectedHost.toLowerCase()) throw new Error("Remote catalog import target does not match --expected-project-ref.");
+  const hostname = target.hostname.toLowerCase();
+  const isDirectTarget = hostname === expectedHost.toLowerCase();
+  const isPoolerTarget = hostname.endsWith(".pooler.supabase.com") && hostname !== "pooler.supabase.com";
+  if (!isDirectTarget && !isPoolerTarget) throw new Error("Remote catalog import target does not match --expected-project-ref.");
   if (target.searchParams.get("sslmode") !== "require") throw new Error("Remote catalog import requires sslmode=require.");
-  return { connectionString: databaseUrl, expectedProjectRef, expectedHost };
+  if (isPoolerTarget) {
+    if (target.username !== `postgres.${expectedProjectRef}`) throw new Error("Remote catalog import pooler username does not match --expected-project-ref.");
+    if (target.pathname !== "/postgres") throw new Error("Remote catalog import pooler target requires the postgres database.");
+    if (target.port !== "5432") throw new Error("Remote catalog import pooler target requires session port 5432.");
+  }
+  return { connectionString: databaseUrl, expectedProjectRef, expectedHost, targetMode: isPoolerTarget ? "session_pooler" : "direct" };
 }
 
 async function remoteCounts(client) {
@@ -145,8 +153,8 @@ async function importRemote(snapshot, args = process.argv.slice(2), environment 
   const client = new Client({ connectionString: options.connectionString, ssl: { rejectUnauthorized: true } });
   try {
     await client.connect();
-    // A successful read-only connection to the exact direct project host is the
-    // final target check before the transactional import is allowed to write.
+    // A successful read-only connection to the validated direct or session-pooler
+    // target is the final check before the transactional import is allowed to write.
     await client.query("SELECT current_database()");
     const { pkg, sql } = importSql(snapshot);
     await client.query(sql);
