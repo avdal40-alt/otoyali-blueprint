@@ -280,7 +280,7 @@ export const tr = {
     countrySearchPlaceholder: "Ülke adı veya kodu ara",
     phonePlaceholder: "Telefon numaranız",
     countryNoResults: "Ülke bulunamadı.",
-    phoneInputHelper: "Uluslararası format desteklenir. Örnek: +90 555 123 45 67",
+    phoneInputHelper: "Uluslararası format desteklenir. Örnek: {example}",
     sendCode: "Kod gönder",
     sending: "Gönderiliyor",
     verifyTitle: "Doğrulama kodu",

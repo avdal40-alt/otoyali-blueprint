@@ -1,9 +1,11 @@
 import {
   getCountries,
   getCountryCallingCode,
+  getExampleNumber,
   parsePhoneNumberFromString,
   type CountryCode
 } from "libphonenumber-js/max";
+import mobileExamples from "libphonenumber-js/examples.mobile.json";
 import type { Locale } from "@/i18n/types";
 import { CURRENT_MARKET } from "@/lib/market";
 
@@ -37,6 +39,13 @@ export type PhoneCountryOption = {
 };
 
 export const DEFAULT_PHONE_COUNTRY: AuthPhoneCountry = CURRENT_MARKET.defaultPhoneCountry;
+
+// Product-approved examples keep the launch-market hints familiar while all
+// other countries use the library's representative mobile-number metadata.
+const phoneExampleOverrides: Partial<Record<AuthPhoneCountry, string>> = {
+  KZ: "+7 777 123 45 67",
+  TR: "+90 555 123 45 67"
+};
 
 const supportedCountries = new Set<AuthPhoneCountry>(getCountries());
 
@@ -143,6 +152,17 @@ export function getPhoneCountryOptions(locale: Locale): PhoneCountryOption[] {
 
       return a.name.localeCompare(b.name, locale === "tr" ? "tr-TR" : "en-US");
     });
+}
+
+export function getAuthPhoneExample(country: AuthPhoneCountry): string {
+  const override = phoneExampleOverrides[country];
+  if (override) return override;
+
+  return getExampleNumber(country, mobileExamples)?.formatInternational() ?? `+${getCountryCallingCode(country)}`;
+}
+
+export function formatPhoneInputHelper(template: string, country: AuthPhoneCountry): string {
+  return template.replace("{example}", getAuthPhoneExample(country));
 }
 
 export function maskE164Phone(value: string) {

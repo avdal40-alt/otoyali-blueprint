@@ -280,7 +280,7 @@ export const en = {
     countrySearchPlaceholder: "Search by country or code",
     phonePlaceholder: "Your phone number",
     countryNoResults: "No country found.",
-    phoneInputHelper: "International format is supported. Example: +90 555 123 45 67",
+    phoneInputHelper: "International format is supported. Example: {example}",
     sendCode: "Send code",
     sending: "Sending",
     verifyTitle: "Verification code",

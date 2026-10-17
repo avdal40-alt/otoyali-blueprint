@@ -9,6 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test:phone-auth": "node scripts/phone-auth.test.cjs",
+    "test:jlc-0108": "node scripts/jlc-0108-jolcar-auth-branding.test.cjs",
     "test:phone-policy": "node scripts/phone-policy.test.cjs",
     "test:auth-return-path": "node scripts/auth-return-path.test.cjs",
     "test:auth-signup-metadata": "node scripts/auth-signup-metadata.test.cjs",
