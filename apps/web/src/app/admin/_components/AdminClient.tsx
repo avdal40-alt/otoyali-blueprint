@@ -17,8 +17,7 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { isMissingAuthSessionError } from "@/lib/auth/auth-ui";
 import { formatPrice } from "@/lib/format";
-import { getBestImageUrl, isImageProcessingFailed } from "@/lib/media/image-variants";
-import { signImageStorageUrlMap, signStorageUrlMap } from "@/lib/media/storage-urls";
+import { signStorageUrlMap } from "@/lib/media/storage-urls";
 import type { ServiceProviderApplicationAdminRow } from "@/lib/supabase/types";
 
 type AdminSection = "dashboard" | "listings" | "videos" | "services" | "reports" | "users" | "settings";
@@ -31,9 +30,7 @@ type AdminState = {
 };
 
 type ListingRow = {
-  id: string;
-  vehicle_profile_id: string | null;
-  seller_id: string | null;
+  listing_id: string;
   title: string | null;
   status: string | null;
   moderation_status: string | null;
@@ -42,29 +39,12 @@ type ListingRow = {
   city: string | null;
   seller_type: string | null;
   quality_score: number | null;
-  published_at: string | null;
   created_at: string | null;
-};
-
-type VehicleProfileRow = {
-  id: string;
-  make_id: string | null;
-  model_id: string | null;
+  make_name: string | null;
+  model_name: string | null;
   year: number | null;
-};
-
-type CatalogRow = {
-  id: string;
-  name: string | null;
-};
-
-type MediaPreviewRow = {
-  vehicle_profile_id: string;
-  url: string | null;
-  thumb_url?: string | null;
-  card_url?: string | null;
-  large_url?: string | null;
-  processed_status?: string | null;
+  preview_path: string | null;
+  preview_url?: string | null;
 };
 
 type VideoRow = {
@@ -296,10 +276,6 @@ function Dashboard({ userId }: { userId: string }) {
 
 function ListingsModeration({ userId, locale }: { userId: string; locale: Locale }) {
   const [rows, setRows] = useState<ListingRow[]>([]);
-  const [profiles, setProfiles] = useState<Record<string, VehicleProfileRow>>({});
-  const [makes, setMakes] = useState<Record<string, string>>({});
-  const [models, setModels] = useState<Record<string, string>>({});
-  const [mediaPreviews, setMediaPreviews] = useState<Record<string, MediaPreviewRow>>({});
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -308,18 +284,10 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
   const load = useCallback(async function load() {
     setLoading(true);
     const supabase = getSupabaseBrowserClient();
-    let query = supabase
-      .schema("marketplace")
-      .from("listings")
-      .select("id,vehicle_profile_id,seller_id,title,status,moderation_status,price_amount,currency,city,seller_type,quality_score,published_at,created_at")
-      .order("created_at", { ascending: false })
-      .limit(50);
-
-    if (filter !== "all") {
-      query = query.eq("moderation_status", filter);
-    }
-
-    const { data, error: listingError } = await query;
+    const { data, error: listingError } = await supabase.rpc("admin_list_listing_moderation", {
+      p_moderation_status: filter === "all" ? null : filter,
+      p_limit: 50
+    });
     if (listingError) {
       setError(listingError.message);
       setLoading(false);
@@ -327,50 +295,14 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
     }
 
     const listings = (data ?? []) as ListingRow[];
-    const profileIds = listings.map((item) => item.vehicle_profile_id).filter(Boolean) as string[];
-    const profileResult = profileIds.length > 0
-      ? await supabase.schema("vehicle").from("vehicle_profiles").select("id,make_id,model_id,year").in("id", profileIds)
-      : { data: [], error: null };
-    const profileRows = (profileResult.data ?? []) as VehicleProfileRow[];
-    const makeIds = Array.from(new Set(profileRows.map((item) => item.make_id).filter(Boolean))) as string[];
-    const modelIds = Array.from(new Set(profileRows.map((item) => item.model_id).filter(Boolean))) as string[];
-    const [makeResult, modelResult, mediaResult] = await Promise.all([
-      makeIds.length > 0 ? supabase.schema("vehicle").from("makes").select("id,name").in("id", makeIds) : Promise.resolve({ data: [], error: null }),
-      modelIds.length > 0 ? supabase.schema("vehicle").from("models").select("id,name").in("id", modelIds) : Promise.resolve({ data: [], error: null }),
-      profileIds.length > 0
-        ? supabase
-          .schema("vehicle")
-          .from("profile_media")
-          .select("vehicle_profile_id,url,thumb_url,card_url,large_url,processed_status,is_cover,sort_order")
-          .in("vehicle_profile_id", profileIds)
-          .order("is_cover", { ascending: false })
-          .order("sort_order", { ascending: true })
-        : Promise.resolve({ data: [], error: null })
-    ]);
+    const previewPaths = Array.from(new Set(listings.map((item) => item.preview_path).filter((path): path is string => Boolean(path))));
+    const signedPreviews = new Map(await Promise.all(previewPaths.map(async (path) => {
+      const { data: signed, error } = await supabase.storage.from("listing-media").createSignedUrl(path, 60 * 60);
+      return [path, error ? null : signed?.signedUrl ?? null] as const;
+    })));
 
-    setRows(listings);
-    setProfiles(Object.fromEntries(profileRows.map((item) => [item.id, item])));
-    setMakes(Object.fromEntries(((makeResult.data ?? []) as CatalogRow[]).map((item) => [item.id, item.name ?? ""])));
-    setModels(Object.fromEntries(((modelResult.data ?? []) as CatalogRow[]).map((item) => [item.id, item.name ?? ""])));
-    const mediaRows = (mediaResult.data ?? []) as MediaPreviewRow[];
-    const signedMedia = await signImageStorageUrlMap(
-      supabase,
-      mediaRows.flatMap((item) => [item.url, item.thumb_url, item.card_url, item.large_url])
-    );
-    const previews = new Map<string, MediaPreviewRow>();
-    for (const item of mediaRows) {
-      if (!previews.has(item.vehicle_profile_id)) {
-        previews.set(item.vehicle_profile_id, {
-          ...item,
-          url: signedMedia.get(item.url ?? "") ?? null,
-          thumb_url: signedMedia.get(item.thumb_url ?? "") ?? null,
-          card_url: signedMedia.get(item.card_url ?? "") ?? null,
-          large_url: signedMedia.get(item.large_url ?? "") ?? null
-        });
-      }
-    }
-    setMediaPreviews(Object.fromEntries(previews));
-    setError(profileResult.error?.message ?? makeResult.error?.message ?? modelResult.error?.message ?? mediaResult.error?.message ?? null);
+    setRows(listings.map((item) => ({ ...item, preview_url: item.preview_path ? signedPreviews.get(item.preview_path) ?? null : null })));
+    setError(null);
     setLoading(false);
   }, [filter]);
 
@@ -383,7 +315,7 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
     if (action === "reject" && !note) return;
     const supabase = getSupabaseBrowserClient();
     setError(null);
-    setReviewingListingId(listing.id);
+    setReviewingListingId(listing.listing_id);
     const { data: sessionData } = await supabase.auth.getSession();
     const accessToken = sessionData.session?.access_token;
     if (!accessToken) {
@@ -399,7 +331,7 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
         Authorization: `Bearer ${accessToken}`
       },
       body: JSON.stringify({
-        listingId: listing.id,
+        listingId: listing.listing_id,
         decision: action,
         rejectionReason: note
       })
@@ -433,25 +365,18 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
       empty={rows.length === 0}
     >
       {rows.map((row) => {
-        const profile = row.vehicle_profile_id ? profiles[row.vehicle_profile_id] : null;
-        const mediaPreview = row.vehicle_profile_id ? mediaPreviews[row.vehicle_profile_id] : null;
-        const makeModel = [profile?.make_id ? makes[profile.make_id] : null, profile?.model_id ? models[profile.model_id] : null, profile?.year].filter(Boolean).join(" ");
+        const makeModel = [row.make_name, row.model_name, row.year].filter(Boolean).join(" ");
         return (
-          <div key={row.id} className="grid gap-3 border-b border-oto-border py-4 last:border-b-0 lg:grid-cols-[88px_1.3fr_1fr_0.9fr_1.4fr] lg:items-center">
+          <div key={row.listing_id} className="grid gap-3 border-b border-oto-border py-4 last:border-b-0 lg:grid-cols-[88px_1.3fr_1fr_0.9fr_1.4fr] lg:items-center">
             <div className="aspect-[4/3] overflow-hidden rounded-md bg-oto-surface">
-              <SafeImage src={getBestImageUrl(mediaPreview, "thumb")} alt={row.title || "İlan"} />
+              <SafeImage src={row.preview_url} alt={row.title || "İlan"} />
             </div>
             <div>
               <p className="font-black text-oto-text">{row.title || "İlan"}</p>
               <div className="mt-1">
                 <Badge variant="primary">{t(locale, "verticals.cars.shortLabel")}</Badge>
               </div>
-              <p className="mt-1 text-xs font-bold text-oto-muted">{makeModel || row.vehicle_profile_id || "Araç bilgisi yok"}</p>
-              {mediaPreview?.processed_status ? (
-                <p className={isImageProcessingFailed(mediaPreview) ? "mt-1 text-xs font-black text-oto-danger" : "mt-1 text-xs font-bold text-oto-muted"}>
-                  Görsel: {mediaPreview.processed_status}
-                </p>
-              ) : null}
+              <p className="mt-1 text-xs font-bold text-oto-muted">{makeModel || "Araç bilgisi yok"}</p>
             </div>
             <div className="text-sm font-bold text-oto-muted">
               <p>{row.city || "Şehir yok"} · {row.seller_type || "seller"}</p>
@@ -465,7 +390,7 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
               {row.moderation_status === "pending_review" ? (
                 <>
                   <SmallButton onClick={() => moderate(row, "approve")} disabled={Boolean(reviewingListingId)}>
-                    {reviewingListingId === row.id ? "İşleniyor" : "Onayla"}
+                    {reviewingListingId === row.listing_id ? "İşleniyor" : "Onayla"}
                   </SmallButton>
                   <SmallButton onClick={() => moderate(row, "reject")} variant="secondary" disabled={Boolean(reviewingListingId)}>
                     Reddet
@@ -474,7 +399,7 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
               ) : (
                 <span className="rounded-md bg-oto-surface px-3 py-2 text-xs font-black text-oto-muted">Karar kapalı</span>
               )}
-              <Link href={localizePath(`/listing/${row.id}`, locale)} className="rounded-md border border-oto-border px-3 py-2 text-xs font-black text-oto-text">Aç</Link>
+              <Link href={localizePath(`/listing/${row.listing_id}`, locale)} className="rounded-md border border-oto-border px-3 py-2 text-xs font-black text-oto-text">Aç</Link>
             </div>
           </div>
         );
