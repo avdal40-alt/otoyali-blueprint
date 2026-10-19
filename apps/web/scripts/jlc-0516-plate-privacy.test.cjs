@@ -1,0 +1,26 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const root = path.resolve(__dirname, "..");
+const repo = path.resolve(root, "..", "..");
+const read = (...parts) => fs.readFileSync(path.join(...parts), "utf8");
+const pipeline = read(root, "src", "lib", "media", "sanitized-photo-pipeline.ts");
+const route = read(root, "src", "app", "api", "listings", "[id]", "media", "route.ts");
+const vision = read(root, "src", "features", "ai", "photo", "plate-region-vision.ts");
+const provider = read(root, "src", "features", "ai", "providers", "openai-provider.ts");
+const migration = read(repo, "supabase", "migrations", "20261019235500_jlc_0516_verified_plate_privacy_outcomes.sql");
+
+for (const required of ["verifyNoReadableLicensePlate", "PrivacyProcessingError", "decidePrivacyOutcome", "initialDetectionCount === 0", '"skipped"', '"manual_required"', ".blur(30)", "compositedRegionCount += 1", "vision.verify"]) assert.match(pipeline, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+assert.match(vision, /provider\.verifyPlatePrivacy/);
+assert.match(provider, /Privacy verification task/);
+assert.match(provider, /readable_plate_count/);
+assert.match(route, /finalize_own_listing_sanitized_photo_v2/);
+assert.match(route, /listing_media_privacy_outcome/);
+assert.match(route, /manual_required/);
+assert.match(route, /remove\(\[payload\.tempPath\]\)/);
+assert.match(migration, /CREATE FUNCTION public\.finalize_own_listing_sanitized_photo_v2/);
+assert.match(migration, /p_blur_status IS NULL OR p_blur_status NOT IN \('blurred', 'skipped'\)/);
+assert.match(migration, /REVOKE ALL ON FUNCTION public\.finalize_own_listing_sanitized_photo\([^\n]+authenticated/);
+assert.match(migration, /pm\.blur_status IN \('blurred', 'skipped'\)/);
+assert.doesNotMatch(migration, /DELETE|TRUNCATE|UPDATE marketplace\.(?!listings AS l SET moderation_status)/);
+console.log("JLC-0516 verified plate privacy contract: PASS");

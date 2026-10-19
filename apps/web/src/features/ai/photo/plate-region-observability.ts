@@ -3,7 +3,7 @@ import "server-only";
 import { ZodError, type ZodIssue } from "zod";
 import { safeLog } from "@/lib/observability/safe-logger";
 
-export type PlateRegionValidationBoundary = "normalized_image_input" | "openai_plate_output" | "normalized_plate_regions";
+export type PlateRegionValidationBoundary = "normalized_image_input" | "openai_plate_output" | "openai_plate_verification_output" | "normalized_plate_regions" | "normalized_plate_verification";
 
 type NormalizedImageMetadata = {
   mimeType: string | null;

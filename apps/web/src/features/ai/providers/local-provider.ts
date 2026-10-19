@@ -40,6 +40,11 @@ export const localDeterministicAiProvider: AiProvider = {
   async detectPlateRegions(request) {
     return detectPlateRegionsDeterministically(request);
   },
+  async verifyPlatePrivacy(request) {
+    // Fixture-only approximation; production uses OpenAI's distinct verification prompt.
+    const detection = await detectPlateRegionsDeterministically(request);
+    return { readable_plate_count: detection.plates.length };
+  },
   async moderateListingContext(input: ContextualModerationProviderInput) {
     return localModerationFixture(input);
   },

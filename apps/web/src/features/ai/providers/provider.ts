@@ -1,5 +1,5 @@
 import type { AiCapabilityId, AiRequest, AiResponse } from "../domain/types";
-import type { PlateDetectionOutput, PlateDetectionRequest } from "../photo/plate-region-contract";
+import type { PlateDetectionOutput, PlateDetectionRequest, PlatePrivacyVerificationOutput } from "../photo/plate-region-contract";
 import type { ContextualModerationOutput, ContextualModerationProviderInput } from "../moderation/contextual-moderation";
 import type { ImageModerationOutput, ImageModerationProviderInput } from "../moderation/image-moderation";
 
@@ -9,6 +9,7 @@ export type AiProvider = {
   getCapabilities(): AiCapabilityId[];
   generate(request: AiRequest): Promise<AiResponse>;
   detectPlateRegions(request: PlateDetectionRequest): Promise<PlateDetectionOutput>;
+  verifyPlatePrivacy(request: PlateDetectionRequest): Promise<PlatePrivacyVerificationOutput>;
   moderateListingContext(input: ContextualModerationProviderInput): Promise<ContextualModerationOutput>;
   moderateListingImage(input: ImageModerationProviderInput): Promise<ImageModerationOutput>;
 };

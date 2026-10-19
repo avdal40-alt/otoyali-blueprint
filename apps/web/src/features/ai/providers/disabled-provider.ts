@@ -30,6 +30,9 @@ export const disabledAiProvider: AiProvider = {
   async detectPlateRegions(_request: PlateDetectionRequest) {
     throw new Error("vision_provider_unavailable");
   },
+  async verifyPlatePrivacy(_request: PlateDetectionRequest) {
+    throw new Error("vision_provider_unavailable");
+  },
   async moderateListingContext(_input: ContextualModerationProviderInput) {
     throw new Error("contextual_moderation_provider_unavailable");
   },

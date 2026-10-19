@@ -56,7 +56,13 @@ export const plateDetectionOutputSchema = z
   .object({ plates: z.array(plateRegionSchema).max(PLATE_REGION_MAX_REGIONS) })
   .strict();
 
+/** A separate privacy-verification result. It intentionally does not contain plate text or coordinates. */
+export const platePrivacyVerificationOutputSchema = z
+  .object({ readable_plate_count: z.number().int().min(0).max(PLATE_REGION_MAX_REGIONS) })
+  .strict();
+
 export type PlateDetectionOutput = z.infer<typeof plateDetectionOutputSchema>;
+export type PlatePrivacyVerificationOutput = z.infer<typeof platePrivacyVerificationOutputSchema>;
 export type PlateDetectionRequest = {
   image: PrivateVisionImageInput;
   locale?: "tr" | "en";
