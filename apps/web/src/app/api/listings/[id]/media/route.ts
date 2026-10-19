@@ -15,7 +15,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
   const payload = await parseBody(request);
   if (!payload) return NextResponse.json({ error: "İstek geçerli değil." }, { status: 422, headers: privateApiHeaders });
 
-  const { data: listing, error: listingError } = await authenticated.supabase.schema("marketplace").from("listings").select("vehicle_profile_id").eq("id", listingId.data).eq("seller_id", authenticated.userId).eq("status", "draft").eq("moderation_status", "pending_review").maybeSingle();
+  const { data: listing, error: listingError } = await authenticated.supabase.schema("marketplace").from("listings").select("vehicle_profile_id").eq("id", listingId.data).eq("seller_id", authenticated.userId).eq("status", "draft").in("moderation_status", ["draft", "pending_review"]).maybeSingle();
   if (listingError || !listing?.vehicle_profile_id || !payload.tempPath.startsWith(`temp/${authenticated.userId}/${payload.mediaId}/`)) return NextResponse.json({ error: "Bu işlem için yetkiniz yok." }, { status: 403, headers: privateApiHeaders });
   const { data: source, error: sourceError } = await authenticated.supabase.storage.from("listing-media").download(payload.tempPath);
   if (sourceError || !source) return NextResponse.json({ error: "Fotoğraf bulunamadı." }, { status: 404, headers: privateApiHeaders });

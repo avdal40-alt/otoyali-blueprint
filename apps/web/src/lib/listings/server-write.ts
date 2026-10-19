@@ -103,6 +103,12 @@ export type ListingWriteRpcError = { code?: string | null; message?: string | nu
 
 export function listingWriteError(error: ListingWriteRpcError) {
   if (error.code === "OT403" && error.message === "seller phone verification required") return { status: 403, message: "SELLER_PHONE_VERIFICATION_REQUIRED" };
+  if (error.code === "OT422" && error.message === "at least three finalized photos are required") {
+    return { status: 422, message: "İlanı incelemeye göndermek için en az 3 tamamlanmış fotoğraf ekleyin." };
+  }
+  if (error.code === "OT422" && error.message === "a finalized cover photo is required") {
+    return { status: 422, message: "İlanı incelemeye göndermek için tamamlanmış bir kapak fotoğrafı seçin." };
+  }
   switch (error.code) {
     case "OT401": return { status: 401, message: "Oturum doğrulanamadı." };
     case "OT403": return { status: 403, message: "Bu işlem için yetkiniz yok." };

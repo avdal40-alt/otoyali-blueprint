@@ -997,15 +997,16 @@ export function SellWizard({
           }
         }
         logClientError("sell.uploadSanitizedPhoto", mediaError);
+        const failureMessage = listingWriteFailureMessage(mediaError, copy.photoProcessingFallback);
         updatePhoto(photo.id, {
           uploadStatus: "failed",
           sanitizationStatus: "failed",
           statusText: copy.photoProcessingFailed,
-          error: copy.photoProcessingFallback
+          error: failureMessage
         });
         setSubmitting(false);
         setPublishStatus(null);
-        setError(copy.submitFailure);
+        setError(failureMessage);
         return;
       }
     }
@@ -1029,7 +1030,7 @@ export function SellWizard({
       logClientError("sell.submitListing", submitError);
       setSubmitting(false);
       setPublishStatus(null);
-      setError(copy.submitFailure);
+      setError(listingWriteFailureMessage(submitError, copy.submitFailure));
       return;
     }
 
@@ -1671,6 +1672,14 @@ async function uploadPhotoMedia({
 }
 
 type ListingWriteRequestError = { code?: string; message: string; status?: number };
+
+function listingWriteFailureMessage(error: unknown, fallback: string) {
+  if (!error || typeof error !== "object" || !("message" in error) || typeof error.message !== "string") return fallback;
+  const message = error.message.trim();
+  return message && message !== "Listing write failed." && message !== "Listing write returned no data." && message !== "Sanitized media processing failed."
+    ? message
+    : fallback;
+}
 
 async function listingWriteRequest<T>(
   supabase: ReturnType<typeof getSupabaseBrowserClient>,
