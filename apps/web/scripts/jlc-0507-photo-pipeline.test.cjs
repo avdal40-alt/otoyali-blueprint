@@ -31,6 +31,8 @@ for (const value of [
   'payload.tempPath.startsWith(`temp/${authenticated.userId}/${payload.mediaId}/`)',
   'trustedSanitizedStorage.upload(path, processed.variants',
   "finalize_own_listing_sanitized_photo",
+  "listing_media_processing_failed",
+  "byteLength: sourceBytes.byteLength",
   'storage.from("listing-media").remove([payload.tempPath])'
 ]) assert.ok(mediaRoute.includes(value), `media route contract missing: ${value}`);
 
@@ -65,6 +67,14 @@ for (const value of [
   "if (mediaResult.error || !mediaResult.data)",
   "await supabase.storage.from(\"listing-media\").remove([tempPath])"
 ]) assert.ok(wizard.includes(value), `persisted-media failure contract missing: ${value}`);
+
+for (const value of [
+  "const activeCreateDraft = useRef<ActiveCreateDraft | null>(null)",
+  "let draft = activeCreateDraft.current",
+  "activeCreateDraft.current = draft",
+  "const persistedPhotos = state.photos.filter((photo) => photo.sanitizationStatus === \"ready\")",
+  "persistedPhotos.some((photo) => photo.isCover)"
+]) assert.ok(wizard.includes(value), `draft retry/persisted completeness contract missing: ${value}`);
 
 for (const value of ["thumb_url", "card_url", "large_url", "original_url"]) {
   assert.ok(variants.includes(value), `image variant fallback missing: ${value}`);

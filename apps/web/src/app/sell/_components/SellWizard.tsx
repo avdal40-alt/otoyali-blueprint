@@ -49,6 +49,8 @@ type ExistingMedia = {
   sort_order: number;
 };
 
+type ActiveCreateDraft = { listingId: string; vehicleProfileId: string };
+
 export type SellWizardMode = "create" | "editRejected";
 
 type WizardState = {
@@ -187,6 +189,7 @@ export function SellWizard({
   const profileRequestGuard = useRef(new LatestRequestGuard());
   const modelRequestGuard = useRef(new LatestRequestGuard());
   const photoRequestGuards = useRef(new Map<string, LatestRequestGuard>());
+  const activeCreateDraft = useRef<ActiveCreateDraft | null>(null);
   const mounted = useRef(false);
   const renderedRouteKey = useRef<string | null>(null);
   const renderedModelRequestContextKey = useRef<string | null>(null);
@@ -908,26 +911,30 @@ export function SellWizard({
       return;
     }
 
-    setPublishStatus(copy.creatingVehicleProfile);
-    const createResult = await listingWriteRequest<{ listingId: string; vehicleProfileId: string }>(getSupabaseBrowserClient(), "/api/listings", "POST", {
-      makeId: state.makeId, modelId: state.modelId, variantId: null, year: Number(state.year), mileageKm: Number(state.mileageKm),
-      condition: state.condition, fuelType: state.fuelType, transmission: state.transmission, bodyType: state.bodyType || null,
-      driveType: state.driveType || null, color: state.color || null,
-      engineVolumeL: state.fuelType === "electric" ? null : Number(state.engineVolumeL), damageState: state.damageState || null,
-      ownerCount: state.ownerCount ? Number(state.ownerCount) : null, description: state.description, priceAmount: state.priceAmount,
-      currency: state.currency, priceNegotiable: state.priceNegotiable, city: state.city, cityId: null, districtId: null, sellerContactPhoneId: sellerContactId
-    });
-
-    if (!isCurrentPublication()) return;
-    if (createResult.error || !createResult.data) {
-      logClientError("sell.createDraft", createResult.error);
-      setSubmitting(false);
-      setPublishStatus(null);
-      setError(copy.draftCreateFailure);
-      return;
+    let draft = activeCreateDraft.current;
+    if (!draft) {
+      setPublishStatus(copy.creatingVehicleProfile);
+      const createResult = await listingWriteRequest<ActiveCreateDraft>(getSupabaseBrowserClient(), "/api/listings", "POST", {
+        makeId: state.makeId, modelId: state.modelId, variantId: null, year: Number(state.year), mileageKm: Number(state.mileageKm),
+        condition: state.condition, fuelType: state.fuelType, transmission: state.transmission, bodyType: state.bodyType || null,
+        driveType: state.driveType || null, color: state.color || null,
+        engineVolumeL: state.fuelType === "electric" ? null : Number(state.engineVolumeL), damageState: state.damageState || null,
+        ownerCount: state.ownerCount ? Number(state.ownerCount) : null, description: state.description, priceAmount: state.priceAmount,
+        currency: state.currency, priceNegotiable: state.priceNegotiable, city: state.city, cityId: null, districtId: null, sellerContactPhoneId: sellerContactId
+      });
+      if (!isCurrentPublication()) return;
+      if (createResult.error || !createResult.data) {
+        logClientError("sell.createDraft", createResult.error);
+        setSubmitting(false);
+        setPublishStatus(null);
+        setError(copy.draftCreateFailure);
+        return;
+      }
+      draft = createResult.data;
+      activeCreateDraft.current = draft;
     }
 
-    const listingId = createResult.data.listingId;
+    const listingId = draft.listingId;
     const supabase = getSupabaseBrowserClient();
 
     // JLC-1001: upload and sanitize seller photos before moderation submission.
@@ -946,7 +953,7 @@ export function SellWizard({
         const uploaded = await uploadPhotoMedia({
           supabase,
           userId,
-          vehicleProfileId: createResult.data.vehicleProfileId,
+          vehicleProfileId: draft.vehicleProfileId,
           photo,
           sortOrder,
           isCurrent: isCurrentPublication,
@@ -1035,6 +1042,7 @@ export function SellWizard({
     }
 
     clearStoredDraft(userId);
+    activeCreateDraft.current = null;
     state.photos.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
     setSubmitting(false);
     setPublishStatus(null);
@@ -1543,9 +1551,10 @@ function toSellerProfile(profile: Profile | null, authPhone: string, locale: str
 }
 
 function calculateQualityScore(state: WizardState) {
+  const persistedPhotos = state.photos.filter((photo) => photo.sanitizationStatus === "ready");
   let score = 0;
-  if (state.photos.length >= 5) score += 30;
-  else if (state.photos.length >= 3) score += 20;
+  if (persistedPhotos.length >= 5) score += 30;
+  else if (persistedPhotos.length >= 3) score += 20;
   if (state.description.trim().length >= 100) score += 20;
   if (Number(state.priceAmount) > 0) score += 15;
   if (state.city) score += 10;
@@ -1555,14 +1564,15 @@ function calculateQualityScore(state: WizardState) {
 }
 
 function getQualityItems(state: WizardState, profileComplete: boolean, copy: SellCopy): QualityItem[] {
+  const persistedPhotos = state.photos.filter((photo) => photo.sanitizationStatus === "ready");
   return [
     { label: copy.qualityItems[0], complete: profileComplete },
     { label: copy.qualityItems[1], complete: Boolean(state.makeId && state.modelId && state.year && validYear(state.year)) },
     { label: copy.qualityItems[2], complete: Number(state.priceAmount) > 0 },
     { label: copy.qualityItems[3], complete: Boolean(state.city) },
     { label: copy.qualityItems[4], complete: state.description.trim().length >= 60 },
-    { label: copy.qualityItems[5], complete: state.photos.length >= 3 },
-    { label: copy.qualityItems[6], complete: state.photos.some((photo) => photo.isCover) },
+    { label: copy.qualityItems[5], complete: persistedPhotos.length >= 3 },
+    { label: copy.qualityItems[6], complete: persistedPhotos.some((photo) => photo.isCover) },
     { label: copy.qualityItems[7], complete: Boolean(state.damageState && state.damageState !== "unknown") }
   ];
 }

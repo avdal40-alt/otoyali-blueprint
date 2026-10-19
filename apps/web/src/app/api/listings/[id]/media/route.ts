@@ -3,6 +3,7 @@ import { listingIdSchema, listingWriteError, logListingWriteFailure } from "@/li
 import { sanitizedPhotoRequestSchema, sanitizePrivatePhoto } from "@/lib/media/sanitized-photo-pipeline";
 import { privateApiHeaders, requireAuthenticatedRequestSupabase } from "@/lib/supabase/request";
 import { trustedSanitizedStorage } from "@/lib/supabase/trusted-storage";
+import { safeLog } from "@/lib/observability/safe-logger";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -21,7 +22,20 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
   if (sourceError || !source) return NextResponse.json({ error: "Fotoğraf bulunamadı." }, { status: 404, headers: privateApiHeaders });
   const mimeType = source.type as "image/jpeg" | "image/png" | "image/webp";
   if (!["image/jpeg", "image/png", "image/webp"].includes(mimeType)) return NextResponse.json({ error: "İstek geçerli değil." }, { status: 422, headers: privateApiHeaders });
-  let processed; try { processed = await sanitizePrivatePhoto({ bytes: new Uint8Array(await source.arrayBuffer()), mimeType, requestId: payload.mediaId }); } catch { return NextResponse.json({ error: "Fotoğraf güvenli olarak işlenemedi." }, { status: 422, headers: privateApiHeaders }); }
+  const sourceBytes = new Uint8Array(await source.arrayBuffer());
+  let processed;
+  try {
+    processed = await sanitizePrivatePhoto({ bytes: sourceBytes, mimeType, requestId: payload.mediaId });
+  } catch (processingError) {
+    safeLog("warn", "listing_media_processing_failed", {
+      stage: "sanitize",
+      errorClass: processingError instanceof Error ? processingError.name : "unknown",
+      errorCode: processingError instanceof Error && /^[a-z_]+$/i.test(processingError.message) ? processingError.message : "unknown",
+      mimeType,
+      byteLength: sourceBytes.byteLength
+    });
+    return NextResponse.json({ error: "Fotoğraf güvenli olarak işlenemedi." }, { status: 422, headers: privateApiHeaders });
+  }
   const base = `public/${listing.vehicle_profile_id}/${payload.mediaId}`;
   const paths = { master: `${base}/master.webp`, large: `${base}/large.webp`, card: `${base}/card.webp`, thumb: `${base}/thumb.webp` };
   const uploads = await Promise.all(Object.entries(paths).map(async ([name, path]) => trustedSanitizedStorage.upload(path, processed.variants[name as keyof typeof processed.variants])));
