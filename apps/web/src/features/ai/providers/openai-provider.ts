@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { getAiModel } from "../model-registry";
 import { plateDetectionOutputSchema, type PlateDetectionRequest } from "../photo/plate-region-contract";
+import { getNormalizedImageMetadata, logPlateRegionZodFailure } from "../photo/plate-region-observability";
 import { aiProviderResponseSchema } from "../schemas";
 import { redactAiOutbound } from "../services/redaction";
 import type { AiProvider } from "./provider";
@@ -48,7 +49,13 @@ export const openAiProvider: AiProvider = {
       ]
     }, { timeout: model.timeoutMs, maxRetries: model.retries });
 
-    return plateDetectionOutputSchema.parse(JSON.parse(completion.choices[0]?.message.content ?? "{}"));
+    const providerPayload = JSON.parse(completion.choices[0]?.message.content ?? "{}");
+    try {
+      return plateDetectionOutputSchema.parse(providerPayload);
+    } catch (error) {
+      logPlateRegionZodFailure("openai_plate_output", error, getNormalizedImageMetadata(request.image, request.requestId));
+      throw error;
+    }
   },
   async moderateListingContext(input: ContextualModerationProviderInput) {
     const model = getAiModel("FAST", process.env.AI_MODEL?.trim());

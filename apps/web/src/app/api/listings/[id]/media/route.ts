@@ -40,10 +40,20 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
   const paths = { master: `${base}/master.webp`, large: `${base}/large.webp`, card: `${base}/card.webp`, thumb: `${base}/thumb.webp` };
   const uploads = await Promise.all(Object.entries(paths).map(async ([name, path]) => trustedSanitizedStorage.upload(path, processed.variants[name as keyof typeof processed.variants])));
   if (uploads.some((result) => result.error)) { await trustedSanitizedStorage.remove(Object.values(paths)); return NextResponse.json({ error: "Fotoğraf güvenli olarak işlenemedi." }, { status: 422, headers: privateApiHeaders }); }
-  const { data, error } = await authenticated.supabase.rpc("finalize_own_listing_sanitized_photo", { p_listing_id: listingId.data, p_media_id: payload.mediaId, p_temp_path: payload.tempPath, p_sanitized_master_path: paths.master, p_large_path: paths.large, p_card_path: paths.card, p_thumb_path: paths.thumb, p_sort_order: payload.sortOrder, p_is_cover: payload.isCover, p_width: processed.width, p_height: processed.height, p_aspect_ratio: processed.aspectRatio, p_mime_type: "image/webp", p_size_bytes: processed.variants.master.byteLength });
+  const finalizationListingId = listingId.data;
+  const finalizationContext = {
+    correlation_uuid: payload.mediaId,
+    route_listing_uuid: listingId.data,
+    finalize_listing_uuid: finalizationListingId,
+    media_uuid: payload.mediaId,
+    photo_ordinal: payload.sortOrder
+  };
+  safeLog("info", "listing_media_finalize_attempt", finalizationContext);
+  const { data, error } = await authenticated.supabase.rpc("finalize_own_listing_sanitized_photo", { p_listing_id: finalizationListingId, p_media_id: payload.mediaId, p_temp_path: payload.tempPath, p_sanitized_master_path: paths.master, p_large_path: paths.large, p_card_path: paths.card, p_thumb_path: paths.thumb, p_sort_order: payload.sortOrder, p_is_cover: payload.isCover, p_width: processed.width, p_height: processed.height, p_aspect_ratio: processed.aspectRatio, p_mime_type: "image/webp", p_size_bytes: processed.variants.master.byteLength });
   if (error) {
+    safeLog("warn", "listing_media_finalize_failed", { ...finalizationContext, postgres_code: error.code ?? null });
     const publicError = listingWriteError(error);
-    await trustedSanitizedStorage.remove(Object.values(paths)); logListingWriteFailure("finalize-sanitized-media", error, authenticated.userId, listingId.data);
+    await trustedSanitizedStorage.remove(Object.values(paths)); logListingWriteFailure("finalize-sanitized-media", error, authenticated.userId, finalizationListingId);
     return NextResponse.json({ error: publicError.message }, { status: publicError.status, headers: privateApiHeaders });
   }
   const row = Array.isArray(data) ? data[0] : data;

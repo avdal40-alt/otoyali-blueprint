@@ -2,6 +2,7 @@ import "server-only";
 
 import { isAiFeatureEnabled } from "../feature-registry";
 import { getConfiguredAiProvider } from "../providers/provider-registry";
+import { getNormalizedImageMetadata, logPlateRegionZodFailure } from "./plate-region-observability";
 import {
   plateDetectionOutputSchema,
   privateVisionImageInputSchema,
@@ -14,11 +15,24 @@ import {
  * under server authorization. This operation is read-only and rejects unsafe output.
  */
 export async function detectLicensePlateRegions(request: PlateDetectionRequest): Promise<PlateDetectionOutput> {
-  const image = privateVisionImageInputSchema.parse(request.image);
+  const metadata = getNormalizedImageMetadata(request.image, request.requestId);
+  let image;
+  try {
+    image = privateVisionImageInputSchema.parse(request.image);
+  } catch (error) {
+    logPlateRegionZodFailure("normalized_image_input", error, metadata);
+    throw error;
+  }
   if (!isAiFeatureEnabled("ai_vision")) throw new Error("vision_feature_disabled");
 
   const provider = getConfiguredAiProvider();
   if (!(await provider.isAvailable())) throw new Error("vision_provider_unavailable");
 
-  return plateDetectionOutputSchema.parse(await provider.detectPlateRegions({ ...request, image }));
+  const providerOutput = await provider.detectPlateRegions({ ...request, image });
+  try {
+    return plateDetectionOutputSchema.parse(providerOutput);
+  } catch (error) {
+    logPlateRegionZodFailure("normalized_plate_regions", error, metadata);
+    throw error;
+  }
 }
