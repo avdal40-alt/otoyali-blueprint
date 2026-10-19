@@ -12,7 +12,7 @@ const coverRoute = read(webRoot, "src", "app", "api", "listings", "[id]", "media
 const variants = read(webRoot, "src", "lib", "media", "image-variants.ts");
 const storage = read(webRoot, "src", "lib", "supabase", "trusted-storage.ts");
 const contract = read(repoRoot, "supabase", "migrations", "20260923202053_media_sec_01_sanitized_public_photo_contract.sql");
-const finalizer = read(repoRoot, "supabase", "migrations", "20261019065738_jlc_0508_fix_draft_media_finalization.sql");
+const finalizer = read(repoRoot, "supabase", "migrations", "20261019065851_jlc_0508_fix_draft_media_finalization.sql");
 
 for (const value of [
   'accept="image/jpeg,image/png,image/webp"',
