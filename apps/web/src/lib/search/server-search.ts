@@ -1,7 +1,7 @@
 import type { City, HomeListing, Make, Model } from "@/lib/supabase/types";
 import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import type { QueryResult } from "@/lib/queries/listings";
-import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
+import { signListingImageVariantUrlMap } from "@/lib/media/storage-urls";
 import type { ListingSearchFilters } from "./search-params";
 import { buildSearchRequest } from "./search-request";
 import { createPostgresSearchService, type PublicSearchItem as SearchListing, type SearchCursor } from "./search-service";
@@ -25,7 +25,7 @@ export async function searchListings(
   const supabase = getSupabaseServerClient();
   const { data: response, error } = await createPostgresSearchService(supabase).search(buildSearchRequest(filters, catalogs));
   const items = Array.isArray(response?.items) ? response.items : [];
-  const signed = await signImageStorageUrlMap(supabase, items.map((item) => item.cover_image_url));
+  const signed = await signListingImageVariantUrlMap(supabase, items.map((item) => item.cover_image_url), "card");
 
   return {
     data: items.map((item) => toHomeListing(item, signed.get(item.cover_image_url ?? "") ?? null)),

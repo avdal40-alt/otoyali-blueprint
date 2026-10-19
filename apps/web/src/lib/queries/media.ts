@@ -1,7 +1,7 @@
 import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import type { ListingMedia } from "@/lib/supabase/types";
 import type { QueryResult } from "./listings";
-import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
+import { signImageStorageUrlMap, signListingImageVariantUrlMap } from "@/lib/media/storage-urls";
 
 const LISTING_MEDIA_COLUMNS = [
   "listing_id",
@@ -31,11 +31,26 @@ const MAX_LISTING_MEDIA = 20;
 async function signListingMedia(supabase: ReturnType<typeof getSupabaseServerClient>, rows: ListingMedia[]) {
   const fields = ["url", "original_url", "large_url", "card_url", "thumb_url"] as const;
   const signed = await signImageStorageUrlMap(supabase, rows.flatMap((row) => fields.map((field) => row[field])));
-  return rows.map((row) => Object.fromEntries(
-    Object.entries(row).map(([key, value]) => fields.includes(key as typeof fields[number]) && typeof value === "string"
-      ? [key, signed.get(value) ?? null]
-      : [key, value])
-  ) as ListingMedia);
+  const canonicalSources = rows.map((row) => row.large_url ?? row.url ?? row.card_url ?? row.thumb_url);
+  const [large, card, thumb] = await Promise.all([
+    signListingImageVariantUrlMap(supabase, canonicalSources, "large"),
+    signListingImageVariantUrlMap(supabase, canonicalSources, "card"),
+    signListingImageVariantUrlMap(supabase, canonicalSources, "thumb")
+  ]);
+  return rows.map((row, index) => {
+    const source = canonicalSources[index] ?? "";
+    const rowWithSignedUrls = Object.fromEntries(
+      Object.entries(row).map(([key, value]) => fields.includes(key as typeof fields[number]) && typeof value === "string"
+        ? [key, signed.get(value) ?? null]
+        : [key, value])
+    ) as ListingMedia;
+    return {
+      ...rowWithSignedUrls,
+      large_url: large.get(source) ?? rowWithSignedUrls.large_url ?? rowWithSignedUrls.url,
+      card_url: card.get(source) ?? rowWithSignedUrls.card_url ?? rowWithSignedUrls.large_url ?? rowWithSignedUrls.url,
+      thumb_url: thumb.get(source) ?? rowWithSignedUrls.thumb_url ?? rowWithSignedUrls.card_url ?? rowWithSignedUrls.large_url ?? rowWithSignedUrls.url
+    };
+  });
 }
 
 export async function getListingMedia(listingId: string): Promise<QueryResult<ListingMedia[]>> {

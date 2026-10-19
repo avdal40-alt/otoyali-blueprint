@@ -216,6 +216,7 @@
     "test:launch-03d3c3-postgrest-rpc": "node scripts/launch-03d3c3-postgrest-rpc.test.cjs",
     "test:launch-03d3c5-admin-moderation": "node scripts/launch-03d3c5-admin-moderation.test.cjs",
     "test:launch-03d3c6-buyer-e2e": "node scripts/launch-03d3c6-public-buyer-e2e.test.cjs",
+    "test:launch-03d3c7-public-media": "node scripts/launch-03d3c7-public-media.test.cjs",
     "test:launch-b01a": "node scripts/launch-b01a-auth-contact-runtime.test.cjs",
     "test:local-auth-browser-bootstrap": "node scripts/local-auth-browser-bootstrap.test.cjs",
     "test:local-seller-contact-visual-fixtures": "node scripts/local-seller-contact-visual-fixtures.test.cjs",

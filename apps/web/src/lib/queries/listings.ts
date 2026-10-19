@@ -1,6 +1,6 @@
 import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import type { HomeListing, ListingDetails } from "@/lib/supabase/types";
-import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
+import { signImageStorageUrlMap, signListingImageVariantUrlMap } from "@/lib/media/storage-urls";
 
 export type QueryResult<T> = {
   data: T;
@@ -91,7 +91,7 @@ export async function getHomeListings(limit?: number): Promise<QueryResult<HomeL
 
   const { data, error } = await query;
   const rows = (data ?? []) as unknown as HomeListing[];
-  const signed = await signImageStorageUrlMap(supabase, rows.map((row) => row.cover_image_url));
+  const signed = await signListingImageVariantUrlMap(supabase, rows.map((row) => row.cover_image_url), "card");
   const safeRows = rows.map((row) => ({ ...row, cover_image_url: signed.get(row.cover_image_url ?? "") ?? null }));
 
   return {
