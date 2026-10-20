@@ -3,10 +3,15 @@
 import Link from "next/link";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import {
+  platformStaffNavigationAction,
+  usePlatformStaffNavigation
+} from "./PlatformStaffNavigation";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function MarketplaceFooter() {
   const { locale, dictionary } = useI18n();
+  const marketplaceAction = platformStaffNavigationAction(usePlatformStaffNavigation());
   const groups = [
     {
       title: "Jolcar",
@@ -20,7 +25,12 @@ export function MarketplaceFooter() {
       title: String(dictionary.footer.marketplace),
       links: [
         { href: "/search", label: String(dictionary.footer.buyVehicle) },
-        { href: "/sell", label: String(dictionary.footer.sell) },
+        ...(marketplaceAction ? [{
+          href: marketplaceAction === "admin" ? "/admin" : "/sell",
+          label: marketplaceAction === "admin"
+            ? String(dictionary.common.adminPanel)
+            : String(dictionary.footer.sell)
+        }] : []),
         { href: "/listing-rules", label: String(dictionary.footer.listingRules) }
       ]
     },

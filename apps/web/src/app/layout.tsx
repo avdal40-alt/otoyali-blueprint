@@ -4,6 +4,7 @@ import { I18nProvider } from "@/i18n/client";
 import { getLocaleDirection, getLocaleTag } from "@/i18n/config";
 import { getClientDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
+import { PlatformStaffNavigationProvider } from "@/components/layout/PlatformStaffNavigation";
 import { ACTIVE_MARKET_PROFILE } from "@/lib/market";
 import { getMetadataBase, getPublicSiteUrl } from "@/lib/seo/metadata";
 import "./globals.css";
@@ -65,7 +66,9 @@ export default async function RootLayout({
     <html lang={getLocaleTag(locale)} dir={getLocaleDirection(locale)}>
       <body style={brandColorStyle}>
         <I18nProvider locale={locale} dictionary={dictionary}>
-          {children}
+          <PlatformStaffNavigationProvider>
+            {children}
+          </PlatformStaffNavigationProvider>
         </I18nProvider>
       </body>
     </html>

@@ -3,13 +3,25 @@
 import Link from "next/link";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import {
+  platformStaffNavigationAction,
+  usePlatformStaffNavigation
+} from "./PlatformStaffNavigation";
 
 export function MobileBottomNav() {
   const { locale, dictionary } = useI18n();
+  const marketplaceAction = platformStaffNavigationAction(usePlatformStaffNavigation());
   const tabs = [
     { href: "/search", label: String(dictionary.common.search), icon: SearchIcon },
     { href: "/video", label: String(dictionary.navigation.video), icon: PlayIcon },
-    { href: "/sell", label: String(dictionary.common.publishListing), icon: PlusIcon, cta: true },
+    marketplaceAction ? {
+      href: marketplaceAction === "admin" ? "/admin" : "/sell",
+      label: marketplaceAction === "admin"
+        ? String(dictionary.common.adminPanel)
+        : String(dictionary.common.publishListing),
+      icon: marketplaceAction === "admin" ? AdminIcon : PlusIcon,
+      cta: marketplaceAction === "seller"
+    } : null,
     { href: "/favorites", label: String(dictionary.navigation.favorites), icon: HeartIcon },
     { href: "/profile", label: String(dictionary.navigation.profile), icon: UserIcon }
   ];
@@ -17,7 +29,10 @@ export function MobileBottomNav() {
   return (
     <nav className="safe-bottom fixed inset-x-0 bottom-0 z-50 border-t border-oto-border bg-white md:hidden">
       <div className="grid h-16 grid-cols-5">
-        {tabs.map((tab) => {
+        {tabs.map((tab, index) => {
+          if (!tab) {
+            return <span aria-hidden="true" key={`marketplace-action-${index}`} />;
+          }
           const Icon = tab.icon;
           return (
             <Link key={tab.href} href={localizePath(tab.href, locale)} className="flex min-w-0 min-h-16 flex-col items-center justify-center gap-1 px-1 text-center text-[11px] font-bold leading-tight text-oto-muted">
@@ -39,6 +54,10 @@ function SearchIcon() {
 
 function PlusIcon() {
   return <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/><path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>;
+}
+
+function AdminIcon() {
+  return <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="2"/></svg>;
 }
 
 function PlayIcon() {

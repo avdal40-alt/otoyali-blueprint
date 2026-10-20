@@ -6,12 +6,17 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { ButtonLink } from "@/components/ui/Button";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import {
+  platformStaffNavigationAction,
+  usePlatformStaffNavigation
+} from "./PlatformStaffNavigation";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function AppHeader() {
   const { locale, dictionary } = useI18n();
   const [isAuthed, setIsAuthed] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const marketplaceAction = platformStaffNavigationAction(usePlatformStaffNavigation());
   const profilePath = localizePath("/profile", locale);
   const loginProfilePath = `${localizePath("/login", locale)}?next=${encodeURIComponent(profilePath)}`;
 
@@ -70,9 +75,19 @@ export function AppHeader() {
           <Link href={isAuthed ? profilePath : loginProfilePath} className="flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={String(dictionary.navigation.profile)}>
             <UserIcon />
           </Link>
-          <ButtonLink href={localizePath("/sell", locale)} variant="orange" className="hidden md:inline-flex">
-            {String(dictionary.common.publishListing)}
-          </ButtonLink>
+          {marketplaceAction ? (
+            <ButtonLink
+              href={localizePath(marketplaceAction === "admin" ? "/admin" : "/sell", locale)}
+              variant="orange"
+              className="hidden md:inline-flex"
+            >
+              {marketplaceAction === "admin"
+                ? String(dictionary.common.adminPanel)
+                : String(dictionary.common.publishListing)}
+            </ButtonLink>
+          ) : (
+            <span aria-hidden="true" className="invisible hidden h-11 w-32 md:inline-flex" />
+          )}
         </div>
       </div>
     </header>

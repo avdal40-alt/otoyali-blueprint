@@ -8,7 +8,7 @@ import { PageContainer, SectionHeader } from "@/components/layout/PageContainer"
 import { BrandCarousel } from "@/components/brand/BrandCarousel";
 import { VehicleGrid } from "@/components/vehicle/VehicleGrid";
 import { NewsGrid } from "@/components/news/NewsGrid";
-import { ButtonLink } from "@/components/ui/Button";
+import { HomeMarketplaceAction } from "./HomeMarketplaceAction";
 import { ErrorState } from "@/components/ui/States";
 import { localizePath } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -56,15 +56,14 @@ export function HomePageContent({
           <VehicleGrid listings={listings} title={String(dictionary.home.noActiveListingsTitle)} body={String(dictionary.home.noActiveListingsBody)} locale={locale} variant="home" />
         </section>
 
-        <section className="mt-10 rounded-oto border border-oto-border bg-oto-surface px-5 py-6 md:flex md:items-center md:justify-between md:gap-6 md:px-7">
-          <div>
-            <h2 className="text-h3 text-oto-text md:text-h2">{String(dictionary.home.sellCtaTitle)}</h2>
-            <p className="mt-2 text-body text-oto-muted">{String(dictionary.home.sellCtaBody)}</p>
-          </div>
-          <ButtonLink href={localizePath("/sell", locale)} className="mt-5 md:mt-0" variant="primary">
-            {String(dictionary.common.publishListing)}
-          </ButtonLink>
-        </section>
+        <HomeMarketplaceAction
+          locale={locale}
+          sellTitle={String(dictionary.home.sellCtaTitle)}
+          sellBody={String(dictionary.home.sellCtaBody)}
+          sellerLabel={String(dictionary.common.publishListing)}
+          adminLabel={String(dictionary.common.adminPanel)}
+          adminBody={String(dictionary.home.adminCtaBody)}
+        />
 
         <section className="mt-10">
           <SectionHeader
