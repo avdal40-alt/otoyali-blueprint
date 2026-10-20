@@ -32,7 +32,7 @@ export const newCarsSeoConfig: MarketplaceSeoConfig = {
     { label: "Durum", value: "Sıfır km" },
     { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
   ],
-  seoText: "Sıfır kilometre araç ilanlarında marka, model, şehir ve fiyat seçeneklerini hızlıca karşılaştırabilirsiniz. Yolmod, yeni araç arama deneyimini sade ve filtrelenebilir tutar."
+  seoText: "Sıfır kilometre araç ilanlarında marka, model, şehir ve fiyat seçeneklerini hızlıca karşılaştırabilirsiniz. Jolcar, yeni araç arama deneyimini sade ve filtrelenebilir tutar."
 };
 
 export const electricCarsSeoConfig: MarketplaceSeoConfig = {

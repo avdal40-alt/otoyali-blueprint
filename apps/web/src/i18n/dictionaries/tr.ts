@@ -3,7 +3,7 @@ import type { Dictionary } from "../types";
 export const tr = {
   common: {
     translationUnavailable: "İçerik şu anda kullanılamıyor.",
-    appName: "OTOYALI",
+    appName: "JOLCAR",
     continue: "Devam et",
     cancel: "İptal",
     save: "Kaydet",
@@ -43,7 +43,7 @@ export const tr = {
     messages: "Mesajlar"
   },
   messages: {
-    title: "Mesajlar", emptyTitle: "Henüz mesajınız yok", emptyBody: "Bir ilan üzerinden güvenli mesajlaşma başlatabilirsiniz.", unavailable: "Görüşme şu anda kullanılamıyor.", retry: "Tekrar dene", start: "Yolmod ile mesaj gönder", ownListing: "Kendi ilanınız için mesaj başlatamazsınız.", loading: "Mesajlar yükleniyor", unread: "Okunmamış mesaj", loadEarlier: "Daha eski mesajları yükle", noEarlier: "Daha eski mesaj yok", write: "Mesajınızı yazın", send: "Gönder", sending: "Gönderiliyor", invalidMessage: "Mesaj boş olamaz ve en fazla 2.000 karakter olabilir.", sent: "Mesaj gönderildi", rateLimited: "Çok fazla istek gönderildi. Lütfen biraz sonra tekrar deneyin.", inaccessible: "Bu görüşmeye erişemiyorsunuz.", messageCount: "{count} karakter kaldı", conversation: "İlan görüşmesi", sold: "İlan artık aktif değil. Mevcut görüşme geçmişiniz korunur.", block: "Engelle", unblock: "Engeli kaldır", reportConversation: "Görüşmeyi bildir", reportMessage: "Mesajı bildir", cancel: "Vazgeç", blocked: "Bu görüşmede mesaj gönderilemez.", blockedSuccess: "Bu görüşme engellendi.", unblockedSuccess: "Yeniden mesaj gönderebilirsiniz.", safetyError: "İşlem tamamlanamadı. Lütfen tekrar deneyin.", safetyReminder: "Şüpheli bağlantılara karşı dikkatli olun, para göndermeden önce doğrulayın ve gereksiz kişisel veya finansal bilgileri paylaşmayın.", blockConfirmTitle: "Bu görüşme engellensin mi?", blockConfirmBody: "Engeli kaldırana kadar bu görüşmede mesaj gönderemezsiniz.", unblockConfirmTitle: "Bu görüşmenin engeli kaldırılsın mı?", unblockConfirmBody: "Engeli kaldırdıktan sonra yeniden mesaj gönderebilirsiniz.", reportReason: "Bu bildirimin nedeni nedir?", confirmReport: "Bildirimi gönder", reportSuccess: "Bildiriminiz alındı.", reportReasonFraud: "Dolandırıcılık", reportReasonWrongInformation: "Yanlış bilgi", reportReasonDuplicate: "Tekrar", reportReasonInappropriateContent: "Uygunsuz içerik", reportReasonSuspiciousSeller: "Şüpheli satıcı", reportReasonOther: "Diğer", listingResponses: "İlan yanıtları", viewListingResponse: "İlan yanıtını görüntüle"
+    title: "Mesajlar", emptyTitle: "Henüz mesajınız yok", emptyBody: "Bir ilan üzerinden güvenli mesajlaşma başlatabilirsiniz.", unavailable: "Görüşme şu anda kullanılamıyor.", retry: "Tekrar dene", start: "Jolcar ile mesaj gönder", ownListing: "Kendi ilanınız için mesaj başlatamazsınız.", loading: "Mesajlar yükleniyor", unread: "Okunmamış mesaj", loadEarlier: "Daha eski mesajları yükle", noEarlier: "Daha eski mesaj yok", write: "Mesajınızı yazın", send: "Gönder", sending: "Gönderiliyor", invalidMessage: "Mesaj boş olamaz ve en fazla 2.000 karakter olabilir.", sent: "Mesaj gönderildi", rateLimited: "Çok fazla istek gönderildi. Lütfen biraz sonra tekrar deneyin.", inaccessible: "Bu görüşmeye erişemiyorsunuz.", messageCount: "{count} karakter kaldı", conversation: "İlan görüşmesi", sold: "İlan artık aktif değil. Mevcut görüşme geçmişiniz korunur.", block: "Engelle", unblock: "Engeli kaldır", reportConversation: "Görüşmeyi bildir", reportMessage: "Mesajı bildir", cancel: "Vazgeç", blocked: "Bu görüşmede mesaj gönderilemez.", blockedSuccess: "Bu görüşme engellendi.", unblockedSuccess: "Yeniden mesaj gönderebilirsiniz.", safetyError: "İşlem tamamlanamadı. Lütfen tekrar deneyin.", safetyReminder: "Şüpheli bağlantılara karşı dikkatli olun, para göndermeden önce doğrulayın ve gereksiz kişisel veya finansal bilgileri paylaşmayın.", blockConfirmTitle: "Bu görüşme engellensin mi?", blockConfirmBody: "Engeli kaldırana kadar bu görüşmede mesaj gönderemezsiniz.", unblockConfirmTitle: "Bu görüşmenin engeli kaldırılsın mı?", unblockConfirmBody: "Engeli kaldırdıktan sonra yeniden mesaj gönderebilirsiniz.", reportReason: "Bu bildirimin nedeni nedir?", confirmReport: "Bildirimi gönder", reportSuccess: "Bildiriminiz alındı.", reportReasonFraud: "Dolandırıcılık", reportReasonWrongInformation: "Yanlış bilgi", reportReasonDuplicate: "Tekrar", reportReasonInappropriateContent: "Uygunsuz içerik", reportReasonSuspiciousSeller: "Şüpheli satıcı", reportReasonOther: "Diğer", listingResponses: "İlan yanıtları", viewListingResponse: "İlan yanıtını görüntüle"
   },
   notifications: {
     title: "Bildirimler", account: "Hesabım", loading: "Bildirimler yükleniyor", emptyTitle: "Bildirim yok", emptyBody: "Yeni ilan eşleşmeleri burada görünecek.", unavailable: "Bildirimler şu anda yüklenemiyor.", retry: "Tekrar dene", unread: "Okunmamış bildirim", markAll: "Tümünü okundu işaretle", marking: "İşaretleniyor", loadMore: "Daha fazlasını yükle", newMatch: "Yeni bir ilan kayıtlı aramanızla eşleşiyor", priceDrop: "Takip ettiğiniz bir ilanın fiyatı düştü", chatMessage: "Yeni bir mesajınız var", notificationUpdate: "Pazar yeri güncellemesi", openListing: "İlanı görüntüle", openConversation: "Görüşmeyi aç", savedSearches: "Kayıtlı aramalar", savedSearchesHint: "En fazla 5 arama kaydedebilirsiniz.", noSavedSearches: "Henüz kayıtlı aramanız yok", noSavedSearchesBody: "Arama sonuçlarında bir aramayı kaydederek yeni ilan eşleşmelerini takip edin.", legacy: "Eski kayıtlı arama", alertsEnabled: "Uyarılar açık", alertsDisabled: "Uyarılar kapalı", alertsUnavailable: "Bu eski arama için uyarılar kullanılamıyor.", alertToggle: "Yeni ilan uyarıları", delete: "Aramayı sil", deleting: "Siliniyor", updating: "Güncelleniyor", savedSearchesUnavailable: "Kayıtlı aramalar şu anda yüklenemiyor.", actionFailed: "İşlem tamamlanamadı. Lütfen tekrar deneyin."
@@ -67,7 +67,7 @@ export const tr = {
     mobileApp: "Mobil uygulama"
   },
   home: {
-    eyebrow: "OTOYALI",
+    eyebrow: "JOLCAR",
     title: "Türkiye'nin akıllı araç pazarı",
     subtitle: "Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.",
     searchHeroTitle: "Aradığınız aracı bulun",
@@ -98,12 +98,12 @@ export const tr = {
     cityListings: "{city} araç ilanları",
     popularSearches: "Popüler aramalar",
     discoverFast: "Araçları hızlı keşfet",
-    ecosystem: "OTOYALI ekosistemi",
+    ecosystem: "JOLCAR ekosistemi",
     trustEyebrow: "Güvenli deneyim",
     trustTitle: "Araç kararlarınız için sade ve güvenilir alan.",
-    trustBody: "OTOYALI, araç arama ve karşılaştırma deneyimini gereksiz engeller olmadan, net bilgi ve temiz akışla sunar.",
+    trustBody: "JOLCAR, araç arama ve karşılaştırma deneyimini gereksiz engeller olmadan, net bilgi ve temiz akışla sunar.",
     appEyebrow: "Mobil uygulama",
-    appTitle: "OTOYALI uygulamasını yakında indirin",
+    appTitle: "JOLCAR uygulamasını yakında indirin",
     appBody: "İlanları takip edin, favorilerinizi kaydedin ve aracınızı mobilde kolayca yönetin.",
     appStoreSoon: "App Store - Yakında",
     googlePlaySoon: "Google Play - Yakında"
@@ -177,7 +177,7 @@ export const tr = {
     nextPhoto: "Sonraki fotoğraf",
     negotiable: "Pazarlık var",
     videos: "Araç videoları",
-    videoDescription: "Satıcının kısa araç tanıtımlarını OTOYALI Video içinde izleyin.",
+    videoDescription: "Satıcının kısa araç tanıtımlarını JOLCAR Video içinde izleyin.",
     watchVideo: "Videoda izle",
     openVideo: "Videoyu aç",
     description: "Açıklama",
@@ -185,7 +185,7 @@ export const tr = {
     similarListings: "Benzer ilanlar",
     similarEmpty: "Benzer ilanlar aktif veri arttıkça burada görünecek.",
     seller: "Satıcı",
-    defaultSeller: "OTOYALI satıcısı",
+    defaultSeller: "JOLCAR satıcısı",
     sellerLoginCopy: "Satıcıyla güvenli şekilde iletişime geçmek için giriş yapın.",
     contactSeller: "Satıcı ile iletişime geç",
     ownListingContact: "Bu ilan size ait.",
@@ -193,7 +193,7 @@ export const tr = {
     messageSoon: "Mesaj yaz · Yakında",
     message: "Mesaj yaz",
     share: "Paylaş",
-    safetyCopy: "OTOYALI, araç alım satımını daha güvenli ve kolay hale getirir.",
+    safetyCopy: "JOLCAR, araç alım satımını daha güvenli ve kolay hale getirir.",
     listingRules: "İlan kurallarını incele",
     safeShopping: "Güvenli alışveriş önerileri",
     reportListing: "İlanı bildir"
@@ -297,7 +297,7 @@ export const tr = {
   },
   video: {
     label: "Video İlanlar",
-    title: "OTOYALI Video",
+    title: "JOLCAR Video",
     subtitle: "Araç videoları, galeri fırsatları ve kısa tanıtımlar.",
     body: "Satıcılar araçlarını 60 saniyeye kadar kısa videolarla tanıtabilecek.",
     discover: "Videoları keşfet",
@@ -320,11 +320,11 @@ export const tr = {
   services: {
     seo: {
       title: "Servisler",
-      description: "OTOYALI servis ağı; ekspertiz, bakım, onarım ve araç hizmetleri için güvenli keşif alanı olarak hazırlanıyor."
+      description: "JOLCAR servis ağı; ekspertiz, bakım, onarım ve araç hizmetleri için güvenli keşif alanı olarak hazırlanıyor."
     },
     hero: {
       badge: "Servis marketplace",
-      title: "OTOYALI servis ağı",
+      title: "JOLCAR servis ağı",
       subtitle: "Ekspertiz, bakım, onarım, lastik, elektrikli araç ve çekici hizmetleri için onaylı servis sağlayıcıları tek yerde keşfetmeniz için hazırlanıyor."
     },
     discoveryEyebrow: "Keşif",
@@ -341,7 +341,7 @@ export const tr = {
       branchCount: "{count} şube"
     },
     empty: {
-      title: "OTOYALI servis ağı hazırlanıyor.",
+      title: "JOLCAR servis ağı hazırlanıyor.",
       body: "Onaylı servisler eklendikçe burada görünecek. Şimdilik kategori yapısını inceleyebilir veya servis ağımıza başvurabilirsiniz."
     },
     currentAvailability: {
@@ -367,11 +367,11 @@ export const tr = {
     provider: {
       notFoundTitle: "Servis sağlayıcı bulunamadı",
       notFoundDescription: "Bu servis sağlayıcı yayında değil veya mevcut değil.",
-      seoDescriptionFallback: "OTOYALI üzerinde onaylı servis sağlayıcı profili.",
+      seoDescriptionFallback: "JOLCAR üzerinde onaylı servis sağlayıcı profili.",
       publicProfile: "Servis profili",
       platformReviewed: "Platform incelemesinden geçti",
       branchesTitle: "Şubeler ve hizmetler",
-      trustDisclaimer: "Bu profil yalnızca sağlayıcının yayınlanmış public bilgilerini gösterir. OTOYALI bu aşamada randevu, fiyat, çalışma saati veya işlem sonucu garantisi vermez."
+      trustDisclaimer: "Bu profil yalnızca sağlayıcının yayınlanmış public bilgilerini gösterir. JOLCAR bu aşamada randevu, fiyat, çalışma saati veya işlem sonucu garantisi vermez."
     },
     offerings: {
       empty: "Bu şube için aktif public hizmet listesi henüz eklenmedi."
@@ -404,10 +404,10 @@ export const tr = {
     },
     apply: {
       seoTitle: "Servis ağı başvurusu",
-      seoDescription: "OTOYALI servis marketplace ağına katılım başvurusu.",
+      seoDescription: "JOLCAR servis marketplace ağına katılım başvurusu.",
       badge: "Sağlayıcı başvurusu",
       title: "Servis ağımıza katılın",
-      subtitle: "Başvuru gönderimi otomatik yayın anlamına gelmez. Bilgileriniz OTOYALI ekibi tarafından incelendikten sonra uygun sağlayıcılar gelecekte yayına alınır.",
+      subtitle: "Başvuru gönderimi otomatik yayın anlamına gelmez. Bilgileriniz JOLCAR ekibi tarafından incelendikten sonra uygun sağlayıcılar gelecekte yayına alınır.",
       truthfulTitle: "Otomatik yayın yok",
       truthfulBody: "Başvuru yalnızca inceleme kuyruğuna alınır; public profil admin onayı olmadan oluşmaz.",
       reviewTitle: "Moderasyon hazır",
@@ -421,7 +421,7 @@ export const tr = {
       backToServices: "Servislere dön",
       pendingBadge: "Onay bekliyor",
       successTitle: "Başvurunuz inceleme kuyruğuna alındı.",
-      successBody: "Bu işlem sağlayıcının yayına alındığı anlamına gelmez. OTOYALI ekibi bilgileri inceledikten sonra uygun adaylarla ilerleyecek.",
+      successBody: "Bu işlem sağlayıcının yayına alındığı anlamına gelmez. JOLCAR ekibi bilgileri inceledikten sonra uygun adaylarla ilerleyecek.",
       submit: "Başvuruyu gönder",
       reviewNote: "Gönderimler onay bekleyen başvuru olarak saklanır.",
       categoryHelper: "Şu anda sunduğunuz ana hizmet türlerini seçin.",
@@ -508,7 +508,7 @@ export const tr = {
   admin: {
     title: "Admin",
     accessRequiredTitle: "Admin paneline erişmek için giriş yapın.",
-    accessRequiredBody: "Bu alan yalnızca yetkili OTOYALI ekip üyeleri içindir.",
+    accessRequiredBody: "Bu alan yalnızca yetkili JOLCAR ekip üyeleri içindir.",
     login: "Giriş yap",
     listings: "İlanlar",
     videos: "Videolar",
@@ -529,7 +529,7 @@ export const tr = {
   },
   trust: {
     title: "Güven Merkezi",
-    reportSoon: "OTOYALI güven raporu yakında",
+    reportSoon: "JOLCAR güven raporu yakında",
     provisional: "Güven ve yasal bilgilendirme metinleri MVP aşamasında geçicidir."
   },
   errors: {
@@ -577,13 +577,13 @@ export const tr = {
     other: "Diğer"
   },
   seo: {
-    defaultTitle: "OTOYALI - Türkiye'nin akıllı araç pazarı",
+    defaultTitle: "JOLCAR - Türkiye'nin akıllı araç pazarı",
     defaultDescription: "Otomobil, ticari araç, deniz araçları, yedek parça, sigorta ve araç videoları tek platformda.",
     homeTitle: "Türkiye'nin akıllı araç pazarı",
-    homeDescription: "Araç ilanları, OTOYALI Video, güvenli yayınlama ve otomotiv haberleri tek platformda.",
+    homeDescription: "Araç ilanları, JOLCAR Video, güvenli yayınlama ve otomotiv haberleri tek platformda.",
     searchTitle: "Araç ara",
     searchDescription: "Türkiye'deki aktif araç ilanlarını marka, model, şehir, fiyat ve teknik özelliklere göre arayın.",
-    videoTitle: "OTOYALI Video",
+    videoTitle: "JOLCAR Video",
     videoDescription: "Araç videoları, galeri fırsatları ve kısa tanıtımlar."
   },
   verticals: {
@@ -606,7 +606,7 @@ export const tr = {
     landing: {
       browseCars: "Otomobil ilanlarını incele",
       publishCars: "Otomobil ilanı yayınla",
-      publishUnavailable: "Bu kategori için ilan yayınlama henüz açık değil. OTOYALI bu alanı ayrı veri modeli ve moderasyon kurallarıyla hazırlıyor.",
+      publishUnavailable: "Bu kategori için ilan yayınlama henüz açık değil. JOLCAR bu alanı ayrı veri modeli ve moderasyon kurallarıyla hazırlıyor.",
       activeDisclaimer: "Bu kategori mevcut marketplace altyapısıyla çalışır. Public görünürlük için aktif ilan ve aktif moderasyon gerekir.",
       availableFeatures: "Hazırlanan kapsam",
       attributeModel: "Gelecek alan modeli",
@@ -620,7 +620,7 @@ export const tr = {
       description: "İkinci el ve sıfır km otomobil ilanlarını arayın, karşılaştırın ve güvenli şekilde satıcıyla iletişime geçin.",
       shortDescription: "İkinci el ve sıfır km araç ilanları.",
       seoTitle: "Otomobil İlanları",
-      seoDescription: "OTOYALI'de otomobil ilanlarını marka, model, şehir, fiyat ve teknik özelliklere göre arayın.",
+      seoDescription: "JOLCAR'da otomobil ilanlarını marka, model, şehir, fiyat ve teknik özelliklere göre arayın.",
       highlights: {
         search: "Gelişmiş arama",
         publish: "İlan yayınlama",
@@ -633,7 +633,7 @@ export const tr = {
       description: "Kamyonet, kamyon, minibüs, otobüs, çekici ve iş makineleri için ayrı veri modeliyle hazırlanacak pazar alanı.",
       shortDescription: "Kamyonet, kamyon, minibüs ve iş makineleri.",
       seoTitle: "Ticari Araçlar",
-      seoDescription: "OTOYALI ticari araçlar alanı kamyonet, kamyon, minibüs, otobüs ve iş makineleri için hazırlanıyor.",
+      seoDescription: "JOLCAR ticari araçlar alanı kamyonet, kamyon, minibüs, otobüs ve iş makineleri için hazırlanıyor.",
       highlights: {
         lightCommercial: "Hafif ticari",
         trucks: "Kamyon ve çekici",
@@ -646,7 +646,7 @@ export const tr = {
       description: "Tekne, yat, bot, jet ski ve deniz motorları için denizcilik odaklı alanlar ve medya yapısıyla hazırlanacak pazar alanı.",
       shortDescription: "Tekne, yat, bot ve deniz motorları.",
       seoTitle: "Deniz Araçları",
-      seoDescription: "OTOYALI Deniz araçları alanı tekne, yat, bot, jet ski ve deniz motorları için hazırlanıyor.",
+      seoDescription: "JOLCAR Deniz araçları alanı tekne, yat, bot, jet ski ve deniz motorları için hazırlanıyor.",
       highlights: {
         boats: "Tekne ve bot",
         yachts: "Yat",
@@ -659,7 +659,7 @@ export const tr = {
       description: "Lastik, jant, aksesuar, bakım ürünü ve araç parçaları için uyumluluk odaklı ayrı pazar alanı.",
       shortDescription: "Parça, aksesuar, lastik ve jant.",
       seoTitle: "Yedek Parça",
-      seoDescription: "OTOYALI yedek parça alanı lastik, jant, aksesuar, bakım ürünü ve araç parçaları için hazırlanıyor.",
+      seoDescription: "JOLCAR yedek parça alanı lastik, jant, aksesuar, bakım ürünü ve araç parçaları için hazırlanıyor.",
       highlights: {
         tires: "Lastik ve jant",
         body: "Kaporta",
@@ -672,7 +672,7 @@ export const tr = {
       description: "Ekspertiz, bakım, onarım, lastik değişimi ve elektrikli araç servisleri için sağlayıcı odaklı kategori.",
       shortDescription: "Ekspertiz, bakım ve araç hizmetleri.",
       seoTitle: "Servisler",
-      seoDescription: "OTOYALI servisler alanı ekspertiz, bakım, onarım ve araç hizmetleri için hazırlanıyor.",
+      seoDescription: "JOLCAR servisler alanı ekspertiz, bakım, onarım ve araç hizmetleri için hazırlanıyor.",
       highlights: {
         inspection: "Ekspertiz",
         maintenance: "Periyodik bakım",
@@ -685,7 +685,7 @@ export const tr = {
       description: "Trafik sigortası, kasko ve hasar geçmişi odaklı güvenli karşılaştırma deneyimi için hazırlanacak alan.",
       shortDescription: "Trafik sigortası ve kasko çözümleri.",
       seoTitle: "Sigorta",
-      seoDescription: "OTOYALI sigorta alanı trafik sigortası, kasko ve hasar geçmişi odaklı çözümler için hazırlanıyor.",
+      seoDescription: "JOLCAR sigorta alanı trafik sigortası, kasko ve hasar geçmişi odaklı çözümler için hazırlanıyor.",
       highlights: {
         traffic: "Trafik sigortası",
         casco: "Kasko",
@@ -698,7 +698,7 @@ export const tr = {
       description: "Gelecek motosiklet marketplace alanı.",
       shortDescription: "Motosiklet ilanları için gelecek alan.",
       seoTitle: "Motosikletler",
-      seoDescription: "OTOYALI motosiklet alanı gelecek aşamalar için ayrılmıştır."
+      seoDescription: "JOLCAR motosiklet alanı gelecek aşamalar için ayrılmıştır."
     },
     machinery: {
       label: "İş ve tarım makineleri",
@@ -706,7 +706,7 @@ export const tr = {
       description: "Gelecek iş ve tarım makineleri marketplace alanı.",
       shortDescription: "Makine ilanları için gelecek alan.",
       seoTitle: "İş ve Tarım Makineleri",
-      seoDescription: "OTOYALI iş ve tarım makineleri alanı gelecek aşamalar için ayrılmıştır."
+      seoDescription: "JOLCAR iş ve tarım makineleri alanı gelecek aşamalar için ayrılmıştır."
     },
     mobility: {
       label: "Mobilite ürünleri",
@@ -714,7 +714,7 @@ export const tr = {
       description: "Gelecek mobilite ürünleri marketplace alanı.",
       shortDescription: "Mobilite ürünleri için gelecek alan.",
       seoTitle: "Mobilite Ürünleri",
-      seoDescription: "OTOYALI mobilite ürünleri alanı gelecek aşamalar için ayrılmıştır."
+      seoDescription: "JOLCAR mobilite ürünleri alanı gelecek aşamalar için ayrılmıştır."
     },
     attributes: {
       make: "Marka",
@@ -753,7 +753,7 @@ export const tr = {
   },
   ai: {
     title: "Rif",
-    subtitle: "OTOYALI yapay zeka önizlemesi",
+    subtitle: "JOLCAR yapay zeka önizlemesi",
     price: {
       title: "Benzer ilan fiyatları",
       loading: "Benzer ilanların fiyatları hazırlanıyor.",
@@ -769,7 +769,7 @@ export const tr = {
       fresh: "Karşılaştırma yakın tarihli ilanlara dayanıyor.",
       mixed: "Karşılaştırmada farklı tarihlerden ilanlar bulunuyor.",
       older: "Karşılaştırmadaki ilanlar yakın tarihli olmayabilir.",
-      explanation: "Karşılaştırma, aktif Yolmod ilanlarının istenen fiyatları ile yapılır; tamamlanan satış fiyatlarını göstermez."
+      explanation: "Karşılaştırma, aktif Jolcar ilanlarının istenen fiyatları ile yapılır; tamamlanan satış fiyatlarını göstermez."
     },
     trust: {
       title: "İlan sahibi için araç bilgisi",
@@ -784,7 +784,7 @@ export const tr = {
       },
       signal: {
         vin_present: "VIN bilgisi satıcı tarafından eklendi.",
-        vin_format_valid: "VIN biçimi Yolmod tarafından yapısal olarak kontrol edildi.",
+        vin_format_valid: "VIN biçimi Jolcar tarafından yapısal olarak kontrol edildi.",
         vin_format_invalid: "VIN biçimi yapısal kontrole uymuyor.",
         vin_reference_review_required: "VIN bilgisi için ek inceleme gerekebilir.",
         external_check_not_available: "Harici araç geçmişi sonucu yok.",
@@ -792,7 +792,7 @@ export const tr = {
       },
       provenance: {
         seller_supplied: "Kaynak: satıcının sağladığı bilgi",
-        yolmod_internal: "Kaynak: Yolmod yapısal kontrolü",
+        yolmod_internal: "Kaynak: Jolcar yapısal kontrolü",
         external_provider: "Kaynak: harici sağlayıcı",
         unavailable: "Harici doğrulama sonucu mevcut değil"
       }
@@ -805,7 +805,7 @@ export const tr = {
     loading: "Rif yanıt hazırlıyor...",
     placeholder: "Rif'e sorun...",
     inputLabel: "Rif'e mesaj",
-    introMessage: "Rif, OTOYALI'nin gelecekteki yapay zeka asistanı için güvenli bir önizlemedir. Şu anda yalnızca genel, deterministik rehberlik sunar; gerçek piyasa değeri, hasar geçmişi veya satıcı doğrulaması yapmaz.",
+    introMessage: "Rif, JOLCAR'ın gelecekteki yapay zeka asistanı için güvenli bir önizlemedir. Şu anda yalnızca genel, deterministik rehberlik sunar; gerçek piyasa değeri, hasar geçmişi veya satıcı doğrulaması yapmaz.",
     disclaimer: "Rif yardımcı bilgiler sunar. Araç, fiyat, satıcı ve belgeleri bağımsız olarak doğrulayın.",
     openTrustCenter: "Güven Merkezi",
     featureNotConnected: "Gelişmiş yapay zeka özellikleri henüz bağlı değil.",
@@ -823,7 +823,7 @@ export const tr = {
       joinServiceNetwork: "Servis ağına katıl"
     },
     responses: {
-      intro: "Rif şu anda OTOYALI içinde güvenli bir yerel önizleme olarak çalışıyor. Araç arama filtreleri, ilan hazırlama kontrol listesi ve güvenli alışveriş için genel rehberlik sunabilirim. Gelişmiş yapay zeka, gerçek fiyat tahmini, hasar geçmişi, TRAMER/VIN sorgusu veya satıcı doğrulaması henüz bağlı değil.",
+      intro: "Rif şu anda JOLCAR içinde güvenli bir yerel önizleme olarak çalışıyor. Araç arama filtreleri, ilan hazırlama kontrol listesi ve güvenli alışveriş için genel rehberlik sunabilirim. Gelişmiş yapay zeka, gerçek fiyat tahmini, hasar geçmişi, TRAMER/VIN sorgusu veya satıcı doğrulaması henüz bağlı değil.",
       disabled: "Rif'in gelişmiş yapay zeka özellikleri henüz etkin değil.",
       verticalComingSoon: "Bu dikey için yapay zeka desteği henüz hazırlanıyor. Şimdilik aktif otomobil ilanları ve genel güvenlik rehberliği üzerinden yardımcı olabilirim.",
       searchGuidance: "Doğru arama için önce marka/model, şehir, bütçe, yıl ve kilometre aralığını netleştirin. Gelişmiş filtreleri yakıt tipi, vites ve kasa tipiyle daraltmak daha temiz sonuç verir. Bu bir otomatik arama sonucu değil; mevcut filtreleri daha iyi kullanmanız için rehberliktir.",
@@ -831,7 +831,7 @@ export const tr = {
       listingGuidanceWithContext: "Bu sayfadaki ilan için yalnızca ekranda görünen public bilgileri dikkate alabilirsiniz. Rif eksik alanları tamamlayamaz, hasar geçmişi bilemez ve fiyatın adil olduğunu garanti edemez.",
       publishingGuidance: "Daha iyi bir ilan için net fotoğraflar, doğru teknik bilgiler, açık açıklama, gerçekçi fiyat ve dürüst hasar/geçmiş beyanı kullanın. Bu metin otomatik yayınlama veya moderasyon kararı değildir.",
       trustGuidance: "Güvenli alışveriş için belge, satıcı ve araç bilgilerini bağımsız kaynaklardan kontrol edin. Bilinmeyen kişilere kapora göndermeyin ve mümkünse ekspertiz veya bağımsız inceleme kullanın.",
-      serviceGuidance: "Servis seçiminde önce ihtiyacın türünü netleştirin: ekspertiz, periyodik bakım, arıza tespit, lastik, kaporta veya elektrikli araç servisi gibi. OTOYALI henüz randevu, fiyat garantisi veya sağlayıcı doğrulama sonucu üretmez; yalnızca public servis alanına yönlendirebilirim.",
+      serviceGuidance: "Servis seçiminde önce ihtiyacın türünü netleştirin: ekspertiz, periyodik bakım, arıza tespit, lastik, kaporta veya elektrikli araç servisi gibi. JOLCAR henüz randevu, fiyat garantisi veya sağlayıcı doğrulama sonucu üretmez; yalnızca public servis alanına yönlendirebilirim.",
       ownershipPlanned: "Araç sahipliği hatırlatmaları ve kişisel bakım önerileri planlanıyor, ancak AI-01 aşamasında etkin değil."
     },
     errors: {
@@ -924,13 +924,13 @@ export const tr = {
   futureVerticals: {
     comingSoon: "Yakında",
     backHome: "Ana sayfaya dön",
-    disclaimer: "Bu alan OTOYALI ekosisteminin gelecek kapsamı için hazırlanmıştır. Şu anda aktif ilan, teklif, servis rezervasyonu veya AI sonucu sunmaz.",
+    disclaimer: "Bu alan JOLCAR ekosisteminin gelecek kapsamı için hazırlanmıştır. Şu anda aktif ilan, teklif, servis rezervasyonu veya AI sonucu sunmaz.",
     commercialVehicles: "Ticari araçlar",
     marineVehicles: "Deniz araçları",
     spareParts: "Yedek parça",
     insurance: "Sigorta",
     services: "Servisler",
-    aiAssistant: "OTOYALI AI Asistan"
+    aiAssistant: "JOLCAR AI Asistan"
   },
   format: {
     priceNotProvided: "Fiyat belirtilmedi",

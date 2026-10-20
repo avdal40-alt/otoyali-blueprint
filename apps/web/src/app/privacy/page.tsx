@@ -3,14 +3,14 @@ import { buildSeoMetadata } from "@/lib/seo/metadata";
 
 export const metadata = buildSeoMetadata({
   title: "Gizlilik Politikası",
-  description: "Yolmod gizlilik politikası, işlenen veri türleri ve kullanıcı hakları hakkında genel bilgilendirme.",
+  description: "Jolcar gizlilik politikası, işlenen veri türleri ve kullanıcı hakları hakkında genel bilgilendirme.",
   path: "/privacy"
 });
 
 const sections: LegalSection[] = [
   {
     title: "Hangi veriler işlenir?",
-    body: "Yolmod, hesap oluşturma, kimlik doğrulama, ilan yayınlama, güvenlik, moderasyon ve ürün geliştirme için gerekli minimum verileri işler."
+    body: "Jolcar, hesap oluşturma, kimlik doğrulama, ilan yayınlama, güvenlik, moderasyon ve ürün geliştirme için gerekli minimum verileri işler."
   },
   {
     title: "Hesap ve iletişim bilgileri",
@@ -42,7 +42,7 @@ const sections: LegalSection[] = [
   },
   {
     title: "Verilerin paylaşımı",
-    body: "Hosting, veritabanı, kimlik doğrulama, depolama, analitik ve güvenlik gibi altyapı hizmetleri için üçüncü taraf sağlayıcılar kullanılabilir. Yolmod hizmeti çalıştırmak için gerekli olmayan verileri satmaz."
+    body: "Hosting, veritabanı, kimlik doğrulama, depolama, analitik ve güvenlik gibi altyapı hizmetleri için üçüncü taraf sağlayıcılar kullanılabilir. Jolcar hizmeti çalıştırmak için gerekli olmayan verileri satmaz."
   },
   {
     title: "Saklama süresi",
@@ -66,7 +66,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage
       title="Gizlilik Politikası"
-      description="Yolmod&apos;un hangi verileri neden işlediğini ve kullanıcıların nelere dikkat etmesi gerektiğini sade biçimde açıklar."
+      description="Jolcar&apos;un hangi verileri neden işlediğini ve kullanıcıların nelere dikkat etmesi gerektiğini sade biçimde açıklar."
       sections={sections}
       actions={[
         { href: "/cookies", label: "Çerez Politikası" },

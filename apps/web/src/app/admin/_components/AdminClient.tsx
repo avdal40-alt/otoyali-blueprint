@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
@@ -16,6 +17,7 @@ import type { ClientDictionary, Locale } from "@/i18n/types";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { isMissingAuthSessionError } from "@/lib/auth/auth-ui";
+import { safeAdminNextPath } from "@/lib/auth/admin-return-path";
 import { formatPrice } from "@/lib/format";
 import { signStorageUrlMap } from "@/lib/media/storage-urls";
 import type { ServiceProviderApplicationAdminRow } from "@/lib/supabase/types";
@@ -114,6 +116,8 @@ const navItems: Array<{ section: AdminSection; href: string; label: string }> = 
 
 export function AdminClient({ section }: { section: AdminSection }) {
   const { locale, dictionary } = useI18n();
+  const pathname = usePathname();
+  const router = useRouter();
   const [admin, setAdmin] = useState<AdminState>({ status: "loading", userId: null, role: null, error: null });
 
   useEffect(() => {
@@ -151,6 +155,13 @@ export function AdminClient({ section }: { section: AdminSection }) {
     void checkAdmin();
   }, []);
 
+  useEffect(() => {
+    if (admin.status === "login") {
+      const next = safeAdminNextPath(pathname);
+      router.replace(`/admin/login?next=${encodeURIComponent(next)}`);
+    }
+  }, [admin.status, pathname, router]);
+
   return (
     <>
       <AppHeader />
@@ -158,7 +169,7 @@ export function AdminClient({ section }: { section: AdminSection }) {
         <div className="mb-5 rounded-oto border border-oto-border bg-white p-4 shadow-soft">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Yolmod Admin</p>
+              <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolcar Admin</p>
               <h1 className="mt-1 text-2xl font-black text-oto-text">{adminNavLabel(section, dictionary)}</h1>
             </div>
             {admin.role ? <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-black text-oto-blue">{admin.role}</span> : null}
@@ -177,14 +188,7 @@ export function AdminClient({ section }: { section: AdminSection }) {
         </div>
 
         {admin.status === "loading" ? <LoadingState /> : null}
-        {admin.status === "login" ? (
-          <EmptyState
-            title={String(dictionary.admin.accessRequiredTitle)}
-            body={String(dictionary.admin.accessRequiredBody)}
-            href={`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/admin", locale))}`}
-            action={String(dictionary.admin.login)}
-          />
-        ) : null}
+        {admin.status === "login" ? <LoadingState /> : null}
         {admin.status === "denied" ? (
           <ErrorState message="Bu alana erişim yetkiniz yok." />
         ) : null}

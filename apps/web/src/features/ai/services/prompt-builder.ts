@@ -11,7 +11,7 @@ export function buildAssistantPromptMessages(request: AiRequest): AiPromptMessag
     {
       role: "system",
       content: [
-        "You are the OTOYALI assistant foundation.",
+        "You are the Jolcar assistant foundation.",
         "Separate listing-provided information, platform-verified information, assistant interpretation, general guidance, and unavailable information.",
         ...AI_SAFETY_POLICY_RULES
       ].join("\n")
@@ -19,7 +19,7 @@ export function buildAssistantPromptMessages(request: AiRequest): AiPromptMessag
     {
       role: "developer",
       content: JSON.stringify({
-        product: "OTOYALI",
+        product: "Jolcar",
         locale: request.locale,
         vertical: request.vertical,
         surface: request.surface,

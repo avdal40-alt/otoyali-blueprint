@@ -60,7 +60,7 @@ export default async function PublicDealerPage({ params, searchParams }: Props) 
       <div className="h-32 bg-gradient-to-r from-oto-orange to-oto-yellow md:h-48" aria-label="Dealer cover" />
       <div className="-mt-12 flex flex-col gap-4 px-5 pb-6 md:-mt-16 md:flex-row md:items-end md:px-8">
         <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-white bg-oto-surface shadow-soft md:h-32 md:w-32">
-          {profile.avatar_url ? <Image src={profile.avatar_url} alt="" fill className="object-cover" sizes="128px" /> : <Image src="/brand/otoyali-logo-monochrome.svg" alt="" fill className="object-contain p-5" sizes="128px" />}
+          {profile.avatar_url ? <Image src={profile.avatar_url} alt="" fill className="object-cover" sizes="128px" /> : <span className="flex h-full w-full items-center justify-center text-xl font-black text-oto-text">J</span>}
         </div>
         <div><h1 className="text-2xl font-black text-oto-text md:text-3xl">{profile.display_name}</h1><p className="mt-1 text-sm text-oto-muted">{profile.city || (locale === "en" ? "Location unavailable" : "Konum belirtilmemiş")}</p></div>
         <div className="flex flex-wrap items-center gap-3">{profile.is_verified ? <span className="rounded-full bg-green-50 px-3 py-1 text-sm font-bold text-oto-success">✓ {locale === "en" ? "Verified dealer" : "Doğrulanmış galeri"}</span> : null}<DealerFollowButton dealerId={id} initialFollowing={profile.is_following} initialCount={profile.follower_count} /></div>

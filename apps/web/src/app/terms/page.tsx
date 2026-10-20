@@ -4,14 +4,14 @@ import { getRequestLocale } from "@/i18n/server";
 
 export const metadata = buildSeoMetadata({
   title: "Kullanım Şartları",
-  description: "Yolmod platform kullanım şartları, ilan yayınlama sorumlulukları ve moderasyon kuralları.",
+  description: "Jolcar platform kullanım şartları, ilan yayınlama sorumlulukları ve moderasyon kuralları.",
   path: "/terms"
 });
 
 const sections: LegalSection[] = [
   {
-    title: "Yolmod nedir?",
-    body: "Yolmod, kullanıcıların araç ilanlarını keşfetmesine, aramasına, incelemesine ve yayınlamasına yardımcı olan bir dijital platformdur."
+    title: "Jolcar nedir?",
+    body: "Jolcar, kullanıcıların araç ilanlarını keşfetmesine, aramasına, incelemesine ve yayınlamasına yardımcı olan bir dijital platformdur."
   },
   {
     title: "Kullanıcı hesabı",
@@ -35,7 +35,7 @@ const sections: LegalSection[] = [
   },
   {
     title: "Platform sorumluluğu",
-    body: "Yolmod, ilanları kullanıcıların sunduğu bilgilere göre gösterir. Platform her aracın geçmişini, teknik durumunu veya satışa uygunluğunu otomatik olarak garanti etmez."
+    body: "Jolcar, ilanları kullanıcıların sunduğu bilgilere göre gösterir. Platform her aracın geçmişini, teknik durumunu veya satışa uygunluğunu otomatik olarak garanti etmez."
   },
   {
     title: "Ücretli hizmetler hakkında not",
@@ -43,7 +43,7 @@ const sections: LegalSection[] = [
   },
   {
     title: "İlanların kaldırılması ve moderasyon",
-    body: "Yolmod; şüpheli, yanıltıcı, yasaklı veya kullanıcı güvenliğini riske atabilecek ilanları reddedebilir, arşivleyebilir ya da kaldırabilir."
+    body: "Jolcar; şüpheli, yanıltıcı, yasaklı veya kullanıcı güvenliğini riske atabilecek ilanları reddedebilir, arşivleyebilir ya da kaldırabilir."
   },
   {
     title: "Değişiklikler",
@@ -57,8 +57,8 @@ const sections: LegalSection[] = [
 
 const enSections: LegalSection[] = [
   {
-    title: "What is Yolmod?",
-    body: "Yolmod is a digital platform for browsing, searching, viewing, and publishing vehicle listings."
+    title: "What is Jolcar?",
+    body: "Jolcar is a digital platform for browsing, searching, viewing, and publishing vehicle listings."
   },
   {
     title: "User accounts",
@@ -78,11 +78,11 @@ const enSections: LegalSection[] = [
   },
   {
     title: "Platform responsibility",
-    body: "Yolmod displays listings based on user-provided information. The platform does not automatically guarantee each vehicle's history, technical condition, or sale eligibility."
+    body: "Jolcar displays listings based on user-provided information. The platform does not automatically guarantee each vehicle's history, technical condition, or sale eligibility."
   },
   {
     title: "Moderation",
-    body: "Yolmod may reject, archive, or remove listings that appear suspicious, misleading, prohibited, or risky for user safety."
+    body: "Jolcar may reject, archive, or remove listings that appear suspicious, misleading, prohibited, or risky for user safety."
   }
 ];
 
@@ -95,8 +95,8 @@ export default async function TermsPage() {
       title={isEnglish ? "Terms of Use" : "Kullanım Şartları"}
       description={
         isEnglish
-          ? "Yolmod Terms of Use explain platform usage, user responsibilities, and safety boundaries."
-          : "Yolmod kullanım şartları; platformun nasıl kullanılacağını, kullanıcı sorumluluklarını ve güvenlik sınırlarını açıklar."
+          ? "Jolcar Terms of Use explain platform usage, user responsibilities, and safety boundaries."
+          : "Jolcar kullanım şartları; platformun nasıl kullanılacağını, kullanıcı sorumluluklarını ve güvenlik sınırlarını açıklar."
       }
       sections={isEnglish ? enSections : sections}
       actions={[

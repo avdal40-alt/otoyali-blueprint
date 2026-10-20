@@ -81,7 +81,7 @@ export function ReportListingButton({ listingId }: { listingId: string }) {
 
     setStatus("success");
     setDescription("");
-    setMessage(locale === "en" ? "Your report has been received. The Yolmod team will review it." : "Bildiriminiz alındı. Yolmod ekibi inceleyecek.");
+    setMessage(locale === "en" ? "Your report has been received. The Jolcar team will review it." : "Bildiriminiz alındı. Jolcar ekibi inceleyecek.");
   }
 
   return (

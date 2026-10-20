@@ -3,14 +3,14 @@ import { buildSeoMetadata } from "@/lib/seo/metadata";
 
 export const metadata = buildSeoMetadata({
   title: "İletişim",
-  description: "Yolmod destek, ilan bildirimi ve hukuki iletişim talepleri için iletişim sayfası.",
+  description: "Jolcar destek, ilan bildirimi ve hukuki iletişim talepleri için iletişim sayfası.",
   path: "/contact"
 });
 
 const sections: LegalSection[] = [
   {
     title: "Platform desteği",
-    body: "Yolmod kullanımı, hesap erişimi, ilan görüntüleme ve genel platform soruları için support@yolmod.com adresine yazabilirsiniz."
+    body: "Jolcar kullanımı, hesap erişimi, ilan görüntüleme ve genel platform soruları için support@yolmod.com adresine yazabilirsiniz."
   },
   {
     title: "İlan ve bildirim yardımı",
@@ -30,7 +30,7 @@ const sections: LegalSection[] = [
   },
   {
     title: "Güvenli iletişim notu",
-    body: "Yolmod dışındaki ödeme, kapora, belge paylaşımı veya kimlik doğrulama taleplerinde dikkatli olun. Şüpheli durumlarda işlem yapmadan önce ilanı bildirin."
+    body: "Jolcar dışındaki ödeme, kapora, belge paylaşımı veya kimlik doğrulama taleplerinde dikkatli olun. Şüpheli durumlarda işlem yapmadan önce ilanı bildirin."
   }
 ];
 
@@ -38,7 +38,7 @@ export default function ContactPage() {
   return (
     <LegalPage
       title="İletişim"
-      description="Destek, ilan bildirimi ve hukuki talepler için Yolmod iletişim yönlendirmeleri."
+      description="Destek, ilan bildirimi ve hukuki talepler için Jolcar iletişim yönlendirmeleri."
       sections={sections}
       actions={[
         { href: "/search", label: "İlanları keşfet", variant: "primary" },

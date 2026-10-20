@@ -83,7 +83,7 @@ export const MARKET_PROFILES = {
   yolmodTurkey: {
     id: "turkey",
     countryCode: "TR",
-    brandName: "Yolmod",
+    brandName: "Jolcar",
     siteUrl: "https://yolmod.com",
     currencyCode: "TRY",
     launchLocales: ["tr", "en"],

@@ -3,7 +3,7 @@ import type { Dictionary } from "../types";
 export const en = {
   common: {
     translationUnavailable: "Content is unavailable right now.",
-    appName: "OTOYALI",
+    appName: "JOLCAR",
     continue: "Continue",
     cancel: "Cancel",
     save: "Save",
@@ -43,7 +43,7 @@ export const en = {
     messages: "Messages"
   },
   messages: {
-    title: "Messages", emptyTitle: "No messages yet", emptyBody: "You can start a secure conversation from a listing.", unavailable: "This conversation is unavailable right now.", retry: "Try again", start: "Message on Yolmod", ownListing: "You cannot start a conversation for your own listing.", loading: "Loading messages", unread: "Unread message", loadEarlier: "Load earlier messages", noEarlier: "No earlier messages", write: "Write your message", send: "Send", sending: "Sending", invalidMessage: "A message cannot be empty and must be at most 2,000 characters.", sent: "Message sent", rateLimited: "Too many requests. Please try again shortly.", inaccessible: "You cannot access this conversation.", messageCount: "{count} characters remaining", conversation: "Listing conversation", sold: "This listing is no longer active. Your existing conversation history remains available.", block: "Block", unblock: "Unblock", reportConversation: "Report conversation", reportMessage: "Report message", cancel: "Cancel", blocked: "Messages are unavailable in this conversation.", blockedSuccess: "This conversation is blocked.", unblockedSuccess: "You can send messages again.", safetyError: "We could not complete that action. Please try again.", safetyReminder: "Be cautious with suspicious links, verify before sending money, and avoid sharing unnecessary personal or financial information.", blockConfirmTitle: "Block this conversation?", blockConfirmBody: "You will not be able to send messages in this conversation until you unblock it.", unblockConfirmTitle: "Unblock this conversation?", unblockConfirmBody: "You can send messages again after unblocking.", reportReason: "Why are you reporting this?", confirmReport: "Submit report", reportSuccess: "Your report has been received.", reportReasonFraud: "Fraud", reportReasonWrongInformation: "Wrong information", reportReasonDuplicate: "Duplicate", reportReasonInappropriateContent: "Inappropriate content", reportReasonSuspiciousSeller: "Suspicious seller", reportReasonOther: "Other", listingResponses: "Listing responses", viewListingResponse: "View listing response"
+    title: "Messages", emptyTitle: "No messages yet", emptyBody: "You can start a secure conversation from a listing.", unavailable: "This conversation is unavailable right now.", retry: "Try again", start: "Message on Jolcar", ownListing: "You cannot start a conversation for your own listing.", loading: "Loading messages", unread: "Unread message", loadEarlier: "Load earlier messages", noEarlier: "No earlier messages", write: "Write your message", send: "Send", sending: "Sending", invalidMessage: "A message cannot be empty and must be at most 2,000 characters.", sent: "Message sent", rateLimited: "Too many requests. Please try again shortly.", inaccessible: "You cannot access this conversation.", messageCount: "{count} characters remaining", conversation: "Listing conversation", sold: "This listing is no longer active. Your existing conversation history remains available.", block: "Block", unblock: "Unblock", reportConversation: "Report conversation", reportMessage: "Report message", cancel: "Cancel", blocked: "Messages are unavailable in this conversation.", blockedSuccess: "This conversation is blocked.", unblockedSuccess: "You can send messages again.", safetyError: "We could not complete that action. Please try again.", safetyReminder: "Be cautious with suspicious links, verify before sending money, and avoid sharing unnecessary personal or financial information.", blockConfirmTitle: "Block this conversation?", blockConfirmBody: "You will not be able to send messages in this conversation until you unblock it.", unblockConfirmTitle: "Unblock this conversation?", unblockConfirmBody: "You can send messages again after unblocking.", reportReason: "Why are you reporting this?", confirmReport: "Submit report", reportSuccess: "Your report has been received.", reportReasonFraud: "Fraud", reportReasonWrongInformation: "Wrong information", reportReasonDuplicate: "Duplicate", reportReasonInappropriateContent: "Inappropriate content", reportReasonSuspiciousSeller: "Suspicious seller", reportReasonOther: "Other", listingResponses: "Listing responses", viewListingResponse: "View listing response"
   },
   notifications: {
     title: "Notifications", account: "Account", loading: "Loading notifications", emptyTitle: "No notifications", emptyBody: "New listing matches will appear here.", unavailable: "Notifications are unavailable right now.", retry: "Try again", unread: "Unread notification", markAll: "Mark all as read", marking: "Marking", loadMore: "Load more", newMatch: "A new listing matches your saved search", priceDrop: "The price dropped on a listing you follow", chatMessage: "You have a new message", notificationUpdate: "Marketplace update", openListing: "View listing", openConversation: "Open conversation", savedSearches: "Saved searches", savedSearchesHint: "You can save up to 5 searches.", noSavedSearches: "No saved searches yet", noSavedSearchesBody: "Save a search from search results to track new listing matches.", legacy: "Legacy saved search", alertsEnabled: "Alerts enabled", alertsDisabled: "Alerts disabled", alertsUnavailable: "Alerts are unavailable for this legacy search.", alertToggle: "New listing alerts", delete: "Delete search", deleting: "Deleting", updating: "Updating", savedSearchesUnavailable: "Saved searches are unavailable right now.", actionFailed: "We could not complete that action. Please try again."
@@ -67,7 +67,7 @@ export const en = {
     mobileApp: "Mobile app"
   },
   home: {
-    eyebrow: "OTOYALI",
+    eyebrow: "JOLCAR",
     title: "Turkey's intelligent vehicle marketplace",
     subtitle: "Cars, commercial vehicles, marine vehicles, spare parts, insurance, and vehicle videos in one platform.",
     searchHeroTitle: "Find the vehicle you are looking for",
@@ -98,12 +98,12 @@ export const en = {
     cityListings: "{city} vehicle listings",
     popularSearches: "Popular searches",
     discoverFast: "Discover vehicles faster",
-    ecosystem: "OTOYALI ecosystem",
+    ecosystem: "JOLCAR ecosystem",
     trustEyebrow: "Safer experience",
     trustTitle: "A simple and trustworthy place for vehicle decisions.",
-    trustBody: "OTOYALI keeps vehicle search and comparison clear, direct, and free from unnecessary barriers.",
+    trustBody: "JOLCAR keeps vehicle search and comparison clear, direct, and free from unnecessary barriers.",
     appEyebrow: "Mobile app",
-    appTitle: "Download the OTOYALI app soon",
+    appTitle: "Download the JOLCAR app soon",
     appBody: "Track listings, save favorites, and manage your vehicle on mobile with ease.",
     appStoreSoon: "App Store - Coming soon",
     googlePlaySoon: "Google Play - Coming soon"
@@ -177,7 +177,7 @@ export const en = {
     nextPhoto: "Next photo",
     negotiable: "Negotiable",
     videos: "Vehicle videos",
-    videoDescription: "Watch the seller's short vehicle introductions in OTOYALI Video.",
+    videoDescription: "Watch the seller's short vehicle introductions in JOLCAR Video.",
     watchVideo: "Watch in Video",
     openVideo: "Open video",
     description: "Description",
@@ -185,7 +185,7 @@ export const en = {
     similarListings: "Similar listings",
     similarEmpty: "Similar listings will appear here as active inventory grows.",
     seller: "Seller",
-    defaultSeller: "OTOYALI seller",
+    defaultSeller: "JOLCAR seller",
     sellerLoginCopy: "Log in to contact the seller securely.",
     contactSeller: "Contact seller",
     ownListingContact: "This is your listing.",
@@ -193,7 +193,7 @@ export const en = {
     messageSoon: "Message · Coming soon",
     message: "Message",
     share: "Share",
-    safetyCopy: "OTOYALI helps make vehicle buying and selling safer and easier.",
+    safetyCopy: "JOLCAR helps make vehicle buying and selling safer and easier.",
     listingRules: "Review listing rules",
     safeShopping: "Safe shopping tips",
     reportListing: "Report listing"
@@ -297,7 +297,7 @@ export const en = {
   },
   video: {
     label: "Video Listings",
-    title: "OTOYALI Video",
+    title: "JOLCAR Video",
     subtitle: "Vehicle videos, dealer opportunities, and short showcases.",
     body: "Sellers can introduce their vehicles with short videos up to 60 seconds.",
     discover: "Explore videos",
@@ -320,11 +320,11 @@ export const en = {
   services: {
     seo: {
       title: "Services",
-      description: "The OTOYALI service network is being prepared for inspection, maintenance, repair, and vehicle services."
+      description: "The JOLCAR service network is being prepared for inspection, maintenance, repair, and vehicle services."
     },
     hero: {
       badge: "Service marketplace",
-      title: "OTOYALI service network",
+      title: "JOLCAR service network",
       subtitle: "A trusted discovery layer is being prepared for inspection, maintenance, repair, tires, EV service, towing, and other vehicle services."
     },
     discoveryEyebrow: "Discovery",
@@ -341,7 +341,7 @@ export const en = {
       branchCount: "{count} branch"
     },
     empty: {
-      title: "The OTOYALI service network is being prepared.",
+      title: "The JOLCAR service network is being prepared.",
       body: "Approved providers will appear here as they are added. For now, you can review the category structure or apply to join the network."
     },
     currentAvailability: {
@@ -367,11 +367,11 @@ export const en = {
     provider: {
       notFoundTitle: "Service provider not found",
       notFoundDescription: "This service provider is not published or does not exist.",
-      seoDescriptionFallback: "Approved service provider profile on OTOYALI.",
+      seoDescriptionFallback: "Approved service provider profile on JOLCAR.",
       publicProfile: "Service profile",
       platformReviewed: "Platform reviewed",
       branchesTitle: "Branches and services",
-      trustDisclaimer: "This profile shows only published public provider information. OTOYALI does not guarantee bookings, prices, working hours, or service outcomes at this stage."
+      trustDisclaimer: "This profile shows only published public provider information. JOLCAR does not guarantee bookings, prices, working hours, or service outcomes at this stage."
     },
     offerings: {
       empty: "No active public service offerings have been added for this branch yet."
@@ -404,10 +404,10 @@ export const en = {
     },
     apply: {
       seoTitle: "Service network application",
-      seoDescription: "Apply to join the OTOYALI service marketplace network.",
+      seoDescription: "Apply to join the JOLCAR service marketplace network.",
       badge: "Provider application",
       title: "Join our service network",
-      subtitle: "Submitting an application does not publish a provider profile automatically. OTOYALI will review the information before future approved providers go live.",
+      subtitle: "Submitting an application does not publish a provider profile automatically. JOLCAR will review the information before future approved providers go live.",
       truthfulTitle: "No automatic publishing",
       truthfulBody: "The application only enters a review queue; no public profile is created without admin approval.",
       reviewTitle: "Moderation ready",
@@ -421,7 +421,7 @@ export const en = {
       backToServices: "Back to services",
       pendingBadge: "Pending review",
       successTitle: "Your application entered the review queue.",
-      successBody: "This does not mean the provider is published. The OTOYALI team will review the information and proceed with suitable candidates.",
+      successBody: "This does not mean the provider is published. The JOLCAR team will review the information and proceed with suitable candidates.",
       submit: "Submit application",
       reviewNote: "Submissions are stored as pending-review applications.",
       categoryHelper: "Select the main service types you currently provide.",
@@ -508,7 +508,7 @@ export const en = {
   admin: {
     title: "Admin",
     accessRequiredTitle: "Log in to access the admin panel.",
-    accessRequiredBody: "This area is only for authorized OTOYALI team members.",
+    accessRequiredBody: "This area is only for authorized JOLCAR team members.",
     login: "Log in",
     listings: "Listings",
     videos: "Videos",
@@ -529,7 +529,7 @@ export const en = {
   },
   trust: {
     title: "Trust Center",
-    reportSoon: "OTOYALI trust report is coming soon",
+    reportSoon: "JOLCAR trust report is coming soon",
     provisional: "Trust and legal information is provisional during the MVP stage."
   },
   errors: {
@@ -577,13 +577,13 @@ export const en = {
     other: "Other"
   },
   seo: {
-    defaultTitle: "OTOYALI - Turkey's intelligent vehicle marketplace",
+    defaultTitle: "JOLCAR - Turkey's intelligent vehicle marketplace",
     defaultDescription: "Cars, commercial vehicles, marine vehicles, spare parts, insurance, and vehicle videos in one platform.",
     homeTitle: "Turkey's intelligent vehicle marketplace",
-    homeDescription: "Vehicle listings, OTOYALI Video, safe publishing, and automotive content in one platform.",
+    homeDescription: "Vehicle listings, JOLCAR Video, safe publishing, and automotive content in one platform.",
     searchTitle: "Search vehicles",
     searchDescription: "Search active vehicle listings in Turkey by brand, model, city, price, and specifications.",
-    videoTitle: "OTOYALI Video",
+    videoTitle: "JOLCAR Video",
     videoDescription: "Vehicle videos, dealer opportunities, and short showcases."
   },
   verticals: {
@@ -606,7 +606,7 @@ export const en = {
     landing: {
       browseCars: "Browse car listings",
       publishCars: "Publish a car listing",
-      publishUnavailable: "Publishing is not open for this category yet. OTOYALI is preparing it with a separate data model and moderation rules.",
+      publishUnavailable: "Publishing is not open for this category yet. JOLCAR is preparing it with a separate data model and moderation rules.",
       activeDisclaimer: "This category runs on the current marketplace infrastructure. Public visibility requires an active listing and active moderation.",
       availableFeatures: "Prepared scope",
       attributeModel: "Future attribute model",
@@ -620,7 +620,7 @@ export const en = {
       description: "Search used and new car listings, compare options, and contact sellers securely.",
       shortDescription: "Used and new vehicle listings.",
       seoTitle: "Car Listings",
-      seoDescription: "Search car listings on OTOYALI by make, model, city, price, and specifications.",
+      seoDescription: "Search car listings on JOLCAR by make, model, city, price, and specifications.",
       highlights: {
         search: "Advanced search",
         publish: "Listing publishing",
@@ -633,7 +633,7 @@ export const en = {
       description: "A future marketplace area for vans, trucks, minibuses, buses, tractors, and work machines with a dedicated data model.",
       shortDescription: "Vans, trucks, minibuses, and work machines.",
       seoTitle: "Commercial Vehicles",
-      seoDescription: "OTOYALI is preparing a commercial vehicles area for vans, trucks, minibuses, buses, and work machines.",
+      seoDescription: "JOLCAR is preparing a commercial vehicles area for vans, trucks, minibuses, buses, and work machines.",
       highlights: {
         lightCommercial: "Light commercial",
         trucks: "Trucks and tractors",
@@ -646,7 +646,7 @@ export const en = {
       description: "A marine-focused marketplace area for boats, yachts, jet skis, and marine engines with dedicated fields and media.",
       shortDescription: "Boats, yachts, jet skis, and marine engines.",
       seoTitle: "Marine Vehicles",
-      seoDescription: "OTOYALI is preparing a marine vehicles area for boats, yachts, jet skis, and marine engines.",
+      seoDescription: "JOLCAR is preparing a marine vehicles area for boats, yachts, jet skis, and marine engines.",
       highlights: {
         boats: "Boats",
         yachts: "Yachts",
@@ -659,7 +659,7 @@ export const en = {
       description: "A compatibility-focused marketplace area for tires, wheels, accessories, care products, and vehicle parts.",
       shortDescription: "Parts, accessories, tires, and wheels.",
       seoTitle: "Spare Parts",
-      seoDescription: "OTOYALI is preparing a spare parts area for tires, wheels, accessories, care products, and vehicle parts.",
+      seoDescription: "JOLCAR is preparing a spare parts area for tires, wheels, accessories, care products, and vehicle parts.",
       highlights: {
         tires: "Tires and wheels",
         body: "Body parts",
@@ -672,7 +672,7 @@ export const en = {
       description: "A provider-focused category for inspection, maintenance, repair, tire changes, and EV service options.",
       shortDescription: "Inspection, maintenance, and vehicle services.",
       seoTitle: "Services",
-      seoDescription: "OTOYALI is preparing a services area for inspection, maintenance, repair, and vehicle services.",
+      seoDescription: "JOLCAR is preparing a services area for inspection, maintenance, repair, and vehicle services.",
       highlights: {
         inspection: "Inspection",
         maintenance: "Scheduled maintenance",
@@ -685,7 +685,7 @@ export const en = {
       description: "A future safe comparison experience for traffic insurance, casco, and claim-history related decisions.",
       shortDescription: "Traffic insurance and casco solutions.",
       seoTitle: "Insurance",
-      seoDescription: "OTOYALI is preparing an insurance area for traffic insurance, casco, and claim-history related solutions.",
+      seoDescription: "JOLCAR is preparing an insurance area for traffic insurance, casco, and claim-history related solutions.",
       highlights: {
         traffic: "Traffic insurance",
         casco: "Casco",
@@ -698,7 +698,7 @@ export const en = {
       description: "Reserved future motorcycle marketplace area.",
       shortDescription: "Reserved future area for motorcycle listings.",
       seoTitle: "Motorcycles",
-      seoDescription: "OTOYALI motorcycle marketplace is reserved for a future stage."
+      seoDescription: "JOLCAR motorcycle marketplace is reserved for a future stage."
     },
     machinery: {
       label: "Construction and agricultural machinery",
@@ -706,7 +706,7 @@ export const en = {
       description: "Reserved future machinery marketplace area.",
       shortDescription: "Reserved future area for machinery listings.",
       seoTitle: "Construction and Agricultural Machinery",
-      seoDescription: "OTOYALI machinery marketplace is reserved for a future stage."
+      seoDescription: "JOLCAR machinery marketplace is reserved for a future stage."
     },
     mobility: {
       label: "Mobility products",
@@ -714,7 +714,7 @@ export const en = {
       description: "Reserved future mobility products marketplace area.",
       shortDescription: "Reserved future area for mobility products.",
       seoTitle: "Mobility Products",
-      seoDescription: "OTOYALI mobility products marketplace is reserved for a future stage."
+      seoDescription: "JOLCAR mobility products marketplace is reserved for a future stage."
     },
     attributes: {
       make: "Make",
@@ -753,7 +753,7 @@ export const en = {
   },
   ai: {
     title: "Rif",
-    subtitle: "OTOYALI AI preview",
+    subtitle: "JOLCAR AI preview",
     price: {
       title: "Comparable listing prices",
       loading: "Comparable listing prices are being prepared.",
@@ -769,7 +769,7 @@ export const en = {
       fresh: "The comparison is based on recently published listings.",
       mixed: "The comparison includes listings from different dates.",
       older: "The comparison may include listings that are not recent.",
-      explanation: "The comparison uses asking prices from active Yolmod listings; it does not show completed sale prices."
+      explanation: "The comparison uses asking prices from active Jolcar listings; it does not show completed sale prices."
     },
     trust: {
       title: "Vehicle information for the listing owner",
@@ -784,7 +784,7 @@ export const en = {
       },
       signal: {
         vin_present: "VIN information was added by the seller.",
-        vin_format_valid: "The VIN structure was checked by Yolmod.",
+        vin_format_valid: "The VIN structure was checked by Jolcar.",
         vin_format_invalid: "The VIN structure does not meet the expected format.",
         vin_reference_review_required: "The VIN information may need additional review.",
         external_check_not_available: "No external vehicle-history result is available.",
@@ -792,7 +792,7 @@ export const en = {
       },
       provenance: {
         seller_supplied: "Source: information supplied by the seller",
-        yolmod_internal: "Source: Yolmod structural check",
+        yolmod_internal: "Source: Jolcar structural check",
         external_provider: "Source: external provider",
         unavailable: "No external verification result is available"
       }
@@ -805,7 +805,7 @@ export const en = {
     loading: "Rif is preparing a response...",
     placeholder: "Ask Rif...",
     inputLabel: "Message to Rif",
-    introMessage: "Rif is a safe preview for OTOYALI's future AI assistant. It currently provides only general deterministic guidance; it does not perform real valuation, accident-history checks, or seller verification.",
+    introMessage: "Rif is a safe preview for JOLCAR's future AI assistant. It currently provides only general deterministic guidance; it does not perform real valuation, accident-history checks, or seller verification.",
     disclaimer: "Rif provides guidance. Independently verify the vehicle, price, seller and documents.",
     openTrustCenter: "Trust Center",
     featureNotConnected: "Advanced AI features are not connected yet.",
@@ -823,7 +823,7 @@ export const en = {
       joinServiceNetwork: "Join service network"
     },
     responses: {
-      intro: "Rif currently runs as a safe local preview inside OTOYALI. I can provide general guidance for search filters, listing preparation, and safer marketplace behavior. Advanced AI, real valuation, accident-history lookup, TRAMER/VIN checks, and seller verification are not connected yet.",
+      intro: "Rif currently runs as a safe local preview inside JOLCAR. I can provide general guidance for search filters, listing preparation, and safer marketplace behavior. Advanced AI, real valuation, accident-history lookup, TRAMER/VIN checks, and seller verification are not connected yet.",
       disabled: "Rif's advanced AI features are not enabled yet.",
       verticalComingSoon: "AI support for this vertical is still being prepared. For now I can help with active car listings and general safety guidance.",
       searchGuidance: "For better search results, start with make/model, city, budget, year and mileage range. Then narrow with fuel type, transmission and body type. This is guidance for using existing filters, not an automatic AI search result.",
@@ -831,7 +831,7 @@ export const en = {
       listingGuidanceWithContext: "For this listing page, only the public information shown on screen should be considered. Rif cannot fill missing fields, know accident history, or guarantee that the price is fair.",
       publishingGuidance: "A stronger listing usually includes clear photos, accurate technical details, a plain description, realistic price, and honest damage/history disclosure. This is not automatic publication or a moderation decision.",
       trustGuidance: "For safer transactions, verify documents, seller details and vehicle information through independent sources. Do not send deposits to unknown people and consider an inspection or independent review.",
-      serviceGuidance: "When choosing a service, first clarify the need: inspection, scheduled maintenance, diagnostics, tires, body repair, or EV service. OTOYALI does not create bookings, guarantee prices, or produce provider verification outcomes yet; I can only guide you to public service areas.",
+      serviceGuidance: "When choosing a service, first clarify the need: inspection, scheduled maintenance, diagnostics, tires, body repair, or EV service. JOLCAR does not create bookings, guarantee prices, or produce provider verification outcomes yet; I can only guide you to public service areas.",
       ownershipPlanned: "Ownership reminders and personalized maintenance guidance are planned, but they are not enabled in AI-01."
     },
     errors: {
@@ -924,13 +924,13 @@ export const en = {
   futureVerticals: {
     comingSoon: "Coming soon",
     backHome: "Back to home",
-    disclaimer: "This area is prepared for the future OTOYALI ecosystem. It does not currently provide active listings, offers, service bookings, or AI results.",
+    disclaimer: "This area is prepared for the future JOLCAR ecosystem. It does not currently provide active listings, offers, service bookings, or AI results.",
     commercialVehicles: "Commercial vehicles",
     marineVehicles: "Marine vehicles",
     spareParts: "Spare parts",
     insurance: "Insurance",
     services: "Services",
-    aiAssistant: "OTOYALI AI Assistant"
+    aiAssistant: "JOLCAR AI Assistant"
   },
   format: {
     priceNotProvided: "Price not provided",
