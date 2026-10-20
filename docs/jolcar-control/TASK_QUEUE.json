@@ -834,13 +834,13 @@
       "title": "Production SMS/provider activation handoff",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "manual_authorization",
+      "status": "blocked",
       "release_gate": true,
       "dependencies": [
         "JLC-0307",
         "JLC-D003"
       ],
-      "requires_user_authorization": true,
+      "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
       "description": "Prepare integration checklist only. Actual provider/secrets/production SMS require user approval.",
@@ -849,8 +849,8 @@
         "No real secret/SMS action without explicit approval"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-21 overnight launch execution: explicit owner authorization received, but no canonical production Supabase target or SMS-provider credentials were accessible. No SMS/OTP was sent and no provider setting or secret was changed. See docs/jolcar-control/JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
+      "notes": "Blocked by missing provider access/credentials, not by authorization. Continue after canonical production project identity and approved SMS credentials are available."
     },
     {
       "id": "JLC-0401",
@@ -2606,13 +2606,13 @@
       "title": "Real streaming provider integration handoff",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "manual_authorization",
+      "status": "blocked",
       "release_gate": true,
       "dependencies": [
         "JLC-0912",
         "JLC-D006"
       ],
-      "requires_user_authorization": true,
+      "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
       "description": "Provider adapter may be prepared with mocks; real secret/provider calls require authorization.",
@@ -2622,8 +2622,8 @@
         "Production activation waits for explicit authorization"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-21 overnight launch execution: Amazon IVS remains the approved provider, but no AWS credentials, region, or canonical production environment target was accessible. No IVS resource, paid call, or secret was created. See docs/jolcar-control/JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
+      "notes": "Blocked by provider account access/target identity, not by authorization."
     },
     {
       "id": "JLC-0918",
@@ -3645,12 +3645,12 @@
       "title": "Authorize/create/configure production Supabase for Jolcar",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "manual_authorization",
+      "status": "blocked",
       "release_gate": true,
       "dependencies": [
         "JLC-1305"
       ],
-      "requires_user_authorization": true,
+      "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
       "description": "",
@@ -3658,8 +3658,8 @@
         "Explicit user authorization received for exact project/actions"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-21: authorization received; production mutation was not attempted because no canonical Jolcar production Supabase project could be positively identified. Checked-in Vercel metadata names jolcar-staging only; no Supabase access token/project reference was available. See JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
+      "notes": "BLOCKED by target identity and access. No production data, settings, Auth, Storage, schema, or API exposure was changed."
     },
     {
       "id": "JLC-9002",
@@ -3668,7 +3668,7 @@
       "title": "Authorize production provider secrets (SMS/AI/live/etc.)",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "manual_authorization",
+      "status": "blocked",
       "release_gate": true,
       "dependencies": [
         "JLC-1305",
@@ -3677,7 +3677,7 @@
         "JLC-D006",
         "JLC-D007"
       ],
-      "requires_user_authorization": true,
+      "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
       "description": "",
@@ -3685,8 +3685,8 @@
         "Explicit provider decisions and user authorization received"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-21: authorization received; no SMS, AWS IVS, Supabase, Vercel, or OpenAI production secret credential was accessible in the authorized environment. No secret was exposed, created, or changed. See JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
+      "notes": "BLOCKED by unavailable credentials/secret-store access. AI/voice remains feature-disabled; no paid AI action was needed or taken."
     },
     {
       "id": "JLC-9003",
@@ -3695,13 +3695,13 @@
       "title": "Authorize remote migrations and production deployment",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "manual_authorization",
+      "status": "blocked",
       "release_gate": true,
       "dependencies": [
         "JLC-9001",
         "JLC-9002"
       ],
-      "requires_user_authorization": true,
+      "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
       "description": "",
@@ -3710,8 +3710,8 @@
         "Exact target identity verified"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-21: local preflight and JLC-1508 passed, but remote migration/deployment was not attempted because JLC-9001/JLC-9002 remain blocked and production migration/Vercel identities cannot be verified. The repository has six versions absent from local history only; remote history is unknown. See JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
+      "notes": "BLOCKED by dependencies, target identity, and access. No remote migration, deploy, rollback, or Git push occurred."
     },
     {
       "id": "JLC-9004",
@@ -3720,13 +3720,13 @@
       "title": "Authorize domain/DNS/canonical/Auth callback cutover",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "manual_authorization",
+      "status": "blocked",
       "release_gate": true,
       "dependencies": [
         "JLC-9003"
       ],
-      "requires_user_authorization": true,
-      "requires_user_decision": false,
+      "requires_user_authorization": false,
+      "requires_user_decision": true,
       "decision_ref": null,
       "description": "",
       "acceptance_criteria": [
@@ -3734,8 +3734,8 @@
         "Explicit user authorization received"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-21: the exact final Jolcar production host remains deferred in the authoritative decisions, and no unambiguous production domain/provider configuration was found. No DNS, Vercel domain, canonical metadata, or Supabase Auth callback was changed. See JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
+      "notes": "BLOCKED by PRODUCT DECISION: final production domain/host."
     },
     {
       "id": "JLC-9005",
@@ -3744,13 +3744,13 @@
       "title": "Production smoke and GO-LIVE decision",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "manual_authorization",
+      "status": "blocked",
       "release_gate": true,
       "dependencies": [
         "JLC-9003",
         "JLC-9004"
       ],
-      "requires_user_authorization": true,
+      "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
       "description": "",
@@ -3760,8 +3760,8 @@
         "No release claim before user GO decision"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-21: production smoke is authorized but cannot begin because no canonical production Supabase/Vercel/domain target exists and JLC-9003/JLC-9004 are blocked. No smoke accounts, listings, moderation actions, or data cleanup were performed. See JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
+      "notes": "BLOCKED by unavailable production target and unresolved final-domain decision."
     },
     {
       "id": "JLC-A001",
