@@ -7,6 +7,10 @@ import { ErrorState, LoadingState } from "@/components/ui/States";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
+import {
+  resolvePlatformStaffState,
+  type PlatformStaffClient,
+} from "@/lib/auth/platform-staff";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type GateState = "checking" | "phone" | "error" | "eligible";
@@ -47,11 +51,14 @@ export function SellerEntryGate({ children }: { children: ReactNode }) {
     }
 
     const supabase = getSupabaseBrowserClient();
-    const { data: userData } = await supabase.auth.getUser();
-    const { data: isStaff, error: staffError } = userData.user
-      ? await supabase.rpc("is_admin", { uid: userData.user.id })
-      : { data: null, error: new Error("missing authenticated user") };
-    if (staffError || isStaff === true) {
+    const staffState = await resolvePlatformStaffState(
+      supabase as unknown as PlatformStaffClient,
+    );
+    if (staffState === "anonymous") {
+      redirectToLogin();
+      return false;
+    }
+    if (staffState === "staff" || staffState === "unknown") {
       router.replace(localizePath("/admin", locale));
       return false;
     }

@@ -47,7 +47,7 @@ assert.match(requestBoundary, /create_own_dealer_live_stream/);
 const sellerGate = fs.readFileSync(path.join(root, "apps/web/src/app/sell/_components/SellerEntryGate.tsx"), "utf8");
 const sellWizard = fs.readFileSync(path.join(root, "apps/web/src/app/sell/_components/SellWizard.tsx"), "utf8");
 const sellerContacts = fs.readFileSync(path.join(root, "apps/web/src/app/profile/seller-contacts/_components/SellerContactsClient.tsx"), "utf8");
-assert.match(sellerGate, /is_admin[\s\S]*router\.replace\(localizePath\("\/admin"/);
+assert.match(sellerGate, /resolvePlatformStaffState[\s\S]*router\.replace\(localizePath\("\/admin"[\s\S]*sync_own_verified_account_phone/);
 assert.match(sellWizard, /is_admin[\s\S]*router\.replace\(localizePath\("\/admin"[\s\S]*sync_own_verified_account_phone/);
 assert.match(sellerContacts, /is_admin[\s\S]*router\.replace\(localizePath\("\/admin"[\s\S]*sync_own_verified_account_phone/);
 

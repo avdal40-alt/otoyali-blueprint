@@ -9,63 +9,56 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Session } from "@supabase/supabase-js";
 
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
+import {
+  resolvePlatformStaffState,
+  shouldRefreshPlatformStaffState,
+  type PlatformStaffClient,
+  type PlatformStaffState,
+} from "@/lib/auth/platform-staff";
 
-type PlatformStaffNavigationState = "loading" | "staff" | "not_staff" | "unknown";
+export { platformStaffNavigationAction } from "@/lib/auth/platform-staff";
 
 const PlatformStaffNavigationContext =
-  createContext<PlatformStaffNavigationState>("loading");
-
-export function platformStaffNavigationAction(
-  state: PlatformStaffNavigationState,
-): "admin" | "seller" | null {
-  if (state === "staff") return "admin";
-  if (state === "not_staff") return "seller";
-  return null;
-}
+  createContext<PlatformStaffState>("unknown");
 
 export function PlatformStaffNavigationProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [state, setState] = useState<PlatformStaffNavigationState>("loading");
+  const [state, setState] = useState<PlatformStaffState>("unknown");
   const requestVersion = useRef(0);
 
-  const resolveStaffState = useCallback(async (session: Session | null) => {
+  const resolveStaffState = useCallback(async (supabase: PlatformStaffClient) => {
     const version = ++requestVersion.current;
-
-    if (!session) {
-      setState("not_staff");
-      return;
-    }
-
-    setState("loading");
-    const supabase = getSupabaseBrowserClient();
-    const { data, error } = await supabase.rpc("is_admin", {
-      uid: session.user.id,
-    });
-
+    setState("unknown");
+    const resolved = await resolvePlatformStaffState(supabase);
     if (version !== requestVersion.current) return;
-    setState(error ? "unknown" : data === true ? "staff" : "not_staff");
+    setState(resolved);
   }, []);
 
   useEffect(() => {
     if (!hasSupabaseEnv()) {
-      setState("not_staff");
+      setState("anonymous");
       return;
     }
 
     const supabase = getSupabaseBrowserClient();
-    void supabase.auth.getSession().then(({ data }) => {
-      void resolveStaffState(data.session);
-    });
+    const staffClient = supabase as unknown as PlatformStaffClient;
+    void resolveStaffState(staffClient);
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      void resolveStaffState(session);
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        ++requestVersion.current;
+        setState("anonymous");
+        return;
+      }
+      if (shouldRefreshPlatformStaffState(event)) {
+        void resolveStaffState(staffClient);
+      }
     });
 
     return () => {
