@@ -308,6 +308,13 @@ export function SellWizard({
         return;
       }
 
+      const { data: isStaff, error: staffError } = await supabase.rpc("is_admin", { uid: data.user.id });
+      if (!isCurrentRequest()) return;
+      if (staffError || isStaff === true) {
+        router.replace(localizePath("/admin", locale));
+        return;
+      }
+
       setUserId(data.user.id);
       await supabase.rpc("sync_own_verified_account_phone");
       const { data: contacts } = await supabase.rpc("list_own_verified_seller_contact_phones");

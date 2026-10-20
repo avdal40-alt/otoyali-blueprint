@@ -16,6 +16,7 @@ const wizard = fs.readFileSync(
 );
 const createRoute = fs.readFileSync(path.join(projectRoot, "src", "app", "api", "listings", "route.ts"), "utf8");
 const serverWrite = fs.readFileSync(path.join(projectRoot, "src", "lib", "listings", "server-write.ts"), "utf8");
+const requestBoundary = fs.readFileSync(path.join(projectRoot, "src", "lib", "supabase", "request.ts"), "utf8");
 
 const legacyPayloadColumns = ["vehicle_profile_id", "owner_id", "ownership_type", "is_current"];
 const columnGrant = migration.match(
@@ -41,14 +42,17 @@ assert.ok(
   "candidate clients must retain authenticated initializer execution"
 );
 assert.ok(
-  wizard.includes('listingWriteRequest<{ listingId: string; vehicleProfileId: string }>')
-    && wizard.includes('"/api/listings", "POST"'),
+  wizard.includes("listingWriteRequest<ActiveCreateDraft>")
+    && wizard.includes('getSupabaseBrowserClient(), "/api/listings", "POST"'),
   "candidate application must route draft creation through the authenticated server write boundary"
 );
 assert.match(createRoute, /requireAuthenticatedRequestSupabase/, "the create route must authenticate the request before drafting");
 assert.match(createRoute, /createOwnListingDraft\(authenticated, payload\)/, "the create route must delegate the authenticated request to the canonical server-write facade");
 assert.match(serverWrite, /export async function createOwnListingDraft/, "the canonical server-write facade must remain present");
-assert.match(serverWrite, /authenticated\.supabase\.rpc\("create_own_listing_draft"/, "the canonical server-write facade must invoke the atomic draft initializer");
+assert.match(serverWrite, /authenticated\.supabase\.rpc\("create_own_listing_draft_v2"/, "the canonical server-write facade must invoke the current atomic draft initializer");
+// JLC-0519 adds a staff-only denial at the authenticated server RPC boundary.
+// This preserves the normal seller route while rejecting platform-staff seller mutations.
+assert.match(requestBoundary, /staffDeniedSellerRpcNames[\s\S]*?"create_own_listing_draft_v2"/, "the current server boundary must classify draft creation as staff-denied seller mutation");
 assert.doesNotMatch(
   wizard,
   /\.from\("(?:listings|vehicle_profiles|profile_ownership)"\)\.(?:insert|update)/,

@@ -47,6 +47,14 @@ export function SellerEntryGate({ children }: { children: ReactNode }) {
     }
 
     const supabase = getSupabaseBrowserClient();
+    const { data: userData } = await supabase.auth.getUser();
+    const { data: isStaff, error: staffError } = userData.user
+      ? await supabase.rpc("is_admin", { uid: userData.user.id })
+      : { data: null, error: new Error("missing authenticated user") };
+    if (staffError || isStaff === true) {
+      router.replace(localizePath("/admin", locale));
+      return false;
+    }
     // The database derives the phone and confirmation fact from auth.users; the
     // browser supplies no phone value and cannot create a contact directly.
     await supabase.rpc("sync_own_verified_account_phone");
@@ -73,7 +81,7 @@ export function SellerEntryGate({ children }: { children: ReactNode }) {
     }
     setState(body.data.eligible ? "eligible" : "phone");
     return body.data.eligible;
-  }, [getAccessToken, redirectToLogin]);
+  }, [getAccessToken, locale, redirectToLogin, router]);
 
   useEffect(() => { void checkEligibility(); }, [checkEligibility]);
 

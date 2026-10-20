@@ -6,11 +6,14 @@ import { Button } from "@/components/ui/Button";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { useI18n } from "@/i18n/client";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
+import { localizePath } from "@/i18n/config";
+import { useRouter } from "next/navigation";
 
 type Contact = { contact_id: string; masked_phone: string; is_active: boolean; is_current_account_phone: boolean };
 
 export function SellerContactsClient() {
   const { locale } = useI18n();
+  const router = useRouter();
   const [contacts, setContacts] = useState<Contact[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [showVerification, setShowVerification] = useState(false);
@@ -23,12 +26,17 @@ export function SellerContactsClient() {
     if (!hasSupabaseEnv()) { setLoadError(true); setLoading(false); return; }
     setLoading(true); setLoadError(false);
     const supabase = getSupabaseBrowserClient();
+    const { data: userData } = await supabase.auth.getUser();
+    const { data: isStaff, error: staffError } = userData.user
+      ? await supabase.rpc("is_admin", { uid: userData.user.id })
+      : { data: null, error: new Error("missing authenticated user") };
+    if (staffError || isStaff === true) { router.replace(localizePath("/admin", locale)); setLoading(false); return; }
     await supabase.rpc("sync_own_verified_account_phone");
     const { data, error } = await supabase.rpc("list_own_verified_seller_contact_phones");
     if (error) { setLoadError(true); setLoading(false); return; }
     setContacts((Array.isArray(data) ? data : []).filter((contact): contact is Contact => Boolean(contact && typeof contact === "object" && (contact as Contact).is_active)));
     setLoading(false);
-  }, []);
+  }, [locale, router]);
 
   useEffect(() => { void loadContacts(); }, [loadContacts]);
   if (loading && !contacts) return <LoadingState />;

@@ -21,7 +21,12 @@ assert.match(serverWrite, /rpc\("create_own_listing_draft_v2"/);
 assert.match(serverWrite, /p_seller_contact_phone_id: payload\.sellerContactPhoneId/);
 assert.match(serverWrite, /rpc\("save_own_listing_edit"/);
 assert.match(sellWizard, /\/api\/listings\/\$\{listingId\}\/submit/);
-assert.match(sellWizard, /if \(submitError\) \{[\s\S]*?setError\(copy\.submitFailure\);[\s\S]*?return;[\s\S]*?\}/);
+// Submit now receives its error through listingWriteRequest and maps a useful
+// server failure message through the centralized fallback helper. The lifecycle
+// guarantee remains: it clears submission state, surfaces a submit error, and
+// returns without publishing locally.
+assert.match(sellWizard, /const submitResult = await listingWriteRequest\([\s\S]*?`\/api\/listings\/\$\{listingId\}\/submit`, "POST", \{\}\);[\s\S]*?submitError = submitResult\.error;/);
+assert.match(sellWizard, /if \(submitError\) \{[\s\S]*?logClientError\("sell\.submitListing", submitError\);[\s\S]*?setSubmitting\(false\);[\s\S]*?setPublishStatus\(null\);[\s\S]*?setError\(listingWriteFailureMessage\(submitError, copy\.submitFailure\)\);[\s\S]*?return;[\s\S]*?\}/);
 assert.match(sellWizard, /setPublishedListingId\(listingId\);\s*return;/);
 assert.match(myListings, /item\.moderation_status === "draft"/);
 assert.match(archiveMigration, /v_listing\.status IN \('draft', 'active', 'paused', 'removed'\)/);

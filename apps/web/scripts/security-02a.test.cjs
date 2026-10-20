@@ -347,10 +347,13 @@ const postgresCompilationExecuted = false;
 assert.equal(postgresCompilationExecuted, false, "Source assertions do not prove PostgreSQL function compilation or execution");
 
 includesAll(wizard, [
-  'listingWriteRequest<{ listingId: string; vehicleProfileId: string }>',
-  '"/api/listings", "POST"'
+  "listingWriteRequest<ActiveCreateDraft>",
+  'getSupabaseBrowserClient(), "/api/listings", "POST"'
 ]);
-includesAll(createRoute, ["create_own_listing_draft", "requireAuthenticatedRequestSupabase"]);
+// The original generic response type was replaced by ActiveCreateDraft when the
+// server listing-write boundary became the canonical draft contract. Keep the
+// security assertion on that boundary rather than its former type spelling.
+includesAll(createRoute, ["requireAuthenticatedRequestSupabase", "createOwnListingDraft(authenticated, payload)"]);
 assert.equal(wizard.includes('.from("profile_ownership").insert'), false, "Create flow must not directly insert ownership");
 assert.equal(wizard.includes('.from("profile_ownership").update'), false, "Create flow must not directly update ownership");
 assert.equal(wizard.includes('.from("profile_ownership").delete'), false, "Create flow must not directly delete ownership");
@@ -409,7 +412,7 @@ includesAll(vehicleCore, [
   "WHERE is_current = TRUE"
 ]);
 
-const createStart = wizard.indexOf('listingWriteRequest<{ listingId: string; vehicleProfileId: string }>');
+const createStart = wizard.indexOf("listingWriteRequest<ActiveCreateDraft>");
 assert.ok(createStart >= 0, "Create flow must use the server-owned atomic draft boundary");
 assert.ok(createStart < wizard.indexOf("if (createResult.error || !createResult.data)", createStart), "Create flow must handle server-boundary errors");
 
