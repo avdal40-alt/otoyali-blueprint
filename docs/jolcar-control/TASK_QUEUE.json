@@ -30,7 +30,7 @@
     "manual_authorization",
     "backlog_post_launch"
   ],
-  "task_count": 125,
+  "task_count": 142,
   "tasks": [
     {
       "id": "JLC-0001",
@@ -3878,6 +3878,35 @@
       "verification": [],
       "evidence": null,
       "notes": null
+    },
+    {
+      "id": "JLC-A006",
+      "order": 142,
+      "phase": "P99-POST-LAUNCH",
+      "title": "Platform-staff public navigation and seller-entry UX polish",
+      "priority": "P2",
+      "type": "implementation",
+      "status": "backlog_post_launch",
+      "release_gate": false,
+      "dependencies": [
+        "JLC-0519"
+      ],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Revisit public header, mobile navigation, homepage, seller entry, and admin/public UX separation as one deliberate interface phase. Current staff seller/dealer security remains database/RPC/RLS authoritative, and /sell redirects active staff to /admin.",
+      "acceptance_criteria": [
+        "Public and staff navigation information architecture is intentionally designed and validated across desktop and mobile",
+        "Seller CTA visibility and staff admin entry behavior are consistent with the final UX contract",
+        "No change weakens the JLC-0519 server/database authorization boundary"
+      ],
+      "verification": [
+        "authenticated staff and ordinary-user browser matrix",
+        "desktop/mobile navigation review",
+        "JLC-0519 security regression"
+      ],
+      "evidence": "Deferred 2026-10-21 by product direction after post-smoke observation: an authenticated platform admin may see the public seller CTA, but /sell correctly redirects to /admin. This is UX-only and does not reopen JLC-0519.",
+      "notes": "Do not implement as an isolated cosmetic fix; address during a dedicated public/admin interface phase."
     }
   ]
 }
