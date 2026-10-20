@@ -72,8 +72,7 @@ for (const value of [
   "const activeCreateDraft = useRef<ActiveCreateDraft | null>(null)",
   "let draft = activeCreateDraft.current",
   "activeCreateDraft.current = draft",
-  "const persistedPhotos = state.photos.filter((photo) => photo.sanitizationStatus === \"ready\")",
-  "persistedPhotos.some((photo) => photo.isCover)"
+  "isCover: !current.photos.some((candidate) => candidate.isCover)"
 ]) assert.ok(wizard.includes(value), `draft retry/persisted completeness contract missing: ${value}`);
 
 for (const value of ["thumb_url", "card_url", "large_url", "original_url"]) {

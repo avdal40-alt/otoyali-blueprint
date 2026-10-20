@@ -97,7 +97,7 @@ type QualityItem = {
   complete: boolean;
 };
 
-const maxPhotos = 20;
+const maxPhotos = 15;
 const maxFileSize = 10 * 1024 * 1024;
 const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
 const fallbackCityOptions = ["İstanbul", "Ankara", "İzmir", "Antalya"];
@@ -1292,9 +1292,6 @@ export function SellWizard({
           ) : (
             <p className="text-sm text-oto-muted">{copy.photoCount(state.photos.length, maxPhotos)}</p>
           )}
-          {mode === "create" && state.photos.length > 0 && state.photos.length < 3 ? (
-            <p className="rounded-md bg-amber-50 p-3 text-sm font-semibold text-amber-700">{copy.minimumPhotosHelp}</p>
-          ) : null}
           {mode === "create" && state.photos.length > 0 ? (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {state.photos.map((photo) => (
@@ -1551,10 +1548,9 @@ function toSellerProfile(profile: Profile | null, authPhone: string, locale: str
 }
 
 function calculateQualityScore(state: WizardState) {
-  const persistedPhotos = state.photos.filter((photo) => photo.sanitizationStatus === "ready");
-  let score = 0;
-  if (persistedPhotos.length >= 5) score += 30;
-  else if (persistedPhotos.length >= 3) score += 20;
+  // Photos are optional: reserve their former weight so an otherwise complete
+  // listing with zero media is not scored as incomplete.
+  let score = 30;
   if (state.description.trim().length >= 100) score += 20;
   if (Number(state.priceAmount) > 0) score += 15;
   if (state.city) score += 10;
@@ -1564,15 +1560,14 @@ function calculateQualityScore(state: WizardState) {
 }
 
 function getQualityItems(state: WizardState, profileComplete: boolean, copy: SellCopy): QualityItem[] {
-  const persistedPhotos = state.photos.filter((photo) => photo.sanitizationStatus === "ready");
   return [
     { label: copy.qualityItems[0], complete: profileComplete },
     { label: copy.qualityItems[1], complete: Boolean(state.makeId && state.modelId && state.year && validYear(state.year)) },
     { label: copy.qualityItems[2], complete: Number(state.priceAmount) > 0 },
     { label: copy.qualityItems[3], complete: Boolean(state.city) },
     { label: copy.qualityItems[4], complete: state.description.trim().length >= 60 },
-    { label: copy.qualityItems[5], complete: persistedPhotos.length >= 3 },
-    { label: copy.qualityItems[6], complete: persistedPhotos.some((photo) => photo.isCover) },
+    { label: copy.qualityItems[5], complete: true },
+    { label: copy.qualityItems[6], complete: true },
     { label: copy.qualityItems[7], complete: Boolean(state.damageState && state.damageState !== "unknown") }
   ];
 }
