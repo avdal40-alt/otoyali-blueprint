@@ -15,7 +15,10 @@ export const sanitizedPhotoRequestSchema = z.object({
   isCover: z.boolean()
 }).strict();
 
-type PixelRegion = { left: number; top: number; width: number; height: number };
+export type PixelRegion = { left: number; top: number; width: number; height: number };
+export const PLATE_REDACTION_HORIZONTAL_MARGIN = 0.2;
+export const PLATE_REDACTION_VERTICAL_MARGIN = 0.25;
+const PLATE_REDACTION_MASK_COLOR = { r: 72, g: 72, b: 72, alpha: 1 };
 export type PrivacyOutcome = "blurred" | "skipped";
 export type PrivacyTelemetry = { normalizedWidth: number | null; normalizedHeight: number | null; initialDetectionCount: number | null; validatedInitialRegionCount: number | null; compositedRegionCount: number | null; verificationDetectionCount: number | null };
 type PrivacyVision = { detect(request: PlateDetectionRequest): Promise<PlateDetectionOutput>; verify(request: PlateDetectionRequest): Promise<PlatePrivacyVerificationOutput> };
@@ -42,8 +45,9 @@ export async function sanitizePrivatePhoto(input: { bytes: Uint8Array; mimeType:
     telemetry.validatedInitialRegionCount = regions.length;
     let sanitized = oriented.data; let compositedRegionCount = 0;
     for (const region of regions) {
-      const blurred = await sharp(sanitized).extract(region).blur(30).webp({ quality: 92 }).toBuffer();
-      sanitized = await sharp(sanitized).composite([{ input: blurred, left: region.left, top: region.top }]).webp({ quality: 92 }).toBuffer();
+      const redaction = expandPlateRedactionRegion(region, oriented.info.width, oriented.info.height);
+      const mask = await sharp({ create: { width: redaction.width, height: redaction.height, channels: 4, background: PLATE_REDACTION_MASK_COLOR } }).png().toBuffer();
+      sanitized = await sharp(sanitized).composite([{ input: mask, left: redaction.left, top: redaction.top }]).webp({ quality: 92 }).toBuffer();
       compositedRegionCount += 1;
     }
     telemetry.compositedRegionCount = compositedRegionCount;
@@ -69,4 +73,15 @@ function mapRegions(detection: PlateDetectionOutput, width: number, height: numb
     if (!Number.isSafeInteger(left) || !Number.isSafeInteger(top) || !Number.isSafeInteger(mapped.width) || !Number.isSafeInteger(mapped.height) || left < 0 || top < 0 || mapped.width < 2 || mapped.height < 2 || left + mapped.width > width || top + mapped.height > height) throw new Error("invalid_plate_region");
     return mapped;
   });
+}
+
+export function expandPlateRedactionRegion(region: PixelRegion, imageWidth: number, imageHeight: number): PixelRegion {
+  const left = Math.max(0, Math.floor(region.left - region.width * PLATE_REDACTION_HORIZONTAL_MARGIN));
+  const top = Math.max(0, Math.floor(region.top - region.height * PLATE_REDACTION_VERTICAL_MARGIN));
+  const right = Math.min(imageWidth, Math.ceil(region.left + region.width + region.width * PLATE_REDACTION_HORIZONTAL_MARGIN));
+  const bottom = Math.min(imageHeight, Math.ceil(region.top + region.height + region.height * PLATE_REDACTION_VERTICAL_MARGIN));
+  const width = right - left;
+  const height = bottom - top;
+  if (!Number.isSafeInteger(left) || !Number.isSafeInteger(top) || !Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width <= 0 || height <= 0) throw new Error("invalid_redaction_region");
+  return { left, top, width, height };
 }
