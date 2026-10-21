@@ -24,11 +24,13 @@
     "pending",
     "in_progress",
     "pass",
+    "completed",
     "fail",
     "blocked",
     "awaiting_decision",
     "manual_authorization",
-    "backlog_post_launch"
+    "backlog_post_launch",
+    "ready_for_user_credential_action"
   ],
   "task_count": 142,
   "tasks": [
@@ -834,7 +836,7 @@
       "title": "Production SMS/provider activation handoff",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "blocked",
+      "status": "ready_for_user_credential_action",
       "release_gate": true,
       "dependencies": [
         "JLC-0307",
@@ -843,14 +845,14 @@
       "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
-      "description": "Prepare integration checklist only. Actual provider/secrets/production SMS require user approval.",
+      "description": "Configure the approved Kazakhstan SMS provider and verify the minimum registration/recovery OTP path. Owner authorized production work; SMS provider credentials are still required.",
       "acceptance_criteria": [
         "Provider decision exists",
         "No real secret/SMS action without explicit approval"
       ],
       "verification": [],
-      "evidence": "2026-10-21 overnight launch execution: explicit owner authorization received, but no canonical production Supabase target or SMS-provider credentials were accessible. No SMS/OTP was sent and no provider setting or secret was changed. See docs/jolcar-control/JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
-      "notes": "Blocked by missing provider access/credentials, not by authorization. Continue after canonical production project identity and approved SMS credentials are available."
+      "evidence": "2026-10-21 corrected launch audit: production Supabase project dmjifqbvbjewyigdsuco is verified. No Twilio/SMS credential values were available in Jolcar local/process/user/machine configuration, the inspected Jolcar staging Vercel variable names, or the approved Yolmod configuration sources (which contained placeholders only). No SMS/OTP was sent and no provider setting or secret was changed. Ready for owner credential action.",
+      "notes": "Only blocked on provision/access to approved SMS provider credentials or provider console. Continue the independent production deployment and anonymous smoke work meanwhile."
     },
     {
       "id": "JLC-0401",
@@ -2604,10 +2606,10 @@
       "order": 91,
       "phase": "P9-DEALER-LIVE",
       "title": "Real streaming provider integration handoff",
-      "priority": "P0",
+      "priority": "P2",
       "type": "manual_authorization",
-      "status": "blocked",
-      "release_gate": true,
+      "status": "backlog_post_launch",
+      "release_gate": false,
       "dependencies": [
         "JLC-0912",
         "JLC-D006"
@@ -2615,15 +2617,15 @@
       "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
-      "description": "Provider adapter may be prepared with mocks; real secret/provider calls require authorization.",
+      "description": "Dealer Live / Amazon IVS is explicitly deferred from the first public Jolcar Kazakhstan MVP. Preserve the implementation and provider abstraction; revisit after launch.",
       "acceptance_criteria": [
         "Provider approved",
         "No secret committed",
         "Production activation waits for explicit authorization"
       ],
       "verification": [],
-      "evidence": "2026-10-21 overnight launch execution: Amazon IVS remains the approved provider, but no AWS credentials, region, or canonical production environment target was accessible. No IVS resource, paid call, or secret was created. See docs/jolcar-control/JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
-      "notes": "Blocked by provider account access/target identity, not by authorization."
+      "evidence": "2026-10-21 owner product decision: Dealer Live / Amazon IVS is optional post-launch work and does not gate the first public Jolcar Kazakhstan MVP. No IVS resources or secrets are required for first launch. Existing implementation and abstractions are preserved.",
+      "notes": "Deferred by product decision; no AWS action is needed for MVP."
     },
     {
       "id": "JLC-0918",
@@ -2861,10 +2863,10 @@
       "order": 100,
       "phase": "P10-AI",
       "title": "External AI/voice provider activation handoff",
-      "priority": "P0",
+      "priority": "P2",
       "type": "manual_authorization",
-      "status": "manual_authorization",
-      "release_gate": true,
+      "status": "backlog_post_launch",
+      "release_gate": false,
       "dependencies": [
         "JLC-D007",
         "JLC-1003",
@@ -2872,16 +2874,16 @@
         "JLC-1005",
         "JLC-1006"
       ],
-      "requires_user_authorization": true,
+      "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
-      "description": "",
+      "description": "External AI/voice remains optional post-launch. The first marketplace MVP must operate correctly with paid external AI/voice disabled.",
       "acceptance_criteria": [
-        "User authorizes exact provider/secrets/action"
+        "Revisit only if a post-launch requirement explicitly needs paid external AI/voice"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-10-21 owner product decision: JLC-1007 is optional post-launch work and does not gate the first public Jolcar Kazakhstan MVP. Paid OpenAI/voice remains disabled; no paid action is needed for the marketplace launch.",
+      "notes": "Deferred by product decision; preserve existing feature flags and graceful disabled behavior."
     },
     {
       "id": "JLC-D011",
@@ -3616,8 +3618,8 @@
       "description": "Run the final local regression across hardened critical flows, security/privacy/RLS, resilience, and performance budgets.",
       "acceptance_criteria": ["Critical E2E, security/privacy/RLS, and performance suites pass", "No critical regression is waived as PASS", "Provider/production actions remain unapplied"],
       "verification": ["master E2E suite", "master security suite", "performance budget suite"],
-      "evidence": "2026-10-15 local completion: apps/web/scripts/jlc-1508-post-hardening-master-regression.test.cjs and docs/jolcar-control/JLC-1508-POST-HARDENING-MASTER-REGRESSION.md establish and record the final local gate. apps/web: npm run test:jlc-1508 passed, composing JLC-1302 master functional E2E, JLC-1503 security/privacy/RLS, JLC-1407 performance, JLC-1504 resilience, JLC-1505 observability, typecheck, build, and npm audit --omit=dev --audit-level=high (zero production vulnerabilities).",
-      "notes": "Expected-denial messages from authorization/RLS tests were observed as assertions, not failures. Existing full development-dependency audit findings remain an explicit release blocker from JLC-1503 and are not waived. No provider, staging/production access, remote migration, deployment, or Git push occurred."
+      "evidence": "2026-10-21 corrected local rerun: apps/web `npm run test:jlc-1508` passed end-to-end, composing JLC-1302 functional E2E, JLC-1503 security/privacy/RLS, JLC-1407 performance (critical First Load JS 214–287 kB), JLC-1504 resilience, JLC-1505 observability, typecheck, production build, and `npm audit --omit=dev --audit-level=high` (zero production vulnerabilities). The earlier exit 1 was traced to `jlc-1404-frontend-performance.test.cjs` exceeding spawnSync's default 1 MiB output buffer on recoverable webpack cache warnings; the harness buffer was raised to 16 MiB in commit 9fd0754, after which the full gate passed. `npm run lint` and `git diff --check` also passed.",
+      "notes": "Expected-denial messages from authorization/RLS tests were observed as assertions, not failures. The known full development-dependency audit findings remain reported by JLC-1503 and are not waived. Production provider/deployment actions were separate from this local gate."
     },
     {
       "id": "JLC-1509",
@@ -3645,7 +3647,7 @@
       "title": "Authorize/create/configure production Supabase for Jolcar",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "blocked",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-1305"
@@ -3658,8 +3660,8 @@
         "Explicit user authorization received for exact project/actions"
       ],
       "verification": [],
-      "evidence": "2026-10-21: authorization received; production mutation was not attempted because no canonical Jolcar production Supabase project could be positively identified. Checked-in Vercel metadata names jolcar-staging only; no Supabase access token/project reference was available. See JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
-      "notes": "BLOCKED by target identity and access. No production data, settings, Auth, Storage, schema, or API exposure was changed."
+      "evidence": "2026-10-21 corrected launch verification: canonical production Supabase project dmjifqbvbjewyigdsuco is ACTIVE_HEALTHY and matches the owner-provided production reference. Project URL is https://dmjifqbvbjewyigdsuco.supabase.co. Remote migration history and read-only schema/RLS checks were verified; migration set is synchronized. No production database mutation was needed.",
+      "notes": "Production target identity is established. Phone provider activation is separately tracked under JLC-0308."
     },
     {
       "id": "JLC-9002",
@@ -3668,7 +3670,7 @@
       "title": "Authorize production provider secrets (SMS/AI/live/etc.)",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "blocked",
+      "status": "in_progress",
       "release_gate": true,
       "dependencies": [
         "JLC-1305",
@@ -3685,8 +3687,8 @@
         "Explicit provider decisions and user authorization received"
       ],
       "verification": [],
-      "evidence": "2026-10-21: authorization received; no SMS, AWS IVS, Supabase, Vercel, or OpenAI production secret credential was accessible in the authorized environment. No secret was exposed, created, or changed. See JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
-      "notes": "BLOCKED by unavailable credentials/secret-store access. AI/voice remains feature-disabled; no paid AI action was needed or taken."
+      "evidence": "2026-10-21 corrected launch setup: Vercel project jolcar (prj_EwAVssfFrOkhzQV4tHz0qS9g3ZlK) has NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY configured for Production only from canonical project dmjifqbvbjewyigdsuco. No Twilio/SMS credentials were present in inspected approved sources; JLC-0308 is ready for user credential action. No AWS IVS or paid AI/voice secret is required for first MVP.",
+      "notes": "Core production Supabase web configuration is set. Remaining minimum-secret blocker is approved Kazakhstan SMS provider credentials. No secret values were printed or committed."
     },
     {
       "id": "JLC-9003",
@@ -3695,7 +3697,7 @@
       "title": "Authorize remote migrations and production deployment",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "blocked",
+      "status": "in_progress",
       "release_gate": true,
       "dependencies": [
         "JLC-9001",
@@ -3710,8 +3712,8 @@
         "Exact target identity verified"
       ],
       "verification": [],
-      "evidence": "2026-10-21: local preflight and JLC-1508 passed, but remote migration/deployment was not attempted because JLC-9001/JLC-9002 remain blocked and production migration/Vercel identities cannot be verified. The repository has six versions absent from local history only; remote history is unknown. See JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
-      "notes": "BLOCKED by dependencies, target identity, and access. No remote migration, deploy, rollback, or Git push occurred."
+      "evidence": "2026-10-21 corrected launch verification: remote production migration history for dmjifqbvbjewyigdsuco exactly matches all 172 repository migrations through 20261020180216_jlc_0519_staff_seller_dealer_boundary; remote migration step is a no-op. Production Vercel project jolcar is created, production Supabase public environment variables are configured, and Production branch tracking is jolcar/autonomous. Local JLC-1508, typecheck, lint, and diff checks pass. Production deployment is the next action.",
+      "notes": "No remote migration was necessary. Awaiting verified Vercel deployment and production smoke; final custom domain is separately deferred under JLC-9004 and does not block temporary vercel.app validation."
     },
     {
       "id": "JLC-9004",
@@ -3735,7 +3737,7 @@
       ],
       "verification": [],
       "evidence": "2026-10-21: the exact final Jolcar production host remains deferred in the authoritative decisions, and no unambiguous production domain/provider configuration was found. No DNS, Vercel domain, canonical metadata, or Supabase Auth callback was changed. See JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
-      "notes": "BLOCKED by PRODUCT DECISION: final production domain/host."
+      "notes": "BLOCKED by PRODUCT DECISION: final custom production domain/host. This does not block a temporary *.vercel.app production deployment or smoke testing."
     },
     {
       "id": "JLC-9005",
@@ -3744,11 +3746,10 @@
       "title": "Production smoke and GO-LIVE decision",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "blocked",
+      "status": "in_progress",
       "release_gate": true,
       "dependencies": [
-        "JLC-9003",
-        "JLC-9004"
+        "JLC-9003"
       ],
       "requires_user_authorization": false,
       "requires_user_decision": false,
@@ -3760,8 +3761,8 @@
         "No release claim before user GO decision"
       ],
       "verification": [],
-      "evidence": "2026-10-21: production smoke is authorized but cannot begin because no canonical production Supabase/Vercel/domain target exists and JLC-9003/JLC-9004 are blocked. No smoke accounts, listings, moderation actions, or data cleanup were performed. See JLC-OVERNIGHT-LAUNCH-REPORT-2026-10-21.md.",
-      "notes": "BLOCKED by unavailable production target and unresolved final-domain decision."
+      "evidence": "2026-10-21 corrected launch execution: canonical Supabase dmjifqbvbjewyigdsuco and Vercel project jolcar are verified. Temporary host jolcar.vercel.app is configured. Anonymous/read-only smoke can proceed after successful production deployment without a final custom domain. SMS-dependent authenticated smoke remains contingent on JLC-0308 provider credentials.",
+      "notes": "In progress. Domain cutover is not a prerequisite for temporary-host smoke. Do not claim full GO-LIVE until smoke criteria pass and the SMS registration path is operational."
     },
     {
       "id": "JLC-A001",

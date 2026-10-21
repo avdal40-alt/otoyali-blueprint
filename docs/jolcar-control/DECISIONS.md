@@ -189,3 +189,25 @@ This decision authorizes local implementation and testing only. It does not auth
 - Preserve a provider-neutral speech boundary for future React Native/native clients. A future external speech provider requires a separate explicit decision/authorization.
 
 These approvals are policy-only. They do not authorize API keys, secrets, paid calls, billing, external speech vendors, staging or production integration, deployment, or any action covered by JLC-1007 or JLC-900* manual authorization tasks.
+
+<!-- JOLCAR_FIRST_MVP_SCOPE_CORRECTION_2026-10-21 -->
+## First public Jolcar Kazakhstan MVP launch scope — 2026-10-21
+
+The owner clarified the first public MVP scope during the overnight production
+launch authorization:
+
+- Dealer Live / Amazon IVS (JLC-0917) is deferred post-launch and does not gate
+  the first public marketplace launch. Preserve the existing implementation
+  and abstractions; do not provision IVS resources for MVP.
+- External paid AI/voice (JLC-1007) is optional post-launch. The marketplace
+  must work with those features disabled; do not activate paid AI/voice for
+  first launch.
+- The final Jolcar custom domain remains unresolved and must not be guessed.
+  It blocks only custom-domain/DNS/Auth callback cutover, not production
+  deployment or smoke on the temporary Vercel host.
+- The minimum initial production stack is the canonical Supabase project,
+  production web deployment, Kazakhstan registration OTP plus phone/password
+  routine login, core marketplace and moderation, seller/contact, Storage/media,
+  and controlled production smoke.
+
+This corrects first-MVP scope only. Existing feature code remains preserved.
