@@ -30,7 +30,16 @@ function buildOutput() {
   return childProcess.execFileSync(
     process.execPath,
     [path.join(webRoot, "node_modules", "next", "dist", "bin", "next"), "build"],
-    { cwd: webRoot, env: { ...process.env, ...localSupabaseEnv() }, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], windowsHide: true }
+    {
+      cwd: webRoot,
+      env: { ...process.env, ...localSupabaseEnv() },
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      windowsHide: true,
+      // Webpack can emit extensive recoverable cache warnings; preserve the build
+      // output for route-budget parsing instead of failing at spawnSync's 1 MiB default.
+      maxBuffer: 16 * 1024 * 1024
+    }
   );
 }
 
