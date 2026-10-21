@@ -3749,8 +3749,7 @@
       "release_gate": true,
       "dependencies": [
         "JLC-9003",
-        "JLC-0110",
-        "JLC-0520"
+        "JLC-0110"
       ],
       "requires_user_authorization": false,
       "requires_user_decision": false,
@@ -3917,7 +3916,7 @@
       "title": "Scope public admin helper results to the caller",
       "priority": "P0",
       "type": "security",
-      "status": "in_progress",
+      "status": "completed",
       "release_gate": true,
       "dependencies": ["JLC-1503"],
       "requires_user_authorization": false,
@@ -3931,8 +3930,8 @@
         "no existing admin or customer data is modified"
       ],
       "verification": ["local helper runtime matrix", "JLC-1508 security regression", "production privilege verification after migration"],
-      "evidence": "2026-10-21: remote Security Advisor/ACL inspection found public.is_admin(uuid) and public.admin_role(uuid) inherited PUBLIC EXECUTE and accepted arbitrary user IDs. Added supabase/migrations/20261021172232_jlc_0520_admin_helper_self_scope.sql. Local runtime matrix confirms anon and ordinary authenticated callers cannot inspect the synthetic admin fixture, admin self-check works, service_role internal check works, and anon EXECUTE remains for RLS calls. npm run test:jlc-0520 and npm run test:security-final-media-reference passed locally.",
-      "notes": "Not applied to production; the live helper disclosure remains until the reviewed migration is applied and its remote privileges are verified. A revoke-only fix was rejected after local RLS regression evidence showed anonymous policy calls require EXECUTE."
+      "evidence": "2026-10-21: remote Security Advisor/ACL inspection found public.is_admin(uuid) and public.admin_role(uuid) inherited PUBLIC EXECUTE and accepted arbitrary user IDs. Applied production migration 20261021173638 (jlc_0520_admin_helper_self_scope) to canonical project dmjifqbvbjewyigdsuco after official preflight passed on commit 6078f62. Remote history now has 173 migrations and records this version. Remote pg_get_functiondef verifies both functions scope requested UID to auth.uid() or service_role, fixed search_path remains public, and anon/authenticated EXECUTE remains granted for RLS compatibility. npm run test:jlc-0520 and npm run test:security-final-media-reference passed locally. No production rows were changed.",
+      "notes": "Completed with remote verification. The migration was recorded by Supabase as 20261021173638; the local migration file is aligned to that remote version. A revoke-only fix was rejected after local RLS regression evidence showed anonymous policy calls require EXECUTE."
     },
     {
       "id": "JLC-0110",
