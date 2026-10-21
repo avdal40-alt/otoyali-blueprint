@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-10-10",
+  "generated_at": "2026-10-21",
   "product": "Jolcar",
   "country": "Kazakhstan",
   "future_platform": [
@@ -32,7 +32,7 @@
     "backlog_post_launch",
     "ready_for_user_credential_action"
   ],
-  "task_count": 142,
+  "task_count": 144,
   "tasks": [
     {
       "id": "JLC-0001",
@@ -3748,7 +3748,9 @@
       "status": "blocked",
       "release_gate": true,
       "dependencies": [
-        "JLC-9003"
+        "JLC-9003",
+        "JLC-0110",
+        "JLC-0520"
       ],
       "requires_user_authorization": false,
       "requires_user_decision": false,
@@ -3760,8 +3762,8 @@
         "No release claim before user GO decision"
       ],
       "verification": [],
-      "evidence": "2026-10-21 production smoke on https://jolcar.vercel.app loaded the homepage successfully and exposed a material market mismatch: browser title is Turkish-first, city filters are Turkish, public listings show TL/Adana, and the current app profile is yolmodTurkey. Repository configuration marks jolcarKazakhstan planned, Kazakhstan locales unreleased, and exact launch locales open. No further marketplace/auth/data smoke was run. The newly deployed Vercel project was paused; a read-only HTTP check then returned 503. No smoke data or production data was modified.",
-      "notes": "BLOCKED by PRODUCT DECISION/implementation prerequisites: select/approve Kazakhstan launch locales and default, activate the existing jolcarKazakhstan market profile with a reviewed code change, and establish the production listing-data scope without altering unrelated historical data. Authenticated registration smoke additionally awaits JLC-0308 SMS credentials. The unresolved custom domain blocks only JLC-9004 and is not the cause of this block."
+      "evidence": "2026-10-21 production smoke on https://jolcar.vercel.app loaded the homepage and exposed a Turkey/TL/Adana market mismatch; the Vercel project remains paused and a read-only HTTP check returned 503. Owner decision now explicitly selects Kazakhstan, Jolcar, Russian default, Kazakh secondary, KZT, +7, and preserves Turkey as Yolmod. Follow-up source audit found only tr/en dictionaries and Turkish hard-coded UI fallback; public home/detail/search/count/review/dealer listing paths have no KZ boundary; listing drafts accept any active city ID and require Turkey-specific phone verification. No production/smoke data was modified. The JLC-0520 security helper change is locally validated but not remotely applied.",
+      "notes": "BLOCKED by implementation: complete Russian/Kazakh user-visible localization; enforce KZ at trusted public reads and seller writes without changing historical TR records; adapt seller phone verification to the approved KZ contract; resolve JLC-0520 production application. SMS credential action remains a separate blocker for registration smoke. Final custom domain blocks only JLC-9004. Do not unpause production."
     },
     {
       "id": "JLC-A001",
@@ -3907,6 +3909,56 @@
       ],
       "evidence": "Deferred 2026-10-21 by product direction after post-smoke observation: an authenticated platform admin may see the public seller CTA, but /sell correctly redirects to /admin. This is UX-only and does not reopen JLC-0519.",
       "notes": "Do not implement as an isolated cosmetic fix; address during a dedicated public/admin interface phase."
+    },
+    {
+      "id": "JLC-0520",
+      "order": 143,
+      "phase": "P15-PRODUCTION-ENGINEERING-HARDENING",
+      "title": "Scope public admin helper results to the caller",
+      "priority": "P0",
+      "type": "security",
+      "status": "in_progress",
+      "release_gate": true,
+      "dependencies": ["JLC-1503"],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Preserve anonymous EXECUTE needed by RLS policies while preventing anon/authenticated users from querying another user's admin status or role.",
+      "acceptance_criteria": [
+        "anon helper calls return no other user's admin status or role",
+        "authenticated users can query only their own admin status or role",
+        "service-role internal checks and RLS policies remain functional",
+        "no existing admin or customer data is modified"
+      ],
+      "verification": ["local helper runtime matrix", "JLC-1508 security regression", "production privilege verification after migration"],
+      "evidence": "2026-10-21: remote Security Advisor/ACL inspection found public.is_admin(uuid) and public.admin_role(uuid) inherited PUBLIC EXECUTE and accepted arbitrary user IDs. Added supabase/migrations/20261021172232_jlc_0520_admin_helper_self_scope.sql. Local runtime matrix confirms anon and ordinary authenticated callers cannot inspect the synthetic admin fixture, admin self-check works, service_role internal check works, and anon EXECUTE remains for RLS calls. npm run test:jlc-0520 and npm run test:security-final-media-reference passed locally.",
+      "notes": "Not applied to production; the live helper disclosure remains until the reviewed migration is applied and its remote privileges are verified. A revoke-only fix was rejected after local RLS regression evidence showed anonymous policy calls require EXECUTE."
+    },
+    {
+      "id": "JLC-0110",
+      "order": 144,
+      "phase": "P1-MULTICOUNTRY",
+      "title": "Activate Kazakhstan market with trusted Turkey/Kazakhstan isolation",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "in_progress",
+      "release_gate": true,
+      "dependencies": ["JLC-0101", "JLC-0102", "JLC-0103", "JLC-0107"],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Implement the owner-approved Kazakhstan Jolcar profile, Russian/Kazakh launch locale behavior, KZ-only marketplace read and write boundaries, and preserve Turkey/Yolmod records and behavior.",
+      "acceptance_criteria": [
+        "active profile is Kazakhstan/Jolcar/KZT with Russian default and Kazakh supported",
+        "Turkey profile remains Turkey/Yolmod/TRY",
+        "public listing/search/detail/dealer/review/feed paths fail closed to KZ in Jolcar context",
+        "seller draft/edit/media/moderation lifecycle cannot select or spoof another market",
+        "historical Turkey data remains unchanged and inaccessible through Jolcar public paths",
+        "Russian/Kazakh launch surfaces contain no Turkish fallback/copy"
+      ],
+      "verification": ["market profile tests", "KZ/TR read isolation matrix", "seller payload spoofing matrix", "Russian/Kazakh UI and SEO review", "typecheck", "lint"],
+      "evidence": "2026-10-21 source audit after the owner product decision: active profile remains yolmodTurkey; KZ is planned. The i18n registry and dictionaries include only released tr/en; other public copy frequently falls back to Turkish. marketplace.cities.country_code and listings.city_id provide a canonical market signal, but ff_home_listings, ff_listing_details, search/count RPCs and public review/dealer projections lack KZ enforcement. create_own_listing_draft checks only active city ID, accepts arbitrary currency, and calls Turkey-specific seller phone verification. No code/data migration has yet changed these paths.",
+      "notes": "Do not deploy or unpause until every criterion has objective Preview/runtime evidence. Preserve all historical TR rows. The market must not be activated through a frontend-only filter."
     }
   ]
 }
