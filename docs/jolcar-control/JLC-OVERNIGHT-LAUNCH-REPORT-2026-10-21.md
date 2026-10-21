@@ -128,8 +128,9 @@ deployment or smoke.
 
 - `9fd0754 test(jlc-1404): tolerate webpack build cache diagnostics`
 - `902072b docs(jolcar): correct overnight production launch status`
+- `bea3634 docs(jolcar): record production smoke rollback`
 - Branch `jolcar/autonomous` was pushed without force; no history rewrite or
-  branch deletion. Final evidence update is pending commit.
+  branch deletion. Worktree is clean after the evidence update.
 
 ## Cost, rollback, and safety
 
