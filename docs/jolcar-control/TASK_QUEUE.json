@@ -3697,11 +3697,10 @@
       "title": "Authorize remote migrations and production deployment",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "in_progress",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
-        "JLC-9001",
-        "JLC-9002"
+        "JLC-9001"
       ],
       "requires_user_authorization": false,
       "requires_user_decision": false,
@@ -3712,8 +3711,8 @@
         "Exact target identity verified"
       ],
       "verification": [],
-      "evidence": "2026-10-21 corrected launch verification: remote production migration history for dmjifqbvbjewyigdsuco exactly matches all 172 repository migrations through 20261020180216_jlc_0519_staff_seller_dealer_boundary; remote migration step is a no-op. Production Vercel project jolcar is created, production Supabase public environment variables are configured, and Production branch tracking is jolcar/autonomous. Local JLC-1508, typecheck, lint, and diff checks pass. Production deployment is the next action.",
-      "notes": "No remote migration was necessary. Awaiting verified Vercel deployment and production smoke; final custom domain is separately deferred under JLC-9004 and does not block temporary vercel.app validation."
+      "evidence": "2026-10-21: remote production migration history for dmjifqbvbjewyigdsuco exactly matches all 172 repository migrations through 20261020180216_jlc_0519_staff_seller_dealer_boundary; migration step was a verified no-op. Production Vercel project jolcar (prj_EwAVssfFrOkhzQV4tHz0qS9g3ZlK) deployed commit 902072b from jolcar/autonomous; Vercel deployment J5uw3cdTceopn39kjJT1Thnj5f6w reached Ready on https://jolcar.vercel.app. The project was then paused as rollback after production smoke showed Turkey/TL content instead of Kazakhstan. Local JLC-1508, typecheck, lint, and diff checks passed. Wrong-branch main deployment dpl_UfnQ13TWBHwv3Cs7q1Ldzh1t3KiJ was canceled before serving traffic.",
+      "notes": "Remote migration was unnecessary. Deployment objective is technically complete, but the project remains paused; do not resume until Kazakhstan market/localization activation and production data scope are resolved under JLC-9005. Final custom domain is separately deferred under JLC-9004."
     },
     {
       "id": "JLC-9004",
@@ -3746,7 +3745,7 @@
       "title": "Production smoke and GO-LIVE decision",
       "priority": "P0",
       "type": "manual_authorization",
-      "status": "in_progress",
+      "status": "blocked",
       "release_gate": true,
       "dependencies": [
         "JLC-9003"
@@ -3761,8 +3760,8 @@
         "No release claim before user GO decision"
       ],
       "verification": [],
-      "evidence": "2026-10-21 corrected launch execution: canonical Supabase dmjifqbvbjewyigdsuco and Vercel project jolcar are verified. Temporary host jolcar.vercel.app is configured. Anonymous/read-only smoke can proceed after successful production deployment without a final custom domain. SMS-dependent authenticated smoke remains contingent on JLC-0308 provider credentials.",
-      "notes": "In progress. Domain cutover is not a prerequisite for temporary-host smoke. Do not claim full GO-LIVE until smoke criteria pass and the SMS registration path is operational."
+      "evidence": "2026-10-21 production smoke on https://jolcar.vercel.app loaded the homepage successfully and exposed a material market mismatch: browser title is Turkish-first, city filters are Turkish, public listings show TL/Adana, and the current app profile is yolmodTurkey. Repository configuration marks jolcarKazakhstan planned, Kazakhstan locales unreleased, and exact launch locales open. No further marketplace/auth/data smoke was run. The newly deployed Vercel project was paused; a read-only HTTP check then returned 503. No smoke data or production data was modified.",
+      "notes": "BLOCKED by PRODUCT DECISION/implementation prerequisites: select/approve Kazakhstan launch locales and default, activate the existing jolcarKazakhstan market profile with a reviewed code change, and establish the production listing-data scope without altering unrelated historical data. Authenticated registration smoke additionally awaits JLC-0308 SMS credentials. The unresolved custom domain blocks only JLC-9004 and is not the cause of this block."
     },
     {
       "id": "JLC-A001",
