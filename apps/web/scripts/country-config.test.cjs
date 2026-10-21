@@ -24,7 +24,7 @@ const layoutSource = read("src", "app", "layout.tsx");
 const footerSource = read("src", "components", "layout", "MarketplaceFooter.tsx");
 
 assert.deepEqual(Object.keys(market.MARKET_PROFILES), ["yolmodTurkey", "jolcarKazakhstan"]);
-assert.equal(market.ACTIVE_MARKET_PROFILE_KEY, "yolmodTurkey");
+assert.equal(market.ACTIVE_MARKET_PROFILE_KEY, "jolcarKazakhstan");
 assert.strictEqual(market.CURRENT_MARKET, market.ACTIVE_MARKET_PROFILE);
 
 assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
@@ -64,28 +64,28 @@ assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
       nationalPlaceholder: "555 123 45 67"
     }
   },
-  status: "active"
+    status: "planned"
 });
 assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
   id: "kazakhstan",
   countryCode: "KZ",
-  brandName: "Jolcar",
-  siteUrl: null,
+  brandName: "Jolmod",
+  siteUrl: "https://jolcar.vercel.app",
   currencyCode: "KZT",
-  launchLocales: ["kk-KZ", "ru-KZ", "en"],
+  launchLocales: ["ru", "kk", "en", "zh-CN"],
   brandColors: {
     accent: null,
     accentStrong: null
   },
   metadata: {
-    defaultTitle: "Қазақстанның ақылды көлік нарығы",
-    description: "Көліктерді, қосалқы бөлшектерді және автокөлік қызметтерін бір платформадан табыңыз.",
-    openGraphDescription: "Қазақстанның ақылды көлік нарығы.",
-    defaultLocale: "kk_KZ"
+    defaultTitle: "Автомобильный маркетплейс Казахстана",
+    description: "Находите автомобили, запчасти и автомобильные сервисы Казахстана на одной платформе.",
+    openGraphDescription: "Автомобильный маркетплейс Казахстана.",
+    defaultLocale: "ru_KZ"
   },
   formatting: {
-    defaultIntlLocale: "kk-KZ",
-    intlLocaleByLocale: {},
+    defaultIntlLocale: "ru-KZ",
+    intlLocaleByLocale: { ru: "ru-KZ", kk: "kk-KZ", en: "en-US", "zh-CN": "zh-CN" },
     defaultCurrencyLabel: "₸",
     defaultCurrencyPlacement: "suffix"
   },
@@ -94,7 +94,7 @@ assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
     login: { allowedCountries: "any" },
     sellerContacts: { enabled: false }
   },
-  status: "planned"
+  status: "active"
 });
 assert.notEqual(market.MARKET_PROFILES.yolmodTurkey.countryCode, market.MARKET_PROFILES.jolcarKazakhstan.countryCode);
 assert.equal(i18n.normalizeLocale("invalid-locale"), i18n.DEFAULT_LOCALE, "invalid locale must fall back explicitly");

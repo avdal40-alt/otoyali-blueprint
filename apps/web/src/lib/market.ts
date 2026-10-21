@@ -83,7 +83,7 @@ export const MARKET_PROFILES = {
   yolmodTurkey: {
     id: "turkey",
     countryCode: "TR",
-    brandName: "Jolcar",
+    brandName: "Yolmod",
     siteUrl: "https://yolmod.com",
     currencyCode: "TRY",
     launchLocales: ["tr", "en"],
@@ -119,42 +119,44 @@ export const MARKET_PROFILES = {
         nationalPlaceholder: "555 123 45 67"
       }
     },
-    status: "active"
+    // Turkey remains an independently addressable historical market profile,
+    // but it is not the active deployment profile for this application.
+    status: "planned"
   },
   jolcarKazakhstan: {
     id: "kazakhstan",
     countryCode: "KZ",
-    brandName: "Jolcar",
-    // The final Jolcar host/domain is an open product decision (O-002).
-    siteUrl: null,
+    brandName: "Jolmod",
+    // The Vercel host remains the public launch-validation host until a custom
+    // domain is selected. It belongs to Kazakhstan and must never borrow TR.
+    siteUrl: "https://jolcar.vercel.app",
     currencyCode: "KZT",
-    launchLocales: ["kk-KZ", "ru-KZ", "en"],
+    launchLocales: ["ru", "kk", "en", "zh-CN"],
     brandColors: {
       accent: null,
       accentStrong: null
     },
     metadata: {
-      defaultTitle: "Қазақстанның ақылды көлік нарығы",
-      description: "Көліктерді, қосалқы бөлшектерді және автокөлік қызметтерін бір платформадан табыңыз.",
-      openGraphDescription: "Қазақстанның ақылды көлік нарығы.",
-      defaultLocale: "kk_KZ"
+      defaultTitle: "Автомобильный маркетплейс Казахстана",
+      description: "Находите автомобили, запчасти и автомобильные сервисы Казахстана на одной платформе.",
+      openGraphDescription: "Автомобильный маркетплейс Казахстана.",
+      defaultLocale: "ru_KZ"
     },
     formatting: {
-      // This controls numeric/date conventions only; it does not activate
-      // Kazakhstan UI locales, which are delivered by the localization tasks.
-      defaultIntlLocale: "kk-KZ",
-      intlLocaleByLocale: {},
+      defaultIntlLocale: "ru-KZ",
+      intlLocaleByLocale: { ru: "ru-KZ", kk: "kk-KZ", en: "en-US", "zh-CN": "zh-CN" },
       defaultCurrencyLabel: "₸",
       defaultCurrencyPlacement: "suffix"
     },
     defaultPhoneCountry: "KZ",
     phonePolicy: {
       login: { allowedCountries: "any" },
-      // O-005 confirms the policy, but activation belongs to the dedicated
-      // country-aware phone and provider rollout tasks.
+      // SMS provider activation remains separately gated. Keeping contacts
+      // disabled here prevents a UI/config cutover from claiming SMS support
+      // before the trusted write-side policy is migrated and verified.
       sellerContacts: { enabled: false }
     },
-    status: "planned"
+    status: "active"
   }
 } as const satisfies Record<string, MarketProfile>;
 
@@ -193,11 +195,11 @@ export function getMarketSeoRouteConfig(profile: MarketProfile = ACTIVE_MARKET_P
 export type MarketProfileKey = keyof typeof MARKET_PROFILES;
 
 /**
- * This preserves the current production selection. Switching profiles and
- * country-specific routing remain explicit follow-up work.
+ * Jolmod Kazakhstan is the only active customer-facing profile in this
+ * deployment. Locale is presentation-only and never selects a market.
  */
-export const ACTIVE_MARKET_PROFILE_KEY = "yolmodTurkey" satisfies MarketProfileKey;
-export const ACTIVE_MARKET_PROFILE = MARKET_PROFILES[ACTIVE_MARKET_PROFILE_KEY];
+export const ACTIVE_MARKET_PROFILE_KEY = "jolcarKazakhstan" satisfies MarketProfileKey;
+export const ACTIVE_MARKET_PROFILE: MarketProfile = MARKET_PROFILES[ACTIVE_MARKET_PROFILE_KEY];
 
 export type MarketProfileResult =
   | { status: "available"; profile: MarketProfile }
