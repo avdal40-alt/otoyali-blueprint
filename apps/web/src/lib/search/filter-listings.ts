@@ -104,11 +104,11 @@ export function getAvailableFilterFields(listings: HomeListing[]) {
 }
 
 function unique(values: Array<string | null | undefined>) {
-  return Array.from(new Set(values.map((value) => value?.trim()).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b, "tr"));
+  return Array.from(new Set(values.map((value) => value?.trim()).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b));
 }
 
 function normalize(value: string) {
-  return value.trim().toLocaleLowerCase("tr-TR");
+  return value.trim().normalize("NFKD").toLowerCase().replace(/\p{Diacritic}/gu, "");
 }
 
 function toNumber(value: string) {

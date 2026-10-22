@@ -18,7 +18,9 @@ must be migrated by domain slice:
   `SearchFilters.tsx`, and AI Search result, availability, clarification, and
   catalog-validation messages migrated to canonical dictionary domains;
   Kazakhstan price and mileage semantic recognition now covers Russian,
-  Kazakh, English, and Simplified Chinese KZT/tenge terms, while remaining
+  Kazakh, English, and Simplified Chinese KZT/tenge terms, and the in-memory
+  listing query/city filter no longer applies Turkish normalization or collation;
+  remaining
   intent vocabulary and legacy tr/en value-formatters remain for the
   four-real-dictionary expansion);
 - listing cards and dealer detail: `VehicleCard.tsx` (migrated: the video badge
