@@ -58,7 +58,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
         language: locale,
         country: CURRENT_MARKET.countryCode,
         city: null,
-        timezone: "Europe/Istanbul"
+        timezone: CURRENT_MARKET.defaultTimeZone
       };
 
       const { data, error: profileError } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();

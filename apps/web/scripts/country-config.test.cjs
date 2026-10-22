@@ -39,6 +39,7 @@ assert.match(sellWizardSource, /const defaultCity = fallbackCityOptions\[0\] \?\
 assert.doesNotMatch(sellWizardSource, /İstanbul|Ankara|İzmir|Antalya/);
 assert.match(profileClientSource, /const fallbackCities = \[\.\.\.getPreferredCityNames\(\)\];/);
 assert.match(profileClientSource, /country: CURRENT_MARKET\.countryCode/);
+assert.match(profileClientSource, /timezone: CURRENT_MARKET\.defaultTimeZone/);
 assert.doesNotMatch(profileClientSource, /const fallbackCities = \["İstanbul"|country: "TR"/);
 assert.match(serviceApplicationSource, /const defaultServiceCity = getPreferredCityNames\(\)\[0\] \?\? "";/);
 assert.match(serviceApplicationSource, /city: defaultServiceCity/);
@@ -70,6 +71,7 @@ assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
     currencyPlacementByLocale: { en: "prefix" }
   },
   defaultPhoneCountry: "TR",
+  defaultTimeZone: "Europe/Istanbul",
   phonePolicy: {
     login: { allowedCountries: "any" },
     sellerContacts: {
@@ -107,6 +109,7 @@ assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
     defaultCurrencyPlacement: "suffix"
   },
   defaultPhoneCountry: "KZ",
+  defaultTimeZone: "Asia/Almaty",
   phonePolicy: {
     login: { allowedCountries: "any" },
     sellerContacts: { enabled: false }

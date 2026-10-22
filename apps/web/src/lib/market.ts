@@ -30,6 +30,7 @@ export type MarketProfile = {
   };
   formatting: MarketFormatting;
   defaultPhoneCountry: "TR" | "KZ";
+  defaultTimeZone: string;
   phonePolicy: {
     login: { allowedCountries: "any" | readonly ("TR" | "KZ")[] };
     sellerContacts:
@@ -106,6 +107,7 @@ export const MARKET_PROFILES = {
       currencyPlacementByLocale: { en: "prefix" }
     },
     defaultPhoneCountry: "TR",
+    defaultTimeZone: "Europe/Istanbul",
     phonePolicy: {
       // Keep the existing login behaviour while making the rule explicit.
       login: { allowedCountries: "any" },
@@ -149,6 +151,7 @@ export const MARKET_PROFILES = {
       defaultCurrencyPlacement: "suffix"
     },
     defaultPhoneCountry: "KZ",
+    defaultTimeZone: "Asia/Almaty",
     phonePolicy: {
       login: { allowedCountries: "any" },
       // SMS provider activation remains separately gated. Keeping contacts
