@@ -136,6 +136,7 @@ export const en = {
     filters: "Filters",
     closeFilters: "Close filters",
     saveSearch: "Save search",
+    queryPlaceholder: "Search car, brand, or model",
     brand: "Brand",
     model: "Model",
     city: "City",

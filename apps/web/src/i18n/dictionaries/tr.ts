@@ -136,6 +136,7 @@ export const tr = {
     filters: "Filtreler",
     closeFilters: "Filtreleri kapat",
     saveSearch: "Aramayı kaydet",
+    queryPlaceholder: "Araba, marka veya model ara",
     brand: "Marka",
     model: "Model",
     city: "Şehir",

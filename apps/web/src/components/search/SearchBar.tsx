@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/Input";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 
-export function SearchBar({ placeholder = "Araba, marka veya model ara", defaultValue = "" }: { placeholder?: string; defaultValue?: string }) {
+export function SearchBar({ placeholder, defaultValue = "" }: { placeholder?: string; defaultValue?: string }) {
   const { locale, dictionary } = useI18n();
   const router = useRouter();
   const [value, setValue] = useState(defaultValue);
-  const resolvedPlaceholder = placeholder === "Araba, marka veya model ara" && locale === "en" ? "Search car, brand, or model" : placeholder;
+  const resolvedPlaceholder = placeholder ?? String(dictionary.search.queryPlaceholder);
 
   return (
     <form
