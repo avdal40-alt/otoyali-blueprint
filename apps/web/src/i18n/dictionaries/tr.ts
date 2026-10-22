@@ -244,6 +244,7 @@ export const tr = {
   },
   profile: {
     title: "Profil",
+    sellerContacts: { title: "Satıcı iletişim numaraları", slots: "{count} / 3 doğrulanmış numara", account: "Hesap telefonu", add: "Numara ekle", cancel: "İptal", max: "En fazla üç doğrulanmış numara ekleyebilirsiniz.", error: "İletişim numaraları yüklenemedi.", retry: "Tekrar dene" },
     account: "Hesabım",
     loginRequiredTitle: "Profil için giriş yapın",
     loginRequiredBody: "Profilinizi düzenlemek ve ilanlarınızı yönetmek için giriş yapmanız gerekir.",

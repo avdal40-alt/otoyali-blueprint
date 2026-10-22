@@ -244,6 +244,7 @@ export const en = {
   },
   profile: {
     title: "Profile",
+    sellerContacts: { title: "Seller contact numbers", slots: "{count} / 3 verified numbers", account: "Account phone", add: "Add phone", cancel: "Cancel", max: "You can keep up to three verified numbers.", error: "Could not load contact numbers.", retry: "Try again" },
     account: "Account",
     loginRequiredTitle: "Log in to view your profile",
     loginRequiredBody: "You need to log in to edit your profile and manage your listings.",

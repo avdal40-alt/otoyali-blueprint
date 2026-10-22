@@ -12,15 +12,13 @@ import { useRouter } from "next/navigation";
 type Contact = { contact_id: string; masked_phone: string; is_active: boolean; is_current_account_phone: boolean };
 
 export function SellerContactsClient() {
-  const { locale } = useI18n();
+  const { locale, dictionary } = useI18n();
   const router = useRouter();
   const [contacts, setContacts] = useState<Contact[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [showVerification, setShowVerification] = useState(false);
   const [loadError, setLoadError] = useState(false);
-  const text = locale === "tr"
-    ? { title: "Satıcı iletişim numaraları", slots: (count: number) => `${count} / 3 doğrulanmış numara`, account: "Hesap telefonu", add: "Numara ekle", cancel: "İptal", max: "En fazla üç doğrulanmış numara ekleyebilirsiniz.", error: "İletişim numaraları yüklenemedi.", retry: "Tekrar dene" }
-    : { title: "Seller contact numbers", slots: (count: number) => `${count} / 3 verified numbers`, account: "Account phone", add: "Add phone", cancel: "Cancel", max: "You can keep up to three verified numbers.", error: "Could not load contact numbers.", retry: "Try again" };
+  const text = dictionary.profile.sellerContacts as Record<string, string>;
 
   const loadContacts = useCallback(async () => {
     if (!hasSupabaseEnv()) { setLoadError(true); setLoading(false); return; }
@@ -46,7 +44,7 @@ export function SellerContactsClient() {
   const hasAvailableSlot = activeContacts.length < 3;
   return <section className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft md:p-6">
     <h1 className="text-2xl font-black text-oto-text">{text.title}</h1>
-    <p className="mt-2 text-sm font-bold text-oto-muted">{text.slots(activeContacts.length)}</p>
+    <p className="mt-2 text-sm font-bold text-oto-muted">{text.slots.replace("{count}", String(activeContacts.length))}</p>
     <div className="mt-4 grid gap-2" aria-live="polite">{activeContacts.map((contact) => <div key={contact.contact_id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-oto-surface p-3 text-sm font-bold text-oto-text"><span dir="ltr">{contact.masked_phone}</span>{contact.is_current_account_phone ? <span className="text-oto-blue">{text.account}</span> : null}</div>)}</div>
     {showVerification ? <div className="mt-5 grid gap-4"><SellerContactVerificationFlow onVerified={async () => { setShowVerification(false); await loadContacts(); }} onCancel={() => setShowVerification(false)} /><Button type="button" variant="secondary" onClick={() => setShowVerification(false)}>{text.cancel}</Button></div> : hasAvailableSlot ? <Button type="button" className="mt-5" onClick={() => setShowVerification(true)}>{text.add}</Button> : <p className="mt-5 rounded-md bg-oto-surface p-3 text-sm font-semibold text-oto-muted">{text.max}</p>}
   </section>;
