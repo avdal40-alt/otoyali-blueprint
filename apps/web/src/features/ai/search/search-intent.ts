@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { DEFAULT_LOCALE } from "@/i18n/config";
+import { getAiSearchMessages } from "@/i18n/dictionaries/ai-search";
+import type { Locale } from "@/i18n/types";
 
 export const searchSortSchema = z.enum(["newest", "price_asc", "price_desc", "year_desc", "mileage_asc"]);
 const uuid = z.string().uuid();
@@ -50,12 +53,13 @@ export function mergeSearchIntent(previous: SearchIntent, patch: SearchIntentPat
   return searchIntentSchema.parse(next);
 }
 
-export function resolveSearchText(text: string, catalog: SearchCatalog): { patch: SearchIntentPatch; clarification?: SearchClarification } {
+export function resolveSearchText(text: string, catalog: SearchCatalog, locale: Locale = DEFAULT_LOCALE): { patch: SearchIntentPatch; clarification?: SearchClarification } {
+  const messages = getAiSearchMessages(locale);
   const normalized = normalize(text);
   if (/(baştan başla|filtreleri temizle|reset search|start over)/.test(normalized)) return { patch: { operation: "reset" } };
-  if (/(doğrulanmış galeri|verified dealer)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "verifiedDealer", unsupported: true, message: "This filter is not available in the current Search v1 contract." } };
-  if (/(hangisi en iyi|which is best|\bbetter\b)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "criteria", message: "Please specify the criteria to compare." } };
-  if (/(daha yeni|daha ucuz|düşük kilometre|newer|cheaper|low mileage)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "threshold", message: "Please provide a year, price, or mileage threshold." } };
+  if (/(doğrulanmış galeri|verified dealer)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "verifiedDealer", unsupported: true, message: messages.verifiedDealerUnavailable } };
+  if (/(hangisi en iyi|which is best|\bbetter\b)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "criteria", message: messages.compareCriteria } };
+  if (/(daha yeni|daha ucuz|düşük kilometre|newer|cheaper|low mileage)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "threshold", message: messages.threshold } };
   const values: Record<string, unknown> = { ...numericFilters(normalized) };
   if (/\b(dizel|diesel)\b/.test(normalized)) values.fuel = "diesel";
   if (/\b(benzin|gasoline|petrol)\b/.test(normalized)) values.fuel = "gasoline";
@@ -67,7 +71,7 @@ export function resolveSearchText(text: string, catalog: SearchCatalog): { patch
   if (/(fotoğraflı|with photos)/.test(normalized)) values.hasPhotos = true;
   if (/(en ucuz|cheapest)/.test(normalized)) values.sort = "price_asc";
   if (/(en yeni|newest)/.test(normalized)) values.sort = "newest";
-  const resolution = resolveNamedEntities(normalized, catalog, values);
+  const resolution = resolveNamedEntities(normalized, catalog, values, locale);
   return resolution.clarification ? { patch: { operation: "keep" }, clarification: resolution.clarification } : { patch: { operation: "set", values: searchIntentObject.partial().parse(values) } };
 }
 
@@ -76,19 +80,20 @@ export function mapSearchIntentToSearchV1(intent: SearchIntent) {
   return { version: "v1" as const, limit: 24, sort: intent.sort ?? "newest", filters };
 }
 
-function resolveNamedEntities(text: string, catalog: SearchCatalog, values: Record<string, unknown>) {
+function resolveNamedEntities(text: string, catalog: SearchCatalog, values: Record<string, unknown>, locale: Locale) {
+  const messages = getAiSearchMessages(locale);
   const pairs: Array<["makeId" | "modelId" | "variantId" | "cityId" | "districtId", CatalogRow[], string]> = [["makeId", catalog.makes, "make"], ["modelId", catalog.models, "model"], ["variantId", catalog.variants, "variant"], ["cityId", catalog.cities, "city"], ["districtId", catalog.districts, "district"]];
   for (const [key, rows, label] of pairs) {
     const matches = rows.filter((row) => text.includes(normalize(row.name)));
-    if (matches.length > 1) return { clarification: { field: label, message: `Please clarify the ${label}.`, options: matches.slice(0, 5).map((row) => row.name) } };
+    if (matches.length > 1) return { clarification: { field: label, message: messages.clarifyEntity(label), options: matches.slice(0, 5).map((row) => row.name) } };
     if (matches.length === 1) values[key] = matches[0].id;
   }
   const model = catalog.models.find((row) => row.id === values.modelId);
   const variant = catalog.variants.find((row) => row.id === values.variantId);
   const district = catalog.districts.find((row) => row.id === values.districtId);
-  if (model && values.makeId && model.parentId !== values.makeId) return { clarification: { field: "model", message: "The model does not belong to the selected make." } };
-  if (variant && values.modelId && variant.parentId !== values.modelId) return { clarification: { field: "variant", message: "The variant does not belong to the selected model." } };
-  if (district && values.cityId && district.parentId !== values.cityId) return { clarification: { field: "district", message: "The district does not belong to the selected city." } };
+  if (model && values.makeId && model.parentId !== values.makeId) return { clarification: { field: "model", message: messages.modelDoesNotMatchMake } };
+  if (variant && values.modelId && variant.parentId !== values.modelId) return { clarification: { field: "variant", message: messages.variantDoesNotMatchModel } };
+  if (district && values.cityId && district.parentId !== values.cityId) return { clarification: { field: "district", message: messages.districtDoesNotMatchCity } };
   return {};
 }
 export function normalizeNaturalLanguageNumber(value: string, kind: "price" | "mileage"): number | null {

@@ -4,7 +4,7 @@ import { getCities } from "@/lib/queries/cities";
 import { getMakes, getModels } from "@/lib/queries/makes";
 import { createPostgresSearchService } from "@/lib/search/search-service";
 import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
-import { getAiSearchResultsMessage } from "@/i18n/dictionaries/ai-search";
+import { getAiSearchMessages, getAiSearchResultsMessage } from "@/i18n/dictionaries/ai-search";
 import { createAssistantAction } from "../domain/actions";
 import type { AiRequest, AiResponse, AiStructuredData, AiWarningCode } from "../domain/types";
 import { mapSearchIntentToSearchV1, mergeSearchIntent, resolveSearchText, searchIntentSchema, type CatalogRow, type SearchCatalog, type SearchIntent } from "./search-intent";
@@ -13,16 +13,16 @@ type PublicSearchItem = { listing_id: string; make_name: string | null; model_na
 
 /** Executes only the canonical public Search v1 RPC and returns a deliberately reduced public DTO. */
 export async function executeNaturalLanguageSearch(request: AiRequest): Promise<AiResponse> {
-  if (!hasSupabaseEnv()) return unavailable(request, "Search is unavailable while the catalog is not configured.");
+  if (!hasSupabaseEnv()) return unavailable(request, getAiSearchMessages(request.locale).unavailableCatalog);
   const catalog = await loadCatalog();
   const previous = searchIntentSchema.safeParse(readClientState(request));
-  const parsed = resolveSearchText(request.userMessage, catalog);
+  const parsed = resolveSearchText(request.userMessage, catalog, request.locale);
   if (parsed.clarification) return response(request, parsed.clarification.unsupported ? "unsupported" : "needs_clarification", parsed.clarification.message, { type: "search_clarification", field: parsed.clarification.field, options: parsed.clarification.options ?? [], unsupported: Boolean(parsed.clarification.unsupported) });
   const intent = mergeSearchIntent(previous.success ? previous.data : {}, parsed.patch);
-  const catalogIssue = validateCatalogRelations(intent, catalog);
+  const catalogIssue = validateCatalogRelations(intent, catalog, request.locale);
   if (catalogIssue) return response(request, "needs_clarification", catalogIssue, { type: "search_clarification", field: "catalog", options: [], unsupported: false });
   const { data, error } = await createPostgresSearchService(getSupabaseServerClient()).search(mapSearchIntentToSearchV1(intent));
-  if (error) return unavailable(request, "Search is temporarily unavailable.");
+  if (error) return unavailable(request, getAiSearchMessages(request.locale).unavailable);
   const items = Array.isArray((data as { items?: unknown })?.items) ? ((data as { items: PublicSearchItem[] }).items).map(publicItem) : [];
   return response(
     request,
@@ -53,13 +53,14 @@ async function loadCatalog(): Promise<SearchCatalog> {
 }
 
 function readClientState(request: AiRequest): unknown { return (request.context.search as { intent?: unknown } | undefined)?.intent; }
-function validateCatalogRelations(intent: SearchIntent, catalog: SearchCatalog) {
+function validateCatalogRelations(intent: SearchIntent, catalog: SearchCatalog, locale: AiRequest["locale"]) {
+  const messages = getAiSearchMessages(locale);
   const model = catalog.models.find((row) => row.id === intent.modelId); const variant = catalog.variants.find((row) => row.id === intent.variantId); const district = catalog.districts.find((row) => row.id === intent.districtId);
-  if (intent.makeId && !catalog.makes.some((row) => row.id === intent.makeId)) return "The selected make is not available.";
-  if (intent.modelId && (!model || (intent.makeId && model.parentId !== intent.makeId))) return "The selected model is not available for that make.";
-  if (intent.variantId && (!variant || (intent.modelId && variant.parentId !== intent.modelId))) return "The selected variant is not available for that model.";
-  if (intent.cityId && !catalog.cities.some((row) => row.id === intent.cityId)) return "The selected city is not available.";
-  if (intent.districtId && (!district || (intent.cityId && district.parentId !== intent.cityId))) return "The selected district is not available for that city.";
+  if (intent.makeId && !catalog.makes.some((row) => row.id === intent.makeId)) return messages.selectedMakeUnavailable;
+  if (intent.modelId && (!model || (intent.makeId && model.parentId !== intent.makeId))) return messages.selectedModelUnavailable;
+  if (intent.variantId && (!variant || (intent.modelId && variant.parentId !== intent.modelId))) return messages.selectedVariantUnavailable;
+  if (intent.cityId && !catalog.cities.some((row) => row.id === intent.cityId)) return messages.selectedCityUnavailable;
+  if (intent.districtId && (!district || (intent.cityId && district.parentId !== intent.cityId))) return messages.selectedDistrictUnavailable;
   return null;
 }
 function publicItem(item: PublicSearchItem) { return { listingId: item.listing_id, make: item.make_name, model: item.model_name, variant: item.variant_name, city: item.city_name, district: item.district_name, priceAmount: item.price_amount, currency: item.currency, year: item.year, mileageKm: item.mileage_km, fuel: item.fuel_type, transmission: item.transmission, bodyType: item.body_type, sellerType: item.seller_type, photoCount: item.photo_count, hasVideo: item.has_video }; }
