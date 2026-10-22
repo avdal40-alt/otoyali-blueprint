@@ -18,7 +18,8 @@ must be migrated by domain slice:
   `SearchFilters.tsx`, and AI Search result, availability, clarification, and
   catalog-validation messages migrated to canonical dictionary domains;
   Kazakhstan price and mileage semantic recognition now covers Russian,
-  Kazakh, English, and Simplified Chinese KZT/tenge terms, and the in-memory
+  Kazakh, English, and Simplified Chinese KZT/tenge terms (including the
+  English `tenge` spelling), and the in-memory
   listing query/city filter no longer applies Turkish normalization or collation;
   AI Search result, availability, clarification, and catalog-validation
   messages now have direct RU/KK/EN/zh-CN dictionary coverage; deterministic
