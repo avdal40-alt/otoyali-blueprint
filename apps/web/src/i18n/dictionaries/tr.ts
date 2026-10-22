@@ -310,7 +310,8 @@ export const tr = {
     saveFailed: "Profil kaydedilemedi. Lütfen tekrar deneyin.",
     loadFailed: "Profil bilgileriniz yüklenemedi. Lütfen tekrar deneyin.",
     logout: "Çıkış yap",
-    noPhone: "Yok"
+    noPhone: "Yok",
+    dealerPage: { locationUnavailable: "Konum belirtilmemiş", about: "Hakkında", publicProfile: "Herkese açık galeri profili", stockCount: "Stokta {count} araç", content: "Galeri içeriği", vehicle: "Araç", video: "Video", noPostsTitle: "Henüz gönderi yok", noPostsBody: "Bu galeri henüz herkese açık gönderi yayınlamadı.", noVehiclesTitle: "Uygun araç yok", noVehiclesBody: "Bu galerinin şu anda uygun herkese açık ilanı yok.", noVideosTitle: "Video yok", noVideosBody: "Bu galerinin şu anda uygun herkese açık ilan videosu yok.", liveNow: "Şimdi canlı", pastLives: "Geçmiş yayınlar", noLiveTitle: "Şu anda canlı yayın yok", noLiveBody: "Mevcut ve geçmiş uygun canlı yayınlar burada görünür.", live: "CANLI", ended: "SONA ERDİ", recordingUnavailable: "Kayıt kullanılamıyor.", tabs: { posts: "Gönderiler", cars: "Araçlar", videos: "Videolar", live: "Canlı" } }
   },
   favorites: {
     title: "Favoriler",

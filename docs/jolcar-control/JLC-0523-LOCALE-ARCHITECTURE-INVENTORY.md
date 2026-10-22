@@ -26,8 +26,10 @@ must be migrated by domain slice:
 - listing cards and dealer detail: `VehicleCard.tsx` (migrated: the video badge
   now uses canonical common dictionary copy), `ReportListingButton.tsx`
   (migrated to dictionaries in the first slice), and `ShareListingButton.tsx`
-  (migrated: copied-link feedback uses the canonical listing dictionary); other
-  listing/detail controls and public dealer pages remain;
+  (migrated: copied-link feedback uses the canonical listing dictionary);
+  `app/dealer/[id]/page.tsx` now uses the canonical `profile.dealerPage`
+  dictionary domain for its profile, tabs, empty, post, listing, and live UI;
+  other listing/detail controls remain;
 - seller listing/video flows: `ListingVideoManager.tsx`,
   `my-listings-copy.ts` (migrated: the seller listing UI and safe lifecycle
   error mapper now use the canonical `myListings` dictionary domain rather

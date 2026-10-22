@@ -310,7 +310,8 @@ export const en = {
     saveFailed: "We could not save your profile. Please try again.",
     loadFailed: "We could not load your profile details. Please try again.",
     logout: "Log out",
-    noPhone: "Not available"
+    noPhone: "Not available",
+    dealerPage: { locationUnavailable: "Location unavailable", about: "About", publicProfile: "Public dealer profile", stockCount: "{count} vehicles in stock", content: "Dealer content", vehicle: "Vehicle", video: "Video", noPostsTitle: "No posts yet", noPostsBody: "This dealer has not published any public posts.", noVehiclesTitle: "No vehicles available", noVehiclesBody: "This dealer has no eligible public listings right now.", noVideosTitle: "No videos available", noVideosBody: "This dealer has no eligible public listing videos right now.", liveNow: "Live now", pastLives: "Past lives", noLiveTitle: "No live streams right now", noLiveBody: "Current and past eligible live streams will appear here.", live: "LIVE", ended: "ENDED", recordingUnavailable: "Recording unavailable.", tabs: { posts: "Posts", cars: "Cars", videos: "Videos", live: "Live" } }
   },
   favorites: {
     title: "Favorites",
