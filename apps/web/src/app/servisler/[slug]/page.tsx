@@ -10,6 +10,7 @@ import { Icon } from "@/components/ui/Icon";
 import { localizePath } from "@/i18n/config";
 import { t } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
+import type { Locale } from "@/i18n/types";
 import { getServiceProviderBySlug } from "@/lib/queries/services";
 import { buildSeoMetadata } from "@/lib/seo/metadata";
 import { getServiceCategory } from "@/features/services/domain/categories";
@@ -136,7 +137,7 @@ export default async function ServiceProviderPage({ params }: PageProps) {
   );
 }
 
-function OfferingsList({ offerings, locale }: { offerings: ServicePublicOffering[]; locale: "tr" | "en" }) {
+function OfferingsList({ offerings, locale }: { offerings: ServicePublicOffering[]; locale: Locale }) {
   if (offerings.length === 0) {
     return <p className="mt-5 rounded-md bg-oto-surface px-4 py-3 text-sm font-bold text-oto-muted">{t(locale, "services.offerings.empty")}</p>;
   }
