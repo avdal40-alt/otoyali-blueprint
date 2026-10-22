@@ -2,15 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { getLocaleSwitchPath, SUPPORTED_LOCALES } from "@/i18n/config";
+import { getLocaleDefinition, getLocaleSwitchPath, SUPPORTED_LOCALES } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import type { Locale } from "@/i18n/types";
 import { getLocationHref, persistLocaleAndNavigate } from "./locale-switch";
-
-const languageKey: Record<Locale, "turkish" | "english"> = {
-  tr: "turkish",
-  en: "english"
-};
 
 export function LanguageSwitcher({ className = "" }: { className?: string }) {
   const { locale, dictionary } = useI18n();
@@ -48,7 +43,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
             lang={candidate}
             aria-current="true"
           >
-            {String(dictionary.common[languageKey[candidate]])}
+            {getLocaleDefinition(candidate).nativeLabel}
           </span>
         ) : (
           <a
@@ -62,7 +57,7 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
             hrefLang={candidate}
             lang={candidate}
           >
-            {String(dictionary.common[languageKey[candidate]])}
+            {getLocaleDefinition(candidate).nativeLabel}
           </a>
         )
       ))}
