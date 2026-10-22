@@ -67,6 +67,9 @@ must be migrated by domain slice:
   publishing, and trust guidance lists from `ai-local-provider.ts` with direct
   RU/KK/EN/zh-CN launch copy; its deterministic unsupported-intent recognition
   is Unicode-normalized and recognizes the four launch languages;
+  deterministic moderation external-link host comparison now uses locale-neutral
+  case normalization rather than Turkish collation, preserving its existing
+  anti-fraud and privacy contract;
 - formatting and shared enum labels: `src/lib/format.ts` vehicle enum labels
   migrated to the canonical `format.enumLabels` dictionary domain; date,
   number, currency, city, and relative-date presentation remain;

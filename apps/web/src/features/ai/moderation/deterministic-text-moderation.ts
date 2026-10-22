@@ -105,7 +105,7 @@ function findTurkishPhones(value: string): string[] {
 function findExternalLinks(value: string): string[] {
   const candidates = value.match(new RegExp(`(?:https?:\\/\\/|www\\.)[^\\s]+|\\b[\\w-]+\\.(?:${urlSuffixes})\\b|\\b[\\w-]+\\s+(?:dot|nokta)\\s+(?:${urlSuffixes})\\b`, "giu")) ?? [];
   return candidates.filter((candidate) => {
-    const host = candidate.replace(/^https?:\/\//iu, "").replace(/^www\./iu, "").replace(/\s+(dot|nokta)\s+/iu, ".").split(/[/?#]/)[0].toLocaleLowerCase("tr-TR");
+    const host = candidate.replace(/^https?:\/\//iu, "").replace(/^www\./iu, "").replace(/\s+(dot|nokta)\s+/iu, ".").split(/[/?#]/)[0].toLowerCase();
     return !ownedListingHosts.has(host) && !ownedListingHosts.has(`www.${host}`);
   });
 }
