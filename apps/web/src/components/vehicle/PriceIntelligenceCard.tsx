@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useI18n } from "@/i18n/client";
+import type { Locale } from "@/i18n/types";
 import { formatPrice } from "@/lib/format";
 
 type PriceResult =
@@ -73,7 +74,7 @@ export function PriceIntelligenceCard({ listingId }: { listingId: string }) {
   );
 }
 
-function PriceResultView({ data, locale, copy }: { data: Extract<PriceResult, { available: true }>; locale: "tr" | "en"; copy: PriceCopy }) {
+function PriceResultView({ data, locale, copy }: { data: Extract<PriceResult, { available: true }>; locale: Locale; copy: PriceCopy }) {
   const absoluteDifference = Math.abs(data.differencePercent);
   const relation = absoluteDifference < 1 ? copy.near : data.differencePercent > 0 ? copy.higher : copy.lower;
   const recency = data.recency === "fresh" ? copy.fresh : data.recency === "mixed" ? copy.mixed : copy.older;

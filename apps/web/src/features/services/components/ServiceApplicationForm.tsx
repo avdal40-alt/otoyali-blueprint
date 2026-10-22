@@ -10,6 +10,7 @@ import { ErrorState, LoadingState } from "@/components/ui/States";
 import { useI18n } from "@/i18n/client";
 import { localizePath } from "@/i18n/config";
 import { t } from "@/i18n/get-dictionary";
+import type { Locale } from "@/i18n/types";
 import { authErrorMessage, mapAuthError } from "@/lib/auth/auth-ui";
 import type { MarketplaceVerticalId } from "@/lib/marketplace/types";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
@@ -303,7 +304,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function errorFor(field: ServiceValidationField, errors: Partial<Record<ServiceValidationField, string>>, locale: "tr" | "en") {
+function errorFor(field: ServiceValidationField, errors: Partial<Record<ServiceValidationField, string>>, locale: Locale) {
   const key = errors[field];
   return key ? t(locale, key) : null;
 }
