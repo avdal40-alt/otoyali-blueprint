@@ -5,15 +5,35 @@ typed application contract before their registry release. The following source
 areas contain embedded `tr/en` maps outside the canonical dictionaries and
 must be migrated by domain slice:
 
-- shared layout: `LanguageSwitcher.tsx` (migrated to registry labels in the
-  first slice)
-- listing reporting: `ReportListingButton.tsx`
-- seller listing/video flows: `ListingVideoManager.tsx`, `my-listings-copy.ts`
+- shared layout and routing: `LanguageSwitcher.tsx` (migrated to registry
+  labels in the first slice), `middleware.ts`, `i18n/config.ts`, and locale
+  route callers;
+- auth and country-aware phone presentation: `PhoneInput.tsx` and
+  `lib/auth/phone.ts`;
+- homepage/search/saved-search: `SearchBar.tsx`, `SearchFilters.tsx`,
+  `ActiveFilterChips.tsx`, `SavedSearchButton.tsx`, home SEO/trust components,
+  and `features/ai/search`;
+- listing and dealer detail: `ReportListingButton.tsx` (migrated to
+  dictionaries in the first slice), `ShareListingButton.tsx`, listing/detail
+  controls, and public dealer pages;
+- seller listing/video flows: `ListingVideoManager.tsx`,
+  `my-listings-copy.ts`, `MyListingsClient.tsx`, `SellerContactsClient.tsx`,
+  rejected edit flows, and seller contact error handling;
 - seller wizard and AI assistance: `ListingDescriptionAssistant.tsx`,
-  `SellAssistant.tsx`, `sell-copy.ts`, `features/ai/sell/sell-draft.ts`
-- formatting: `src/lib/format.ts`
+  `SellAssistant.tsx`, `SellWizard.tsx`, `sell-copy.ts`,
+  `features/ai/sell/sell-draft.ts`, and `sell-runtime.ts`;
+- profile, favorites, notifications, messages, settings, and video:
+  `ProfileClient.tsx`, `FavoritesClient.tsx`, `NotificationsClient.tsx`,
+  `ConversationClient.tsx`, `SettingsClient.tsx`, `PublicVideoPlayer.tsx`,
+  and video pages;
+- dealer/service and AI support: `ServiceApplicationForm.tsx`, service public
+  pages, `PriceIntelligenceCard.tsx`, AI providers/hooks/services;
+- formatting and shared enum labels: `src/lib/format.ts`, including date,
+  number, currency, vehicle enum, city, and relative-date presentation;
+- API validation and metadata: locale validation in API routes plus all
+  canonical, hreflang, sitemap, and metadata route producers.
 
-Additional legacy comparisons and local maps are identified through the
-TypeScript four-locale activation check and must be migrated in the prescribed
-domain order. No locale registry release is authorized until each affected
-surface has canonical dictionary coverage and Russian fallback behavior.
+The inventory is intentionally source-specific: all of these must move to
+canonical dictionary/locale helpers in coherent domain slices. No locale
+registry release is authorized until each affected surface has real Russian,
+Kazakh, English, and Simplified Chinese coverage with Russian fallback behavior.
