@@ -772,6 +772,7 @@ export const en = {
     title: "Rif",
     subtitle: "JOLCAR AI preview",
     sellDescription: { generate: "Generate description with AI", generating: "Generating description", length: "Description length", concise: "Concise", standard: "Standard", detailed: "Detailed", help: "Edit the draft, then apply it yourself before it is added to the listing.", apply: "Apply to description", discard: "Discard", error: "The description could not be generated. Check the vehicle details and try again.", unavailable: "Enter the year, mileage, condition, fuel, and transmission to generate a description.", previewLabel: "Generated description draft" },
+    sellAssistant: { title: "Fill the listing form with AI", help: "Describe your vehicle naturally. Review the suggestions, then choose whether to apply them to the form.", open: "Open assistant", close: "Close assistant", label: "Describe your vehicle", placeholder: "Example: 2021 BMW 520i, 75 thousand km, automatic", send: "Send", sending: "Working", reset: "Reset session", summary: "Suggested values", missing: "Missing", apply: "Apply suggestions to form", error: "The assistant cannot process this request right now. Please try again.", fields: { year: "Year", mileageKm: "Mileage", condition: "Condition", fuelType: "Fuel", transmission: "Transmission", engineVolumeL: "Engine", priceAmount: "Price", city: "City" } },
     price: {
       title: "Comparable listing prices",
       loading: "Comparable listing prices are being prepared.",

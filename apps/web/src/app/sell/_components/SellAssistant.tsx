@@ -4,20 +4,17 @@ import { FormEvent, KeyboardEvent, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useI18n } from "@/i18n/client";
 import type { Locale } from "@/i18n/types";
 import { AiStateMessage } from "@/features/ai/components/AiStateMessage";
 
 export type AssistedListingDraft = Record<string, string | number | boolean | null | undefined>;
 type AssistantState = { draft: AssistedListingDraft; missingFields: string[]; nextQuestion?: string; clarification?: { message: string }; readyForReview: boolean };
-
-const copy = {
-  tr: { title: "AI ile ilan formunu doldur", help: "Araç bilgilerinizi doğal dilde yazın. Önerileri önce inceleyip formunuza kendiniz uygularsınız.", open: "Asistanı aç", close: "Asistanı kapat", label: "Araç bilgilerinizi yazın", placeholder: "Örnek: 2021 BMW 520i, 75 bin kilometre, otomatik", send: "Gönder", sending: "İşleniyor", reset: "Oturumu sıfırla", summary: "Önerilen değerler", missing: "Eksik", apply: "Önerileri forma uygula", error: "Asistan şu anda isteği işleyemiyor. Lütfen tekrar deneyin." },
-  en: { title: "Fill the listing form with AI", help: "Describe your vehicle naturally. Review the suggestions, then choose whether to apply them to the form.", open: "Open assistant", close: "Close assistant", label: "Describe your vehicle", placeholder: "Example: 2021 BMW 520i, 75 thousand km, automatic", send: "Send", sending: "Working", reset: "Reset session", summary: "Suggested values", missing: "Missing", apply: "Apply suggestions to form", error: "The assistant cannot process this request right now. Please try again." }
-} as const;
+type SellAssistantCopy = { title: string; help: string; open: string; close: string; label: string; placeholder: string; send: string; sending: string; reset: string; summary: string; missing: string; apply: string; error: string; fields: Record<string, string> };
 
 export function SellAssistant({ locale, draft, onApply }: { locale: Locale; draft: AssistedListingDraft; onApply: (draft: AssistedListingDraft) => void }) {
-  const t = copy[locale]; const [open, setOpen] = useState(false); const [message, setMessage] = useState(""); const [state, setState] = useState<AssistantState | null>(null); const [busy, setBusy] = useState(false); const [error, setError] = useState<string | null>(null);
-  const fields = useMemo(() => [["year", locale === "tr" ? "Yıl" : "Year"], ["mileageKm", locale === "tr" ? "Kilometre" : "Mileage"], ["condition", locale === "tr" ? "Durum" : "Condition"], ["fuelType", locale === "tr" ? "Yakıt" : "Fuel"], ["transmission", locale === "tr" ? "Vites" : "Transmission"], ["engineVolumeL", locale === "tr" ? "Motor" : "Engine"], ["priceAmount", locale === "tr" ? "Fiyat" : "Price"], ["city", locale === "tr" ? "Şehir" : "City"]] as const, [locale]);
+  const { dictionary } = useI18n(); const t = dictionary.ai.sellAssistant as unknown as SellAssistantCopy; const fieldsCopy = t.fields; const [open, setOpen] = useState(false); const [message, setMessage] = useState(""); const [state, setState] = useState<AssistantState | null>(null); const [busy, setBusy] = useState(false); const [error, setError] = useState<string | null>(null);
+  const fields = useMemo(() => [["year", fieldsCopy.year], ["mileageKm", fieldsCopy.mileageKm], ["condition", fieldsCopy.condition], ["fuelType", fieldsCopy.fuelType], ["transmission", fieldsCopy.transmission], ["engineVolumeL", fieldsCopy.engineVolumeL], ["priceAmount", fieldsCopy.priceAmount], ["city", fieldsCopy.city]] as const, [fieldsCopy]);
   async function request(text = message) {
     if (busy || !text.trim()) return;
     setBusy(true); setError(null);

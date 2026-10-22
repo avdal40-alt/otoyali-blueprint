@@ -772,6 +772,7 @@ export const tr = {
     title: "Rif",
     subtitle: "JOLCAR yapay zeka önizlemesi",
     sellDescription: { generate: "AI ile açıklama oluştur", generating: "Açıklama hazırlanıyor", length: "Açıklama uzunluğu", concise: "Kısa", standard: "Standart", detailed: "Detaylı", help: "Taslağı düzenleyip yalnızca siz uygularsanız ilanın açıklamasına eklenir.", apply: "Açıklamaya uygula", discard: "Vazgeç", error: "Açıklama şu anda oluşturulamadı. Araç bilgilerini kontrol edip tekrar deneyin.", unavailable: "Açıklama oluşturmak için yıl, kilometre, durum, yakıt ve vites bilgisini girin.", previewLabel: "Oluşturulan açıklama taslağı" },
+    sellAssistant: { title: "AI ile ilan formunu doldur", help: "Araç bilgilerinizi doğal dilde yazın. Önerileri önce inceleyip formunuza kendiniz uygularsınız.", open: "Asistanı aç", close: "Asistanı kapat", label: "Araç bilgilerinizi yazın", placeholder: "Örnek: 2021 BMW 520i, 75 bin kilometre, otomatik", send: "Gönder", sending: "İşleniyor", reset: "Oturumu sıfırla", summary: "Önerilen değerler", missing: "Eksik", apply: "Önerileri forma uygula", error: "Asistan şu anda isteği işleyemiyor. Lütfen tekrar deneyin.", fields: { year: "Yıl", mileageKm: "Kilometre", condition: "Durum", fuelType: "Yakıt", transmission: "Vites", engineVolumeL: "Motor", priceAmount: "Fiyat", city: "Şehir" } },
     price: {
       title: "Benzer ilan fiyatları",
       loading: "Benzer ilanların fiyatları hazırlanıyor.",
