@@ -136,6 +136,15 @@ export const en = {
     filters: "Filters",
     closeFilters: "Close filters",
     saveSearch: "Save search",
+    filterControls: {
+      allDamageStates: "All damage statuses",
+      engineVolume: "Engine volume",
+      ownerCount: "Owner count",
+      negotiable: "Negotiable",
+      selectedCount: "{count} selected",
+      searchPlaceholder: "Search {label}",
+      noResults: "No results found."
+    },
     savedSearchFeedback: {
       title: "Jolcar search",
       error: "Your search could not be saved.",

@@ -136,6 +136,15 @@ export const tr = {
     filters: "Filtreler",
     closeFilters: "Filtreleri kapat",
     saveSearch: "Aramayı kaydet",
+    filterControls: {
+      allDamageStates: "Tüm hasar durumları",
+      engineVolume: "Motor hacmi",
+      ownerCount: "Sahip sayısı",
+      negotiable: "Pazarlık var",
+      selectedCount: "{count} seçili",
+      searchPlaceholder: "{label} ara",
+      noResults: "Sonuç bulunamadı."
+    },
     savedSearchFeedback: {
       title: "Jolcar araması",
       error: "Aramanız kaydedilemedi.",

@@ -7,6 +7,7 @@ import { selectedValues, toggleSelectedValue } from "@/lib/search/search-params"
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { bodyTypeLabel, cityLabel, colorLabel, conditionLabel, damageStateLabel, driveTypeLabel, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
+import { getIntlLocale } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 
 export const fuelOptions = [
@@ -103,6 +104,7 @@ export function SearchFilters({
   resultCount?: number;
 }) {
   const { locale, dictionary } = useI18n();
+  const filterControls = dictionary.search.filterControls as Record<string, string>;
   const selectedMakes = selectedValues(filters.make);
   const filteredModels = selectedMakes.length > 0
     ? models.filter((model) => selectedMakes.includes(model.make_name ?? ""))
@@ -139,7 +141,7 @@ export function SearchFilters({
   ];
   const localizedDamageOptions = damageOptions.map((option) => ({
     ...option,
-    label: option.value ? damageStateLabel(option.value, locale) : locale === "en" ? "All damage statuses" : "Tüm hasar durumları"
+    label: option.value ? damageStateLabel(option.value, locale) : filterControls.allDamageStates
   }));
 
   return (
@@ -233,8 +235,8 @@ export function SearchFilters({
             </Select>
 
             <div className="grid grid-cols-2 gap-2">
-              <Input value={filters.engineVolume} onChange={(event) => setValue("engineVolume", event.target.value)} placeholder={locale === "en" ? "Engine volume" : "Motor hacmi"} inputMode="decimal" disabled={!support.engineVolume} />
-              <Input value={filters.ownerCount} onChange={(event) => setValue("ownerCount", event.target.value)} placeholder={locale === "en" ? "Owner count" : "Sahip sayısı"} inputMode="numeric" disabled={!support.ownerCount} />
+              <Input value={filters.engineVolume} onChange={(event) => setValue("engineVolume", event.target.value)} placeholder={filterControls.engineVolume} inputMode="decimal" disabled={!support.engineVolume} />
+              <Input value={filters.ownerCount} onChange={(event) => setValue("ownerCount", event.target.value)} placeholder={filterControls.ownerCount} inputMode="numeric" disabled={!support.ownerCount} />
             </div>
 
             <Select value={filters.damageState} onChange={(event) => setValue("damageState", event.target.value)} disabled={!support.damageState}>
@@ -250,7 +252,7 @@ export function SearchFilters({
             {support.priceNegotiable ? (
               <label className="flex items-center gap-2 text-sm font-semibold text-oto-muted">
                 <input type="checkbox" checked={filters.negotiableOnly} onChange={(event) => setValue("negotiableOnly", event.target.checked)} />
-                {locale === "en" ? "Negotiable" : "Pazarlık var"}
+                {filterControls.negotiable}
               </label>
             ) : null}
             {support.trade ? (
@@ -300,10 +302,11 @@ function MultiSelectGroup({
   disabled?: boolean;
   searchable?: boolean;
 }) {
-  const { locale } = useI18n();
+  const { locale, dictionary } = useI18n();
+  const filterControls = dictionary.search.filterControls as Record<string, string>;
   const cleanOptions = useMemo(() => options.filter((option) => option.value), [options]);
   const [query, setQuery] = useState("");
-  const normalizedQuery = normalizeOption(query);
+  const normalizedQuery = normalizeOption(query, locale);
   const selectedOptions = useMemo(
     () => values
       .map((value) => cleanOptions.find((option) => option.value === value) ?? { value, label: value })
@@ -313,9 +316,9 @@ function MultiSelectGroup({
   const filteredOptions = useMemo(
     () =>
       searchable
-        ? cleanOptions.filter((option) => !normalizedQuery || normalizeOption(option.label).includes(normalizedQuery) || normalizeOption(option.value).includes(normalizedQuery))
+        ? cleanOptions.filter((option) => !normalizedQuery || normalizeOption(option.label, locale).includes(normalizedQuery) || normalizeOption(option.value, locale).includes(normalizedQuery))
         : cleanOptions,
-    [cleanOptions, normalizedQuery, searchable]
+    [cleanOptions, locale, normalizedQuery, searchable]
   );
   const visibleOptions = searchable ? mergeOptions(selectedOptions, filteredOptions).slice(0, 16) : cleanOptions;
 
@@ -323,13 +326,13 @@ function MultiSelectGroup({
     <div className="grid gap-2">
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-bold text-oto-muted">{label}</span>
-        <span className="text-[11px] font-bold text-oto-muted">{values.length > 0 ? (locale === "en" ? `${values.length} selected` : `${values.length} seçili`) : emptyLabel}</span>
+        <span className="text-[11px] font-bold text-oto-muted">{values.length > 0 ? filterControls.selectedCount.replace("{count}", String(values.length)) : emptyLabel}</span>
       </div>
       {searchable ? (
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder={locale === "en" ? `Search ${label.toLowerCase()}` : `${label} ara`}
+          placeholder={filterControls.searchPlaceholder.replace("{label}", label.toLocaleLowerCase(getIntlLocale(locale)))}
           disabled={disabled || cleanOptions.length === 0}
           className="h-10"
         />
@@ -353,14 +356,14 @@ function MultiSelectGroup({
             </button>
           );
         })}
-        {visibleOptions.length === 0 ? <p className="text-xs font-semibold text-oto-muted">{locale === "en" ? "No results found." : "Sonuç bulunamadı."}</p> : null}
+        {visibleOptions.length === 0 ? <p className="text-xs font-semibold text-oto-muted">{filterControls.noResults}</p> : null}
       </div>
     </div>
   );
 }
 
-function normalizeOption(value: string) {
-  return value.trim().toLocaleLowerCase("tr-TR");
+function normalizeOption(value: string, locale: "tr" | "en") {
+  return value.trim().toLocaleLowerCase(getIntlLocale(locale));
 }
 
 function mergeOptions(
