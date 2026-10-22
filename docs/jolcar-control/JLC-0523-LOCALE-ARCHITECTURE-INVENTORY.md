@@ -93,6 +93,8 @@ must be migrated by domain slice:
   question/description templates, and ambiguity recognition now accept the
   prepared RU/KK/EN/zh-CN launch set without negotiating or exposing future
   locale routes; the existing authenticated write boundary is unchanged;
+- city presentation: popular-city ordering now uses the selected locale's
+  configured collation instead of a hard-coded Turkish collation;
 - API validation and metadata: locale validation in API routes plus all
   canonical, hreflang, sitemap, and metadata route producers.
 
