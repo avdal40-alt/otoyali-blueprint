@@ -20,6 +20,7 @@ const market = loadTypeScriptModule(read("src", "lib", "market.ts"), "market.ts"
 const location = loadTypeScriptModule(read("src", "lib", "location.ts"), "location.ts", {
   "@/lib/market": market
 });
+const formatEnumLabels = loadTypeScriptModule(read("src", "i18n", "dictionaries", "format-enum-labels.ts"), "format-enum-labels.ts");
 const format = loadTypeScriptModule(read("src", "lib", "format.ts"), "format.ts", {
   "@/i18n/config": {
     DEFAULT_LOCALE: "tr",
@@ -28,6 +29,7 @@ const format = loadTypeScriptModule(read("src", "lib", "format.ts"), "format.ts"
     normalizeLocale: (locale) => (String(locale ?? "").toLowerCase().startsWith("en") ? "en" : "tr")
   },
   "@/i18n/dictionaries/format-fallbacks": { getFormatFallbackMessages: (locale) => ({ priceNotProvided: `${locale} price`, noInfo: `${locale} no info` }) },
+  "@/i18n/dictionaries/format-enum-labels": formatEnumLabels,
   "@/i18n/get-dictionary": {
     t: (locale, key) => key === "format.priceNotProvided" ? (locale === "en" ? "Price not provided" : "Fiyat belirtilmedi") : "Bilgi yok"
   },
@@ -56,5 +58,9 @@ assert.equal(format.formatNumber(1, "tr", invalidMarket), "");
 assert.equal(format.formatDate("2026-10-10", "tr", invalidMarket), "");
 assert.equal(format.formatNumber(1234567, "kk", kazakhstan), new Intl.NumberFormat("kk-KZ", { maximumFractionDigits: 0 }).format(1234567));
 assert.equal(format.formatDate("2026-10-10T00:00:00.000Z", "zh-CN", kazakhstan), new Intl.DateTimeFormat("zh-CN", { day: "2-digit", month: "short", year: "numeric" }).format(new Date("2026-10-10T00:00:00.000Z")));
+assert.equal(format.fuelLabel("diesel", "ru"), "Дизель");
+assert.equal(format.transmissionLabel("automatic", "kk"), "Автоматты");
+assert.equal(format.bodyTypeLabel("suv", "zh-CN"), "SUV");
+assert.equal(format.damageStateLabel("heavy_damage", "ru"), "Тяжёлые повреждения");
 
 console.log("Country-aware formatter tests passed.");

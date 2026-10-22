@@ -77,8 +77,10 @@ must be migrated by domain slice:
   migrated to the canonical `format.enumLabels` dictionary domain; known future
   locale identities now flow through market-specific Intl date, number, and
   currency formatting (with direct translated no-data fallbacks) rather than
-  being narrowed to the released Turkish/English registry; enum-label expansion
-  remains;
+  being narrowed to the released Turkish/English registry; direct Russian,
+  Kazakh, and Simplified Chinese labels now cover every shared vehicle enum
+  group, while released Turkish/English labels remain on their existing
+  dictionary path;
 - API validation and metadata: locale validation in API routes plus all
   canonical, hreflang, sitemap, and metadata route producers.
 
