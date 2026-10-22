@@ -59,6 +59,10 @@ must be migrated by domain slice:
 - dealer/service and AI support: `ServiceApplicationForm.tsx`, service public
   pages, `PriceIntelligenceCard.tsx`; AI hook/service message-length and
   unavailable responses migrated to the scoped `ai-assistant` dictionary;
+  public listing-expert availability, fact, comparison, and criterion messages
+  now use `i18n/dictionaries/ai-listing-expert.ts` with direct RU/KK/EN/zh-CN
+  launch copy, and its deterministic comparison criteria recognize those four
+  launch languages without changing the public-data-only comparison boundary;
 - formatting and shared enum labels: `src/lib/format.ts` vehicle enum labels
   migrated to the canonical `format.enumLabels` dictionary domain; date,
   number, currency, city, and relative-date presentation remain;

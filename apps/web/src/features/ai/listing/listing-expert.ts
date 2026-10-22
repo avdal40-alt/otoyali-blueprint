@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getListingDetails } from "@/lib/queries/listings";
 import { getApprovedReviewSummaries, getListingReviewTarget } from "@/lib/queries/reviews";
 import { getPublicCanonicalGenerations, type PublicCanonicalGeneration } from "@/lib/queries/vehicle-comparison";
+import { getAiListingExpertMessages } from "@/i18n/dictionaries/ai-listing-expert";
 import type { AiProvenance, AiRequest, AiResponse, AiStructuredData } from "../domain/types";
 
 export const publicListingIdSchema = z.string().uuid();
@@ -37,29 +38,31 @@ export async function executeListingExpert(request: AiRequest): Promise<AiRespon
   if (request.intent === "compare_vehicles") return executeComparison(request);
   const listingId = request.context.listing?.listingId;
   const snapshot = listingId ? await getPublicListingSnapshot(listingId) : null;
-  if (!snapshot) return clarify(request, "This listing is not publicly available.");
+  const messages = getAiListingExpertMessages(request.locale);
+  if (!snapshot) return clarify(request, messages.listingUnavailable);
   const fact = selectFact(snapshot, request.userMessage);
-  const message = fact ? `${fact.label}: ${String(fact.value)}.` : "This information is not specified in the listing.";
+  const message = fact ? messages.factAnswer(fact.label, fact.value) : messages.factUnavailable;
   return answer(request, message, { type: "listing_answer", listingId: snapshot.listingId, facts: fact ? [fact] : [], missingFields: fact ? [] : snapshot.missingFields });
 }
 
 async function executeComparison(request: AiRequest): Promise<AiResponse> {
+  const messages = getAiListingExpertMessages(request.locale);
   const listingIds = readCompareListingIds(request);
   const generationIds = readCompareGenerationIds(request);
-  if (!listingIds && !generationIds) return clarify(request, "Provide two to four distinct public listings or canonical vehicle generations to compare.");
+  if (!listingIds && !generationIds) return clarify(request, messages.comparisonItemsRequired);
 
   const [listingItems, catalogItems] = await Promise.all([
     listingIds ? loadListingItems(listingIds) : Promise.resolve([] as ComparisonItem[]),
     generationIds ? loadCatalogItems(generationIds) : Promise.resolve([] as ComparisonItem[])
   ]);
   if ((listingIds && listingItems.length !== listingIds.length) || (generationIds && catalogItems.length !== generationIds.length)) {
-    return clarify(request, "One or more selected vehicles are not publicly available.");
+    return clarify(request, messages.comparisonUnavailable);
   }
   const items = [...listingItems, ...catalogItems];
-  if (items.length < 2 || items.length > 4) return clarify(request, "Provide two to four distinct public comparison items.");
+  if (items.length < 2 || items.length > 4) return clarify(request, messages.comparisonCountRequired);
 
   const matrix = comparisonMatrix(items);
-  return answer(request, comparisonNarrative(matrix, request.userMessage), {
+  return answer(request, comparisonNarrative(matrix, request.userMessage, request.locale), {
     type: "vehicle_comparison",
     items: items.map(({ id, source, label, missingFields }) => ({ id, source, label, missingFields })),
     matrix
@@ -107,7 +110,18 @@ function readCompareListingIds(request: AiRequest): string[] | null { const pars
 function readCompareGenerationIds(request: AiRequest): string[] | null { const parsed = compareGenerationIdsSchema.safeParse(request.context.search?.compareGenerationIds); return parsed.success ? parsed.data : null; }
 function selectFact(snapshot: ListingSnapshot, question: string) { const q = question.normalize("NFKD").toLowerCase().replace(/\p{Diacritic}/gu, ""); const key = /otomatik|vites|transmission|автомат|беріліс|变速/.test(q) ? "transmission" : /kilometre|km|mileage|пробег|жүріс|里程/.test(q) ? "mileageKm" : /motor|hacim|engine|двигател|қозғалтқыш|发动机/.test(q) ? "engineVolumeL" : /yakıt|fuel|топливо|жанармай|燃料/.test(q) ? "fuel" : /çekiş|drivetrain|привод|жетек|驱动/.test(q) ? "drivetrain" : /video|видео|бейне/.test(q) ? "hasPublicVideo" : /fiyat|price|цена|баға|价格/.test(q) ? "price" : /şehir|city|город|қала|城市/.test(q) ? "city" : /galeri|seller|дилер|сатушы|卖家/.test(q) ? "sellerType" : null; return key ? snapshot.facts.find((fact) => fact.label === key) : null; }
 function comparisonMatrix(items: ComparisonItem[]) { const fields = ["make", "model", "canonicalGeneration", "year", "mileageKm", "price", "currency", "fuel", "transmission", "drivetrain", "bodyType", "engineVolumeL", "sellerType", "hasPublicVideo", "photoCount", "approvedReviewCount", "approvedReviewAverageRating"]; return fields.map((field) => ({ field, values: items.map((item) => { const fact = item.facts.find((candidate) => candidate.label === field); return { itemId: item.id, value: fact?.value ?? null, provenance: fact?.provenance ?? (field.startsWith("approvedReview") ? "review" : item.source === "catalog" ? "catalog" : "listing") }; }) })); }
-function comparisonNarrative(matrix: ReturnType<typeof comparisonMatrix>, question: string) { const q = question.toLowerCase(); if (/hangisi daha iyi|which is best|overall winner/.test(q)) return "Specify a factual criterion; Jolcar does not choose an overall winner."; const field = /kilometre|mileage/.test(q) ? "mileageKm" : /yeni|newer|year/.test(q) ? "year" : /ucuz|cheap|price/.test(q) ? "price" : null; if (!field) return "Here is a factual comparison using only available public listing, catalog, and approved owner-review data. Missing values are shown as unavailable."; const row = matrix.find((item) => item.field === field)!; const values = row.values.filter((item): item is typeof item & { value: number } => typeof item.value === "number"); if (!values.length) return "The requested comparison value is unavailable for the selected items."; const selected = field === "year" ? values.reduce((a, b) => a.value > b.value ? a : b) : values.reduce((a, b) => a.value < b.value ? a : b); return `${selected.itemId} has the ${field === "year" ? "newest listed year" : field === "price" ? "lowest price" : "lowest mileage"}.`; }
+function comparisonNarrative(matrix: ReturnType<typeof comparisonMatrix>, question: string, locale: AiRequest["locale"]) {
+  const messages = getAiListingExpertMessages(locale);
+  const q = question.normalize("NFKD").toLowerCase().replace(/\p{Diacritic}/gu, "");
+  if (/hangisi daha iyi|which is best|overall winner|какой лучше|қайсысы жақсы|哪个更好/.test(q)) return messages.criterionRequired;
+  const field = /kilometre|mileage|пробег|жүріс|里程/.test(q) ? "mileageKm" : /yeni|newer|year|новее|жаңарақ|年份/.test(q) ? "year" : /ucuz|cheap|price|дешевле|арзан|价格|便宜/.test(q) ? "price" : null;
+  if (!field) return messages.genericComparison;
+  const row = matrix.find((item) => item.field === field)!;
+  const values = row.values.filter((item): item is typeof item & { value: number } => typeof item.value === "number");
+  if (!values.length) return messages.comparisonValueUnavailable;
+  const selected = field === "year" ? values.reduce((a, b) => a.value > b.value ? a : b) : values.reduce((a, b) => a.value < b.value ? a : b);
+  return messages.selectedComparison(selected.itemId, field === "year" ? messages.newestYear : field === "price" ? messages.lowestPrice : messages.lowestMileage);
+}
 function labelFromFacts(facts: ListingFact[], fallback: string) { return ["make", "model", "year"].map((field) => facts.find((fact) => fact.label === field)?.value).filter((value) => value !== undefined).join(" ") || fallback; }
 function answer(request: AiRequest, message: string, structuredData: AiStructuredData): AiResponse { return { requestId: request.requestId, status: "success", message, structuredData: [structuredData], warnings: ["informational_only", "verify_independently", "incomplete_data"], provider: "local", latencyMs: 0 }; }
 function clarify(request: AiRequest, message: string): AiResponse { return { requestId: request.requestId, status: "needs_clarification", message, warnings: ["informational_only", "incomplete_data"], provider: "local", latencyMs: 0 }; }
