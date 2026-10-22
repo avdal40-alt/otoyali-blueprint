@@ -39,11 +39,11 @@ assert.equal(format.formatCurrency(1234567, "TRY", "tr", turkey), "1.234.567 TL"
 assert.equal(format.formatCurrency(1234567, "TRY", "en", turkey), "TRY 1,234,567");
 assert.equal(
   format.formatCurrency(1234567, "KZT", "tr", kazakhstan),
-  `${new Intl.NumberFormat("kk-KZ", { maximumFractionDigits: 0 }).format(1234567)} ₸`
+  `${new Intl.NumberFormat("ru-KZ", { maximumFractionDigits: 0 }).format(1234567)} ₸`
 );
 assert.equal(
   format.formatDate("2026-10-10T00:00:00.000Z", "tr", kazakhstan),
-  new Intl.DateTimeFormat("kk-KZ", { day: "2-digit", month: "short", year: "numeric" }).format(new Date("2026-10-10T00:00:00.000Z"))
+  new Intl.DateTimeFormat("ru-KZ", { day: "2-digit", month: "short", year: "numeric" }).format(new Date("2026-10-10T00:00:00.000Z"))
 );
 
 const invalidMarket = { ...kazakhstan, formatting: { ...kazakhstan.formatting, defaultIntlLocale: "not a locale" } };

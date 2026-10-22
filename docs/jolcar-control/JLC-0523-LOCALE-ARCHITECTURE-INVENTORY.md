@@ -47,8 +47,9 @@ must be migrated by domain slice:
   and video pages;
 - dealer/service and AI support: `ServiceApplicationForm.tsx`, service public
   pages, `PriceIntelligenceCard.tsx`, AI providers/hooks/services;
-- formatting and shared enum labels: `src/lib/format.ts`, including date,
-  number, currency, vehicle enum, city, and relative-date presentation;
+- formatting and shared enum labels: `src/lib/format.ts` vehicle enum labels
+  migrated to the canonical `format.enumLabels` dictionary domain; date,
+  number, currency, city, and relative-date presentation remain;
 - API validation and metadata: locale validation in API routes plus all
   canonical, hreflang, sitemap, and metadata route producers.
 

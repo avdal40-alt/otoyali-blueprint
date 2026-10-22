@@ -997,6 +997,16 @@ export const en = {
   format: {
     priceNotProvided: "Price not provided",
     noInfo: "No information",
-    locationUnknown: "Location not specified"
+    locationUnknown: "Location not specified",
+    enumLabels: {
+      fuel: { gasoline: "Petrol", diesel: "Diesel", lpg: "LPG", electric: "Electric", hybrid: "Hybrid", other: "Other" },
+      transmission: { manual: "Manual", automatic: "Automatic", semi_automatic: "Semi-automatic" },
+      condition: { used: "Used", new: "New" },
+      sellerType: { private: "Individual seller", individual: "Individual seller", dealer: "Dealer", corporate: "Dealer" },
+      bodyType: { sedan: "Sedan", hatchback: "Hatchback", suv: "SUV", wagon: "Station wagon", coupe: "Coupe", pickup: "Pickup", minivan: "Minivan", commercial: "Commercial", other: "Other" },
+      driveType: { front: "Front-wheel drive", rear: "Rear-wheel drive", awd: "AWD", "4x4": "4x4" },
+      damageState: { unknown: "Unknown", none: "No damage", minor: "Minor damage", major: "Major damage", painted: "Painted", replaced: "Replaced parts", heavy_damage: "Heavy damage record" },
+      color: { white: "White", black: "Black", gray: "Gray", blue: "Blue", red: "Red", silver: "Silver" }
+    }
   }
 } satisfies Dictionary;

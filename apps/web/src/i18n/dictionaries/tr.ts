@@ -997,6 +997,16 @@ export const tr = {
   format: {
     priceNotProvided: "Fiyat belirtilmedi",
     noInfo: "Bilgi yok",
-    locationUnknown: "Konum belirtilmedi"
+    locationUnknown: "Konum belirtilmedi",
+    enumLabels: {
+      fuel: { gasoline: "Benzin", diesel: "Dizel", lpg: "LPG", electric: "Elektrikli", hybrid: "Hibrit", other: "Diğer" },
+      transmission: { manual: "Manuel", automatic: "Otomatik", semi_automatic: "Yarı otomatik" },
+      condition: { used: "İkinci el", new: "Sıfır km" },
+      sellerType: { private: "Bireysel", individual: "Bireysel", dealer: "Galeri", corporate: "Galeri" },
+      bodyType: { sedan: "Sedan", hatchback: "Hatchback", suv: "SUV", wagon: "Station wagon", coupe: "Coupe", pickup: "Pickup", minivan: "Minivan", commercial: "Ticari", other: "Diğer" },
+      driveType: { front: "Önden çekiş", rear: "Arkadan itiş", awd: "AWD", "4x4": "4x4" },
+      damageState: { unknown: "Bilinmiyor", none: "Hasarsız", minor: "Hafif hasarlı", major: "Ağır hasarlı", painted: "Boyalı", replaced: "Değişenli", heavy_damage: "Ağır hasar kayıtlı" },
+      color: { white: "Beyaz", black: "Siyah", gray: "Gri", blue: "Mavi", red: "Kırmızı", silver: "Gümüş" }
+    }
   }
 } satisfies Dictionary;

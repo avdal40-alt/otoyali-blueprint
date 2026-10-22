@@ -127,13 +127,26 @@ export function titleCase(value: string) {
   return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
 }
 
-function enumLabel(group: keyof typeof enumLabels, value?: string | null, locale?: string | null) {
+const enumLabelValues = {
+  fuel: ["gasoline", "diesel", "lpg", "electric", "hybrid", "other"],
+  transmission: ["manual", "automatic", "semi_automatic"],
+  condition: ["used", "new"],
+  sellerType: ["private", "individual", "dealer", "corporate"],
+  bodyType: ["sedan", "hatchback", "suv", "wagon", "coupe", "pickup", "minivan", "commercial", "other"],
+  driveType: ["front", "rear", "awd", "4x4"],
+  damageState: ["unknown", "none", "minor", "major", "painted", "replaced", "heavy_damage"],
+  color: ["white", "black", "gray", "blue", "red", "silver"]
+} as const;
+
+function enumLabel(group: keyof typeof enumLabelValues, value?: string | null, locale?: string | null) {
   const normalizedLocale = resolveFormatLocale(locale);
   if (!value) return t(normalizedLocale, "format.noInfo");
   const normalizedValue = value.toLocaleLowerCase("en-US");
-  const labels = enumLabels[group]?.[normalizedLocale] as Record<string, string> | undefined;
+  if (enumLabelValues[group].includes(normalizedValue as never)) {
+    return t(normalizedLocale, `format.enumLabels.${group}.${normalizedValue}`);
+  }
 
-  return labels?.[normalizedValue] ?? titleCase(value.replace(/_/g, " "));
+  return titleCase(value.replace(/_/g, " "));
 }
 
 function resolveFormatLocale(locale?: string | null): Locale {
@@ -216,136 +229,3 @@ function isValidIntlLocale(value: string) {
     return false;
   }
 }
-
-const enumLabels = {
-  fuel: {
-    tr: {
-      gasoline: "Benzin",
-      diesel: "Dizel",
-      lpg: "LPG",
-      electric: "Elektrikli",
-      hybrid: "Hibrit",
-      other: "Diğer"
-    },
-    en: {
-      gasoline: "Petrol",
-      diesel: "Diesel",
-      lpg: "LPG",
-      electric: "Electric",
-      hybrid: "Hybrid",
-      other: "Other"
-    }
-  },
-  transmission: {
-    tr: {
-      manual: "Manuel",
-      automatic: "Otomatik",
-      semi_automatic: "Yarı otomatik"
-    },
-    en: {
-      manual: "Manual",
-      automatic: "Automatic",
-      semi_automatic: "Semi-automatic"
-    }
-  },
-  condition: {
-    tr: {
-      used: "İkinci el",
-      new: "Sıfır km"
-    },
-    en: {
-      used: "Used",
-      new: "New"
-    }
-  },
-  sellerType: {
-    tr: {
-      private: "Bireysel",
-      individual: "Bireysel",
-      dealer: "Galeri",
-      corporate: "Galeri"
-    },
-    en: {
-      private: "Individual seller",
-      individual: "Individual seller",
-      dealer: "Dealer",
-      corporate: "Dealer"
-    }
-  },
-  bodyType: {
-    tr: {
-      sedan: "Sedan",
-      hatchback: "Hatchback",
-      suv: "SUV",
-      wagon: "Station wagon",
-      coupe: "Coupe",
-      pickup: "Pickup",
-      minivan: "Minivan",
-      commercial: "Ticari",
-      other: "Diğer"
-    },
-    en: {
-      sedan: "Sedan",
-      hatchback: "Hatchback",
-      suv: "SUV",
-      wagon: "Station wagon",
-      coupe: "Coupe",
-      pickup: "Pickup",
-      minivan: "Minivan",
-      commercial: "Commercial",
-      other: "Other"
-    }
-  },
-  driveType: {
-    tr: {
-      front: "Önden çekiş",
-      rear: "Arkadan itiş",
-      awd: "AWD",
-      "4x4": "4x4"
-    },
-    en: {
-      front: "Front-wheel drive",
-      rear: "Rear-wheel drive",
-      awd: "AWD",
-      "4x4": "4x4"
-    }
-  },
-  damageState: {
-    tr: {
-      unknown: "Bilinmiyor",
-      none: "Hasarsız",
-      minor: "Hafif hasarlı",
-      major: "Ağır hasarlı",
-      painted: "Boyalı",
-      replaced: "Değişenli",
-      heavy_damage: "Ağır hasar kayıtlı"
-    },
-    en: {
-      unknown: "Unknown",
-      none: "No damage",
-      minor: "Minor damage",
-      major: "Major damage",
-      painted: "Painted",
-      replaced: "Replaced parts",
-      heavy_damage: "Heavy damage record"
-    }
-  },
-  color: {
-    tr: {
-      white: "Beyaz",
-      black: "Siyah",
-      gray: "Gri",
-      blue: "Mavi",
-      red: "Kırmızı",
-      silver: "Gümüş"
-    },
-    en: {
-      white: "White",
-      black: "Black",
-      gray: "Gray",
-      blue: "Blue",
-      red: "Red",
-      silver: "Silver"
-    }
-  }
-};
