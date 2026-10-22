@@ -98,7 +98,7 @@ export function FavoritesClient() {
         title={String(dictionary.favorites.emptyTitle)}
         body={String(dictionary.favorites.emptyBody)}
         href={localizePath("/search", locale)}
-        action={locale === "en" ? "Search listings" : "İlan ara"}
+        action={String(dictionary.favorites.searchListings)}
       />
     );
   }

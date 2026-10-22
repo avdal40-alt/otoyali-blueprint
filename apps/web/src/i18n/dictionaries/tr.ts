@@ -244,6 +244,7 @@ export const tr = {
   },
   profile: {
     title: "Profil",
+    settings: { firstName: "Ad", lastName: "Soyad", city: "Şehir", save: "Ayarları kaydet" },
     sellerContacts: { title: "Satıcı iletişim numaraları", slots: "{count} / 3 doğrulanmış numara", account: "Hesap telefonu", add: "Numara ekle", cancel: "İptal", max: "En fazla üç doğrulanmış numara ekleyebilirsiniz.", error: "İletişim numaraları yüklenemedi.", retry: "Tekrar dene" },
     account: "Hesabım",
     loginRequiredTitle: "Profil için giriş yapın",
@@ -277,7 +278,8 @@ export const tr = {
     emptyTitle: "Favori ilan yok",
     emptyBody: "Beğendiğiniz ilanları kaydederek buradan hızlıca ulaşabilirsiniz.",
     loadFailed: "Favorileriniz yüklenemedi. Lütfen tekrar deneyin.",
-    actionFailed: "Favori işlemi tamamlanamadı. Lütfen tekrar deneyin."
+    actionFailed: "Favori işlemi tamamlanamadı. Lütfen tekrar deneyin.",
+    searchListings: "İlan ara"
   },
   myListings: {
     title: "İlanlarım",

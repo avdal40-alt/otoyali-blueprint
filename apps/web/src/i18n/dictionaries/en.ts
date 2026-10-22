@@ -244,6 +244,7 @@ export const en = {
   },
   profile: {
     title: "Profile",
+    settings: { firstName: "First name", lastName: "Last name", city: "City", save: "Save settings" },
     sellerContacts: { title: "Seller contact numbers", slots: "{count} / 3 verified numbers", account: "Account phone", add: "Add phone", cancel: "Cancel", max: "You can keep up to three verified numbers.", error: "Could not load contact numbers.", retry: "Try again" },
     account: "Account",
     loginRequiredTitle: "Log in to view your profile",
@@ -277,7 +278,8 @@ export const en = {
     emptyTitle: "No favorite listings yet",
     emptyBody: "Save vehicles you like and access them quickly here.",
     loadFailed: "We could not load your favorites. Please try again.",
-    actionFailed: "We could not update your favorite. Please try again."
+    actionFailed: "We could not update your favorite. Please try again.",
+    searchListings: "Search listings"
   },
   myListings: {
     title: "My listings",

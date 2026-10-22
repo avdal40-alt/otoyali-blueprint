@@ -1,18 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { useI18n } from "@/i18n/client";
-import { localizePath } from "@/i18n/config";
+import { getLocaleDefinition, localizePath, SUPPORTED_LOCALES } from "@/i18n/config";
 
 export function SettingsClient() {
-  const router = useRouter();
   const { locale, dictionary } = useI18n();
+  const settingsCopy = dictionary.profile.settings as Record<string, string>;
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +19,7 @@ export function SettingsClient() {
   useEffect(() => {
     async function load() {
       if (!hasSupabaseEnv()) {
-        setError("Supabase ortam değişkenleri eksik.");
+        setError(String(dictionary.errors.missingSupabaseEnv));
         setLoading(false);
         return;
       }
@@ -36,7 +35,7 @@ export function SettingsClient() {
       setLoading(false);
     }
     void load();
-  }, [router]);
+  }, [dictionary.errors.missingSupabaseEnv]);
 
   async function save() {
     if (!profile) return;
@@ -64,15 +63,14 @@ export function SettingsClient() {
   return (
     <div className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
       <div className="grid gap-3 md:grid-cols-2">
-        <Input value={profile.first_name ?? ""} onChange={(event) => setProfile({ ...profile, first_name: event.target.value })} placeholder={locale === "en" ? "First name" : "Ad"} />
-        <Input value={profile.last_name ?? ""} onChange={(event) => setProfile({ ...profile, last_name: event.target.value })} placeholder={locale === "en" ? "Last name" : "Soyad"} />
-        <Input value={profile.city ?? ""} onChange={(event) => setProfile({ ...profile, city: event.target.value })} placeholder={locale === "en" ? "City" : "Şehir"} />
+        <Input value={profile.first_name ?? ""} onChange={(event) => setProfile({ ...profile, first_name: event.target.value })} placeholder={settingsCopy.firstName} />
+        <Input value={profile.last_name ?? ""} onChange={(event) => setProfile({ ...profile, last_name: event.target.value })} placeholder={settingsCopy.lastName} />
+        <Input value={profile.city ?? ""} onChange={(event) => setProfile({ ...profile, city: event.target.value })} placeholder={settingsCopy.city} />
         <Select value={profile.language} onChange={(event) => setProfile({ ...profile, language: event.target.value })}>
-          <option value="tr">Türkçe</option>
-          <option value="en">English</option>
+          {SUPPORTED_LOCALES.map((supportedLocale) => <option key={supportedLocale} value={supportedLocale}>{getLocaleDefinition(supportedLocale).nativeLabel}</option>)}
         </Select>
       </div>
-      <Button onClick={save} className="mt-5">{locale === "en" ? "Save settings" : "Ayarları kaydet"}</Button>
+      <Button onClick={save} className="mt-5">{settingsCopy.save}</Button>
     </div>
   );
 }
