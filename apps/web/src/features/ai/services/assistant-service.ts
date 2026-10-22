@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getAiAssistantMessages } from "@/i18n/dictionaries/ai-assistant";
 import { getAiServerConfig } from "../config";
 import { disabledAiProvider } from "../providers/disabled-provider";
 import { getConfiguredAiProvider } from "../providers/provider-registry";
@@ -41,7 +42,7 @@ export async function generateAssistantResponse(request: AiRequest): Promise<AiR
       {
         requestId: request.requestId,
         status: "error",
-        message: request.locale === "tr" ? "Rif şu anda yanıt veremiyor. Biraz sonra tekrar deneyin." : "Rif cannot respond right now. Please try again shortly.",
+        message: getAiAssistantMessages(request.locale).unavailable,
         warnings: ["informational_only"],
         provider: "disabled",
         latencyMs: 0,

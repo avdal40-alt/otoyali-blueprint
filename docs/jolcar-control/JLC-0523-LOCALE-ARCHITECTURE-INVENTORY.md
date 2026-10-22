@@ -46,7 +46,8 @@ must be migrated by domain slice:
   `FavoritesClient.tsx` (migrated: search CTA is dictionary backed), `PublicVideoPlayer.tsx`,
   and video pages;
 - dealer/service and AI support: `ServiceApplicationForm.tsx`, service public
-  pages, `PriceIntelligenceCard.tsx`, AI providers/hooks/services;
+  pages, `PriceIntelligenceCard.tsx`; AI hook/service message-length and
+  unavailable responses migrated to the scoped `ai-assistant` dictionary;
 - formatting and shared enum labels: `src/lib/format.ts` vehicle enum labels
   migrated to the canonical `format.enumLabels` dictionary domain; date,
   number, currency, city, and relative-date presentation remain;

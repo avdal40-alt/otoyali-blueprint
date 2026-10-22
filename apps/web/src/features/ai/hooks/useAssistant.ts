@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { getAiAssistantMessages } from "@/i18n/dictionaries/ai-assistant";
 import { AI_SHARED_LIMITS } from "../domain/limits";
 import type { AiAction, AiContext, AiConversationMessage, AiIntentId, AiResponse, AiStructuredData, AiWarningCode } from "../domain/types";
 
@@ -30,7 +31,7 @@ export function useAssistant(context: AiContext) {
       if (!userMessage || isLoading) return;
 
       if (userMessage.length > AI_SHARED_LIMITS.maxUserMessageLength) {
-        setError(context.locale === "tr" ? "Mesaj çok uzun. Lütfen daha kısa yazın." : "Message is too long. Please shorten it.");
+        setError(getAiAssistantMessages(context.locale).messageTooLong);
         return;
       }
 
@@ -78,7 +79,7 @@ export function useAssistant(context: AiContext) {
         };
         setMessages((current) => [...current, assistantMessage].slice(-AI_SHARED_LIMITS.maxConversationMessages));
       } catch {
-        const fallback = context.locale === "tr" ? "Rif şu anda yanıt veremiyor. Biraz sonra tekrar deneyin." : "Rif cannot respond right now. Please try again shortly.";
+        const fallback = getAiAssistantMessages(context.locale).unavailable;
         setError(fallback);
         const assistantMessage: AssistantChatMessage = {
           id: createMessageId(),
