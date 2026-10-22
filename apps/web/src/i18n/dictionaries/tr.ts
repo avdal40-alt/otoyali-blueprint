@@ -109,6 +109,16 @@ export const tr = {
       secureLogin: "Satıcıyla iletişim ve ilan yayınlama adımlarında güvenli giriş akışı.",
       futureFoundation: "Jolcar güven raporu ve piyasa analizi için şeffaf, geleceğe hazır altyapı."
     },
+    seoEntryLinks: {
+      usedCars: "İkinci el araba",
+      newCars: "Sıfır km araba",
+      electricVehicles: "Elektrikli araçlar",
+      automaticCars: "Otomatik vites",
+      suvVehicles: "SUV araçlar",
+      bmwListings: "BMW ilanları",
+      istanbulListings: "İstanbul araç ilanları",
+      izmirListings: "İzmir araç ilanları"
+    },
     appEyebrow: "Mobil uygulama",
     appTitle: "JOLCAR uygulamasını yakında indirin",
     appBody: "İlanları takip edin, favorilerinizi kaydedin ve aracınızı mobilde kolayca yönetin.",

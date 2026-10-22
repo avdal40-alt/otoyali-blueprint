@@ -5,27 +5,17 @@ import type { Locale } from "@/i18n/types";
 
 export function SeoEntryLinks({ locale = "tr" }: { locale?: Locale }) {
   const dictionary = getDictionary(locale);
-  const categoryLinks = locale === "en"
-    ? [
-        { label: "Used cars", href: "/ikinci-el-araba" },
-        { label: "New cars", href: "/sifir-km-araba" },
-        { label: "Electric vehicles", href: "/elektrikli-araclar" },
-        { label: "Automatic cars", href: "/otomatik-vites-araclar" },
-        { label: "SUV vehicles", href: "/suv-araclar" },
-        { label: "BMW listings", href: "/marka/bmw" },
-        { label: "İstanbul vehicle listings", href: "/sehir/istanbul" },
-        { label: "İzmir vehicle listings", href: "/sehir/izmir" }
-      ]
-    : [
-        { label: "İkinci el araba", href: "/ikinci-el-araba" },
-        { label: "Sıfır km araba", href: "/sifir-km-araba" },
-        { label: "Elektrikli araçlar", href: "/elektrikli-araclar" },
-        { label: "Otomatik vites", href: "/otomatik-vites-araclar" },
-        { label: "SUV araçlar", href: "/suv-araclar" },
-        { label: "BMW ilanları", href: "/marka/bmw" },
-        { label: "İstanbul araç ilanları", href: "/sehir/istanbul" },
-        { label: "İzmir araç ilanları", href: "/sehir/izmir" }
-      ];
+  const labels = dictionary.home.seoEntryLinks as Record<string, string>;
+  const categoryLinks = [
+    { label: labels.usedCars, href: "/ikinci-el-araba" },
+    { label: labels.newCars, href: "/sifir-km-araba" },
+    { label: labels.electricVehicles, href: "/elektrikli-araclar" },
+    { label: labels.automaticCars, href: "/otomatik-vites-araclar" },
+    { label: labels.suvVehicles, href: "/suv-araclar" },
+    { label: labels.bmwListings, href: "/marka/bmw" },
+    { label: labels.istanbulListings, href: "/sehir/istanbul" },
+    { label: labels.izmirListings, href: "/sehir/izmir" }
+  ];
 
   return (
     <section className="mt-10 rounded-oto border border-oto-border bg-white p-5 shadow-soft">

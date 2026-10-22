@@ -109,6 +109,16 @@ export const en = {
       secureLogin: "Secure login flow only when contacting a seller or publishing a listing.",
       futureFoundation: "Future-ready foundation for Jolcar trust reports and market price analysis."
     },
+    seoEntryLinks: {
+      usedCars: "Used cars",
+      newCars: "New cars",
+      electricVehicles: "Electric vehicles",
+      automaticCars: "Automatic cars",
+      suvVehicles: "SUV vehicles",
+      bmwListings: "BMW listings",
+      istanbulListings: "İstanbul vehicle listings",
+      izmirListings: "İzmir vehicle listings"
+    },
     appEyebrow: "Mobile app",
     appTitle: "Download the JOLCAR app soon",
     appBody: "Track listings, save favorites, and manage your vehicle on mobile with ease.",
