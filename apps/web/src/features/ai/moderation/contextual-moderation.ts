@@ -29,7 +29,7 @@ export async function moderateListingWithContext(input: ListingModerationText): 
 }
 
 export function localContextualModerationFixture(input: ContextualModerationProviderInput): ContextualModerationOutput {
-  const text = `${input.description ?? ""}\n${input.sellerNotes ?? ""}`.toLocaleLowerCase("tr-TR"); const field = input.description ? "description" : "seller_notes";
+  const text = `${input.description ?? ""}\n${input.sellerNotes ?? ""}`.normalize("NFKD").toLowerCase().replace(/\p{Diacritic}/gu, ""); const field = input.description ? "description" : "seller_notes";
   if (/ignore all previous|system:|return allow|\{.*allow/i.test(text)) return { signals: [], overallRecommendation: "allow" };
   if (/seni bulup|öldür|tehdit/i.test(text)) return { signals: [{ code: "THREAT", severity: "high", confidence: "high", field, evidence: "[explicit-threat]", recommendedAction: "review" }], overallRecommendation: "review" };
   if (/insan değil|haşere/i.test(text)) return { signals: [{ code: "HATE_OR_DEHUMANIZING_LANGUAGE", severity: "high", confidence: "high", field, evidence: "[dehumanizing-language]", recommendedAction: "review" }], overallRecommendation: "review" };
