@@ -12,7 +12,7 @@ import {
   hasSupabaseEnv,
 } from "@/lib/supabase/client";
 import { useI18n } from "@/i18n/client";
-import { localizePath } from "@/i18n/config";
+import { getIntlLocale, localizePath } from "@/i18n/config";
 
 type Message = {
   messageId: string;
@@ -302,7 +302,7 @@ export function ConversationClient({
             </p>
             <div className="mt-1 flex items-center justify-between gap-3 text-xs opacity-75">
               <time>
-                {new Intl.DateTimeFormat(locale === "en" ? "en-US" : "tr-TR", {
+                {new Intl.DateTimeFormat(getIntlLocale(locale), {
                   timeStyle: "short",
                 }).format(new Date(message.createdAt))}
               </time>

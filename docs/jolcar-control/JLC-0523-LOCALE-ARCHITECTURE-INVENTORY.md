@@ -34,7 +34,8 @@ must be migrated by domain slice:
 - profile, favorites, notifications, messages, settings, and video:
   `ProfileClient.tsx` (migrated: date formatting uses canonical locale metadata
   and seller-contact copy uses the dictionary), `FavoritesClient.tsx`, `NotificationsClient.tsx`,
-  `ConversationClient.tsx`, `SettingsClient.tsx`, `PublicVideoPlayer.tsx`,
+  `ConversationClient.tsx` (migrated: message time formatting uses canonical
+  locale metadata), `SettingsClient.tsx`, `PublicVideoPlayer.tsx`,
   and video pages;
 - dealer/service and AI support: `ServiceApplicationForm.tsx`, service public
   pages, `PriceIntelligenceCard.tsx`, AI providers/hooks/services;
