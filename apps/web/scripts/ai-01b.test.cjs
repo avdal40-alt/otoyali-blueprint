@@ -69,4 +69,9 @@ assert.equal(normalizeNaturalLanguageNumber("2.3 million KZT", "price", "en"), 2
 assert.equal(normalizeNaturalLanguageNumber("230 万 坚戈", "price", "zh-CN"), 2300000);
 assert.deepEqual(resolveSearchText("2 миллион 300 мың теңге дейін", { makes: [], models: [], variants: [], cities: [], districts: [] }, "kk").patch.values, { priceMax: 2300000 });
 assert.deepEqual(resolveSearchText("230 万 坚戈 以下", { makes: [], models: [], variants: [], cities: [], districts: [] }, "zh-CN").patch.values, { priceMax: 2300000 });
+const emptyCatalog = { makes: [], models: [], variants: [], cities: [], districts: [] };
+assert.deepEqual(resolveSearchText("автомат бензин с фото", emptyCatalog, "ru").patch.values, { fuel: "gasoline", transmission: "automatic", hasPhotos: true });
+assert.deepEqual(resolveSearchText("ең арзан қолмен дизель", emptyCatalog, "kk").patch.values, { fuel: "diesel", transmission: "manual", sort: "price_asc" });
+assert.deepEqual(resolveSearchText("带视频 自动 汽油", emptyCatalog, "zh-CN").patch.values, { fuel: "gasoline", transmission: "automatic", hasVideo: true });
+assert.equal(resolveSearchText("清除筛选", emptyCatalog, "zh-CN").patch.operation, "reset");
 console.log("AI-01B natural-language Search v1 adapter contract passed");

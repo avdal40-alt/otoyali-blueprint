@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DEFAULT_LOCALE, getIntlLocale } from "@/i18n/config";
+import { DEFAULT_LOCALE } from "@/i18n/config";
 import { getAiSearchMessages } from "@/i18n/dictionaries/ai-search";
 import type { Locale } from "@/i18n/types";
 
@@ -56,21 +56,21 @@ export function mergeSearchIntent(previous: SearchIntent, patch: SearchIntentPat
 export function resolveSearchText(text: string, catalog: SearchCatalog, locale: Locale = DEFAULT_LOCALE): { patch: SearchIntentPatch; clarification?: SearchClarification } {
   const messages = getAiSearchMessages(locale);
   const normalized = normalize(text, locale);
-  if (/(baştan başla|filtreleri temizle|reset search|start over)/.test(normalized)) return { patch: { operation: "reset" } };
-  if (/(doğrulanmış galeri|verified dealer)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "verifiedDealer", unsupported: true, message: messages.verifiedDealerUnavailable } };
-  if (/(hangisi en iyi|which is best|\bbetter\b)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "criteria", message: messages.compareCriteria } };
-  if (/(daha yeni|daha ucuz|düşük kilometre|newer|cheaper|low mileage)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "threshold", message: messages.threshold } };
+  if (/(baştan başla|filtreleri temizle|reset search|start over|сбросить поиск|очистить фильтры|іздеуді қалпына келтір|сүзгілерді тазала|重置搜索|清除筛选)/.test(normalized)) return { patch: { operation: "reset" } };
+  if (/(doğrulanmış galeri|verified dealer|проверенный дилер|расталған дилер|认证经销商)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "verifiedDealer", unsupported: true, message: messages.verifiedDealerUnavailable } };
+  if (/(hangisi en iyi|which is best|\bbetter\b|какой лучше|қайсысы жақсы|哪个更好)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "criteria", message: messages.compareCriteria } };
+  if (/(daha yeni|daha ucuz|düşük kilometre|newer|cheaper|low mileage|новее|дешевле|меньше пробег|жаңарақ|арзанырақ|аз жүрген|更新|更便宜|低里程)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "threshold", message: messages.threshold } };
   const values: Record<string, unknown> = { ...numericFilters(normalized, locale) };
-  if (/\b(dizel|diesel)\b/.test(normalized)) values.fuel = "diesel";
-  if (/\b(benzin|gasoline|petrol)\b/.test(normalized)) values.fuel = "gasoline";
-  if (/\b(elektrik|electric)\b/.test(normalized)) values.fuel = "electric";
-  if (/\b(otomatik|automatic)\b/.test(normalized)) values.transmission = "automatic";
-  if (/\b(manuel|manual)\b/.test(normalized)) values.transmission = "manual";
+  if (/(dizel|diesel|дизел|дизель|柴油)/.test(normalized)) values.fuel = "diesel";
+  if (/(benzin|gasoline|petrol|бензин|汽油)/.test(normalized)) values.fuel = "gasoline";
+  if (/(elektrik|electric|электр|электро|电动)/.test(normalized)) values.fuel = "electric";
+  if (/(otomatik|automatic|автомат|автоматты|自动)/.test(normalized)) values.transmission = "automatic";
+  if (/(manuel|manual|механик|қолмен|手动)/.test(normalized)) values.transmission = "manual";
   if (/\bsuv\b/.test(normalized)) values.bodyType = "suv";
-  if (/(video olan|with video|cars with video)/.test(normalized)) values.hasVideo = true;
-  if (/(fotoğraflı|with photos)/.test(normalized)) values.hasPhotos = true;
-  if (/(en ucuz|cheapest)/.test(normalized)) values.sort = "price_asc";
-  if (/(en yeni|newest)/.test(normalized)) values.sort = "newest";
+  if (/(video olan|with video|cars with video|с видео|бейнесі бар|带视频)/.test(normalized)) values.hasVideo = true;
+  if (/(fotoğraflı|with photos|с фото|фотосуреті бар|带照片)/.test(normalized)) values.hasPhotos = true;
+  if (/(en ucuz|cheapest|самый дешев|ең арзан|最便宜)/.test(normalized)) values.sort = "price_asc";
+  if (/(en yeni|newest|самый новый|ең жаңа|最新)/.test(normalized)) values.sort = "newest";
   const resolution = resolveNamedEntities(normalized, catalog, values, locale);
   return resolution.clarification ? { patch: { operation: "keep" }, clarification: resolution.clarification } : { patch: { operation: "set", values: searchIntentObject.partial().parse(values) } };
 }
@@ -134,6 +134,6 @@ function numericFilters(text: string, locale: Locale) {
   if (year) values.yearMin = Number(year[1]) + (/newer than|кейін|кеиін/.test(text) ? 1 : 0);
   return values;
 }
-function normalize(value: string, locale: Locale) { return value.toLocaleLowerCase(getIntlLocale(locale)).normalize("NFKD").replace(/\p{Diacritic}/gu, ""); }
+function normalize(value: string, _locale: Locale) { return value.normalize("NFKD").toLowerCase().replace(/\p{Diacritic}/gu, ""); }
 function compact<T extends Record<string, unknown>>(value: T) { return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined && (!Array.isArray(item) || item.length))); }
 function list(value: unknown) { return value === undefined ? [] : [value]; }
