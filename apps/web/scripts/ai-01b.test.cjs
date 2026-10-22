@@ -1,6 +1,8 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const Module = require("node:module");
+const ts = require("typescript");
 const root = path.resolve(__dirname, "..");
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
 const intent = read("src", "features", "ai", "search", "search-intent.ts");
@@ -19,6 +21,10 @@ assert.match(intent, /mapSearchIntentToSearchV1/);
 assert.match(intent, /has_video/);
 assert.match(intent, /verifiedDealer[\s\S]*unsupported: true/);
 assert.match(intent, /milyon|million/);
+assert.match(intent, /теңге/);
+assert.match(intent, /мың/);
+assert.match(intent, /坚戈/);
+assert.doesNotMatch(intent, /\btry\b|\btl\b/i);
 assert.match(intent, /mileageMax/);
 assert.match(intent, /getAiSearchMessages/);
 assert.doesNotMatch(intent, /The model does not belong to the selected make/);
@@ -38,4 +44,29 @@ assert.doesNotMatch(service, /cover_image_url/);
 assert.match(validator, /searchIntentSchema\.safeParse/);
 assert.match(route, /deriveAiActor/);
 assert.match(route, /getAiRateLimiter/);
+
+const compiledIntent = ts.transpileModule(intent, {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+}).outputText;
+const intentModule = new Module(path.join(root, "src", "features", "ai", "search", "search-intent.ts"));
+intentModule.filename = path.join(root, "src", "features", "ai", "search", "search-intent.ts");
+intentModule.paths = Module._nodeModulePaths(path.dirname(intentModule.filename));
+const load = Module._load;
+Module._load = (request, parent, isMain) => {
+  if (request === "@/i18n/config") return { DEFAULT_LOCALE: "en", getIntlLocale: (locale) => ({ ru: "ru-KZ", kk: "kk-KZ", "zh-CN": "zh-CN" }[locale] ?? "en-US") };
+  if (request === "@/i18n/dictionaries/ai-search") return { getAiSearchMessages: () => ({ verifiedDealerUnavailable: "", compareCriteria: "", threshold: "", clarifyEntity: () => "", modelDoesNotMatchMake: "", variantDoesNotMatchModel: "", districtDoesNotMatchCity: "" }) };
+  if (request === "@/i18n/types") return {};
+  return load(request, parent, isMain);
+};
+try {
+  intentModule._compile(compiledIntent, intentModule.filename);
+} finally {
+  Module._load = load;
+}
+const { normalizeNaturalLanguageNumber, resolveSearchText } = intentModule.exports;
+assert.equal(normalizeNaturalLanguageNumber("2 миллион 300 мың теңге", "price", "kk"), 2300000);
+assert.equal(normalizeNaturalLanguageNumber("2.3 million KZT", "price", "en"), 2300000);
+assert.equal(normalizeNaturalLanguageNumber("230 万 坚戈", "price", "zh-CN"), 2300000);
+assert.deepEqual(resolveSearchText("2 миллион 300 мың теңге дейін", { makes: [], models: [], variants: [], cities: [], districts: [] }, "kk").patch.values, { priceMax: 2300000 });
+assert.deepEqual(resolveSearchText("230 万 坚戈 以下", { makes: [], models: [], variants: [], cities: [], districts: [] }, "zh-CN").patch.values, { priceMax: 2300000 });
 console.log("AI-01B natural-language Search v1 adapter contract passed");

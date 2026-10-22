@@ -16,8 +16,10 @@ must be migrated by domain slice:
   rules remain (`HomeTrustSection.tsx`, `SeoEntryLinks.tsx`,
   `ActiveFilterChips.tsx` UI labels, `SearchBar.tsx`, `SavedSearchButton.tsx`,
   `SearchFilters.tsx`, and AI Search result, availability, clarification, and
-  catalog-validation messages migrated to canonical dictionary domains; legacy
-  tr/en value-formatters and language-recognition rules remain for the
+  catalog-validation messages migrated to canonical dictionary domains;
+  Kazakhstan price and mileage semantic recognition now covers Russian,
+  Kazakh, English, and Simplified Chinese KZT/tenge terms, while remaining
+  intent vocabulary and legacy tr/en value-formatters remain for the
   four-real-dictionary expansion);
 - listing cards and dealer detail: `VehicleCard.tsx` (migrated: the video badge
   now uses canonical common dictionary copy), `ReportListingButton.tsx`
