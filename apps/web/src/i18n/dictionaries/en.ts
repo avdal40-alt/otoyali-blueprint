@@ -375,7 +375,10 @@ export const en = {
     seeListing: "View listing",
     browseListings: "Browse listings",
     login: "Log in",
-    contentProvided: "Video content is provided by the seller."
+    contentProvided: "Video content is provided by the seller.",
+    playbackError: "Video could not be played.",
+    retryPlayback: "Retry playback",
+    detailsComingSoon: "Vehicle details coming soon"
   },
   services: {
     seo: {

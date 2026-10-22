@@ -105,7 +105,7 @@ function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
   return (
     <article className="overflow-hidden rounded-oto border border-oto-border bg-white shadow-oto">
       <div className="relative bg-black">
-        <PublicVideoPlayer src={video.video_url || undefined} poster={poster} listingId={video.listing_id} videoId={video.video_id} locale={locale} errorLabel={locale === "en" ? "Video could not be played." : "Video oynatılamadı."} retryLabel={locale === "en" ? "Retry playback" : "Oynatmayı tekrar dene"} />
+        <PublicVideoPlayer src={video.video_url || undefined} poster={poster} listingId={video.listing_id} videoId={video.video_id} locale={locale} errorLabel={String(dictionary.video.playbackError)} retryLabel={String(dictionary.video.retryPlayback)} />
         {video.seller_type === "dealer" ? (
           <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-oto-blue shadow-soft">
             {String(dictionary.status.dealer)}
@@ -132,7 +132,7 @@ function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
             <p className="line-clamp-1 text-sm font-black text-oto-text">{video.listing_title}</p>
           ) : null}
           <p className="text-base font-black text-oto-text">{formatPrice(video.price_amount, video.currency, locale)}</p>
-          <p className="mt-1 text-xs font-bold text-oto-muted">{details.join(" · ") || (locale === "en" ? "Vehicle details coming soon" : "Araç bilgileri yakında")}</p>
+          <p className="mt-1 text-xs font-bold text-oto-muted">{details.join(" · ") || String(dictionary.video.detailsComingSoon)}</p>
         </div>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_1.45fr_1fr]">

@@ -375,7 +375,10 @@ export const tr = {
     seeListing: "İlanı gör",
     browseListings: "İlanlara bak",
     login: "Giriş yap",
-    contentProvided: "Video içeriği satıcı tarafından sağlanmıştır."
+    contentProvided: "Video içeriği satıcı tarafından sağlanmıştır.",
+    playbackError: "Video oynatılamadı.",
+    retryPlayback: "Oynatmayı tekrar dene",
+    detailsComingSoon: "Araç bilgileri yakında"
   },
   services: {
     seo: {
