@@ -1,6 +1,7 @@
-import { DEFAULT_LOCALE, normalizeLocale } from "@/i18n/config";
+import { DEFAULT_LOCALE, isKnownLocale, isSupportedLocale, normalizeLocale } from "@/i18n/config";
+import { getFormatFallbackMessages } from "@/i18n/dictionaries/format-fallbacks";
 import { t } from "@/i18n/get-dictionary";
-import type { Locale } from "@/i18n/types";
+import type { Locale, LocaleId } from "@/i18n/types";
 import { CURRENT_MARKET } from "@/lib/market";
 import type { CurrencyPlacement, MarketProfile } from "@/lib/market";
 import { getCityLabel } from "@/lib/location";
@@ -9,7 +10,7 @@ export function formatCurrency(amount?: number | null, currency: string | null |
   const normalizedLocale = resolveFormatLocale(locale);
   const context = resolveFormatContext(normalizedLocale, market);
   if (!context || !isFiniteNumber(amount)) {
-    return t(normalizedLocale, "format.priceNotProvided");
+    return getFormatFallbackMessages(normalizedLocale).priceNotProvided;
   }
 
   const rounded = Math.round(Number(amount));
@@ -34,7 +35,7 @@ export function formatNumber(value?: number | null, locale?: string | null, mark
 export function formatMileage(km?: number | null, locale?: string | null, market: MarketProfile = CURRENT_MARKET) {
   const normalizedLocale = resolveFormatLocale(locale);
   if (!resolveFormatContext(normalizedLocale, market) || !isFiniteNumber(km)) {
-    return t(normalizedLocale, "format.noInfo");
+    return getFormatFallbackMessages(normalizedLocale).noInfo;
   }
 
   return `${formatNumber(Number(km), normalizedLocale, market)} km`;
@@ -116,7 +117,7 @@ export function colorLabel(value?: string | null, locale?: string | null) {
 
 export function cityLabel(value?: string | null, locale?: string | null) {
   const normalizedLocale = resolveFormatLocale(locale);
-  return value ? getCityLabel(value) : t(normalizedLocale, "format.locationUnknown");
+  return value ? getCityLabel(value) : getFormatFallbackMessages(normalizedLocale).locationUnknown;
 }
 
 export function titleCase(value: string) {
@@ -140,16 +141,17 @@ const enumLabelValues = {
 
 function enumLabel(group: keyof typeof enumLabelValues, value?: string | null, locale?: string | null) {
   const normalizedLocale = resolveFormatLocale(locale);
-  if (!value) return t(normalizedLocale, "format.noInfo");
+  if (!value) return getFormatFallbackMessages(normalizedLocale).noInfo;
   const normalizedValue = value.toLocaleLowerCase("en-US");
   if (enumLabelValues[group].includes(normalizedValue as never)) {
-    return t(normalizedLocale, `format.enumLabels.${group}.${normalizedValue}`);
+    return t(isSupportedLocale(normalizedLocale) ? normalizedLocale : DEFAULT_LOCALE, `format.enumLabels.${group}.${normalizedValue}`);
   }
 
   return titleCase(value.replace(/_/g, " "));
 }
 
-function resolveFormatLocale(locale?: string | null): Locale {
+function resolveFormatLocale(locale?: string | null): LocaleId {
+  if (locale && isKnownLocale(locale)) return locale;
   if (locale) return normalizeLocale(locale);
 
   if (typeof document !== "undefined") {
@@ -175,7 +177,7 @@ type FormatContext = {
   currencyPlacement: CurrencyPlacement;
 };
 
-function resolveFormatContext(locale: Locale, market: MarketProfile): FormatContext | null {
+function resolveFormatContext(locale: LocaleId, market: MarketProfile): FormatContext | null {
   const formatting = market?.formatting;
   if (!formatting || typeof formatting !== "object") return null;
 

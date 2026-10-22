@@ -23,8 +23,11 @@ const location = loadTypeScriptModule(read("src", "lib", "location.ts"), "locati
 const format = loadTypeScriptModule(read("src", "lib", "format.ts"), "format.ts", {
   "@/i18n/config": {
     DEFAULT_LOCALE: "tr",
+    isKnownLocale: (locale) => ["tr", "en", "ru", "kk", "zh-CN"].includes(locale),
+    isSupportedLocale: (locale) => ["tr", "en"].includes(locale),
     normalizeLocale: (locale) => (String(locale ?? "").toLowerCase().startsWith("en") ? "en" : "tr")
   },
+  "@/i18n/dictionaries/format-fallbacks": { getFormatFallbackMessages: (locale) => ({ priceNotProvided: `${locale} price`, noInfo: `${locale} no info` }) },
   "@/i18n/get-dictionary": {
     t: (locale, key) => key === "format.priceNotProvided" ? (locale === "en" ? "Price not provided" : "Fiyat belirtilmedi") : "Bilgi yok"
   },
@@ -48,8 +51,10 @@ assert.equal(
 
 const invalidMarket = { ...kazakhstan, formatting: { ...kazakhstan.formatting, defaultIntlLocale: "not a locale" } };
 assert.doesNotThrow(() => format.formatCurrency(1, "KZT", "tr", invalidMarket));
-assert.equal(format.formatCurrency(1, "KZT", "tr", invalidMarket), "Fiyat belirtilmedi");
+assert.equal(format.formatCurrency(1, "KZT", "tr", invalidMarket), "tr price");
 assert.equal(format.formatNumber(1, "tr", invalidMarket), "");
 assert.equal(format.formatDate("2026-10-10", "tr", invalidMarket), "");
+assert.equal(format.formatNumber(1234567, "kk", kazakhstan), new Intl.NumberFormat("kk-KZ", { maximumFractionDigits: 0 }).format(1234567));
+assert.equal(format.formatDate("2026-10-10T00:00:00.000Z", "zh-CN", kazakhstan), new Intl.DateTimeFormat("zh-CN", { day: "2-digit", month: "short", year: "numeric" }).format(new Date("2026-10-10T00:00:00.000Z")));
 
 console.log("Country-aware formatter tests passed.");

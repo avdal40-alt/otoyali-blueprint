@@ -71,8 +71,11 @@ must be migrated by domain slice:
   case normalization rather than Turkish collation, preserving its existing
   anti-fraud and privacy contract;
 - formatting and shared enum labels: `src/lib/format.ts` vehicle enum labels
-  migrated to the canonical `format.enumLabels` dictionary domain; date,
-  number, currency, city, and relative-date presentation remain;
+  migrated to the canonical `format.enumLabels` dictionary domain; known future
+  locale identities now flow through market-specific Intl date, number, and
+  currency formatting (with direct translated no-data fallbacks) rather than
+  being narrowed to the released Turkish/English registry; enum-label expansion
+  remains;
 - API validation and metadata: locale validation in API routes plus all
   canonical, hreflang, sitemap, and metadata route producers.
 
