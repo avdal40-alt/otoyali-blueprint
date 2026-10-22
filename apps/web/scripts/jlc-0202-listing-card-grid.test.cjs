@@ -19,5 +19,6 @@ assert.match(safeImage, /loading=\{priority \? "eager" : "lazy"\}/);
 assert.match(vehicleGrid, /"grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-4"/);
 assert.match(vehicleGrid, /"grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"/);
 assert.match(vehicleGrid, /<VehicleCard key=\{listing\.listing_id\}/);
+assert.match(vehicleCard, /dictionary\.common\.video/);
 
 console.log("JLC-0202 listing-card ratio and stable-grid contract checks passed");

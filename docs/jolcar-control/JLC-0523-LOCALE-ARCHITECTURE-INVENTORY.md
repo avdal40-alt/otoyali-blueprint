@@ -18,9 +18,10 @@ must be migrated by domain slice:
   `SearchFilters.tsx`, and AI search result summary migrated to canonical
   dictionary domains; legacy tr/en value-formatters and language-recognition
   rules remain for the four-real-dictionary expansion);
-- listing and dealer detail: `ReportListingButton.tsx` (migrated to
-  dictionaries in the first slice), `ShareListingButton.tsx`, listing/detail
-  controls, and public dealer pages;
+- listing cards and dealer detail: `VehicleCard.tsx` (migrated: the video badge
+  now uses canonical common dictionary copy), `ReportListingButton.tsx`
+  (migrated to dictionaries in the first slice), `ShareListingButton.tsx`,
+  listing/detail controls, and public dealer pages;
 - seller listing/video flows: `ListingVideoManager.tsx`,
   `my-listings-copy.ts` (migrated: the seller listing UI and safe lifecycle
   error mapper now use the canonical `myListings` dictionary domain rather
