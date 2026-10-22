@@ -74,7 +74,7 @@ async function loadOwnEditableDraft(authenticated: AuthenticatedRequestSupabase,
 }
 
 function extractDeterministicPatch(message: string, current: SellDraft): SellDraftPatch {
-  const text = message.toLocaleLowerCase("tr-TR"); const changes: SellDraftPatch["changes"] = [];
+  const text = message.normalize("NFKD").toLowerCase().replace(/\p{Diacritic}/gu, ""); const changes: SellDraftPatch["changes"] = [];
   const mileage = /(?:kilometre|km)\D{0,24}([\d.,]+\s*(?:bin|k)?)/i.exec(message); if (mileage) { const value = normalizeSellNumber(mileage[1], "mileage"); if (value !== null) changes.push({ field: "mileageKm", operation: "set", value }); }
   const price = /(?:fiyat|price)\D{0,24}([\d.,]+\s*(?:(?:milyon|million|bin|thousand|m))?(?:\s+\d+\s*(?:bin|thousand))?)/i.exec(message); if (price) { const value = normalizeSellNumber(price[1], "price"); if (value && value > 0) changes.push({ field: "priceAmount", operation: "set", value: String(value) }); }
   const year = /\b(19\d{2}|20\d{2})\b/.exec(message); if (year) changes.push({ field: "year", operation: "set", value: Number(year[1]) });
