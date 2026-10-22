@@ -45,9 +45,9 @@ must be migrated by domain slice:
   lives in `i18n/dictionaries/ai-sell-draft.ts`), and `sell-runtime.ts`;
 - profile, favorites, notifications, messages, settings, and video:
   `ProfileClient.tsx` (migrated: date formatting uses canonical locale metadata
-  and seller-contact copy uses the dictionary), `FavoritesClient.tsx`, `NotificationsClient.tsx`,
-  (migrated: notification labels are dictionary backed and dates use canonical
-  locale metadata),
+  and seller-contact copy uses the dictionary), `FavoritesClient.tsx`,
+  `NotificationsClient.tsx` (migrated: notification labels are dictionary backed
+  and dates use canonical locale metadata),
   `ConversationClient.tsx` (migrated: message time formatting uses canonical
   locale metadata), `SettingsClient.tsx` (migrated: form copy is dictionary
   backed and the language selector reads released registry locales),
