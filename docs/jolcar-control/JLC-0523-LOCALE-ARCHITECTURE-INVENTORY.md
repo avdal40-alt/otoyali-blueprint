@@ -32,7 +32,8 @@ must be migrated by domain slice:
   `features/ai/sell/sell-draft.ts` (migrated: question and ambiguity copy now
   lives in `i18n/dictionaries/ai-sell-draft.ts`), and `sell-runtime.ts`;
 - profile, favorites, notifications, messages, settings, and video:
-  `ProfileClient.tsx`, `FavoritesClient.tsx`, `NotificationsClient.tsx`,
+  `ProfileClient.tsx` (migrated: date formatting uses canonical locale metadata
+  and seller-contact copy uses the dictionary), `FavoritesClient.tsx`, `NotificationsClient.tsx`,
   `ConversationClient.tsx`, `SettingsClient.tsx`, `PublicVideoPlayer.tsx`,
   and video pages;
 - dealer/service and AI support: `ServiceApplicationForm.tsx`, service public

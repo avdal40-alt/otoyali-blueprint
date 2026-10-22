@@ -8,7 +8,7 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { useI18n } from "@/i18n/client";
-import { localizePath } from "@/i18n/config";
+import { getIntlLocale, localizePath } from "@/i18n/config";
 import { normalizeStoredAuthPhoneToE164 } from "@/lib/auth/phone";
 import { cityLabel } from "@/lib/format";
 
@@ -133,6 +133,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   }
 
   const isDealer = profile?.seller_type === "dealer";
+  const sellerContactsCopy = dictionary.profile.sellerContacts as Record<string, string>;
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
@@ -144,7 +145,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
           <p>{String(dictionary.profile.accountId)}: <span className="text-oto-text">{userId.slice(0, 8)}...{userId.slice(-4)}</span></p>
           <p>{String(dictionary.profile.phone)}: <span className="text-oto-text">{maskPhone(profile?.phone, String(dictionary.profile.noPhone))}</span></p>
           <p>{String(dictionary.profile.listingCount)}: <span className="text-oto-text">{listingCount ?? 0}</span></p>
-          <p>{String(dictionary.profile.createdAt)}: <span className="text-oto-text">{createdAt ? new Intl.DateTimeFormat(locale === "en" ? "en-US" : "tr-TR").format(new Date(createdAt)) : String(dictionary.common.noInfo)}</span></p>
+          <p>{String(dictionary.profile.createdAt)}: <span className="text-oto-text">{createdAt ? new Intl.DateTimeFormat(getIntlLocale(locale)).format(new Date(createdAt)) : String(dictionary.common.noInfo)}</span></p>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-2">
@@ -191,7 +192,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
       </section>
       <aside className="grid h-fit gap-3 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
         <ButtonLink href={localizePath("/my-listings", locale)} variant="secondary">{String(dictionary.navigation.myListings)}</ButtonLink>
-        <ButtonLink href={localizePath("/profile/seller-contacts", locale)} variant="secondary">{locale === "tr" ? "Satıcı iletişim numaraları" : "Seller contact numbers"}</ButtonLink>
+        <ButtonLink href={localizePath("/profile/seller-contacts", locale)} variant="secondary">{sellerContactsCopy.title}</ButtonLink>
         <ButtonLink href={localizePath("/favorites", locale)} variant="secondary">{String(dictionary.navigation.favorites)}</ButtonLink>
         <ButtonLink href={localizePath("/profile/messages", locale)} variant="secondary">{String(dictionary.navigation.messages)}</ButtonLink>
         <ButtonLink href={localizePath("/notifications", locale)} variant="secondary">{String(dictionary.navigation.notifications)}</ButtonLink>
