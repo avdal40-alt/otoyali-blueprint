@@ -38,7 +38,7 @@ const urlSuffixes = "com|net|org|info|biz|io|co|ru|kz|tr|de|uk";
 
 /** Detection-only representation. The caller's original seller text is never mutated or returned. */
 export function normalizeModerationText(value: string): NormalizedText {
-  const unicode = value.normalize("NFKC").toLocaleLowerCase("tr-TR").replace(/[\u0300-\u036f]/g, "");
+  const unicode = value.normalize("NFKC").toLowerCase().replace(/[\u0300-\u036f]/g, "");
   const mapped = Array.from(unicode, (character) => confusables[character] ?? leet[character] ?? character).join("");
   const normalized = mapped.replace(/(.)\1{2,}/gu, "$1").replace(/[^\p{L}\p{N}]+/gu, " ").trim().replace(/\s+/g, " ");
   const rawSegments = mapped.split(/\s+/).filter(Boolean);
