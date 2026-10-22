@@ -198,7 +198,20 @@ export const tr = {
     safetyCopy: "JOLCAR, araç alım satımını daha güvenli ve kolay hale getirir.",
     listingRules: "İlan kurallarını incele",
     safeShopping: "Güvenli alışveriş önerileri",
-    reportListing: "İlanı bildir"
+    reportListing: "İlanı bildir",
+    reportHelp: "Bu ilanda hatalı bilgi, şüpheli durum veya uygunsuz içerik olduğunu düşünüyorsanız bize bildirin.",
+    reportReasonLabel: "Sebep",
+    reportReasonWrongInformation: "Yanlış bilgi",
+    reportReasonFraud: "Dolandırıcılık şüphesi",
+    reportReasonDuplicate: "Tekrarlanan ilan",
+    reportReasonInappropriateContent: "Uygunsuz içerik",
+    reportReasonSuspiciousSeller: "Şüpheli satıcı",
+    reportReasonOther: "Diğer",
+    reportDescriptionLabel: "Açıklama",
+    reportLogin: "Bildirim göndermek için giriş yapın.",
+    reportSending: "Gönderiliyor",
+    reportSubmit: "Bildir",
+    reportSuccess: "Bildiriminiz alındı. Jolcar ekibi inceleyecek."
   },
   sell: {
     title: "İlan yayınla",

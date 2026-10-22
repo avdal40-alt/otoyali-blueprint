@@ -198,7 +198,20 @@ export const en = {
     safetyCopy: "JOLCAR helps make vehicle buying and selling safer and easier.",
     listingRules: "Review listing rules",
     safeShopping: "Safe shopping tips",
-    reportListing: "Report listing"
+    reportListing: "Report listing",
+    reportHelp: "Tell us if you think this listing contains incorrect information, suspicious behavior, or inappropriate content.",
+    reportReasonLabel: "Reason",
+    reportReasonWrongInformation: "Incorrect information",
+    reportReasonFraud: "Suspected fraud",
+    reportReasonDuplicate: "Duplicate listing",
+    reportReasonInappropriateContent: "Inappropriate content",
+    reportReasonSuspiciousSeller: "Suspicious seller",
+    reportReasonOther: "Other",
+    reportDescriptionLabel: "Description",
+    reportLogin: "Log in to send a report.",
+    reportSending: "Sending",
+    reportSubmit: "Report",
+    reportSuccess: "Your report has been received. The Jolcar team will review it."
   },
   sell: {
     title: "Publish listing",

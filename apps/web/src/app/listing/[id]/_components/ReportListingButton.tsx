@@ -16,25 +16,6 @@ const reasonValues = [
   "other"
 ] as const;
 
-const reasonLabels = {
-  tr: {
-    wrong_information: "Yanlış bilgi",
-    fraud: "Dolandırıcılık şüphesi",
-    duplicate: "Tekrarlanan ilan",
-    inappropriate_content: "Uygunsuz içerik",
-    suspicious_seller: "Şüpheli satıcı",
-    other: "Diğer"
-  },
-  en: {
-    wrong_information: "Incorrect information",
-    fraud: "Suspected fraud",
-    duplicate: "Duplicate listing",
-    inappropriate_content: "Inappropriate content",
-    suspicious_seller: "Suspicious seller",
-    other: "Other"
-  }
-};
-
 export function ReportListingButton({ listingId }: { listingId: string }) {
   const { locale, dictionary } = useI18n();
   const [open, setOpen] = useState(false);
@@ -81,7 +62,7 @@ export function ReportListingButton({ listingId }: { listingId: string }) {
 
     setStatus("success");
     setDescription("");
-    setMessage(locale === "en" ? "Your report has been received. The Jolcar team will review it." : "Bildiriminiz alındı. Jolcar ekibi inceleyecek.");
+    setMessage(String(dictionary.listing.reportSuccess));
   }
 
   return (
@@ -90,33 +71,31 @@ export function ReportListingButton({ listingId }: { listingId: string }) {
         {String(dictionary.listing.reportListing)}
       </button>
       <p className="mt-2 text-sm leading-6 text-oto-muted">
-        {locale === "en"
-          ? "Tell us if you think this listing contains incorrect information, suspicious behavior, or inappropriate content."
-          : "Bu ilanda hatalı bilgi, şüpheli durum veya uygunsuz içerik olduğunu düşünüyorsanız bize bildirin."}
+        {String(dictionary.listing.reportHelp)}
       </p>
 
       {open ? (
         <form onSubmit={submit} className="mt-4 grid gap-3">
           <label className="grid gap-1 text-sm font-bold text-oto-text">
-            {locale === "en" ? "Reason" : "Sebep"}
+            {String(dictionary.listing.reportReasonLabel)}
             <select value={reason} onChange={(event) => setReason(event.target.value as (typeof reasonValues)[number])} className="h-11 rounded-md border border-oto-border bg-white px-3">
               {reasonValues.map((item) => (
-                <option key={item} value={item}>{reasonLabels[locale][item]}</option>
+                <option key={item} value={item}>{String(dictionary.listing[`reportReason${item.split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join("")}`])}</option>
               ))}
             </select>
           </label>
           <label className="grid gap-1 text-sm font-bold text-oto-text">
-            {locale === "en" ? "Description" : "Açıklama"}
+            {String(dictionary.listing.reportDescriptionLabel)}
             <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={3} className="rounded-md border border-oto-border bg-white p-3" />
           </label>
           {status === "login" ? (
             <Link href={loginHref} className="text-sm font-black text-oto-blue">
-              {locale === "en" ? "Log in to send a report." : "Bildirim göndermek için giriş yapın."}
+              {String(dictionary.listing.reportLogin)}
             </Link>
           ) : null}
           {message ? <p className={status === "success" ? "text-sm font-bold text-emerald-700" : "text-sm font-bold text-oto-danger"}>{message}</p> : null}
           <Button type="submit" disabled={status === "checking" || status === "submitting"}>
-            {status === "submitting" ? (locale === "en" ? "Sending" : "Gönderiliyor") : (locale === "en" ? "Report" : "Bildir")}
+            {status === "submitting" ? String(dictionary.listing.reportSending) : String(dictionary.listing.reportSubmit)}
           </Button>
         </form>
       ) : null}

@@ -3958,8 +3958,56 @@
       "notes": "Production application remains pending remote migration-history verification and approved read-only post-apply checks; production stays paused."
     },
     {
-      "id": "JLC-0110",
+      "id": "JLC-0522",
       "order": 145,
+      "phase": "P15-PRODUCTION-ENGINEERING-HARDENING",
+      "title": "Kazakhstan seller write isolation",
+      "priority": "P0",
+      "type": "security",
+      "status": "completed_local_pending_production",
+      "release_gate": true,
+      "dependencies": ["JLC-0516", "JLC-0517", "JLC-0519", "JLC-0520", "JLC-0521"],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Bind canonical listing creation and market-sensitive city/currency updates to a trusted Kazakhstan city and KZT at the database boundary.",
+      "acceptance_criteria": [
+        "new Kazakhstan listing state requires marketplace.cities.country_code = KZ and KZT",
+        "a browser-supplied TR city or non-KZT currency cannot create or convert a Jolmod listing",
+        "historical TR rows remain unchanged and lifecycle-only updates retain their identity",
+        "existing listing privacy, media, staff, and publication invariants remain intact"
+      ],
+      "verification": ["test:jlc-0522", "test:jlc-0521", "typecheck", "migration-check", "git diff --check"],
+      "evidence": "2026-10-22 local migration 20261022064213_jlc_0522_kazakhstan_seller_write_isolation.sql adds a BEFORE INSERT/market-field UPDATE trigger. The deterministic fixture proves a KZ/KZT listing succeeds while TR-city, TRY, and USD changes fail closed and preserve the original KZ identity. JLC-0521 was rerun against a fixture containing a pre-existing TR listing and remains green. No remote database action or production deployment occurred.",
+      "notes": "The trigger covers every current and legacy mutation path that inserts listings or changes city_id/currency; unrelated lifecycle updates do not rewrite historical TR state. Production remains pending history verification and post-apply read-only checks."
+    },
+    {
+      "id": "JLC-0523",
+      "order": 146,
+      "phase": "P15-PRODUCTION-ENGINEERING-HARDENING",
+      "title": "Jolmod four-language localization architecture",
+      "priority": "P0",
+      "type": "implementation",
+      "status": "in_progress",
+      "release_gate": true,
+      "dependencies": ["JLC-0107", "JLC-0110"],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Migrate embedded Turkish/English UI maps into the canonical dictionary contract before releasing Russian, Kazakh, English, and Simplified Chinese for Jolmod Kazakhstan.",
+      "acceptance_criteria": [
+        "Russian is the default and fallback locale",
+        "Kazakh, English, and Simplified Chinese share the same KZ marketplace context",
+        "no Jolmod surface falls back to Turkish",
+        "all embedded two-locale UI maps are replaced by canonical dictionary usage before registry activation"
+      ],
+      "verification": ["domain-slice localization tests", "typecheck", "lint", "locale routing and KZ-context runtime checks"],
+      "evidence": "2026-10-22 inventory recorded remaining embedded tr/en maps. The shared layout language switcher now renders registry-native labels, and the listing report control now uses dictionary keys instead of a component-local tr/en map. Four-language registry activation remains intentionally deferred until all affected domains have real Russian, Kazakh, and Simplified Chinese dictionary coverage.",
+      "notes": "No placeholder dictionaries, Turkish fallbacks, or TypeScript bypasses are permitted."
+    },
+    {
+      "id": "JLC-0110",
+      "order": 147,
       "phase": "P1-MULTICOUNTRY",
       "title": "Activate Kazakhstan market with trusted Turkey/Kazakhstan isolation",
       "priority": "P0",
