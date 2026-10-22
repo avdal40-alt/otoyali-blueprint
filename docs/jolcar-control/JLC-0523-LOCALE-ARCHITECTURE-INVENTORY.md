@@ -65,7 +65,9 @@ must be migrated by domain slice:
   public listing-expert availability, fact, comparison, and criterion messages
   now use `i18n/dictionaries/ai-listing-expert.ts` with direct RU/KK/EN/zh-CN
   launch copy, and its deterministic comparison criteria recognize those four
-  launch languages without changing the public-data-only comparison boundary;
+  launch languages; fact selection also recognizes common launch-language
+  synonyms for transmission, mileage, engine displacement, price, city, and
+  seller without changing the public-data-only comparison boundary;
   `features/ai/providers/local-provider.ts` now sources its service, search,
   publishing, and trust guidance lists from `ai-local-provider.ts` with direct
   RU/KK/EN/zh-CN launch copy; its deterministic unsupported-intent recognition

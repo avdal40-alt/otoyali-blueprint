@@ -2,6 +2,6 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs"); const path = require("node:path"); const root = path.resolve(__dirname, "..");
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
 const expert = read("src", "features", "ai", "listing", "listing-expert.ts"); const service = read("src", "features", "ai", "services", "assistant-service.ts");
-assert.match(expert, /getListingDetails/); assert.match(expert, /compareListingIdsSchema/); assert.match(expert, /\.min\(2\)\.max\(4\)/); assert.match(expert, /comparisonMatrix/); assert.match(expert, /getAiListingExpertMessages/); assert.match(expert, /пробег|жүріс|里程/); assert.match(expert, /какой лучше|қайсысы жақсы|哪个更好/); assert.match(expert, /missingFields/);
+assert.match(expert, /getListingDetails/); assert.match(expert, /compareListingIdsSchema/); assert.match(expert, /\.min\(2\)\.max\(4\)/); assert.match(expert, /comparisonMatrix/); assert.match(expert, /getAiListingExpertMessages/); assert.match(expert, /пробег|одометр|жүріс|қорап|变速|排量|价格/); assert.match(expert, /какой лучше|қайсысы жақсы|哪个更好/); assert.match(expert, /missingFields/);
 assert.doesNotMatch(expert, /seller_contact|service_role|cover_image_url|seller_id|vin|plate|moderation/i); assert.match(service, /executeListingExpert/);
 console.log("AI-01C listing expert and public comparison contract passed");
