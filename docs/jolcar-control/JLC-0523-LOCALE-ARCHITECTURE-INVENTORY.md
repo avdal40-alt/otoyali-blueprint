@@ -89,6 +89,9 @@ must be migrated by domain slice:
   explicitly stored historical currency is preserved during edit;
 - seller wizard location: the empty new-listing city fallback now uses the
   active Kazakhstan location dataset instead of a legacy Turkey city list;
+- seller wizard profile fallback: absent country and timezone now source the
+  active market profile (KZ and Asia/Almaty) without altering stored seller
+  profiles;
 - seller AI assistance: its authenticated request schema, deterministic
   question/description templates, and ambiguity recognition now accept the
   prepared RU/KK/EN/zh-CN launch set without negotiating or exposing future

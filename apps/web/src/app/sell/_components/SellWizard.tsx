@@ -1552,8 +1552,8 @@ function toSellerProfile(profile: Profile | null, authPhone: string, locale: str
     city: profile?.city ?? "",
     sellerType: profile?.seller_type ?? "private",
     language: profile?.language ?? locale,
-    country: profile?.country ?? "TR",
-    timezone: profile?.timezone ?? "Europe/Istanbul"
+    country: profile?.country ?? CURRENT_MARKET.countryCode,
+    timezone: profile?.timezone ?? CURRENT_MARKET.defaultTimeZone
   };
 }
 
