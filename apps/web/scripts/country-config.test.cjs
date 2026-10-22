@@ -18,6 +18,7 @@ function loadTypeScriptModule(source, fileName) {
 
 const market = loadTypeScriptModule(read("src", "lib", "market.ts"), "market.ts");
 const marketSource = read("src", "lib", "market.ts");
+const sellWizardSource = read("src", "app", "sell", "_components", "SellWizard.tsx");
 const i18n = loadTypeScriptModule(read("src", "i18n", "config.ts"), "config.ts");
 const metadataSource = read("src", "lib", "seo", "metadata.ts");
 const layoutSource = read("src", "app", "layout.tsx");
@@ -26,6 +27,11 @@ const footerSource = read("src", "components", "layout", "MarketplaceFooter.tsx"
 assert.deepEqual(Object.keys(market.MARKET_PROFILES), ["yolmodTurkey", "jolcarKazakhstan"]);
 assert.equal(market.ACTIVE_MARKET_PROFILE_KEY, "jolcarKazakhstan");
 assert.strictEqual(market.CURRENT_MARKET, market.ACTIVE_MARKET_PROFILE);
+assert.match(sellWizardSource, /import \{ CURRENT_MARKET \} from "@\/lib\/market"/);
+assert.match(sellWizardSource, /currency: CURRENT_MARKET\.currencyCode/);
+assert.match(sellWizardSource, /listing\.currency \?\? CURRENT_MARKET\.currencyCode/);
+assert.match(sellWizardSource, /<option value=\{CURRENT_MARKET\.currencyCode\}>\{CURRENT_MARKET\.currencyCode\}<\/option>/);
+assert.doesNotMatch(sellWizardSource, /currency: "TRY"|listing\.currency \?\? "TRY"|<option value="TRY">TRY<\/option>/);
 
 assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
   id: "turkey",

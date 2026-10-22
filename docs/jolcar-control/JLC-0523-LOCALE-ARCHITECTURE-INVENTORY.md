@@ -84,6 +84,9 @@ must be migrated by domain slice:
 - service pricing: absent offering currency now delegates to the active market
   formatter rather than injecting legacy TRY; explicitly stored historical
   currencies remain displayed as provided;
+- seller wizard pricing: new drafts, missing legacy listing currencies, and the
+  currency selector now source the active market currency code (KZT), while an
+  explicitly stored historical currency is preserved during edit;
 - API validation and metadata: locale validation in API routes plus all
   canonical, hreflang, sitemap, and metadata route producers.
 

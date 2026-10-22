@@ -16,6 +16,7 @@ import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
 import { normalizeStoredAuthPhoneToE164 } from "@/lib/auth/phone";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
+import { CURRENT_MARKET } from "@/lib/market";
 import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
 import { normalizeEditEngineVolume } from "@/lib/listings/edit-payload";
 import { isCurrentEditTarget, LatestRequestGuard } from "../sell-route-state";
@@ -119,7 +120,7 @@ const initialState: WizardState = {
   damageState: "unknown",
   ownerCount: "",
   priceAmount: "",
-  currency: "TRY",
+  currency: CURRENT_MARKET.currencyCode,
   priceNegotiable: true,
   description: "",
   photos: []
@@ -375,7 +376,7 @@ export function SellWizard({
           damageState: String(vehicle.damage_state ?? "unknown"),
           ownerCount: vehicle.owner_count == null ? "" : String(vehicle.owner_count),
           priceAmount: String(listing.price_amount ?? ""),
-          currency: String(listing.currency ?? "TRY").trim(),
+          currency: String(listing.currency ?? CURRENT_MARKET.currencyCode).trim(),
           priceNegotiable: Boolean(listing.price_negotiable),
           description: String(listing.description ?? ""),
           photos: []
@@ -1345,7 +1346,7 @@ export function SellWizard({
             </Field>
             <Field label={copy.currency}>
               <Select value={state.currency} onChange={(event) => update("currency", event.target.value)}>
-                <option value="TRY">TRY</option>
+                <option value={CURRENT_MARKET.currencyCode}>{CURRENT_MARKET.currencyCode}</option>
               </Select>
             </Field>
             <Field label={copy.city}>
