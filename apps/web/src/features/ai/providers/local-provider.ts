@@ -1,5 +1,5 @@
-import { getIntlLocale } from "@/i18n/config";
 import { t } from "@/i18n/get-dictionary";
+import { getAiLocalProviderMessages } from "@/i18n/dictionaries/ai-local-provider";
 import { createAssistantAction } from "../domain/actions";
 import { getAiIntent } from "../domain/intents";
 import { getDefaultWarnings } from "../domain/safety";
@@ -69,7 +69,7 @@ function localModerationFixture(input: ContextualModerationProviderInput): Conte
 type LocalResponseShape = Pick<AiResponse, "status" | "message" | "structuredData" | "suggestions" | "actions" | "warnings">;
 
 function buildDeterministicResponse(request: AiRequest): LocalResponseShape {
-  const normalizedText = request.userMessage.toLocaleLowerCase(getIntlLocale(request.locale));
+  const normalizedText = request.userMessage.normalize("NFKD").toLowerCase().replace(/\p{Diacritic}/gu, "");
   const inferredIntent = request.intent === "unsupported" ? inferIntentFromMessage(normalizedText) : request.intent;
 
   if (request.surface === "service_marketplace" || request.surface === "service_provider") {
@@ -110,14 +110,7 @@ function buildDeterministicResponse(request: AiRequest): LocalResponseShape {
 }
 
 function serviceGuidance(request: AiRequest): LocalResponseShape {
-  const categories =
-    request.locale === "tr"
-      ? ["Ekspertiz", "Periyodik bakım", "Arıza tespit", "Lastik", "Kaporta/boya", "Elektrikli araç servisi"]
-      : ["Inspection", "Scheduled maintenance", "Diagnostics", "Tires", "Body/paint", "EV service"];
-  const unavailableFeatures =
-    request.locale === "tr"
-      ? ["Randevu oluşturma", "Müsaitlik kontrolü", "Fiyat garantisi", "Servis sonucu doğrulaması"]
-      : ["Booking creation", "Availability checks", "Price guarantees", "Service-outcome verification"];
+  const messages = getAiLocalProviderMessages(request.locale);
 
   return {
     status: "success",
@@ -125,8 +118,8 @@ function serviceGuidance(request: AiRequest): LocalResponseShape {
     structuredData: [
       {
         type: "service_guidance",
-        categories,
-        unavailableFeatures
+        categories: [...messages.serviceCategories],
+        unavailableFeatures: [...messages.unavailableServiceFeatures]
       }
     ],
     actions: compactActions([
@@ -157,15 +150,12 @@ function introResponse(request: AiRequest): LocalResponseShape {
 }
 
 function searchGuidance(request: AiRequest): LocalResponseShape {
-  const filters =
-    request.locale === "tr"
-      ? ["Marka ve model", "Şehir", "Fiyat aralığı", "Yıl ve kilometre", "Yakıt tipi ve vites"]
-      : ["Make and model", "City", "Price range", "Year and mileage", "Fuel type and transmission"];
+  const messages = getAiLocalProviderMessages(request.locale);
 
   return {
     status: "success",
     message: t(request.locale, "ai.responses.searchGuidance"),
-    structuredData: [{ type: "search_guidance", filters }],
+    structuredData: [{ type: "search_guidance", filters: [...messages.searchFilters] }],
     actions: [createAssistantAction("open_search", t(request.locale, "ai.actions.openSearch"), "/search?advanced=1", request.locale)].filter(
       (action): action is NonNullable<typeof action> => Boolean(action)
     ),
@@ -227,29 +217,19 @@ function trustGuidance(request: AiRequest): LocalResponseShape {
 }
 
 function publishingChecklist(locale: AiRequest["locale"]): AiChecklistItem[] {
-  const items =
-    locale === "tr"
-      ? ["Net ve güncel fotoğraflar ekleyin", "Araç bilgilerini doğru girin", "Açıklamayı açık ve dürüst yazın", "Hasar/geçmiş bilgilerini saklamayın", "Fiyatı benzer ilanlarla karşılaştırarak belirleyin"]
-      : ["Add clear and recent photos", "Enter vehicle details accurately", "Write a clear and honest description", "Do not hide damage or history details", "Set the price by reviewing comparable listings"];
-
-  return items.map((label, index) => ({ id: `publish_${index + 1}`, label, status: "guidance" }));
+  return getAiLocalProviderMessages(locale).publishingChecklist.map((label, index) => ({ id: `publish_${index + 1}`, label, status: "guidance" }));
 }
 
 function trustChecklist(locale: AiRequest["locale"]): AiChecklistItem[] {
-  const items =
-    locale === "tr"
-      ? ["Araç ve ruhsat bilgilerini karşılaştırın", "Ekspertiz veya bağımsız kontrol yaptırın", "Satıcı bilgilerini görüşme öncesi doğrulayın", "Bilinmeyen kişilere kapora göndermeyin", "Hasar, sigorta ve borç durumunu bağımsız kaynaklardan kontrol edin"]
-      : ["Compare the vehicle and registration details", "Use an inspection or independent check", "Verify seller information before meeting", "Do not send deposits to unknown people", "Check damage, insurance and lien status through independent sources"];
-
-  return items.map((label, index) => ({ id: `trust_${index + 1}`, label, status: "guidance" }));
+  return getAiLocalProviderMessages(locale).trustChecklist.map((label, index) => ({ id: `trust_${index + 1}`, label, status: "guidance" }));
 }
 
 function inferIntentFromMessage(text: string): AiIntentId {
-  if (containsAny(text, ["filtre", "arama", "search", "filter", "bul", "find"])) return "search_vehicles";
-  if (containsAny(text, ["ilan", "listing", "değerlendir", "review", "açıkla", "explain"])) return "explain_listing";
-  if (containsAny(text, ["yayın", "hazırla", "publish", "sell", "description", "açıklama"])) return "publishing_help";
-  if (containsAny(text, ["güven", "trust", "kapora", "belge", "document", "safety", "safe"])) return "trust_and_safety";
-  if (containsAny(text, ["fiyat", "price", "piyasa", "valuation"])) return "interpret_price";
+  if (containsAny(text, ["filtre", "arama", "search", "filter", "bul", "find", "поиск", "искать", "іздеу", "ізде", "搜索", "筛选"])) return "search_vehicles";
+  if (containsAny(text, ["ilan", "listing", "değerlendir", "review", "açıkla", "explain", "объявлен", "оцен", "түсіндір", "хабарландыру", "车源", "解释", "评价"])) return "explain_listing";
+  if (containsAny(text, ["yayın", "hazırla", "publish", "sell", "description", "açıklama", "опубликов", "продать", "описани", "жарияла", "сату", "сипаттама", "发布", "出售", "描述"])) return "publishing_help";
+  if (containsAny(text, ["guven", "trust", "kapora", "belge", "document", "safety", "safe", "безопас", "задат", "документ", "қауіпсіз", "кепілақы", "құжат", "安全", "定金", "证件"])) return "trust_and_safety";
+  if (containsAny(text, ["fiyat", "price", "piyasa", "valuation", "цена", "стоимост", "баға", "құн", "价格", "估值"])) return "interpret_price";
   return "general_help";
 }
 

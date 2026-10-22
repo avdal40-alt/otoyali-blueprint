@@ -63,6 +63,10 @@ must be migrated by domain slice:
   now use `i18n/dictionaries/ai-listing-expert.ts` with direct RU/KK/EN/zh-CN
   launch copy, and its deterministic comparison criteria recognize those four
   launch languages without changing the public-data-only comparison boundary;
+  `features/ai/providers/local-provider.ts` now sources its service, search,
+  publishing, and trust guidance lists from `ai-local-provider.ts` with direct
+  RU/KK/EN/zh-CN launch copy; its deterministic unsupported-intent recognition
+  is Unicode-normalized and recognizes the four launch languages;
 - formatting and shared enum labels: `src/lib/format.ts` vehicle enum labels
   migrated to the canonical `format.enumLabels` dictionary domain; date,
   number, currency, city, and relative-date presentation remain;
