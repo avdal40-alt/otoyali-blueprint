@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isSupportedLocale } from "@/i18n/config";
 import { isUuid, privateResponseHeaders, rateLimit, requireAuthenticatedRequest } from "@/lib/messaging/conversation-api";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
   const allowed = ["eventType", "listingId", "videoId", "context", "locale", "errorCode", "dedupKey"];
   if (!body || Object.keys(body).some((key) => !allowed.includes(key))) return response({ error: "Invalid analytics event." }, 422);
   const { eventType, listingId, videoId, context, locale, errorCode, dedupKey } = body;
-  if (typeof eventType !== "string" || !eventTypes.has(eventType) || typeof listingId !== "string" || !isUuid(listingId) || typeof videoId !== "string" || !isUuid(videoId) || context !== "video_feed" || (locale !== "tr" && locale !== "en") || typeof dedupKey !== "string" || !isUuid(dedupKey) || (eventType === "video_error" ? typeof errorCode !== "string" || !errorCodes.has(errorCode) : errorCode !== null)) return response({ error: "Invalid analytics event." }, 422);
+  if (typeof eventType !== "string" || !eventTypes.has(eventType) || typeof listingId !== "string" || !isUuid(listingId) || typeof videoId !== "string" || !isUuid(videoId) || context !== "video_feed" || typeof locale !== "string" || !isSupportedLocale(locale) || typeof dedupKey !== "string" || !isUuid(dedupKey) || (eventType === "video_error" ? typeof errorCode !== "string" || !errorCodes.has(errorCode) : errorCode !== null)) return response({ error: "Invalid analytics event." }, 422);
 
   const { data, error } = await authenticated.supabase.rpc("record_video_analytics_event", {
     p_event_type: eventType,

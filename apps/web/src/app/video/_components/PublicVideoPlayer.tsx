@@ -1,12 +1,13 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import type { Locale } from "@/i18n/types";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type EventType = "video_impression" | "video_play" | "video_complete" | "video_error";
 type ErrorCode = "aborted" | "network" | "decode" | "source_not_supported" | "unknown";
 
-export function PublicVideoPlayer({ src, poster, listingId, videoId, locale, errorLabel, retryLabel }: { src?: string; poster?: string; listingId?: string | null; videoId?: string | null; locale: "tr" | "en"; errorLabel: string; retryLabel: string }) {
+export function PublicVideoPlayer({ src, poster, listingId, videoId, locale, errorLabel, retryLabel }: { src?: string; poster?: string; listingId?: string | null; videoId?: string | null; locale: Locale; errorLabel: string; retryLabel: string }) {
   const video = useRef<HTMLVideoElement>(null); const emitted = useRef(new Set<string>()); const errorAttempt = useRef(0); const [failed, setFailed] = useState(false);
   const emit = useCallback(async (eventType: EventType, errorCode: ErrorCode | null = null, key: string = eventType) => {
     if (!listingId || !videoId) return;
