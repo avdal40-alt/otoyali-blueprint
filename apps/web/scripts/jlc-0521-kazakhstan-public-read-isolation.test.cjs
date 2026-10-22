@@ -23,8 +23,14 @@ const sql = `BEGIN;
     ('${id.kzVehicle}','${id.seller}','owner',true),
     ('${id.trVehicle}','${id.seller}','owner',true);
   INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,city_id,seller_type,seller_display_name,published_at) VALUES
-    ('${id.kzListing}','${id.kzVehicle}','${id.seller}','active','active','JLC KZ listing',100,'KZT',false,'JLC KZ City','${id.kzCity}','dealer','JLC dealer',now()),
+    ('${id.kzListing}','${id.kzVehicle}','${id.seller}','active','active','JLC KZ listing',100,'KZT',false,'JLC KZ City','${id.kzCity}','dealer','JLC dealer',now());
+  -- Seed a pre-JLC-0522 historical TR row while the test transaction is in its
+  -- local fixture-only replication mode. Production data is never bypassed.
+  SET LOCAL session_replication_role = replica;
+  INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,city_id,seller_type,seller_display_name,published_at) VALUES
     ('${id.trListing}','${id.trVehicle}','${id.seller}','active','active','JLC TR listing',100,'TRY',false,'JLC TR City','${id.trCity}','dealer','JLC dealer',now());
+  SET LOCAL session_replication_role = origin;
+  SELECT marketplace.refresh_listing_search_document('${id.trListing}');
   SET LOCAL ROLE anon;
   INSERT INTO result SELECT 'home', coalesce(string_agg(listing_id::text,',' ORDER BY listing_id),'') FROM public.ff_home_listings WHERE listing_id IN ('${id.kzListing}','${id.trListing}');
   INSERT INTO result SELECT 'detail_kz', count(*)::text FROM public.ff_listing_details WHERE listing_id='${id.kzListing}';
