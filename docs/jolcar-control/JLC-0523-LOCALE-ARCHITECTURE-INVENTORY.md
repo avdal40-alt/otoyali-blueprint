@@ -26,7 +26,8 @@ must be migrated by domain slice:
 - seller wizard and AI assistance: `ListingDescriptionAssistant.tsx`
   (migrated to the canonical `ai.sellDescription` domain, including accessible
   preview-label copy), `SellAssistant.tsx` (migrated to canonical
-  `ai.sellAssistant` copy, including field labels), `SellWizard.tsx`, `sell-copy.ts`,
+  `ai.sellAssistant` copy, including field labels), `SellWizard.tsx`,
+  `sell-copy.ts` (migrated to the canonical `i18n/dictionaries` boundary),
   `features/ai/sell/sell-draft.ts`, and `sell-runtime.ts`;
 - profile, favorites, notifications, messages, settings, and video:
   `ProfileClient.tsx`, `FavoritesClient.tsx`, `NotificationsClient.tsx`,

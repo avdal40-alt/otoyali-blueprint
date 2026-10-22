@@ -8,6 +8,7 @@ const repoRoot = path.resolve(projectRoot, "..", "..");
 const read = (...parts) => fs.readFileSync(path.join(...parts), "utf8");
 const configSource = read(projectRoot, "src", "i18n", "config.ts");
 const copySource = read(projectRoot, "src", "app", "sell", "sell-copy.ts");
+const dictionarySource = read(projectRoot, "src", "i18n", "dictionaries", "sell-wizard.ts");
 const routeStateSource = read(projectRoot, "src", "app", "sell", "sell-route-state.ts");
 const wizard = read(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx");
 const createMigration = read(repoRoot, "supabase", "migrations", "20260923150000_sell_sec_03a_atomic_draft_media_contract.sql");
@@ -20,14 +21,18 @@ function transpile(source) {
 }
 
 function loadModule(source, requireImpl = require) {
-  const module = { exports: {} };
-  new Function("exports", "module", "require", transpile(source))(module.exports, module, requireImpl);
-  return module.exports;
+  const loadedModule = { exports: {} };
+  new Function("exports", "module", "require", transpile(source))(loadedModule.exports, loadedModule, requireImpl);
+  return loadedModule.exports;
 }
 
 const config = loadModule(configSource);
-const production = loadModule(copySource, (request) => {
+const dictionary = loadModule(dictionarySource, (request) => {
   if (request === "@/i18n/config") return config;
+  throw new Error(`Unexpected canonical-dictionary dependency: ${request}`);
+});
+const production = loadModule(copySource, (request) => {
+  if (request === "@/i18n/dictionaries/sell-wizard") return dictionary;
   throw new Error(`Unexpected production-helper dependency: ${request}`);
 });
 const routeState = loadModule(routeStateSource);
@@ -54,6 +59,8 @@ function shape(value) {
   return typeof value;
 }
 assert.deepEqual(shape(en), shape(tr), "TR and EN sell copy must expose the same typed contract");
+assert.match(copySource, /@\/i18n\/dictionaries\/sell-wizard/);
+assert.doesNotMatch(copySource, /const tr =|const en =|Record<Locale/);
 
 const englishText = Object.values(en).flatMap((value) => {
   if (typeof value === "string") return value;
