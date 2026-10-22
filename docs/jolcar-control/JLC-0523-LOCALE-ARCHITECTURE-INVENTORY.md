@@ -13,8 +13,9 @@ must be migrated by domain slice:
   display names, sorting, and query normalization, with a language-neutral ISO
   country-code fallback rather than an embedded `tr/en` map);
 - homepage/search/saved-search: `SearchBar.tsx`, `SearchFilters.tsx`,
-  `ActiveFilterChips.tsx`, `SavedSearchButton.tsx`, home SEO/trust components,
-  and `features/ai/search`;
+  `ActiveFilterChips.tsx`, `SavedSearchButton.tsx`, home SEO components, and
+  `features/ai/search` (`HomeTrustSection.tsx` migrated to the canonical
+  `home.trustItems` dictionary domain);
 - listing and dealer detail: `ReportListingButton.tsx` (migrated to
   dictionaries in the first slice), `ShareListingButton.tsx`, listing/detail
   controls, and public dealer pages;

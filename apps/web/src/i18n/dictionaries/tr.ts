@@ -104,6 +104,11 @@ export const tr = {
     trustEyebrow: "Güvenli deneyim",
     trustTitle: "Araç kararlarınız için sade ve güvenilir alan.",
     trustBody: "JOLCAR, araç arama ve karşılaştırma deneyimini gereksiz engeller olmadan, net bilgi ve temiz akışla sunar.",
+    trustItems: {
+      guestBrowsing: "Guest-first gezinme: ilanları, aramayı ve videoları kayıt olmadan keşfedin.",
+      secureLogin: "Satıcıyla iletişim ve ilan yayınlama adımlarında güvenli giriş akışı.",
+      futureFoundation: "Jolcar güven raporu ve piyasa analizi için şeffaf, geleceğe hazır altyapı."
+    },
     appEyebrow: "Mobil uygulama",
     appTitle: "JOLCAR uygulamasını yakında indirin",
     appBody: "İlanları takip edin, favorilerinizi kaydedin ve aracınızı mobilde kolayca yönetin.",

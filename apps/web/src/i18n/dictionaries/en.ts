@@ -104,6 +104,11 @@ export const en = {
     trustEyebrow: "Safer experience",
     trustTitle: "A simple and trustworthy place for vehicle decisions.",
     trustBody: "JOLCAR keeps vehicle search and comparison clear, direct, and free from unnecessary barriers.",
+    trustItems: {
+      guestBrowsing: "Guest-first browsing: explore listings, search, and videos without creating an account.",
+      secureLogin: "Secure login flow only when contacting a seller or publishing a listing.",
+      futureFoundation: "Future-ready foundation for Jolcar trust reports and market price analysis."
+    },
     appEyebrow: "Mobile app",
     appTitle: "Download the JOLCAR app soon",
     appBody: "Track listings, save favorites, and manage your vehicle on mobile with ease.",

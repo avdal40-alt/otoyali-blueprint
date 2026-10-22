@@ -3,18 +3,7 @@ import type { Locale } from "@/i18n/types";
 
 export function HomeTrustSection({ locale = "tr" }: { locale?: Locale }) {
   const dictionary = getDictionary(locale);
-  const items =
-    locale === "en"
-      ? [
-          "Guest-first browsing: explore listings, search, and videos without creating an account.",
-          "Secure login flow only when contacting a seller or publishing a listing.",
-          "Future-ready foundation for Jolcar trust reports and market price analysis."
-        ]
-      : [
-          "Guest-first gezinme: ilanları, aramayı ve videoları kayıt olmadan keşfedin.",
-          "Satıcıyla iletişim ve ilan yayınlama adımlarında güvenli giriş akışı.",
-          "Jolcar güven raporu ve piyasa analizi için şeffaf, geleceğe hazır altyapı."
-        ];
+  const items = Object.values(dictionary.home.trustItems as Record<string, string>);
 
   return (
     <section className="mt-10 rounded-oto border border-oto-border bg-oto-text p-5 text-white shadow-soft md:p-6">
