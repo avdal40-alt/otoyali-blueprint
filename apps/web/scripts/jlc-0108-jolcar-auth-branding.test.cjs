@@ -41,6 +41,8 @@ assert.match(phoneSource, /getIntlLocale\(locale\)/);
 
 const phoneInput = read("src", "components", "auth", "PhoneInput.tsx");
 assert.match(phoneInput, /formatPhoneInputHelper\(helperText, selectedCountry\)/);
+assert.doesNotMatch(phoneInput, /locale === "tr" \? "tr-TR" : "en-US"/);
+assert.match(phoneInput, /getIntlLocale\(locale\)/);
 
 for (const file of [
   ["src", "components", "auth", "AuthOtpStartClient.tsx"],

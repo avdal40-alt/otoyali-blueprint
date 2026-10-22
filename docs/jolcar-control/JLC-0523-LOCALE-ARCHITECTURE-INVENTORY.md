@@ -9,9 +9,9 @@ must be migrated by domain slice:
   labels in the first slice), `middleware.ts`, `i18n/config.ts`, and locale
   route callers;
 - auth and country-aware phone presentation: `PhoneInput.tsx` and
-  `lib/auth/phone.ts` (`phone.ts` migrated: CLDR display names and sorting now
-  use the canonical locale metadata, with a language-neutral ISO country-code
-  fallback rather than an embedded `tr/en` map);
+  `lib/auth/phone.ts` (migrated: canonical locale metadata now powers CLDR
+  display names, sorting, and query normalization, with a language-neutral ISO
+  country-code fallback rather than an embedded `tr/en` map);
 - homepage/search/saved-search: `SearchBar.tsx`, `SearchFilters.tsx`,
   `ActiveFilterChips.tsx`, `SavedSearchButton.tsx`, home SEO/trust components,
   and `features/ai/search`;

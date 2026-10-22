@@ -2,6 +2,7 @@
 
 import { useId, useMemo, useState } from "react";
 import { Input } from "@/components/ui/Input";
+import { getIntlLocale } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import type { AuthPhoneCountry } from "@/lib/auth/phone";
 import { DEFAULT_PHONE_COUNTRY, formatPhoneInputHelper, getPhoneCountryOptions } from "@/lib/auth/phone";
@@ -46,7 +47,7 @@ export function PhoneInput({
   const countries = useMemo(() => getPhoneCountryOptions(locale), [locale]);
   const activeCountry = countries.find((item) => item.country === selectedCountry) ?? countries.find((item) => item.country === DEFAULT_PHONE_COUNTRY) ?? countries[0];
   const resolvedHelperText = helperText ? formatPhoneInputHelper(helperText, selectedCountry) : undefined;
-  const normalizedQuery = query.trim().toLocaleLowerCase(locale === "tr" ? "tr-TR" : "en-US");
+  const normalizedQuery = query.trim().toLocaleLowerCase(getIntlLocale(locale));
   const filteredCountries = normalizedQuery
     ? countries.filter((item) => item.searchText.includes(normalizedQuery))
     : countries;
