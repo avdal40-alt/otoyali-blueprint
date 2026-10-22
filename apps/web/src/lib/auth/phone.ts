@@ -6,6 +6,7 @@ import {
   type CountryCode
 } from "libphonenumber-js/max";
 import mobileExamples from "libphonenumber-js/examples.mobile.json";
+import { getIntlLocale } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { CURRENT_MARKET } from "@/lib/market";
 
@@ -48,14 +49,6 @@ const phoneExampleOverrides: Partial<Record<AuthPhoneCountry, string>> = {
 };
 
 const supportedCountries = new Set<AuthPhoneCountry>(getCountries());
-
-const regionFallbacks: Partial<Record<AuthPhoneCountry, { tr: string; en: string }>> = {
-  TR: { tr: "Türkiye", en: "Turkey" },
-  KZ: { tr: "Kazakistan", en: "Kazakhstan" },
-  RU: { tr: "Rusya", en: "Russia" },
-  US: { tr: "Amerika Birleşik Devletleri", en: "United States" },
-  GB: { tr: "Birleşik Krallık", en: "United Kingdom" }
-};
 
 export function isSupportedPhoneCountry(value: string | null | undefined): value is AuthPhoneCountry {
   return Boolean(value && supportedCountries.has(value as AuthPhoneCountry));
@@ -132,25 +125,26 @@ export function normalizeStoredAuthPhoneToE164(value: string | null | undefined)
 
 export function getPhoneCountryOptions(locale: Locale): PhoneCountryOption[] {
   const displayNames = createRegionDisplayNames(locale);
+  const intlLocale = getIntlLocale(locale);
   const countries = getCountries();
 
   return countries
     .map((country) => {
       const callingCode = `+${getCountryCallingCode(country)}`;
-      const name = getCountryName(country, locale, displayNames);
+      const name = getCountryName(country, displayNames);
 
       return {
         country,
         name,
         callingCode,
-        searchText: `${name} ${country} ${callingCode}`.toLocaleLowerCase(locale === "tr" ? "tr-TR" : "en-US")
+        searchText: `${name} ${country} ${callingCode}`.toLocaleLowerCase(intlLocale)
       };
     })
     .sort((a, b) => {
       if (a.country === DEFAULT_PHONE_COUNTRY) return -1;
       if (b.country === DEFAULT_PHONE_COUNTRY) return 1;
 
-      return a.name.localeCompare(b.name, locale === "tr" ? "tr-TR" : "en-US");
+      return a.name.localeCompare(b.name, intlLocale);
     });
 }
 
@@ -190,13 +184,14 @@ function createRegionDisplayNames(locale: Locale) {
   }
 
   try {
-    return new Intl.DisplayNames([locale === "tr" ? "tr-TR" : "en-US"], { type: "region" });
+    return new Intl.DisplayNames([getIntlLocale(locale)], { type: "region" });
   } catch {
     return null;
   }
 }
 
-function getCountryName(country: AuthPhoneCountry, locale: Locale, displayNames: Intl.DisplayNames | null) {
-  const fallback = regionFallbacks[country]?.[locale] ?? country;
-  return displayNames?.of(country) ?? fallback;
+function getCountryName(country: AuthPhoneCountry, displayNames: Intl.DisplayNames | null) {
+  // The runtime's CLDR data provides country names for every released locale.
+  // A country code is a language-neutral last resort when that API is absent.
+  return displayNames?.of(country) ?? country;
 }
