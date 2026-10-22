@@ -4,6 +4,7 @@ import { getCities } from "@/lib/queries/cities";
 import { getMakes, getModels } from "@/lib/queries/makes";
 import { createPostgresSearchService } from "@/lib/search/search-service";
 import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
+import { getAiSearchResultsMessage } from "@/i18n/dictionaries/ai-search";
 import { createAssistantAction } from "../domain/actions";
 import type { AiRequest, AiResponse, AiStructuredData, AiWarningCode } from "../domain/types";
 import { mapSearchIntentToSearchV1, mergeSearchIntent, resolveSearchText, searchIntentSchema, type CatalogRow, type SearchCatalog, type SearchIntent } from "./search-intent";
@@ -26,7 +27,7 @@ export async function executeNaturalLanguageSearch(request: AiRequest): Promise<
   return response(
     request,
     "success",
-    request.locale === "tr" ? `${items.length} ilan bulundu.` : `${items.length} listings found.`,
+    getAiSearchResultsMessage(request.locale, items.length),
     { type: "search_results", intent, count: items.length, listings: items },
     [
       createAssistantAction("open_search", "Open search results", searchHref(intent, catalog), request.locale),

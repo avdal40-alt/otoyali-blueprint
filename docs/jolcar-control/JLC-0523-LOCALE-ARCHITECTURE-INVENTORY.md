@@ -12,11 +12,12 @@ must be migrated by domain slice:
   `lib/auth/phone.ts` (migrated: canonical locale metadata now powers CLDR
   display names, sorting, and query normalization, with a language-neutral ISO
   country-code fallback rather than an embedded `tr/en` map);
-- homepage/search/saved-search: `features/ai/search` (`HomeTrustSection.tsx`,
-  `SeoEntryLinks.tsx`, `ActiveFilterChips.tsx` UI labels, `SearchBar.tsx`,
-  `SavedSearchButton.tsx`, and `SearchFilters.tsx` migrated to canonical
-  dictionary domains; legacy tr/en value-formatters remain for the
-  four-real-dictionary expansion);
+- homepage/search/saved-search: `features/ai/search` semantic recognition and
+  validation messages remain (`HomeTrustSection.tsx`, `SeoEntryLinks.tsx`,
+  `ActiveFilterChips.tsx` UI labels, `SearchBar.tsx`, `SavedSearchButton.tsx`,
+  `SearchFilters.tsx`, and AI search result summary migrated to canonical
+  dictionary domains; legacy tr/en value-formatters and language-recognition
+  rules remain for the four-real-dictionary expansion);
 - listing and dealer detail: `ReportListingButton.tsx` (migrated to
   dictionaries in the first slice), `ShareListingButton.tsx`, listing/detail
   controls, and public dealer pages;
