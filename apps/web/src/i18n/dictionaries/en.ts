@@ -136,6 +136,12 @@ export const en = {
     filters: "Filters",
     closeFilters: "Close filters",
     saveSearch: "Save search",
+    savedSearchFeedback: {
+      title: "Jolcar search",
+      error: "Your search could not be saved.",
+      saved: "Your search was saved. New listing notifications are coming soon.",
+      saving: "Saving"
+    },
     queryPlaceholder: "Search car, brand, or model",
     brand: "Brand",
     model: "Model",

@@ -136,6 +136,12 @@ export const tr = {
     filters: "Filtreler",
     closeFilters: "Filtreleri kapat",
     saveSearch: "Aramayı kaydet",
+    savedSearchFeedback: {
+      title: "Jolcar araması",
+      error: "Aramanız kaydedilemedi.",
+      saved: "Aramanız kaydedildi. Yeni ilan bildirimleri yakında.",
+      saving: "Kaydediliyor"
+    },
     queryPlaceholder: "Araba, marka veya model ara",
     brand: "Marka",
     model: "Model",

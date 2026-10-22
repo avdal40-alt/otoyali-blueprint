@@ -9,6 +9,7 @@ import { useI18n } from "@/i18n/client";
 
 export function SavedSearchButton({ request }: { request: Record<string, unknown> }) {
   const { locale, dictionary } = useI18n();
+  const feedback = dictionary.search.savedSearchFeedback as Record<string, string>;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -40,29 +41,29 @@ export function SavedSearchButton({ request }: { request: Record<string, unknown
       response = await fetch("/api/saved-searches", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session.access_token}` },
-        body: JSON.stringify({ request, title: locale === "en" ? "Jolcar search" : "Jolcar araması", alertEnabled: false })
+        body: JSON.stringify({ request, title: feedback.title, alertEnabled: false })
       });
     } catch {
       setStatus("error");
-      setMessage(locale === "en" ? "Your search could not be saved." : "Aramanız kaydedilemedi.");
+      setMessage(feedback.error);
       return;
     }
 
     if (!response.ok) {
       const body = await response.json().catch(() => null) as { error?: unknown } | null;
       setStatus("error");
-      setMessage(typeof body?.error === "string" ? body.error : (locale === "en" ? "Your search could not be saved." : "Aramanız kaydedilemedi."));
+      setMessage(typeof body?.error === "string" ? body.error : feedback.error);
       return;
     }
 
     setStatus("saved");
-    setMessage(locale === "en" ? "Your search was saved. New listing notifications are coming soon." : "Aramanız kaydedildi. Yeni ilan bildirimleri yakında.");
+    setMessage(feedback.saved);
   }
 
   return (
     <div className="grid gap-2">
       <Button type="button" variant="secondary" onClick={saveSearch} disabled={status === "saving"} className="h-10">
-        {status === "saving" ? (locale === "en" ? "Saving" : "Kaydediliyor") : String(dictionary.search.saveSearch)}
+        {status === "saving" ? feedback.saving : String(dictionary.search.saveSearch)}
       </Button>
       {message ? (
         <p className={status === "error" ? "text-xs font-semibold text-oto-danger" : "text-xs font-semibold text-oto-blue"}>
