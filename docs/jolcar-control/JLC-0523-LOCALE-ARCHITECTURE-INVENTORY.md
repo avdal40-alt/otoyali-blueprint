@@ -97,6 +97,8 @@ must be migrated by domain slice:
   configured collation instead of a hard-coded Turkish collation;
 - profile fallback: an absent profile now uses active-market KZ country metadata
   and configured Kazakhstan city choices rather than Turkey defaults;
+- service application: its blank-form city default now reads the configured
+  Kazakhstan location dataset instead of Istanbul;
 - API validation and metadata: locale validation in API routes plus all
   canonical, hreflang, sitemap, and metadata route producers.
 

@@ -20,6 +20,7 @@ const market = loadTypeScriptModule(read("src", "lib", "market.ts"), "market.ts"
 const marketSource = read("src", "lib", "market.ts");
 const sellWizardSource = read("src", "app", "sell", "_components", "SellWizard.tsx");
 const profileClientSource = read("src", "app", "profile", "_components", "ProfileClient.tsx");
+const serviceApplicationSource = read("src", "features", "services", "components", "ServiceApplicationForm.tsx");
 const i18n = loadTypeScriptModule(read("src", "i18n", "config.ts"), "config.ts");
 const metadataSource = read("src", "lib", "seo", "metadata.ts");
 const layoutSource = read("src", "app", "layout.tsx");
@@ -39,6 +40,9 @@ assert.doesNotMatch(sellWizardSource, /İstanbul|Ankara|İzmir|Antalya/);
 assert.match(profileClientSource, /const fallbackCities = \[\.\.\.getPreferredCityNames\(\)\];/);
 assert.match(profileClientSource, /country: CURRENT_MARKET\.countryCode/);
 assert.doesNotMatch(profileClientSource, /const fallbackCities = \["İstanbul"|country: "TR"/);
+assert.match(serviceApplicationSource, /const defaultServiceCity = getPreferredCityNames\(\)\[0\] \?\? "";/);
+assert.match(serviceApplicationSource, /city: defaultServiceCity/);
+assert.doesNotMatch(serviceApplicationSource, /city: "İstanbul"/);
 
 assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
   id: "turkey",

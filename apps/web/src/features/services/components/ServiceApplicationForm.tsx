@@ -12,6 +12,7 @@ import { localizePath } from "@/i18n/config";
 import { t } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 import { authErrorMessage, mapAuthError } from "@/lib/auth/auth-ui";
+import { getPreferredCityNames } from "@/lib/location";
 import type { MarketplaceVerticalId } from "@/lib/marketplace/types";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { SERVICE_CATEGORIES } from "../domain/categories";
@@ -19,12 +20,13 @@ import { validateServiceProviderApplication } from "../domain/validation";
 import type { ServiceProviderApplicationInput, ServiceValidationField } from "../domain/types";
 
 type AuthState = "loading" | "ready" | "login" | "error";
+const defaultServiceCity = getPreferredCityNames()[0] ?? "";
 
 const initialInput: ServiceProviderApplicationInput = {
   businessName: "",
   contactPersonName: "",
   contactPhone: "",
-  city: "İstanbul",
+  city: defaultServiceCity,
   district: "",
   categoryKeys: ["periodic_maintenance"],
   supportedVerticals: ["cars"],
