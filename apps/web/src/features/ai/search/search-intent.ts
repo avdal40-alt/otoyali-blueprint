@@ -126,9 +126,9 @@ export function normalizeNaturalLanguageNumber(value: string, kind: "price" | "m
 }
 function numericFilters(text: string, locale: Locale) {
   const values: Record<string, number> = {};
-  const price = text.match(/(\d+(?:[.,]\d+)?)\s*(million|миллион|млн|百万)\s+(\d+(?:[.,]\d+)?)\s*(thousand|тыс|мың|мын|千)\s*(?:kzt|tenge|тенге|теңге|坚戈|₸)?\s*(?:under|below|less than|до|астында|дейін|деиін|以下)/) ?? text.match(/(?:under|below|less than|до|астында|дейін|деиін|以下)\s*(\d+(?:[.,]\d+)?)\s*(million|миллион|млн|百万|m|thousand|тыс|мың|мын|千|万)?\s*(?:kzt|tenge|тенге|теңге|坚戈|₸)?/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(million|миллион|млн|百万|m|thousand|тыс|мың|мын|千|万)?\s*(?:kzt|tenge|тенге|теңге|坚戈|₸)?\s*(?:under|below|less than|до|астында|дейін|деиін|以下)/);
-  if (price) values.priceMax = normalizeNaturalLanguageNumber(price[0], "price", locale) ?? 0;
-  const km = text.match(/(?:under|below|less than|до|астында|дейін|деиін|以下)\s*(\d+(?:[.,]\d+)?)\s*(thousand|тыс|мың|мын|千|万|k)?\s*(?:km|kilometres?|км|公里)/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(thousand|тыс|мың|мын|千|万|k)?\s*(?:km|kilometres?|км|公里)\s*(?:under|below|less than|до|астында|дейін|деиін|以下)/);
+  const price = text.match(/(\d+(?:[.,]\d+)?)\s*(million|миллион|млн|百万)\s+(\d+(?:[.,]\d+)?)\s*(thousand|тыс|мың|мын|千)\s*(?:kzt|tenge|тенге|теңге|坚戈|₸)?\s*(?:under|below|less than|up to|до|астында|дейін|деиін|以下)/) ?? text.match(/(?:under|below|less than|up to|до|астында|дейін|деиін|以下)\s*(\d+(?:[.,]\d+)?)\s*(million|миллион|млн|百万|m|thousand|тыс|мың|мын|千|万)?\s*(?:kzt|tenge|тенге|теңге|坚戈|₸)?/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(million|миллион|млн|百万|m|thousand|тыс|мың|мын|千|万)?\s*(?:kzt|tenge|тенге|теңге|坚戈|₸)?\s*(?:under|below|less than|up to|до|астында|дейін|деиін|以下)/);
+  const km = text.match(/(?:under|below|less than|up to|до|астында|дейін|деиін|以下)\s*(\d+(?:[.,]\d+)?)\s*(thousand|тыс|мың|мын|千|万|k)?\s*(?:km|kilometres?|км|公里)/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(thousand|тыс|мың|мын|千|万|k)?\s*(?:km|kilometres?|км|公里)\s*(?:under|below|less than|up to|до|астында|дейін|деиін|以下)/);
+  if (price && (!km || price.index !== km.index)) values.priceMax = normalizeNaturalLanguageNumber(price[0], "price", locale) ?? 0;
   if (km) values.mileageMax = normalizeNaturalLanguageNumber(km[0], "mileage", locale) ?? 0;
   const year = text.match(/(\d{4})\s*(?:or newer|newer than|и выше|кейін|кеиін|及以后)/);
   if (year) values.yearMin = Number(year[1]) + (/newer than|кейін|кеиін/.test(text) ? 1 : 0);
