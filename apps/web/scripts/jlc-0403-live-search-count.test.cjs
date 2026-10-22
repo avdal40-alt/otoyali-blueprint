@@ -27,13 +27,14 @@ assert.match(migration, /SECURITY INVOKER/, "public count must remain invoker-se
 assert.match(migration, /GRANT EXECUTE ON FUNCTION marketplace\.count_search_listings_v1\(JSONB\) TO anon, authenticated, service_role/, "public callers need only RPC execution");
 
 const contract = runLocalSql(`
+  SET LOCAL ROLE anon;
   SELECT concat_ws('|',
     has_function_privilege('anon', 'marketplace.count_search_listings_v1(jsonb)', 'EXECUTE'),
     (SELECT NOT prosecdef FROM pg_proc WHERE oid = 'marketplace.count_search_listings_v1(jsonb)'::regprocedure),
     (SELECT count(*)::text FROM marketplace.listing_search_documents),
     marketplace.count_search_listings_v1('{"version":"v1","filters":{}}'::jsonb)::text
   );
-`).split("|");
+`).split(/\r?\n/).at(-1).split("|");
 assert.deepEqual(contract.slice(0, 2), ["t", "t"], "count RPC must be anonymously executable and invoker-secured");
 assert.equal(contract[2], contract[3], "unfiltered count must equal the public search-document total");
 

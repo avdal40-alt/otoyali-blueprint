@@ -3934,8 +3934,32 @@
       "notes": "Completed with remote verification. The migration was recorded by Supabase as 20261021173638; the local migration file is aligned to that remote version. A revoke-only fix was rejected after local RLS regression evidence showed anonymous policy calls require EXECUTE."
     },
     {
-      "id": "JLC-0110",
+      "id": "JLC-0521",
       "order": 144,
+      "phase": "P15-PRODUCTION-ENGINEERING-HARDENING",
+      "title": "Kazakhstan public read isolation",
+      "priority": "P0",
+      "type": "security",
+      "status": "completed_local_pending_production",
+      "release_gate": true,
+      "dependencies": ["JLC-0110", "JLC-0520"],
+      "requires_user_authorization": false,
+      "requires_user_decision": false,
+      "decision_ref": null,
+      "description": "Bind every currently consumed public listing projection and Search v1 matcher to marketplace.cities.country_code = KZ for the active Jolmod Kazakhstan deployment.",
+      "acceptance_criteria": [
+        "public cards and listing detail fail closed for non-KZ listing city IDs",
+        "direct public search-document reads and Search v1/count exclude TR",
+        "saved-search and price-drop matchers reject TR documents even from privileged notification workflows",
+        "historical TR rows are not modified"
+      ],
+      "verification": ["test:jlc-0521", "test:jlc-0403", "test:jlc-0406", "migration-check", "typecheck"],
+      "evidence": "2026-10-22 local migration 20261021182338_jlc_0521_kazakhstan_public_read_isolation.sql passed static migration validation and an isolated KZ/TR database fixture matrix. The fixture verifies anonymous home/detail/direct-projection/Search v1 visibility, KZ-only matcher behavior used by saved-search and price-drop workflows, and unchanged TR country identity. No remote database action or production deployment occurred.",
+      "notes": "Production application remains pending remote migration-history verification and approved read-only post-apply checks; production stays paused."
+    },
+    {
+      "id": "JLC-0110",
+      "order": 145,
       "phase": "P1-MULTICOUNTRY",
       "title": "Activate Kazakhstan market with trusted Turkey/Kazakhstan isolation",
       "priority": "P0",
