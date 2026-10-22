@@ -11,6 +11,9 @@ assert.match(source, /resolveSearchText/); assert.match(source, /normalizeNatura
 assert.match(listing, /export const listingFields/); assert.match(search, /export function normalizeNaturalLanguageNumber/);
 assert.match(runtime, /пробег|жүріс|里程/); assert.match(runtime, /цена|баға|价格/);
 assert.match(runtime, /автомат|автоматты|自动/); assert.match(runtime, /қолданылған|二手/);
+assert.match(runtime, /sellAssistantLocaleSchema = z\.enum\(\["tr", "en", "ru", "kk", "zh-CN"\]\)/);
+assert.match(source, /полная комплектация|толық комплектация|全配/);
+assert.match(source, /locale: SellAssistantLocale/);
 assert.doesNotMatch(runtime, /toLocaleLowerCase\("tr-TR"\)/);
 assert.doesNotMatch(source, /ownerId|userId|sellerId|service.?role|signed.?url|\bvin\b|\bplate\b/i);
 console.log("AI-01D-A deterministic sell draft engine contract passed");

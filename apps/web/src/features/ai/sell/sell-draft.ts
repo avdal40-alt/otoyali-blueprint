@@ -5,6 +5,8 @@ import { listingFields } from "@/lib/listings/server-write";
 import { getAiSellDraftAmbiguityMessage, getAiSellDraftQuestion } from "@/i18n/dictionaries/ai-sell-draft";
 import { normalizeNaturalLanguageNumber, resolveSearchText, type SearchCatalog } from "../search/search-intent";
 
+type SellAssistantLocale = "tr" | "en" | "ru" | "kk" | "zh-CN";
+
 const sellFieldNames = ["makeId", "modelId", "variantId", "year", "mileageKm", "condition", "fuelType", "transmission", "bodyType", "driveType", "color", "engineVolumeL", "damageState", "ownerCount", "description", "priceAmount", "currency", "priceNegotiable", "city", "cityId", "districtId"] as const;
 export type SellDraftField = typeof sellFieldNames[number];
 const sellDraftShape = {
@@ -77,13 +79,13 @@ export function getMissingRequiredFields(draft: SellDraft): SellDraftField[] {
   return parsed.fuelType !== undefined && parsed.engineVolumeL === undefined ? [...missing, "engineVolumeL"] : missing;
 }
 
-export function getNextSellQuestion(draft: SellDraft, locale: "tr" | "en"): string | undefined {
+export function getNextSellQuestion(draft: SellDraft, locale: SellAssistantLocale): string | undefined {
   const field = getMissingRequiredFields(draft)[0];
   return field ? getAiSellDraftQuestion(locale, field) : undefined;
 }
 
-export function getSellAmbiguity(text: string, locale: "tr" | "en"): SellClarification | undefined {
-  if (!/(^|\s)(full|temiz|kusursuz|en dolusu)(\s|$)/i.test(text)) return undefined;
+export function getSellAmbiguity(text: string, locale: SellAssistantLocale): SellClarification | undefined {
+  if (!/(^|\s)(full|temiz|kusursuz|en dolusu|полная комплектация|идеальное состояние|толық комплектация|мінсіз күй|全配|完美车况)(\s|$)/iu.test(text)) return undefined;
   return { field: "condition", message: getAiSellDraftAmbiguityMessage(locale) };
 }
 
@@ -97,7 +99,7 @@ export function extractSellerDeclarations(text: string): SellerDeclaration[] {
 }
 
 export type SellDraftTurnResult = { draft: SellDraft; patch: SellDraftPatch; missingFields: SellDraftField[]; nextQuestion?: string; clarification?: SellClarification; declarations: SellerDeclaration[]; readyForReview: boolean };
-export function processSellDraftTurn(currentDraft: SellDraft, patch: SellDraftPatch, locale: "tr" | "en", text = ""): SellDraftTurnResult {
+export function processSellDraftTurn(currentDraft: SellDraft, patch: SellDraftPatch, locale: SellAssistantLocale, text = ""): SellDraftTurnResult {
   const draft = applySellDraftPatch(currentDraft, patch);
   const missingFields = getMissingRequiredFields(draft);
   const clarification = getSellAmbiguity(text, locale);

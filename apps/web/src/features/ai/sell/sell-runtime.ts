@@ -8,7 +8,11 @@ import { applySellDraftPatch, extractSellerDeclarations, getMissingRequiredField
 
 const actionSchema = z.enum(["turn", "prepare_create", "prepare_update", "confirm_create", "confirm_update", "confirm_submit", "cancel", "generate_description", "regenerate_description", "discard_description", "apply_description"]);
 const maxDescriptionLength = 4000;
-export const sellAssistantRequestSchema = z.object({ locale: z.enum(["tr", "en"]), message: z.string().trim().max(2000).optional(), draft: sellDraftSchema, listingId: listingIdSchema.optional(), action: actionSchema.default("turn"), descriptionMode: z.enum(["concise", "standard", "detailed"]).default("standard"), descriptionPreview: z.string().trim().max(maxDescriptionLength).optional() }).strict();
+// This accepts prepared launch-locale requests but does not negotiate routes or
+// expose them in the client registry before the staged locale release.
+const sellAssistantLocaleSchema = z.enum(["tr", "en", "ru", "kk", "zh-CN"]);
+type SellAssistantLocale = z.infer<typeof sellAssistantLocaleSchema>;
+export const sellAssistantRequestSchema = z.object({ locale: sellAssistantLocaleSchema, message: z.string().trim().max(2000).optional(), draft: sellDraftSchema, listingId: listingIdSchema.optional(), action: actionSchema.default("turn"), descriptionMode: z.enum(["concise", "standard", "detailed"]).default("standard"), descriptionPreview: z.string().trim().max(maxDescriptionLength).optional() }).strict();
 type SellAssistantRequest = z.infer<typeof sellAssistantRequestSchema>;
 type PendingAction = "create" | "update" | "submit" | null;
 
@@ -85,7 +89,7 @@ function extractDeterministicPatch(message: string, current: SellDraft): SellDra
   return sellDraftPatchSchema.parse({ changes: changes.length ? changes : [{ field: "city", operation: "keep" }] });
 }
 
-function generateDescription(draft: SellDraft, locale: "tr" | "en", mode: "concise" | "standard" | "detailed", sellerText: string) {
+function generateDescription(draft: SellDraft, locale: SellAssistantLocale, mode: "concise" | "standard" | "detailed", sellerText: string) {
   const copy = getAiSellDescriptionTemplates(locale);
   const facts = [draft.year, draft.color, draft.fuelType, draft.transmission, draft.mileageKm !== undefined ? `${draft.mileageKm} km` : undefined].filter(Boolean).join(" · ");
   const declarations = extractSellerDeclarations(sellerText).filter((item) => isSafeDescription(item.text)).map((item) => copy.declaration(item.text));
