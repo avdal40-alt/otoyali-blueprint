@@ -1,3 +1,4 @@
+import { getIntlLocale } from "@/i18n/config";
 import { t } from "@/i18n/get-dictionary";
 import { createAssistantAction } from "../domain/actions";
 import { getAiIntent } from "../domain/intents";
@@ -68,7 +69,7 @@ function localModerationFixture(input: ContextualModerationProviderInput): Conte
 type LocalResponseShape = Pick<AiResponse, "status" | "message" | "structuredData" | "suggestions" | "actions" | "warnings">;
 
 function buildDeterministicResponse(request: AiRequest): LocalResponseShape {
-  const normalizedText = request.userMessage.toLocaleLowerCase(request.locale === "tr" ? "tr-TR" : "en-US");
+  const normalizedText = request.userMessage.toLocaleLowerCase(getIntlLocale(request.locale));
   const inferredIntent = request.intent === "unsupported" ? inferIntentFromMessage(normalizedText) : request.intent;
 
   if (request.surface === "service_marketplace" || request.surface === "service_provider") {
