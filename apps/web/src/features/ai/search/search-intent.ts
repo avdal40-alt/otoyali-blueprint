@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DEFAULT_LOCALE } from "@/i18n/config";
+import { DEFAULT_LOCALE, getIntlLocale } from "@/i18n/config";
 import { getAiSearchMessages } from "@/i18n/dictionaries/ai-search";
 import type { Locale } from "@/i18n/types";
 
@@ -55,12 +55,12 @@ export function mergeSearchIntent(previous: SearchIntent, patch: SearchIntentPat
 
 export function resolveSearchText(text: string, catalog: SearchCatalog, locale: Locale = DEFAULT_LOCALE): { patch: SearchIntentPatch; clarification?: SearchClarification } {
   const messages = getAiSearchMessages(locale);
-  const normalized = normalize(text);
+  const normalized = normalize(text, locale);
   if (/(baştan başla|filtreleri temizle|reset search|start over)/.test(normalized)) return { patch: { operation: "reset" } };
   if (/(doğrulanmış galeri|verified dealer)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "verifiedDealer", unsupported: true, message: messages.verifiedDealerUnavailable } };
   if (/(hangisi en iyi|which is best|\bbetter\b)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "criteria", message: messages.compareCriteria } };
   if (/(daha yeni|daha ucuz|düşük kilometre|newer|cheaper|low mileage)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "threshold", message: messages.threshold } };
-  const values: Record<string, unknown> = { ...numericFilters(normalized) };
+  const values: Record<string, unknown> = { ...numericFilters(normalized, locale) };
   if (/\b(dizel|diesel)\b/.test(normalized)) values.fuel = "diesel";
   if (/\b(benzin|gasoline|petrol)\b/.test(normalized)) values.fuel = "gasoline";
   if (/\b(elektrik|electric)\b/.test(normalized)) values.fuel = "electric";
@@ -84,7 +84,7 @@ function resolveNamedEntities(text: string, catalog: SearchCatalog, values: Reco
   const messages = getAiSearchMessages(locale);
   const pairs: Array<["makeId" | "modelId" | "variantId" | "cityId" | "districtId", CatalogRow[], string]> = [["makeId", catalog.makes, "make"], ["modelId", catalog.models, "model"], ["variantId", catalog.variants, "variant"], ["cityId", catalog.cities, "city"], ["districtId", catalog.districts, "district"]];
   for (const [key, rows, label] of pairs) {
-    const matches = rows.filter((row) => text.includes(normalize(row.name)));
+    const matches = rows.filter((row) => text.includes(normalize(row.name, locale)));
     if (matches.length > 1) return { clarification: { field: label, message: messages.clarifyEntity(label), options: matches.slice(0, 5).map((row) => row.name) } };
     if (matches.length === 1) values[key] = matches[0].id;
   }
@@ -96,8 +96,8 @@ function resolveNamedEntities(text: string, catalog: SearchCatalog, values: Reco
   if (district && values.cityId && district.parentId !== values.cityId) return { clarification: { field: "district", message: messages.districtDoesNotMatchCity } };
   return {};
 }
-export function normalizeNaturalLanguageNumber(value: string, kind: "price" | "mileage"): number | null {
-  const normalized = normalize(value).replace(/\s+/g, " ").trim();
+export function normalizeNaturalLanguageNumber(value: string, kind: "price" | "mileage", locale: Locale = DEFAULT_LOCALE): number | null {
+  const normalized = normalize(value, locale).replace(/\s+/g, " ").trim();
   if (kind === "price") {
     const composite = normalized.match(/(\d+(?:[.,]\d+)?)\s*(milyon|million)\s+(\d+(?:[.,]\d+)?)\s*(bin|thousand)/);
     if (composite) {
@@ -121,7 +121,7 @@ export function normalizeNaturalLanguageNumber(value: string, kind: "price" | "m
   const result = Math.round(numeric * multiplier);
   return Number.isSafeInteger(result) && result >= 0 ? result : null;
 }
-function numericFilters(text: string) { const values: Record<string, number> = {}; const price = text.match(/(?:altı|altinda|under|below)\s*(\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl)?/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl)?\s*(?:altı|altinda)/); if (price) values.priceMax = normalizeNaturalLanguageNumber(price[0], "price") ?? 0; const km = text.match(/(?:altında|altinda|under|below|less than)\s*(\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)\s*(?:altında|altinda)/); if (km) values.mileageMax = normalizeNaturalLanguageNumber(km[0], "mileage") ?? 0; const year = text.match(/(\d{4})\s*(?:ve üzeri|sonrası|or newer|newer than)/); if (year) values.yearMin = Number(year[1]) + (/sonrası|newer than/.test(text) ? 1 : 0); return values; }
-function normalize(value: string) { return value.toLocaleLowerCase("tr-TR").replace(/ı/g, "i").replace(/ş/g, "s").replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ö/g, "o").replace(/ç/g, "c"); }
+function numericFilters(text: string, locale: Locale) { const values: Record<string, number> = {}; const price = text.match(/(?:altı|altinda|under|below)\s*(\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl)?/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl)?\s*(?:altı|altinda)/); if (price) values.priceMax = normalizeNaturalLanguageNumber(price[0], "price", locale) ?? 0; const km = text.match(/(?:altında|altinda|under|below|less than)\s*(\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)\s*(?:altında|altinda)/); if (km) values.mileageMax = normalizeNaturalLanguageNumber(km[0], "mileage", locale) ?? 0; const year = text.match(/(\d{4})\s*(?:ve üzeri|sonrası|or newer|newer than)/); if (year) values.yearMin = Number(year[1]) + (/sonrası|newer than/.test(text) ? 1 : 0); return values; }
+function normalize(value: string, locale: Locale) { return value.toLocaleLowerCase(getIntlLocale(locale)).normalize("NFKD").replace(/\p{Diacritic}/gu, ""); }
 function compact<T extends Record<string, unknown>>(value: T) { return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined && (!Array.isArray(item) || item.length))); }
 function list(value: unknown) { return value === undefined ? [] : [value]; }
