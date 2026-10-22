@@ -99,29 +99,29 @@ function resolveNamedEntities(text: string, catalog: SearchCatalog, values: Reco
 export function normalizeNaturalLanguageNumber(value: string, kind: "price" | "mileage", locale: Locale = DEFAULT_LOCALE): number | null {
   const normalized = normalize(value, locale).replace(/\s+/g, " ").trim();
   if (kind === "price") {
-    const composite = normalized.match(/(\d+(?:[.,]\d+)?)\s*(milyon|million)\s+(\d+(?:[.,]\d+)?)\s*(bin|thousand)/);
+    const composite = normalized.match(/(\d+(?:[.,]\d+)?)\s*(million|миллион|млн)\s+(\d+(?:[.,]\d+)?)\s*(thousand|тыс|мын)/);
     if (composite) {
       const result = Math.round(Number(composite[1].replace(",", ".")) * 1e6 + Number(composite[3].replace(",", ".")) * 1e3);
       return Number.isSafeInteger(result) ? result : null;
     }
   }
   const pattern = kind === "price"
-    ? /(\d{1,3}(?:[.,]\d{3})+|\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl|try)?/
-    : /(\d{1,3}(?:[.,]\d{3})+|\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)?/;
+    ? /(\d{1,3}(?:[.,]\d{3})+|\d+(?:[.,]\d+)?)\s*(million|миллион|млн|m|thousand|тыс|мын)?\s*(?:kzt|тенге|тенге)?/
+    : /(\d{1,3}(?:[.,]\d{3})+|\d+(?:[.,]\d+)?)\s*(thousand|тыс|мын|k)?\s*(?:km|kilometre)?/;
   const match = normalized.match(pattern);
   if (!match) return null;
   const raw = match[1];
   const suffix = match[2] ?? "";
   const multiplier = kind === "price"
-    ? ({ milyon: 1e6, million: 1e6, m: 1e6, bin: 1e3, thousand: 1e3 }[suffix] ?? 1)
-    : ({ bin: 1e3, thousand: 1e3, k: 1e3 }[suffix] ?? 1);
+    ? ({ million: 1e6, миллион: 1e6, млн: 1e6, m: 1e6, thousand: 1e3, тыс: 1e3, мын: 1e3 }[suffix] ?? 1)
+    : ({ thousand: 1e3, тыс: 1e3, мын: 1e3, k: 1e3 }[suffix] ?? 1);
   const numeric = raw.includes(",") && raw.includes(".")
     ? Number(raw.replace(/[.,](?=\d{3}(?:[.,]|$))/g, "").replace(",", "."))
     : /^[0-9]{1,3}(?:[.,][0-9]{3})+$/.test(raw) ? Number(raw.replace(/[.,]/g, "")) : Number(raw.replace(",", "."));
   const result = Math.round(numeric * multiplier);
   return Number.isSafeInteger(result) && result >= 0 ? result : null;
 }
-function numericFilters(text: string, locale: Locale) { const values: Record<string, number> = {}; const price = text.match(/(?:altı|altinda|under|below)\s*(\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl)?/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(milyon|million|m|bin|thousand)?\s*(?:tl)?\s*(?:altı|altinda)/); if (price) values.priceMax = normalizeNaturalLanguageNumber(price[0], "price", locale) ?? 0; const km = text.match(/(?:altında|altinda|under|below|less than)\s*(\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(bin|thousand|k)?\s*(?:km|kilometre)\s*(?:altında|altinda)/); if (km) values.mileageMax = normalizeNaturalLanguageNumber(km[0], "mileage", locale) ?? 0; const year = text.match(/(\d{4})\s*(?:ve üzeri|sonrası|or newer|newer than)/); if (year) values.yearMin = Number(year[1]) + (/sonrası|newer than/.test(text) ? 1 : 0); return values; }
+function numericFilters(text: string, locale: Locale) { const values: Record<string, number> = {}; const price = text.match(/(?:under|below|до|астында)\s*(\d+(?:[.,]\d+)?)\s*(million|миллион|млн|m|thousand|тыс|мын)?\s*(?:kzt|тенге)?/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(million|миллион|млн|m|thousand|тыс|мын)?\s*(?:kzt|тенге)?\s*(?:under|below|до|астында)/); if (price) values.priceMax = normalizeNaturalLanguageNumber(price[0], "price", locale) ?? 0; const km = text.match(/(?:under|below|less than|до|астында)\s*(\d+(?:[.,]\d+)?)\s*(thousand|тыс|мын|k)?\s*(?:km|kilometre)/) ?? text.match(/(\d+(?:[.,]\d+)?)\s*(thousand|тыс|мын|k)?\s*(?:km|kilometre)\s*(?:under|below|less than|до|астында)/); if (km) values.mileageMax = normalizeNaturalLanguageNumber(km[0], "mileage", locale) ?? 0; const year = text.match(/(\d{4})\s*(?:or newer|newer than|и выше|кейін)/); if (year) values.yearMin = Number(year[1]) + (/newer than|кейін/.test(text) ? 1 : 0); return values; }
 function normalize(value: string, locale: Locale) { return value.toLocaleLowerCase(getIntlLocale(locale)).normalize("NFKD").replace(/\p{Diacritic}/gu, ""); }
 function compact<T extends Record<string, unknown>>(value: T) { return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined && (!Array.isArray(item) || item.length))); }
 function list(value: unknown) { return value === undefined ? [] : [value]; }
