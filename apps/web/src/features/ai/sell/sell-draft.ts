@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 import { listingFields } from "@/lib/listings/server-write";
+import { getAiSellDraftAmbiguityMessage, getAiSellDraftQuestion } from "@/i18n/dictionaries/ai-sell-draft";
 import { normalizeNaturalLanguageNumber, resolveSearchText, type SearchCatalog } from "../search/search-intent";
 
 const sellFieldNames = ["makeId", "modelId", "variantId", "year", "mileageKm", "condition", "fuelType", "transmission", "bodyType", "driveType", "color", "engineVolumeL", "damageState", "ownerCount", "description", "priceAmount", "currency", "priceNegotiable", "city", "cityId", "districtId"] as const;
@@ -76,18 +77,14 @@ export function getMissingRequiredFields(draft: SellDraft): SellDraftField[] {
   return parsed.fuelType !== undefined && parsed.engineVolumeL === undefined ? [...missing, "engineVolumeL"] : missing;
 }
 
-const questions: Record<"tr" | "en", Partial<Record<SellDraftField, string>>> = {
-  tr: { makeId: "Aracın markası nedir?", modelId: "Aracın modeli nedir?", year: "Aracın model yılı nedir?", mileageKm: "Aracın kilometresi nedir?", condition: "Araç yeni mi, ikinci el mi?", fuelType: "Yakıt türü nedir?", transmission: "Vites türü nedir?", engineVolumeL: "Motor hacmi nedir?", priceAmount: "İstenen fiyat nedir?", currency: "Para birimi nedir?", priceNegotiable: "Fiyat pazarlığa açık mı?", city: "Araç hangi şehirde?" },
-  en: { makeId: "What is the vehicle make?", modelId: "What is the vehicle model?", year: "What is the model year?", mileageKm: "What is the mileage?", condition: "Is the vehicle new or used?", fuelType: "What is the fuel type?", transmission: "What is the transmission type?", engineVolumeL: "What is the engine volume?", priceAmount: "What is the asking price?", currency: "What is the currency?", priceNegotiable: "Is the price negotiable?", city: "Which city is the vehicle in?" }
-} as const;
 export function getNextSellQuestion(draft: SellDraft, locale: "tr" | "en"): string | undefined {
   const field = getMissingRequiredFields(draft)[0];
-  return field ? questions[locale][field] : undefined;
+  return field ? getAiSellDraftQuestion(locale, field) : undefined;
 }
 
 export function getSellAmbiguity(text: string, locale: "tr" | "en"): SellClarification | undefined {
   if (!/(^|\s)(full|temiz|kusursuz|en dolusu)(\s|$)/i.test(text)) return undefined;
-  return { field: "condition", message: locale === "tr" ? "Lütfen donanım, hasar veya boya bilgisini açıkça belirtin." : "Please state equipment, damage, or paint details explicitly." };
+  return { field: "condition", message: getAiSellDraftAmbiguityMessage(locale) };
 }
 
 export type SellerDeclaration = { text: string; category: "accident" | "paint" | "replacement"; provenance: "seller_declaration"; verified: false };
