@@ -67,6 +67,10 @@ export function resolveSearchText(text: string, catalog: SearchCatalog, locale: 
   if (/(otomatik|automatic|автомат|автоматты|自动)/.test(normalized)) values.transmission = "automatic";
   if (/(manuel|manual|механик|қолмен|手动)/.test(normalized)) values.transmission = "manual";
   if (/(semi[ -]?automatic|robot|dsg|робот|жартылай автомат|半自动|双离合)/.test(normalized)) values.transmission = "semi_automatic";
+  if (/(\bfwd\b|front[ -]?wheel drive|передн\S* привод|алдыңғы жетекті|前驱)/.test(normalized)) values.drivetrain = "fwd";
+  if (/(\brwd\b|rear[ -]?wheel drive|задн\S* привод|артқы жетекті|后驱)/.test(normalized)) values.drivetrain = "rwd";
+  if (/(\bawd\b|all[ -]?wheel drive|полн(?:ый|ыи) привод|толық жетекті|全轮驱动)/.test(normalized)) values.drivetrain = "awd";
+  if (/(\b4wd\b|four[ -]?wheel drive|4x4|四驱)/.test(normalized)) values.drivetrain = "4wd";
   if (/\bsuv\b/.test(normalized)) values.bodyType = "suv";
   if (/(video olan|with video|cars with video|с видео|бейнесі бар|带视频)/.test(normalized)) values.hasVideo = true;
   if (/(fotoğraflı|with photos|с фото|фотосуреті бар|带照片)/.test(normalized)) values.hasPhotos = true;
