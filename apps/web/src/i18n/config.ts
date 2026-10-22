@@ -35,6 +35,14 @@ export const LOCALE_REGISTRY = {
     intlLocale: "ru-RU",
     released: false
   },
+  kk: {
+    tag: "kk",
+    dir: "ltr",
+    label: "Kazakh",
+    nativeLabel: "Қазақша",
+    intlLocale: "kk-KZ",
+    released: false
+  },
   ar: {
     tag: "ar",
     dir: "rtl",
