@@ -19,7 +19,9 @@ must be migrated by domain slice:
   dictionaries in the first slice), `ShareListingButton.tsx`, listing/detail
   controls, and public dealer pages;
 - seller listing/video flows: `ListingVideoManager.tsx`,
-  `my-listings-copy.ts`, `MyListingsClient.tsx`, `SellerContactsClient.tsx`,
+  `my-listings-copy.ts` (migrated: the seller listing UI and safe lifecycle
+  error mapper now use the canonical `myListings` dictionary domain rather
+  than an embedded `tr/en` map), `MyListingsClient.tsx`, `SellerContactsClient.tsx`,
   rejected edit flows, and seller contact error handling;
 - seller wizard and AI assistance: `ListingDescriptionAssistant.tsx`,
   `SellAssistant.tsx`, `SellWizard.tsx`, `sell-copy.ts`,

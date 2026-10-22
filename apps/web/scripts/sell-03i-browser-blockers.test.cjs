@@ -6,6 +6,9 @@ const ts = require("typescript");
 const projectRoot = path.resolve(__dirname, "..");
 const read = (...parts) => fs.readFileSync(path.join(...parts), "utf8");
 const configSource = read(projectRoot, "src", "i18n", "config.ts");
+const trDictionarySource = read(projectRoot, "src", "i18n", "dictionaries", "tr.ts");
+const enDictionarySource = read(projectRoot, "src", "i18n", "dictionaries", "en.ts");
+const dictionarySource = read(projectRoot, "src", "i18n", "get-dictionary.ts");
 const sellCopySource = read(projectRoot, "src", "app", "sell", "sell-copy.ts");
 const listingsCopySource = read(projectRoot, "src", "app", "profile", "listings", "my-listings-copy.ts");
 const wizard = read(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx");
@@ -20,18 +23,28 @@ function transpile(source) {
 }
 
 function loadModule(source, requireImpl = require) {
-  const module = { exports: {} };
-  new Function("exports", "module", "require", transpile(source))(module.exports, module, requireImpl);
-  return module.exports;
+  const loadedModule = { exports: {} };
+  new Function("exports", "module", "require", transpile(source))(loadedModule.exports, loadedModule, requireImpl);
+  return loadedModule.exports;
 }
 
 const config = loadModule(configSource);
+const trDictionary = loadModule(trDictionarySource);
+const enDictionary = loadModule(enDictionarySource);
 const dependencyResolver = (request) => {
-  if (request === "@/i18n/config") return config;
+  if (request === "@/i18n/config" || request === "./config") return config;
+  if (request === "@/i18n/dictionaries/tr" || request === "./dictionaries/tr") return trDictionary;
+  if (request === "@/i18n/dictionaries/en" || request === "./dictionaries/en") return enDictionary;
+  throw new Error(`Unexpected production-helper dependency: ${request}`);
+};
+const dictionaries = loadModule(dictionarySource, dependencyResolver);
+const listingsDependencyResolver = (request) => {
+  if (request === "@/i18n/get-dictionary") return dictionaries;
+  if (request === "@/i18n/dictionaries/tr") return trDictionary;
   throw new Error(`Unexpected production-helper dependency: ${request}`);
 };
 const sellProduction = loadModule(sellCopySource, dependencyResolver);
-const listingsProduction = loadModule(listingsCopySource, dependencyResolver);
+const listingsProduction = loadModule(listingsCopySource, listingsDependencyResolver);
 const { getSellCatalogDisplayName } = sellProduction;
 const { getMyListingsCopy, getMyListingsLifecycleErrorMessage } = listingsProduction;
 
@@ -74,6 +87,8 @@ assert.equal(getMyListingsCopy(), tr, "Missing locale follows DEFAULT_LOCALE");
 assert.equal(getMyListingsCopy("de"), tr, "Unsupported locale follows DEFAULT_LOCALE");
 assert.equal(getMyListingsCopy("EN-us"), en, "Locale normalization follows the request locale convention");
 assert.deepEqual(shape(en), shape(tr), "TR and EN My Listings copy expose identical contracts");
+assert.doesNotMatch(listingsCopySource, /const tr =|const en =|Record<Locale/);
+assert.match(listingsCopySource, /getDictionary\(locale\)\.myListings/);
 
 assert.equal(en.statusRejected, "Rejected");
 assert.equal(en.statusArchived, "Archived");
@@ -99,7 +114,7 @@ for (const key of [
   "statusRejected", "statusArchived", "statusPendingReview", "listingQuality", "previewComingSoon",
   "resubmitForReview", "statusArchivedBody", "loadFailure", "mutationFailure", "loading"
 ]) {
-  assert.ok(listings.includes(`copy.${key}`) || listingsCopySource.includes(`${key}:`), `Missing production copy wiring: ${key}`);
+  assert.ok(listings.includes(`copy.${key}`) || Object.hasOwn(trDictionary.tr.myListings, key), `Missing production copy wiring: ${key}`);
 }
 
 // Mutation failures and post-success refresh failures retain separate safe message ownership.
