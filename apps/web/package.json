@@ -40,6 +40,7 @@
     "test:jlc-0519": "node scripts/jlc-0519-staff-seller-dealer-boundary.test.cjs",
     "test:jlc-0520": "node scripts/jlc-0520-admin-helper-acl.test.cjs && node scripts/jlc-0520-admin-helper-runtime.test.cjs",
     "test:jlc-0521": "node scripts/jlc-0521-kazakhstan-public-read-isolation.test.cjs",
+    "test:jlc-0522": "node scripts/jlc-0522-kazakhstan-seller-write-isolation.test.cjs",
     "test:jlc-0519-navigation": "node scripts/jlc-0519-staff-navigation.test.cjs",
     "test:jlc-0509": "node scripts/jlc-0509-media-cleanup.test.cjs",
     "test:jlc-0603": "node scripts/jlc-0603-messaging-unread-runtime.test.cjs && node scripts/functional-03a6-refresh.test.cjs",

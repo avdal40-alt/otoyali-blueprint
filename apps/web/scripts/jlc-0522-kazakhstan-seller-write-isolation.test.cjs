@@ -1,0 +1,26 @@
+const assert = require("node:assert/strict");
+const { execFileSync } = require("node:child_process");
+const { randomUUID } = require("node:crypto");
+const db = ["exec", "supabase_db_Otoyali-blueprint", "psql", "-X", "-q", "-U", "postgres", "-d", "postgres", "-v", "ON_ERROR_STOP=1", "-Atc"];
+const query = (sql) => execFileSync("docker", [...db, sql], { encoding: "utf8" }).trim();
+const id = Object.fromEntries(["seller", "make", "model", "vehicle", "listing", "kzCity", "trCity"].map((key) => [key, randomUUID()]));
+
+const sql = `BEGIN;
+  CREATE TEMP TABLE result(name text primary key, ok boolean not null) ON COMMIT DROP;
+  INSERT INTO auth.users(instance_id,id,aud,role,email,raw_app_meta_data,raw_user_meta_data,created_at,updated_at) VALUES ('00000000-0000-0000-0000-000000000000','${id.seller}','authenticated','authenticated','jlc0522-${id.seller}@test.invalid','{}','{}',now(),now());
+  INSERT INTO marketplace.cities(id,name,slug,country_code,is_active) VALUES ('${id.kzCity}','JLC 0522 KZ','jlc-0522-kz-${id.kzCity}','KZ',true),('${id.trCity}','JLC 0522 TR','jlc-0522-tr-${id.trCity}','TR',true);
+  INSERT INTO vehicle.makes(id,name,slug) VALUES('${id.make}','JLC 0522 Make','jlc-0522-make-${id.make}');
+  INSERT INTO vehicle.models(id,make_id,name,slug) VALUES('${id.model}','${id.make}','JLC 0522 Model','jlc-0522-model-${id.model}');
+  INSERT INTO vehicle.vehicle_profiles(id,make_id,model_id,year,mileage_km,fuel_type,transmission,created_source,profile_status,created_by) VALUES('${id.vehicle}','${id.make}','${id.model}',2024,1,'gasoline','automatic','manual','active','${id.seller}');
+  INSERT INTO vehicle.profile_ownership(vehicle_profile_id,owner_id,ownership_type,is_current) VALUES('${id.vehicle}','${id.seller}','owner',true);
+  INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,city_id,seller_type) VALUES('${id.listing}','${id.vehicle}','${id.seller}','draft','draft','JLC 0522 KZ',1,'KZT',false,'JLC 0522 KZ','${id.kzCity}','private');
+  INSERT INTO result VALUES ('kz_kzt_create', (SELECT city_id='${id.kzCity}'::uuid AND currency='KZT'::bpchar FROM marketplace.listings WHERE id='${id.listing}'));
+  DO $$ BEGIN UPDATE marketplace.listings SET city_id='${id.trCity}' WHERE id='${id.listing}'; INSERT INTO result VALUES ('tr_city_rejected',false); EXCEPTION WHEN SQLSTATE 'OT422' THEN INSERT INTO result VALUES ('tr_city_rejected',true); END $$;
+  DO $$ BEGIN UPDATE marketplace.listings SET currency='TRY' WHERE id='${id.listing}'; INSERT INTO result VALUES ('try_rejected',false); EXCEPTION WHEN SQLSTATE 'OT422' THEN INSERT INTO result VALUES ('try_rejected',true); END $$;
+  DO $$ BEGIN UPDATE marketplace.listings SET currency='USD' WHERE id='${id.listing}'; INSERT INTO result VALUES ('usd_rejected',false); EXCEPTION WHEN SQLSTATE 'OT422' THEN INSERT INTO result VALUES ('usd_rejected',true); END $$;
+  INSERT INTO result VALUES ('market_preserved_after_rejections', (SELECT city_id='${id.kzCity}'::uuid AND currency='KZT'::bpchar FROM marketplace.listings WHERE id='${id.listing}'));
+  SELECT name,ok FROM result ORDER BY name; ROLLBACK;`;
+const rows = query(sql).split(/\r?\n/).filter(Boolean).map((line) => line.split("|"));
+assert.deepEqual(rows.filter(([, ok]) => ok !== "t"), [], JSON.stringify(rows));
+assert.equal(rows.length, 5, JSON.stringify(rows));
+console.log("JLC-0522 Kazakhstan seller write-isolation matrix passed");
