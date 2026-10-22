@@ -87,6 +87,8 @@ must be migrated by domain slice:
 - seller wizard pricing: new drafts, missing legacy listing currencies, and the
   currency selector now source the active market currency code (KZT), while an
   explicitly stored historical currency is preserved during edit;
+- seller wizard location: the empty new-listing city fallback now uses the
+  active Kazakhstan location dataset instead of a legacy Turkey city list;
 - API validation and metadata: locale validation in API routes plus all
   canonical, hreflang, sitemap, and metadata route producers.
 

@@ -153,10 +153,10 @@ assert.ok(wizard.includes('localizePath("/terms", locale)'));
 assert.ok(wizard.includes('localizePath("/listing-rules", locale)'));
 
 const wizardTurkishLines = wizard.split(/\r?\n/).filter((line) => /[çğıİöşüÇĞÖŞÜ]/.test(line));
-assert.deepEqual(wizardTurkishLines.map((line) => line.trim()), [
-  'const fallbackCityOptions = ["İstanbul", "Ankara", "İzmir", "Antalya"];',
-  'city: "İstanbul",'
-], "Only proper-name Turkish literals may remain in SellWizard; the selector may not bless raw Diğer");
+assert.deepEqual(wizardTurkishLines.map((line) => line.trim()), [], "SellWizard must not retain Turkish city defaults in the active Kazakhstan flow");
+assert.ok(wizard.includes('import { getPreferredCityNames } from "@/lib/location";'));
+assert.ok(wizard.includes("const fallbackCityOptions = [...getPreferredCityNames()];"));
+assert.ok(wizard.includes('city: defaultCity,'));
 
 // React wiring: localized callback copy is a primitive dependency, and callers depend on the callback.
 const wizardAst = ts.createSourceFile("SellWizard.tsx", wizard, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);

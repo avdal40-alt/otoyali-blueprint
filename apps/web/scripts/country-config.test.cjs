@@ -32,6 +32,9 @@ assert.match(sellWizardSource, /currency: CURRENT_MARKET\.currencyCode/);
 assert.match(sellWizardSource, /listing\.currency \?\? CURRENT_MARKET\.currencyCode/);
 assert.match(sellWizardSource, /<option value=\{CURRENT_MARKET\.currencyCode\}>\{CURRENT_MARKET\.currencyCode\}<\/option>/);
 assert.doesNotMatch(sellWizardSource, /currency: "TRY"|listing\.currency \?\? "TRY"|<option value="TRY">TRY<\/option>/);
+assert.match(sellWizardSource, /const fallbackCityOptions = \[\.\.\.getPreferredCityNames\(\)\];/);
+assert.match(sellWizardSource, /const defaultCity = fallbackCityOptions\[0\] \?\? "";/);
+assert.doesNotMatch(sellWizardSource, /İstanbul|Ankara|İzmir|Antalya/);
 
 assert.deepEqual(market.MARKET_PROFILES.yolmodTurkey, {
   id: "turkey",

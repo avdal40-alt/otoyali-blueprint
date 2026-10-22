@@ -17,6 +17,7 @@ import { normalizeStoredAuthPhoneToE164 } from "@/lib/auth/phone";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { CURRENT_MARKET } from "@/lib/market";
+import { getPreferredCityNames } from "@/lib/location";
 import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
 import { normalizeEditEngineVolume } from "@/lib/listings/edit-payload";
 import { isCurrentEditTarget, LatestRequestGuard } from "../sell-route-state";
@@ -101,13 +102,14 @@ type QualityItem = {
 const maxPhotos = 15;
 const maxFileSize = 10 * 1024 * 1024;
 const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
-const fallbackCityOptions = ["İstanbul", "Ankara", "İzmir", "Antalya"];
+const fallbackCityOptions = [...getPreferredCityNames()];
+const defaultCity = fallbackCityOptions[0] ?? "";
 
 const initialState: WizardState = {
   makeId: "",
   modelId: "",
   year: "",
-  city: "İstanbul",
+  city: defaultCity,
   condition: "used",
   sellerType: "private",
   mileageKm: "",
