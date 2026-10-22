@@ -4002,7 +4002,7 @@
         "all embedded two-locale UI maps are replaced by canonical dictionary usage before registry activation"
       ],
       "verification": ["domain-slice localization tests", "typecheck", "lint", "locale routing and KZ-context runtime checks"],
-      "evidence": "2026-10-22 inventory recorded remaining embedded tr/en maps. The shared layout language switcher now renders registry-native labels, and the listing report control now uses dictionary keys instead of a component-local tr/en map. Four-language registry activation remains intentionally deferred until all affected domains have real Russian, Kazakh, and Simplified Chinese dictionary coverage.",
+      "evidence": "2026-10-22 inventory recorded remaining embedded tr/en maps. The shared layout language switcher now renders registry-native labels, the listing report control now uses dictionary keys, and local migration 20261022065255_jlc_0523_video_analytics_locale_contract.sql extends the authenticated video telemetry contract to ru/kk/zh-CN without changing historic rows. Typecheck and targeted lint pass. The migration checker required manual review for its explicit constraint replacement; review confirmed no data mutation, RLS change, or privilege expansion. Four-language registry activation remains intentionally deferred until all affected domains have real Russian, Kazakh, and Simplified Chinese dictionary coverage.",
       "notes": "No placeholder dictionaries, Turkish fallbacks, or TypeScript bypasses are permitted."
     },
     {
