@@ -68,8 +68,10 @@ assert.equal(tr.navigation.buyVehicle, "Araç al");
 assert.equal(en.navigation.buyVehicle, "Buy a vehicle");
 assert.equal(tr.search.closeFilters, "Filtreleri kapat");
 assert.equal(en.search.closeFilters, "Close filters");
-assert.equal(market.CURRENT_MARKET.id, "turkey");
-assert.equal(market.CURRENT_MARKET.currencyCode, "TRY");
+assert.equal(tr.listing.linkCopied, "Bağlantı kopyalandı");
+assert.equal(en.listing.linkCopied, "Link copied");
+assert.equal(market.CURRENT_MARKET.id, "kazakhstan");
+assert.equal(market.CURRENT_MARKET.currencyCode, "KZT");
 
 let request = middlewareRequest("/about", { locale: "tr", acceptLanguage: "en" });
 let response = middleware.middleware(request);
@@ -138,5 +140,9 @@ assert.match(switcher, /candidate === locale \? \(/, "The current locale must no
 assert.match(read("src", "components", "layout", "AppHeader.tsx"), /<LanguageSwitcher/, "Header must render the shared switcher");
 assert.match(read("src", "components", "layout", "MarketplaceFooter.tsx"), /<LanguageSwitcher/, "Footer must render the shared switcher");
 assert.doesNotMatch(switcher, /\bru\b|zh-CN|العربية/);
+
+const shareListing = read("src", "app", "listing", "[id]", "_components", "ShareListingButton.tsx");
+assert.match(shareListing, /dictionary\.listing\.linkCopied/);
+assert.doesNotMatch(shareListing, /locale === "en"/);
 
 console.log("I18N-02 shared UI tests passed.");

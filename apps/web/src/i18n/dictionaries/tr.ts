@@ -234,6 +234,7 @@ export const tr = {
     messageSoon: "Mesaj yaz · Yakında",
     message: "Mesaj yaz",
     share: "Paylaş",
+    linkCopied: "Bağlantı kopyalandı",
     safetyCopy: "JOLCAR, araç alım satımını daha güvenli ve kolay hale getirir.",
     listingRules: "İlan kurallarını incele",
     safeShopping: "Güvenli alışveriş önerileri",

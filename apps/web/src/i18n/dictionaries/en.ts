@@ -234,6 +234,7 @@ export const en = {
     messageSoon: "Message · Coming soon",
     message: "Message",
     share: "Share",
+    linkCopied: "Link copied",
     safetyCopy: "JOLCAR helps make vehicle buying and selling safer and easier.",
     listingRules: "Review listing rules",
     safeShopping: "Safe shopping tips",
