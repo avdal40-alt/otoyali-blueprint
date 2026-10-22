@@ -75,13 +75,13 @@ async function loadOwnEditableDraft(authenticated: AuthenticatedRequestSupabase,
 
 function extractDeterministicPatch(message: string, current: SellDraft): SellDraftPatch {
   const text = message.normalize("NFKD").toLowerCase().replace(/\p{Diacritic}/gu, ""); const changes: SellDraftPatch["changes"] = [];
-  const mileage = /(?:kilometre|km)\D{0,24}([\d.,]+\s*(?:bin|k)?)/i.exec(message); if (mileage) { const value = normalizeSellNumber(mileage[1], "mileage"); if (value !== null) changes.push({ field: "mileageKm", operation: "set", value }); }
-  const price = /(?:fiyat|price)\D{0,24}([\d.,]+\s*(?:(?:milyon|million|bin|thousand|m))?(?:\s+\d+\s*(?:bin|thousand))?)/i.exec(message); if (price) { const value = normalizeSellNumber(price[1], "price"); if (value && value > 0) changes.push({ field: "priceAmount", operation: "set", value: String(value) }); }
+  const mileage = /(?:kilometre|km|пробег|жүріс|жүрген жол|里程|公里)\D{0,24}([\d.,]+\s*(?:bin|k|тыс|мың|万)?)/i.exec(message); if (mileage) { const value = normalizeSellNumber(mileage[1], "mileage"); if (value !== null) changes.push({ field: "mileageKm", operation: "set", value }); }
+  const price = /(?:fiyat|price|цена|баға|价格)\D{0,24}([\d.,]+\s*(?:(?:milyon|million|миллион|млн|bin|thousand|тыс|мың|万|m))?(?:\s+\d+\s*(?:bin|thousand|тыс|мың))?)/i.exec(message); if (price) { const value = normalizeSellNumber(price[1], "price"); if (value && value > 0) changes.push({ field: "priceAmount", operation: "set", value: String(value) }); }
   const year = /\b(19\d{2}|20\d{2})\b/.exec(message); if (year) changes.push({ field: "year", operation: "set", value: Number(year[1]) });
-  if (/\b(siyah|black)\b/.test(text)) changes.push({ field: "color", operation: "set", value: "black" }); if (/\b(beyaz|white)\b/.test(text)) changes.push({ field: "color", operation: "set", value: "white" });
-  if (/\b(otomatik|automatic)\b/.test(text)) changes.push({ field: "transmission", operation: "set", value: "automatic" }); if (/\b(manuel|manual)\b/.test(text)) changes.push({ field: "transmission", operation: "set", value: "manual" });
-  if (/\b(benzin|gasoline|petrol)\b/.test(text)) changes.push({ field: "fuelType", operation: "set", value: "gasoline" }); if (/\b(dizel|diesel)\b/.test(text)) changes.push({ field: "fuelType", operation: "set", value: "diesel" }); if (/\b(elektrik|electric)\b/.test(text)) changes.push({ field: "fuelType", operation: "set", value: "electric" });
-  if (/\b(ikinci el|used)\b/.test(text)) changes.push({ field: "condition", operation: "set", value: "used" }); if (/\b(sıfır|new)\b/.test(text)) changes.push({ field: "condition", operation: "set", value: "new" });
+  if (/\b(siyah|black|черный|қара)\b|黑色/u.test(text)) changes.push({ field: "color", operation: "set", value: "black" }); if (/\b(beyaz|white|белый|ақ)\b|白色/u.test(text)) changes.push({ field: "color", operation: "set", value: "white" });
+  if (/\b(otomatik|automatic|автомат|автоматический|автоматты)\b|自动/u.test(text)) changes.push({ field: "transmission", operation: "set", value: "automatic" }); if (/\b(manuel|manual|механика|механикалық)\b|手动/u.test(text)) changes.push({ field: "transmission", operation: "set", value: "manual" });
+  if (/\b(benzin|gasoline|petrol|бензин)\b/u.test(text)) changes.push({ field: "fuelType", operation: "set", value: "gasoline" }); if (/\b(dizel|diesel|дизель)\b/u.test(text)) changes.push({ field: "fuelType", operation: "set", value: "diesel" }); if (/\b(elektrik|electric|электрический|электр)\b|电动/u.test(text)) changes.push({ field: "fuelType", operation: "set", value: "electric" });
+  if (/\b(ikinci el|used|б\/у|қолданылған)\b|二手/u.test(text)) changes.push({ field: "condition", operation: "set", value: "used" }); if (/\b(sıfır|new|новый|жаңа)\b|新车/u.test(text)) changes.push({ field: "condition", operation: "set", value: "new" });
   return sellDraftPatchSchema.parse({ changes: changes.length ? changes : [{ field: "city", operation: "keep" }] });
 }
 
