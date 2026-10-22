@@ -102,6 +102,9 @@ must be migrated by domain slice:
   and configured Kazakhstan city choices rather than Turkey defaults;
 - profile timezone fallback is now likewise owned by the active market profile
   (Asia/Almaty for Kazakhstan), leaving existing stored profiles unchanged;
+- deterministic listing-text moderation now recognizes active Kazakhstan +7
+  and domestic 8-prefixed phone numbers as contact details, retaining the
+  historical Turkey matcher only for the Turkey market profile;
 - service application: its blank-form city default now reads the configured
   Kazakhstan location dataset instead of Istanbul;
 - API validation and metadata: locale validation in API routes plus all

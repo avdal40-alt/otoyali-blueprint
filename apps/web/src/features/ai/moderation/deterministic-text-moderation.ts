@@ -1,5 +1,6 @@
 import "server-only";
 
+import { CURRENT_MARKET } from "@/lib/market";
 import { DETERMINISTIC_MODERATION_RULESET_VERSION, deterministicAbuseRules, moderationRuleIds, ownedListingHosts } from "./deterministic-rules";
 
 export type ModerationAction = "allow" | "ask_edit" | "review" | "block";
@@ -80,7 +81,7 @@ function inspectField(field: ModerationTextField, value: string | null, signals:
       break;
     }
   }
-  const phones = findTurkishPhones(value);
+  const phones = findMarketPhones(value);
   if (phones.length > 0) addSignal(signals, { code: "CONTACT_IN_TEXT", severity: "medium", field, evidence: { matchClass: "phone", redactedExcerpt: "[phone]", ruleId: moderationRuleIds.phone }, recommendedAction: "ask_edit" });
   if (/(?:\b(?:whatsapp|wp|wa|telegram|tg)\b\s*[:@-]?\s*(?:\+?\d|@)[\w.-]{3,})/iu.test(value)) addSignal(signals, { code: "CONTACT_IN_TEXT", severity: "medium", field, evidence: { matchClass: "contact_handle", redactedExcerpt: "[contact-handle]", ruleId: moderationRuleIds.contactHandle }, recommendedAction: "ask_edit" });
   const links = findExternalLinks(value);
@@ -97,7 +98,11 @@ function addAntiFraudSignal(signals: ModerationSignal[], code: "DUPLICATE_LISTIN
   signals.push({ code, severity: "medium", field: "listing", evidence: { matchClass: "repetition", redactedExcerpt, ruleId }, confidence: "high", source: "deterministic", recommendedAction: "review" });
 }
 
-function findTurkishPhones(value: string): string[] {
+function findMarketPhones(value: string): string[] {
+  if (CURRENT_MARKET.defaultPhoneCountry === "KZ") {
+    const matches = value.match(/(?<!\d)(?:\+7|8)(?:[\s().-]*\d){10}(?!\d)/g) ?? [];
+    return matches.filter((match) => match.replace(/\D/g, "").length === 11);
+  }
   const matches = value.match(/(?<!\d)(?:\+?90[\s().-]*)?0?5(?:[\s().-]*\d){9}(?!\d)/g) ?? [];
   return matches.filter((match) => match.replace(/\D/g, "").length >= 10);
 }

@@ -5,11 +5,13 @@ const ts = require("typescript");
 
 const root = path.resolve(__dirname, "..");
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
-const engineSource = read("src", "features", "ai", "moderation", "deterministic-text-moderation.ts").replace(/import "server-only";\r?\n/, "").replace(/import \{ ([^}]+) \} from "\.\/deterministic-rules";/, "const { $1 } = rules;");
+const engineSource = read("src", "features", "ai", "moderation", "deterministic-text-moderation.ts").replace(/import "server-only";\r?\n/, "").replace(/import \{ CURRENT_MARKET \} from "@\/lib\/market";/, "const { CURRENT_MARKET } = market;").replace(/import \{ ([^}]+) \} from "\.\/deterministic-rules";/, "const { $1 } = rules;");
 const rulesSource = read("src", "features", "ai", "moderation", "deterministic-rules.ts").replace(/import "server-only";\r?\n/, "");
+const marketSource = read("src", "lib", "market.ts");
 const compile = (source, bindings = {}) => { const module = { exports: {} }; const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText; new Function("exports", "module", ...Object.keys(bindings), output)(module.exports, module, ...Object.values(bindings)); return module.exports; };
 const rules = compile(rulesSource);
-const { moderateListingText, normalizeModerationText } = compile(engineSource, { rules });
+const market = compile(marketSource);
+const { moderateListingText, normalizeModerationText } = compile(engineSource, { rules, market });
 const clean = (description) => moderateListingText({ description, sellerNotes: null });
 
 assert.equal(normalizeModerationText("İLAN İyi").normalized, "ilan iyi");
@@ -27,8 +29,8 @@ assert.equal(clean("дурак").signals.some((signal) => signal.code === "PROFA
 assert.equal(clean("ақымақ").signals.some((signal) => signal.code === "PROFANITY_OR_ABUSE"), true);
 assert.notEqual(clean("aptal").recommendedAction, "block");
 
-for (const contact of ["0532 123 45 67", "+90 (532) 123-45-67", "WhatsApp: 05321234567"]) assert.equal(clean(contact).signals.some((signal) => signal.code === "CONTACT_IN_TEXT"), true);
-for (const ordinary of ["2020 model 120000 km", "950000 TL", "1.6 motor 150 hp"]) assert.equal(clean(ordinary).signals.some((signal) => signal.code === "CONTACT_IN_TEXT"), false);
+for (const contact of ["+7 (701) 123-45-67", "8 701 123 45 67", "WhatsApp: +7 7011234567"]) assert.equal(clean(contact).signals.some((signal) => signal.code === "CONTACT_IN_TEXT"), true);
+for (const ordinary of ["2020 model 120000 km", "950000 ₸", "1.6 motor 150 hp", "+7 701 123 45"]) assert.equal(clean(ordinary).signals.some((signal) => signal.code === "CONTACT_IN_TEXT"), false);
 
 for (const link of ["https://example.com/ilan", "www.example.com", "example.com", "example dot com"]) assert.equal(clean(link).signals.some((signal) => signal.code === "EXTERNAL_LINK"), true);
 assert.equal(clean("https://yolmod.com/ilan/1").signals.some((signal) => signal.code === "EXTERNAL_LINK"), false);

@@ -13,7 +13,8 @@ const compile = (source, bindings = {}) => {
   return module.exports;
 };
 const rules = compile(read("src", "features", "ai", "moderation", "deterministic-rules.ts").replace(/import "server-only";\r?\n/, ""));
-const moderation = compile(read("src", "features", "ai", "moderation", "deterministic-text-moderation.ts").replace(/import "server-only";\r?\n/, "").replace(/import \{ ([^}]+) \} from "\.\/deterministic-rules";/, "const { $1 } = rules;"), { rules });
+const market = compile(read("src", "lib", "market.ts"));
+const moderation = compile(read("src", "features", "ai", "moderation", "deterministic-text-moderation.ts").replace(/import "server-only";\r?\n/, "").replace(/import \{ CURRENT_MARKET \} from "@\/lib\/market";/, "const { CURRENT_MARKET } = market;").replace(/import \{ ([^}]+) \} from "\.\/deterministic-rules";/, "const { $1 } = rules;"), { rules, market });
 const duplicate = moderation.moderateListingText({ description: "ordinary listing", sellerNotes: null, antiFraud: { duplicateContent: true } });
 const bulk = moderation.moderateListingText({ description: "ordinary listing", sellerNotes: null, antiFraud: { recentListingCount: 10 } });
 for (const result of [duplicate, bulk]) assert.equal(result.recommendedAction, "review", "anti-fraud signals are review-only");
