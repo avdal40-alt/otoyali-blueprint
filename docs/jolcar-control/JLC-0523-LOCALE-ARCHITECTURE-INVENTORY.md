@@ -19,7 +19,7 @@ must be migrated by domain slice:
   catalog-validation messages migrated to canonical dictionary domains;
   Kazakhstan price and mileage semantic recognition now covers Russian,
   Kazakh, English, and Simplified Chinese KZT/tenge terms (including the
-  English `tenge` spelling and `less than` threshold wording); its in-memory
+  English `tenge` spelling and Russian/Kazakh/Chinese maximum-threshold wording); its in-memory
   parser keeps a mileage threshold from being misclassified as a price threshold,
   and its listing query/city filter no longer applies Turkish normalization or collation;
   AI Search result, availability, clarification, and catalog-validation
