@@ -13,9 +13,10 @@ must be migrated by domain slice:
   display names, sorting, and query normalization, with a language-neutral ISO
   country-code fallback rather than an embedded `tr/en` map);
 - homepage/search/saved-search: `SearchBar.tsx`, `SearchFilters.tsx`,
-  `ActiveFilterChips.tsx`, `SavedSearchButton.tsx`, and `features/ai/search`
-  (`HomeTrustSection.tsx` and `SeoEntryLinks.tsx` migrated to canonical `home`
-  dictionary domains);
+  `SavedSearchButton.tsx`, and `features/ai/search` (`HomeTrustSection.tsx`,
+  `SeoEntryLinks.tsx`, and `ActiveFilterChips.tsx` UI labels migrated to
+  canonical dictionary domains; its legacy tr/en value formatter remains for
+  the four-real-dictionary expansion);
 - listing and dealer detail: `ReportListingButton.tsx` (migrated to
   dictionaries in the first slice), `ShareListingButton.tsx`, listing/detail
   controls, and public dealer pages;

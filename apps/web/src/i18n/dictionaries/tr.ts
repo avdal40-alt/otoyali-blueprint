@@ -168,6 +168,14 @@ export const tr = {
     priceDesc: "Önce en yüksek fiyat",
     yearDesc: "Önce yeni yıl",
     mileageAsc: "Önce düşük kilometre",
+    activeFilters: {
+      mileageMax: "Km max",
+      engineVolume: "Motor hacmi",
+      damageState: "Hasar durumu",
+      ownerCount: "Sahip sayısı",
+      negotiable: "Pazarlık",
+      clear: "Filtreleri temizle"
+    },
     noResultsTitle: "İlan bulunamadı",
     noResultsBody: "Filtreleri değiştirerek tekrar deneyin.",
     nextResults: "Sonraki ilanlar"

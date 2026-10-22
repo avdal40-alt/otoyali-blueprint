@@ -15,6 +15,7 @@ export function ActiveFilterChips({
   onReset: () => void;
 }) {
   const { locale, dictionary } = useI18n();
+  const activeFiltersCopy = dictionary.search.activeFilters as Record<string, string>;
   const labels: Partial<Record<keyof ListingSearchFilters, string>> = {
     q: String(dictionary.common.search),
     make: String(dictionary.search.brand),
@@ -24,7 +25,7 @@ export function ActiveFilterChips({
     priceMax: String(dictionary.search.priceMax),
     yearMin: String(dictionary.search.yearMin),
     yearMax: String(dictionary.search.yearMax),
-    mileageMax: locale === "en" ? "Max km" : "Km max",
+    mileageMax: activeFiltersCopy.mileageMax,
     fuelType: String(dictionary.search.fuelType),
     transmission: String(dictionary.search.transmission),
     bodyType: String(dictionary.search.bodyType),
@@ -32,11 +33,11 @@ export function ActiveFilterChips({
     color: String(dictionary.search.color),
     condition: String(dictionary.search.condition),
     sellerType: String(dictionary.search.sellerType),
-    engineVolume: locale === "en" ? "Engine volume" : "Motor hacmi",
-    damageState: locale === "en" ? "Damage status" : "Hasar durumu",
-    ownerCount: locale === "en" ? "Owner count" : "Sahip sayısı",
+    engineVolume: activeFiltersCopy.engineVolume,
+    damageState: activeFiltersCopy.damageState,
+    ownerCount: activeFiltersCopy.ownerCount,
     onlyWithPhotos: String(dictionary.search.withPhotos),
-    negotiableOnly: locale === "en" ? "Negotiable" : "Pazarlık",
+    negotiableOnly: activeFiltersCopy.negotiable,
     promotedOnly: String(dictionary.home.hotTitle),
     tradeOnly: String(dictionary.search.trade),
     advanced: String(dictionary.search.advanced)
@@ -63,7 +64,7 @@ export function ActiveFilterChips({
         </button>
       ))}
       <button type="button" onClick={onReset} className="px-2 py-1.5 text-xs font-bold text-oto-blue">
-        {locale === "en" ? "Clear filters" : "Filtreleri temizle"}
+        {activeFiltersCopy.clear}
       </button>
     </div>
   );

@@ -168,6 +168,14 @@ export const en = {
     priceDesc: "Highest price first",
     yearDesc: "Newest model year",
     mileageAsc: "Lowest mileage first",
+    activeFilters: {
+      mileageMax: "Max km",
+      engineVolume: "Engine volume",
+      damageState: "Damage status",
+      ownerCount: "Owner count",
+      negotiable: "Negotiable",
+      clear: "Clear filters"
+    },
     noResultsTitle: "No listings found",
     noResultsBody: "Try changing the filters and searching again.",
     nextResults: "Next results"
