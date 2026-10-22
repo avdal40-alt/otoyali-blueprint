@@ -81,6 +81,9 @@ must be migrated by domain slice:
   Kazakh, and Simplified Chinese labels now cover every shared vehicle enum
   group, while released Turkish/English labels remain on their existing
   dictionary path;
+- service pricing: absent offering currency now delegates to the active market
+  formatter rather than injecting legacy TRY; explicitly stored historical
+  currencies remain displayed as provided;
 - API validation and metadata: locale validation in API routes plus all
   canonical, hreflang, sitemap, and metadata route producers.
 

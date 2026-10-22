@@ -31,13 +31,13 @@ export function servicePricingLabel({
   locale: Locale;
 }) {
   if (pricingMode === "fixed" && minAmount !== null && minAmount !== undefined) {
-    return formatPrice(minAmount, currency ?? "TRY", locale);
+    return formatPrice(minAmount, currency, locale);
   }
   if (pricingMode === "starting_from" && minAmount !== null && minAmount !== undefined) {
-    return t(locale, "services.pricing.startingFrom", { price: formatPrice(minAmount, currency ?? "TRY", locale) });
+    return t(locale, "services.pricing.startingFrom", { price: formatPrice(minAmount, currency, locale) });
   }
   if (pricingMode === "range" && minAmount !== null && minAmount !== undefined && maxAmount !== null && maxAmount !== undefined) {
-    return `${formatPrice(minAmount, currency ?? "TRY", locale)} - ${formatPrice(maxAmount, currency ?? "TRY", locale)}`;
+    return `${formatPrice(minAmount, currency, locale)} - ${formatPrice(maxAmount, currency, locale)}`;
   }
   if (pricingMode === "unavailable") return t(locale, "services.pricing.unavailable");
   return t(locale, "services.pricing.quoteRequired");

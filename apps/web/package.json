@@ -98,6 +98,7 @@
     "test:sell-route-state": "node scripts/sell-route-state.test.cjs",
     "test:i18n-foundation": "node scripts/i18n-foundation.test.cjs",
     "test:country-config": "node scripts/country-config.test.cjs",
+    "test:service-format": "node scripts/service-format.test.cjs",
     "test:jlc-0107": "node scripts/jlc-0107-multicountry-regression.test.cjs",
     "test:jlc-1304": "node scripts/jlc-1304-international-readiness.test.cjs",
     "test:jlc-1305": "node scripts/jlc-1305-local-launch-readiness.test.cjs",
