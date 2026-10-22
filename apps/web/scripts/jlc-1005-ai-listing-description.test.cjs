@@ -17,6 +17,9 @@ assert.match(runtime, /if \(!isSafeDescription\(preview\)\)/, "generated output 
 assert.match(runtime, /isSafeDescription\(request\.descriptionPreview\)/, "applied output is safety-validated server-side");
 assert.match(runtime, /phone|whatsapp|telegram/, "contact-sharing output is rejected");
 assert.match(assistant, /action: "generate_description"/, "wizard invokes only the explicit generate action");
+assert.match(assistant, /useI18n\(\)/, "description assistant uses the canonical client dictionary");
+assert.match(assistant, /dictionary\.ai\.sellDescription/, "description assistant reads its AI copy domain");
+assert.doesNotMatch(assistant, /const copy = \{[\s\S]*\btr:/, "description assistant must not retain a local tr/en copy map");
 assert.match(assistant, /<Textarea[^>]*value=\{preview\}/, "generated draft is editable before apply");
 assert.match(assistant, /onApply\(preview\)/, "applying the draft is an explicit owner action");
 assert.match(wizard, /<ListingDescriptionAssistant/, "normal listing wizard exposes the completed description flow");

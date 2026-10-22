@@ -3,19 +3,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
+import { useI18n } from "@/i18n/client";
 import type { Locale } from "@/i18n/types";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type DescriptionDraft = Record<string, string | number | boolean | null | undefined>;
 type DescriptionMode = "concise" | "standard" | "detailed";
 
-const copy = {
-  tr: { generate: "AI ile açıklama oluştur", generating: "Açıklama hazırlanıyor", length: "Açıklama uzunluğu", concise: "Kısa", standard: "Standart", detailed: "Detaylı", help: "Taslağı düzenleyip yalnızca siz uygularsanız ilanın açıklamasına eklenir.", apply: "Açıklamaya uygula", discard: "Vazgeç", error: "Açıklama şu anda oluşturulamadı. Araç bilgilerini kontrol edip tekrar deneyin.", unavailable: "Açıklama oluşturmak için yıl, kilometre, durum, yakıt ve vites bilgisini girin." },
-  en: { generate: "Generate description with AI", generating: "Generating description", length: "Description length", concise: "Concise", standard: "Standard", detailed: "Detailed", help: "Edit the draft, then apply it yourself before it is added to the listing.", apply: "Apply to description", discard: "Discard", error: "The description could not be generated. Check the vehicle details and try again.", unavailable: "Enter the year, mileage, condition, fuel, and transmission to generate a description." }
-} as const;
-
 export function ListingDescriptionAssistant({ locale, draft, onApply }: { locale: Locale; draft: DescriptionDraft; onApply: (description: string) => void }) {
-  const t = copy[locale];
+  const { dictionary } = useI18n();
+  const t = dictionary.ai.sellDescription as Record<"generate" | "generating" | "length" | "concise" | "standard" | "detailed" | "help" | "apply" | "discard" | "error" | "unavailable" | "previewLabel", string>;
   const [mode, setMode] = useState<DescriptionMode>("standard");
   const [preview, setPreview] = useState("");
   const [busy, setBusy] = useState(false);
@@ -51,6 +48,6 @@ export function ListingDescriptionAssistant({ locale, draft, onApply }: { locale
     <p className="mt-2 text-xs leading-5 text-oto-muted">{ready ? t.help : t.unavailable}</p>
     <Button className="mt-3" type="button" variant="secondary" onClick={() => void generate()} disabled={busy || !ready} isLoading={busy}>{busy ? t.generating : t.generate}</Button>
     {error ? <p role="alert" className="mt-2 text-xs font-bold text-oto-danger">{error}</p> : null}
-    {preview ? <div className="mt-3 grid gap-2"><Textarea aria-label={locale === "tr" ? "Oluşturulan açıklama taslağı" : "Generated description draft"} value={preview} maxLength={4000} onChange={(event) => setPreview(event.target.value)} /><div className="flex flex-wrap gap-2"><Button type="button" onClick={() => { onApply(preview); setPreview(""); }}>{t.apply}</Button><Button type="button" variant="secondary" onClick={() => setPreview("")}>{t.discard}</Button></div></div> : null}
+    {preview ? <div className="mt-3 grid gap-2"><Textarea aria-label={t.previewLabel} value={preview} maxLength={4000} onChange={(event) => setPreview(event.target.value)} /><div className="flex flex-wrap gap-2"><Button type="button" onClick={() => { onApply(preview); setPreview(""); }}>{t.apply}</Button><Button type="button" variant="secondary" onClick={() => setPreview("")}>{t.discard}</Button></div></div> : null}
   </div>;
 }

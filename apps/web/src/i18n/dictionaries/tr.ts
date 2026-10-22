@@ -771,6 +771,7 @@ export const tr = {
   ai: {
     title: "Rif",
     subtitle: "JOLCAR yapay zeka önizlemesi",
+    sellDescription: { generate: "AI ile açıklama oluştur", generating: "Açıklama hazırlanıyor", length: "Açıklama uzunluğu", concise: "Kısa", standard: "Standart", detailed: "Detaylı", help: "Taslağı düzenleyip yalnızca siz uygularsanız ilanın açıklamasına eklenir.", apply: "Açıklamaya uygula", discard: "Vazgeç", error: "Açıklama şu anda oluşturulamadı. Araç bilgilerini kontrol edip tekrar deneyin.", unavailable: "Açıklama oluşturmak için yıl, kilometre, durum, yakıt ve vites bilgisini girin.", previewLabel: "Oluşturulan açıklama taslağı" },
     price: {
       title: "Benzer ilan fiyatları",
       loading: "Benzer ilanların fiyatları hazırlanıyor.",

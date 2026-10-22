@@ -771,6 +771,7 @@ export const en = {
   ai: {
     title: "Rif",
     subtitle: "JOLCAR AI preview",
+    sellDescription: { generate: "Generate description with AI", generating: "Generating description", length: "Description length", concise: "Concise", standard: "Standard", detailed: "Detailed", help: "Edit the draft, then apply it yourself before it is added to the listing.", apply: "Apply to description", discard: "Discard", error: "The description could not be generated. Check the vehicle details and try again.", unavailable: "Enter the year, mileage, condition, fuel, and transmission to generate a description.", previewLabel: "Generated description draft" },
     price: {
       title: "Comparable listing prices",
       loading: "Comparable listing prices are being prepared.",

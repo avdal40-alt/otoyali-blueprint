@@ -23,8 +23,9 @@ must be migrated by domain slice:
   error mapper now use the canonical `myListings` dictionary domain rather
   than an embedded `tr/en` map), `MyListingsClient.tsx`, `SellerContactsClient.tsx`,
   rejected edit flows, and seller contact error handling;
-- seller wizard and AI assistance: `ListingDescriptionAssistant.tsx`,
-  `SellAssistant.tsx`, `SellWizard.tsx`, `sell-copy.ts`,
+- seller wizard and AI assistance: `ListingDescriptionAssistant.tsx`
+  (migrated to the canonical `ai.sellDescription` domain, including accessible
+  preview-label copy), `SellAssistant.tsx`, `SellWizard.tsx`, `sell-copy.ts`,
   `features/ai/sell/sell-draft.ts`, and `sell-runtime.ts`;
 - profile, favorites, notifications, messages, settings, and video:
   `ProfileClient.tsx`, `FavoritesClient.tsx`, `NotificationsClient.tsx`,
