@@ -1,6 +1,7 @@
 import "server-only";
 
 import { z } from "zod";
+import { getAiSellDescriptionTemplates } from "@/i18n/dictionaries/ai-sell-description";
 import type { AuthenticatedRequestSupabase } from "@/lib/supabase/request";
 import { createListingSchema, createOwnListingDraft, editListingSchema, listingIdSchema, saveOwnRejectedListing, submitOwnListing } from "@/lib/listings/server-write";
 import { applySellDraftPatch, extractSellerDeclarations, getMissingRequiredFields, getNextSellQuestion, getSellAmbiguity, normalizeSellNumber, processSellDraftTurn, sellDraftPatchSchema, sellDraftSchema, type SellDraft, type SellDraftPatch } from "./sell-draft";
@@ -85,10 +86,11 @@ function extractDeterministicPatch(message: string, current: SellDraft): SellDra
 }
 
 function generateDescription(draft: SellDraft, locale: "tr" | "en", mode: "concise" | "standard" | "detailed", sellerText: string) {
+  const copy = getAiSellDescriptionTemplates(locale);
   const facts = [draft.year, draft.color, draft.fuelType, draft.transmission, draft.mileageKm !== undefined ? `${draft.mileageKm} km` : undefined].filter(Boolean).join(" · ");
-  const declarations = extractSellerDeclarations(sellerText).filter((item) => isSafeDescription(item.text)).map((item) => locale === "tr" ? `Satıcının beyanına göre ${item.text}` : `According to the seller's declaration: ${item.text}`);
-  const base = locale === "tr" ? `${draft.year ?? ""} ${draft.color ?? ""} araç. ${facts}`.trim() : `${draft.year ?? ""} ${draft.color ?? ""} vehicle. ${facts}`.trim();
-  return [base, mode === "detailed" && draft.city ? (locale === "tr" ? `Araç ${draft.city} konumundadır.` : `The vehicle is located in ${draft.city}.`) : "", ...declarations].filter(Boolean).join(" ").slice(0, maxDescriptionLength);
+  const declarations = extractSellerDeclarations(sellerText).filter((item) => isSafeDescription(item.text)).map((item) => copy.declaration(item.text));
+  const base = `${draft.year ?? ""} ${draft.color ?? ""} ${copy.vehicle}. ${facts}`.trim();
+  return [base, mode === "detailed" && draft.city ? copy.city(draft.city) : "", ...declarations].filter(Boolean).join(" ").slice(0, maxDescriptionLength);
 }
 function canGenerateDescription(draft: SellDraft) { return [draft.year, draft.mileageKm, draft.condition, draft.fuelType, draft.transmission].every((value) => value !== undefined && value !== null); }
 function isSafeDescription(value: string) { return value.trim().length > 0 && value.length <= maxDescriptionLength && !/(?:\+?\d[\d\s().-]{7,}\d|[\w.+-]+@[\w.-]+\.[a-z]{2,}|https?:\/\/|whatsapp|telegram)/i.test(value); }
