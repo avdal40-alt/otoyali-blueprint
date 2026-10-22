@@ -42,7 +42,10 @@ must be migrated by domain slice:
   `ai.sellAssistant` copy, including field labels), `SellWizard.tsx`,
   `sell-copy.ts` (migrated to the canonical `i18n/dictionaries` boundary),
   `features/ai/sell/sell-draft.ts` (migrated: question and ambiguity copy now
-  lives in `i18n/dictionaries/ai-sell-draft.ts`), and `sell-runtime.ts`;
+  lives in `i18n/dictionaries/ai-sell-draft.ts` with direct RU/KK/EN/zh-CN
+  launch copy), and `sell-runtime.ts` (migrated: generated-description
+  templates and bounded field recognition now have direct launch-language
+  coverage rather than Turkish/English-only branches);
 - profile, favorites, notifications, messages, settings, and video:
   `ProfileClient.tsx` (migrated: date formatting uses canonical locale metadata
   and seller-contact copy uses the dictionary), `FavoritesClient.tsx`,
