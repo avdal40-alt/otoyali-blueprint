@@ -445,7 +445,7 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
                     {actionBusy ? copy.archiving : copy.archive}
                   </Button>
                 ) : null}
-                <ListingVideoManager listingId={item.id} title={item.title} locale={locale} />
+                <ListingVideoManager listingId={item.id} title={item.title} />
               </div>
               {videoListingId === item.id ? (
                 <form className="mt-4 rounded-md border border-oto-border bg-oto-surface p-4" onSubmit={(event) => submitVideo(event, item)}>

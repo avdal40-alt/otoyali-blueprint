@@ -283,7 +283,8 @@ export const en = {
     eyebrow: "Account",
     emptyTitle: "You have no listings yet",
     emptyBody: "Add your vehicle details to create your first listing.",
-    editRejected: "Edit again"
+    editRejected: "Edit again",
+    videoManagerVideo: "Video", videoManagerNone: "No video", videoManagerUpload: "Upload video", videoManagerReplace: "Replace video", videoManagerRemove: "Remove video", videoManagerPending: "Pending moderation", videoManagerApproved: "Approved", videoManagerPublic: "Public", videoManagerHidden: "Hidden", videoManagerRejected: "Rejected", videoManagerLoading: "Loading video status", videoManagerLoadError: "Could not load video status", videoManagerRetry: "Retry", videoManagerVerified: "Video is available for verified dealers", videoManagerUploading: "Uploading...", videoManagerReplacing: "Replacing...", videoManagerRemoving: "Removing...", videoManagerFailed: "Video operation failed", videoManagerCleanup: "Cleanup incomplete", videoManagerFormat: "Unsupported video format", videoManagerSize: "Video file is too large"
   },
   auth: {
     loginTitle: "Log in with your phone number",

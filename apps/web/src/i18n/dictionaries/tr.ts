@@ -283,7 +283,8 @@ export const tr = {
     eyebrow: "Hesabım",
     emptyTitle: "Henüz ilanınız yok",
     emptyBody: "Araç bilgilerinizi ekleyerek ilk ilanınızı oluşturabilirsiniz.",
-    editRejected: "Tekrar düzenle"
+    editRejected: "Tekrar düzenle",
+    videoManagerVideo: "Video", videoManagerNone: "Video yok", videoManagerUpload: "Video yükle", videoManagerReplace: "Videoyu değiştir", videoManagerRemove: "Videoyu kaldır", videoManagerPending: "Moderasyon bekliyor", videoManagerApproved: "Onaylandı", videoManagerPublic: "Herkese açık", videoManagerHidden: "Gizli", videoManagerRejected: "Reddedildi", videoManagerLoading: "Video durumu yükleniyor", videoManagerLoadError: "Video durumu yüklenemedi", videoManagerRetry: "Tekrar dene", videoManagerVerified: "Video yalnızca doğrulanmış galeriler için kullanılabilir", videoManagerUploading: "Yükleniyor...", videoManagerReplacing: "Değiştiriliyor...", videoManagerRemoving: "Kaldırılıyor...", videoManagerFailed: "Video işlemi başarısız oldu", videoManagerCleanup: "Temizleme tamamlanamadı", videoManagerFormat: "Desteklenmeyen video formatı", videoManagerSize: "Video dosyası çok büyük"
   },
   auth: {
     loginTitle: "Telefon numaranızla giriş yapın",
