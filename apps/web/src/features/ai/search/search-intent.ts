@@ -66,6 +66,7 @@ export function resolveSearchText(text: string, catalog: SearchCatalog, locale: 
   if (/(elektrik|electric|электр|электро|电动)/.test(normalized)) values.fuel = "electric";
   if (/(otomatik|automatic|автомат|автоматты|自动)/.test(normalized)) values.transmission = "automatic";
   if (/(manuel|manual|механик|қолмен|手动)/.test(normalized)) values.transmission = "manual";
+  if (/(semi[ -]?automatic|robot|dsg|робот|жартылай автомат|半自动|双离合)/.test(normalized)) values.transmission = "semi_automatic";
   if (/\bsuv\b/.test(normalized)) values.bodyType = "suv";
   if (/(video olan|with video|cars with video|с видео|бейнесі бар|带视频)/.test(normalized)) values.hasVideo = true;
   if (/(fotoğraflı|with photos|с фото|фотосуреті бар|带照片)/.test(normalized)) values.hasPhotos = true;
