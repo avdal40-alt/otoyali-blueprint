@@ -11,8 +11,10 @@ import { useI18n } from "@/i18n/client";
 import { getIntlLocale, localizePath } from "@/i18n/config";
 import { normalizeStoredAuthPhoneToE164 } from "@/lib/auth/phone";
 import { cityLabel } from "@/lib/format";
+import { getPreferredCityNames } from "@/lib/location";
+import { CURRENT_MARKET } from "@/lib/market";
 
-const fallbackCities = ["İstanbul", "Ankara", "İzmir", "Antalya"];
+const fallbackCities = [...getPreferredCityNames()];
 
 export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   const router = useRouter();
@@ -54,7 +56,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
         display_name: null,
         seller_type: "private",
         language: locale,
-        country: "TR",
+        country: CURRENT_MARKET.countryCode,
         city: null,
         timezone: "Europe/Istanbul"
       };

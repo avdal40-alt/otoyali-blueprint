@@ -95,6 +95,8 @@ must be migrated by domain slice:
   locale routes; the existing authenticated write boundary is unchanged;
 - city presentation: popular-city ordering now uses the selected locale's
   configured collation instead of a hard-coded Turkish collation;
+- profile fallback: an absent profile now uses active-market KZ country metadata
+  and configured Kazakhstan city choices rather than Turkey defaults;
 - API validation and metadata: locale validation in API routes plus all
   canonical, hreflang, sitemap, and metadata route producers.
 
