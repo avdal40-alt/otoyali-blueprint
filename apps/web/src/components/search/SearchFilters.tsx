@@ -9,6 +9,7 @@ import { Input, Select } from "@/components/ui/Input";
 import { bodyTypeLabel, cityLabel, colorLabel, conditionLabel, damageStateLabel, driveTypeLabel, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
 import { getIntlLocale } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import type { Locale } from "@/i18n/types";
 
 export const fuelOptions = [
   { value: "gasoline", label: fuelLabel("gasoline") },
@@ -362,7 +363,7 @@ function MultiSelectGroup({
   );
 }
 
-function normalizeOption(value: string, locale: "tr" | "en") {
+function normalizeOption(value: string, locale: Locale) {
   return value.trim().toLocaleLowerCase(getIntlLocale(locale));
 }
 

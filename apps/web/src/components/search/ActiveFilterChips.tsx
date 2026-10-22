@@ -4,6 +4,7 @@ import type { ListingSearchFilters } from "@/lib/search/search-params";
 import { selectedValues } from "@/lib/search/search-params";
 import { bodyTypeLabel, cityLabel, colorLabel, conditionLabel, damageStateLabel, driveTypeLabel, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
+import type { Locale } from "@/i18n/types";
 
 export function ActiveFilterChips({
   filters,
@@ -70,7 +71,7 @@ export function ActiveFilterChips({
   );
 }
 
-function formatChipValue(key: keyof ListingSearchFilters, value: string, locale: "tr" | "en") {
+function formatChipValue(key: keyof ListingSearchFilters, value: string, locale: Locale) {
   const values = selectedValues(value);
   if (values.length > 1) {
     return values.map((item) => formatSingleValue(key, item, locale)).join(", ");
@@ -79,7 +80,7 @@ function formatChipValue(key: keyof ListingSearchFilters, value: string, locale:
   return formatSingleValue(key, value, locale);
 }
 
-function formatSingleValue(key: keyof ListingSearchFilters, value: string, locale: "tr" | "en") {
+function formatSingleValue(key: keyof ListingSearchFilters, value: string, locale: Locale) {
   if (key === "city") return cityLabel(value, locale);
   if (key === "fuelType") return fuelLabel(value, locale);
   if (key === "transmission") return transmissionLabel(value, locale);
