@@ -75,8 +75,8 @@ export function SearchClient({
       .map((city) => city.city_name?.trim())
       .filter(Boolean) as string[];
 
-    return catalogCities.length > 0 ? catalogCities : getUniqueCities(listings);
-  }, [cities, listings]);
+    return catalogCities.length > 0 ? catalogCities : getUniqueCities(listings, locale);
+  }, [cities, listings, locale]);
   const savedSearchRequest = useMemo(() => buildSearchRequest(filters, { makes, models, cities: cities ?? [] }), [cities, filters, makes, models]);
   const countRequest = useMemo(
     () => buildSearchRequest({ ...filters, cursor: null }, { makes, models, cities: cities ?? [] }),

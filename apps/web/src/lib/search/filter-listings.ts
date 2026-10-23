@@ -1,5 +1,7 @@
 import type { HomeListing } from "@/lib/supabase/types";
 import { cityLabel } from "@/lib/format";
+import { getIntlLocale } from "@/i18n/config";
+import type { LocaleId } from "@/i18n/types";
 import type { ListingSearchFilters } from "./search-params";
 import { selectedValues } from "./search-params";
 
@@ -73,8 +75,8 @@ export function sortListings(listings: HomeListing[], sort: ListingSearchFilters
   });
 }
 
-export function getUniqueCities(listings: HomeListing[]) {
-  return unique(listings.map((listing) => listing.city));
+export function getUniqueCities(listings: HomeListing[], locale?: LocaleId) {
+  return unique(listings.map((listing) => listing.city), locale);
 }
 
 export function getListingCountByMake(listings: HomeListing[]) {
@@ -103,8 +105,11 @@ export function getAvailableFilterFields(listings: HomeListing[]) {
   };
 }
 
-function unique(values: Array<string | null | undefined>) {
-  return Array.from(new Set(values.map((value) => value?.trim()).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b));
+function unique(values: Array<string | null | undefined>, locale?: LocaleId) {
+  const collator = locale ? new Intl.Collator(getIntlLocale(locale)) : undefined;
+  return Array.from(new Set(values.map((value) => value?.trim()).filter(Boolean) as string[])).sort((a, b) =>
+    collator ? collator.compare(cityLabel(a, locale), cityLabel(b, locale)) : a.localeCompare(b)
+  );
 }
 
 function normalize(value: string) {

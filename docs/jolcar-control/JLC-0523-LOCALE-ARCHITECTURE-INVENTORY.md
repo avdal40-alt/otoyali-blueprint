@@ -21,6 +21,7 @@ must be migrated by domain slice:
   Kazakh, English, and Simplified Chinese KZT/tenge terms (including the
   English `tenge` spelling and Russian/Kazakh/Chinese maximum-threshold wording); its in-memory
   parser keeps a mileage threshold from being misclassified as a price threshold,
+  and fallback city-option ordering now uses the selected locale's collation,
   and its listing query/city filter no longer applies Turkish normalization or collation;
   AI Search result, availability, clarification, and catalog-validation
   messages now have direct RU/KK/EN/zh-CN dictionary coverage; deterministic

@@ -19,6 +19,7 @@ loadedModule.paths = Module._nodeModulePaths(path.dirname(filename));
 const load = Module._load;
 Module._load = (request, parent, isMain) => {
   if (request === "@/lib/format") return { cityLabel: (city) => city ?? "" };
+  if (request === "@/i18n/config") return { getIntlLocale: (locale) => locale === "kk" ? "kk-KZ" : "ru-RU" };
   if (request === "./search-params") return { selectedValues: (value) => value ? value.split(",") : [] };
   return load(request, parent, isMain);
 };
@@ -41,5 +42,6 @@ const listing = {
 };
 const filters = { q: "ӨСКЕМЕН", make: "", model: "", city: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", mileageMax: "", fuelType: "", transmission: "", bodyType: "", driveType: "", color: "", condition: "", sellerType: "", engineVolume: "", damageState: "", ownerCount: "", onlyWithPhotos: false, negotiableOnly: false, promotedOnly: false, tradeOnly: false, advanced: false, sort: "newest" };
 assert.deepEqual(loadedModule.exports.filterListings([listing], filters), [listing]);
+assert.deepEqual(loadedModule.exports.getUniqueCities([{ city: "Өскемен" }, { city: "Алматы" }], "kk"), ["Алматы", "Өскемен"]);
 
 console.log("JLC-0523 search normalization contract passed");

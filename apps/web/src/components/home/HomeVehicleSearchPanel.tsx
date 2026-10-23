@@ -32,8 +32,8 @@ export function HomeVehicleSearchPanel({
       .map((city) => city.city_name?.trim())
       .filter(Boolean) as string[];
 
-    return catalogCities.length > 0 ? catalogCities : getUniqueCities(listings);
-  }, [cities, listings]);
+    return catalogCities.length > 0 ? catalogCities : getUniqueCities(listings, locale);
+  }, [cities, listings, locale]);
   const filteredModels = filters.make ? models.filter((model) => (model.make_name ?? "") === filters.make) : models;
   const hasAdvancedSelection = Boolean(
       filters.city ||
