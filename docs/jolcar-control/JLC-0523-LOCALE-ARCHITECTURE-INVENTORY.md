@@ -49,7 +49,9 @@ must be migrated by domain slice:
 - seller wizard and AI assistance: `ListingDescriptionAssistant.tsx`
   (migrated to the canonical `ai.sellDescription` domain, including accessible
   preview-label copy), `SellAssistant.tsx` (migrated to canonical
-  `ai.sellAssistant` copy, including field labels), `SellWizard.tsx`,
+  `ai.sellAssistant` copy, including field labels), `SellWizard.tsx`
+  (the full Russian SellCopy contract now has direct lifecycle, validation,
+  media, seller-contact, pricing, and moderation copy without Turkish fallback),
   `sell-copy.ts` (migrated to the canonical `i18n/dictionaries` boundary),
   `features/ai/sell/sell-draft.ts` (migrated: question and ambiguity copy now
   lives in `i18n/dictionaries/ai-sell-draft.ts` with direct RU/KK/EN/zh-CN
