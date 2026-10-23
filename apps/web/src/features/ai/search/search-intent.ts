@@ -64,6 +64,8 @@ export function resolveSearchText(text: string, catalog: SearchCatalog, locale: 
   if (/(dizel|diesel|дизел|дизель|柴油)/.test(normalized)) values.fuel = "diesel";
   if (/(benzin|gasoline|petrol|бензин|汽油)/.test(normalized)) values.fuel = "gasoline";
   if (/(elektrik|electric|электр|электро|电动)/.test(normalized)) values.fuel = "electric";
+  if (/(\bnew\b|нов(?:ый|ыи)|жаңа|新车)/.test(normalized)) values.condition = "new";
+  if (/(\bused\b|с пробегом|б\/у|қолданылған|二手)/.test(normalized)) values.condition = "used";
   if (/(otomatik|automatic|автомат|автоматты|自动)/.test(normalized)) values.transmission = "automatic";
   if (/(manuel|manual|механик|қолмен|手动)/.test(normalized)) values.transmission = "manual";
   if (/(semi[ -]?automatic|robot|dsg|робот|жартылай автомат|半自动|双离合)/.test(normalized)) values.transmission = "semi_automatic";
