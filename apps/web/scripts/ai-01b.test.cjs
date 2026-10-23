@@ -112,6 +112,10 @@ assert.deepEqual(resolveSearchText("минимальный пробег", emptyC
 assert.deepEqual(resolveSearchText("ең аз жүріс", emptyCatalog, "kk").patch.values, { sort: "mileage_asc" });
 assert.deepEqual(resolveSearchText("lowest mileage", emptyCatalog, "en").patch.values, { sort: "mileage_asc" });
 assert.deepEqual(resolveSearchText("最低里程", emptyCatalog, "zh-CN").patch.values, { sort: "mileage_asc" });
+assert.deepEqual(resolveSearchText("самый новый год выпуска", emptyCatalog, "ru").patch.values, { sort: "year_desc" });
+assert.deepEqual(resolveSearchText("шығарылған жылы ең жаңа", emptyCatalog, "kk").patch.values, { sort: "year_desc" });
+assert.deepEqual(resolveSearchText("newest model year", emptyCatalog, "en").patch.values, { sort: "year_desc" });
+assert.deepEqual(resolveSearchText("年份最新", emptyCatalog, "zh-CN").patch.values, { sort: "year_desc" });
 assert.deepEqual(resolveSearchText("半自动", emptyCatalog, "zh-CN").patch.values, { transmission: "semi_automatic" });
 assert.deepEqual(resolveSearchText("四驱", emptyCatalog, "zh-CN").patch.values, { drivetrain: "4wd" });
 assert.deepEqual(resolveSearchText("新车", emptyCatalog, "zh-CN").patch.values, { condition: "new" });

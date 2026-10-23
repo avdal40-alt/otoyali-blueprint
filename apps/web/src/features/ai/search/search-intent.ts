@@ -60,11 +60,12 @@ export function resolveSearchText(text: string, catalog: SearchCatalog, locale: 
   if (/(doğrulanmış galeri|verified dealer|проверенный дилер|расталған дилер|认证经销商)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "verifiedDealer", unsupported: true, message: messages.verifiedDealerUnavailable } };
   if (/(hangisi en iyi|which is best|\bbetter\b|какой лучше|қайсысы жақсы|哪个更好)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "criteria", message: messages.compareCriteria } };
   if (/(daha yeni|daha ucuz|düşük kilometre|newer|cheaper|low mileage|новее|дешевле|меньше пробег|жаңарақ|арзанырақ|аз жүрген|更新|更便宜|(?<!最)低里程)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "threshold", message: messages.threshold } };
+  const newestModelYear = /(newest model year|latest model year|самы(?:й|и) новыи год выпуска|шығарылған жылы ең жаңа|年份最新)/.test(normalized);
   const values: Record<string, unknown> = { ...numericFilters(normalized, locale) };
   if (/(dizel|diesel|дизел|дизель|柴油)/.test(normalized)) values.fuel = "diesel";
   if (/(benzin|gasoline|petrol|бензин|汽油)/.test(normalized)) values.fuel = "gasoline";
   if (/(elektrik|electric|электр|электро|电动)/.test(normalized)) values.fuel = "electric";
-  if (/(\bnew\b|нов(?:ый|ыи)|жаңа|新车)/.test(normalized)) values.condition = "new";
+  if (!newestModelYear && /(\bnew\b|нов(?:ый|ыи)|жаңа|新车)/.test(normalized)) values.condition = "new";
   if (/(\bused\b|с пробегом|б\/у|қолданылған|二手)/.test(normalized)) values.condition = "used";
   if (/(otomatik|automatic|автомат|автоматты|自动)/.test(normalized)) values.transmission = "automatic";
   if (/(manuel|manual|механик|қолмен|手动)/.test(normalized)) values.transmission = "manual";
@@ -94,7 +95,8 @@ export function resolveSearchText(text: string, catalog: SearchCatalog, locale: 
   if (/(en ucuz|cheapest|самый дешев|ең арзан|最便宜)/.test(normalized)) values.sort = "price_asc";
   if (/(en pahalı|most expensive|самы(?:й|и) дорог|ең қымбат|最贵)/.test(normalized)) values.sort = "price_desc";
   if (/(en düşük kilometre|lowest mileage|минимальн\S* пробег|ең аз жүріс|最低里程)/.test(normalized)) values.sort = "mileage_asc";
-  if (/(en yeni|newest|самый новый|ең жаңа|最新)/.test(normalized)) values.sort = "newest";
+  if (newestModelYear) values.sort = "year_desc";
+  if (!newestModelYear && /(en yeni|newest|самый новый|ең жаңа|最新)/.test(normalized)) values.sort = "newest";
   const resolution = resolveNamedEntities(normalized, catalog, values, locale);
   return resolution.clarification ? { patch: { operation: "keep" }, clarification: resolution.clarification } : { patch: { operation: "set", values: searchIntentObject.partial().parse(values) } };
 }

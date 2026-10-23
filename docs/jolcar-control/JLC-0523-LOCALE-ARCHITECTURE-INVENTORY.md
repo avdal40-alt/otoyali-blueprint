@@ -28,7 +28,7 @@ must be migrated by domain slice:
   AI Search result, availability, clarification, and catalog-validation
   messages now have direct RU/KK/EN/zh-CN dictionary coverage; deterministic
   reset, comparison, threshold, fuel, transmission, media, and sorting intent
-  (including highest-price and lowest-mileage sort requests)
+  (including highest-price, lowest-mileage, and newest-model-year sort requests)
   recognition (including inclusive and exclusive year bounds, color and full body-type taxonomy, condition, seller type, semi-automatic/robot transmission, and drivetrain terms) now covers
   the same four launch languages without changing the
   Kazakhstan search catalog or market context; remaining legacy
