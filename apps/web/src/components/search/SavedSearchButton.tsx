@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/Button";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { getSavedSearchCopy } from "@/lib/saved-search/saved-search-copy";
 
 export function SavedSearchButton({ request }: { request: Record<string, unknown> }) {
-  const { locale, dictionary } = useI18n();
-  const feedback = dictionary.search.savedSearchFeedback as Record<string, string>;
+  const { locale } = useI18n();
+  const copy = getSavedSearchCopy(locale);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -22,7 +23,7 @@ export function SavedSearchButton({ request }: { request: Record<string, unknown
 
     if (!hasSupabaseEnv()) {
       setStatus("error");
-      setMessage(String(dictionary.errors.missingSupabaseEnv));
+      setMessage(copy.configurationUnavailable);
       return;
     }
 
@@ -41,29 +42,29 @@ export function SavedSearchButton({ request }: { request: Record<string, unknown
       response = await fetch("/api/saved-searches", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session.access_token}` },
-        body: JSON.stringify({ request, title: feedback.title, alertEnabled: false })
+        body: JSON.stringify({ request, title: copy.title, alertEnabled: false })
       });
     } catch {
       setStatus("error");
-      setMessage(feedback.error);
+      setMessage(copy.saveFailed);
       return;
     }
 
     if (!response.ok) {
       const body = await response.json().catch(() => null) as { error?: unknown } | null;
       setStatus("error");
-      setMessage(typeof body?.error === "string" ? body.error : feedback.error);
+      setMessage(typeof body?.error === "string" ? body.error : copy.saveFailed);
       return;
     }
 
     setStatus("saved");
-    setMessage(feedback.saved);
+    setMessage(copy.saved);
   }
 
   return (
     <div className="grid gap-2">
       <Button type="button" variant="secondary" onClick={saveSearch} disabled={status === "saving"} className="h-10">
-        {status === "saving" ? feedback.saving : String(dictionary.search.saveSearch)}
+        {status === "saving" ? copy.saving : copy.save}
       </Button>
       {message ? (
         <p className={status === "error" ? "text-xs font-semibold text-oto-danger" : "text-xs font-semibold text-oto-blue"}>

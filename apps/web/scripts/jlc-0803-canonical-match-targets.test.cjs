@@ -38,8 +38,8 @@ INSERT INTO vehicle.models(id,make_id,name,slug) VALUES
 INSERT INTO vehicle.vehicle_profiles(id,make_id,model_id,year,mileage_km,fuel_type,transmission,created_source,profile_status,created_by)
  VALUES ('${ids.vehicle}','${ids.make}','${ids.model}',2024,100,'gasoline','automatic','manual','active','${ids.seller}');
 INSERT INTO vehicle.profile_ownership(vehicle_profile_id,owner_id,ownership_type,is_current) VALUES ('${ids.vehicle}','${ids.seller}','owner',true);
-INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,seller_type)
- VALUES ('${ids.listing}','${ids.vehicle}','${ids.seller}','active','active','JLC 0803 fixture',100000,'KZT',false,'Astana','private');
+INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,city_id,seller_type)
+ VALUES ('${ids.listing}','${ids.vehicle}','${ids.seller}','active','active','JLC 0803 fixture',100000,'KZT',false,'Astana',(SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Astana' AND is_active ORDER BY sort_order LIMIT 1),'private');
 INSERT INTO marketplace.buyer_requests(id,user_id,title,criteria_version,search_request,status,created_at) VALUES
  ('${ids.buyerMatch}','${ids.buyer}','matching buyer','v1','${matchingRequest}'::jsonb,'active','2026-01-01T00:00:00Z'),
  ('${ids.buyerArchived}','${ids.buyer}','archived buyer','v1','${matchingRequest}'::jsonb,'archived','2026-01-01T00:01:00Z'),

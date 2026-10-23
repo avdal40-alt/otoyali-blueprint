@@ -35,7 +35,7 @@ const request = JSON.stringify({ version: "v1", limit: 60, sort: "price_asc", fi
 const nonMatchRequest = JSON.stringify({ version: "v1", filters: { q: "not-the-alert" } }).replaceAll("'", "''");
 const claims = (role, sub) => JSON.stringify({ role, ...(sub ? { sub } : {}) }).replaceAll("'", "''");
 const asRole = (role, sub) => `RESET ROLE; SET LOCAL ROLE ${role}; SET LOCAL request.jwt.claims TO '${claims(role, sub)}';`;
-const fixtures = listingIds.map((id, index) => `('${id}','${ids.vehicle}','${ids.seller}','active','active','B3 Alert fixture ${index}',100000,'TRY',false,'Istanbul','private')`).join(",");
+const fixtures = listingIds.map((id, index) => `('${id}','${ids.vehicle}','${ids.seller}','active','active','B3 Alert fixture ${index}',100000,'KZT',false,'Almaty',(SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1),'private')`).join(",");
 
 const sql = `BEGIN;
 CREATE TEMP TABLE results (name TEXT PRIMARY KEY, ok BOOLEAN NOT NULL) ON COMMIT DROP;
@@ -57,7 +57,7 @@ INSERT INTO marketplace.saved_searches(id,user_id,title,query_params,criteria_ve
  ('${ids.malformed}','${ids.other}','Malformed','{}','v1','{"version":"v2","filters":{}}',true),
  ('${randomUUID()}','${ids.seller}','Own listing','{}','v1','${request}'::jsonb,true),
  ('${randomUUID()}','${ids.other}','Nonmatch','{}','v1','${nonMatchRequest}'::jsonb,true);
-INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,seller_type) VALUES ${fixtures};
+INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,city_id,seller_type) VALUES ${fixtures};
 INSERT INTO results VALUES ('lifecycle generated one durable notification per matching listing', (SELECT count(*) = 65 FROM marketplace.notifications WHERE saved_search_id = '${ids.saved}'));
 INSERT INTO results VALUES ('disabled legacy malformed and own seller searches generate none', (SELECT count(*) = 65 FROM marketplace.notifications));
 INSERT INTO results VALUES ('outside public first page still matches', marketplace.listing_matches_search_v1('${request}'::jsonb, '${outsideId}'));

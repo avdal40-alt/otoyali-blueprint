@@ -142,6 +142,14 @@ must be migrated by domain slice:
   RU/KK/EN/zh-CN copy for unavailable configuration, load failure, and the
   empty search CTA; the authenticated favorite query, signed-media handling,
   and locale-preserving login return path remain unchanged;
+- saved searches: management and search-page creation now use the scoped
+  `saved-search-copy.ts` contract with direct RU/KK/EN/zh-CN copy for loading,
+  unavailable/error/login states, cards, save/delete actions, and alert state;
+  canonical request payloads, API ownership boundaries, matching semantics,
+  and locale-preserving login return paths remain unchanged. Saved-search
+  alert and canonical-target runtime fixtures now select active KZ cities and
+  KZT so they remain compatible with the existing JLC-0522 listing-market
+  guard;
 - deterministic listing-text moderation now recognizes active Kazakhstan +7
   and domestic 8-prefixed phone numbers as contact details, retaining the
   historical Turkey matcher only for the Turkey market profile;
