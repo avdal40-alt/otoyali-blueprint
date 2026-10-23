@@ -37,8 +37,8 @@ INSERT INTO vehicle.vehicle_profiles(id,make_id,model_id,year,mileage_km,fuel_ty
 INSERT INTO vehicle.profile_ownership(vehicle_profile_id,owner_id,ownership_type,is_current) VALUES ('${ids.vehicle}','${ids.seller}','owner',true);
 INSERT INTO marketplace.buyer_requests(id,user_id,title,criteria_version,search_request,status) VALUES ('${ids.buyerRequest}','${ids.buyer}','matching buyer request','v1','${request}'::jsonb,'active');
 INSERT INTO marketplace.saved_searches(id,user_id,title,query_params,criteria_version,search_request,alert_enabled) VALUES ('${ids.savedSearch}','${ids.savedOwner}','matching saved search','{}','v1','${request}'::jsonb,true);
-INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,seller_type)
- VALUES ('${ids.listing}','${ids.vehicle}','${ids.seller}','draft','draft','JLC 0804 fixture',100000,'KZT',false,'Astana','private');
+INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,city_id,seller_type)
+ VALUES ('${ids.listing}','${ids.vehicle}','${ids.seller}','draft','draft','JLC 0804 fixture',100000,'KZT',false,'Astana',(SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Astana' AND is_active ORDER BY sort_order LIMIT 1),'private');
 UPDATE marketplace.listings SET status = 'active', moderation_status = 'active' WHERE id = '${ids.listing}';
 INSERT INTO results VALUES ('activation creates buyer-request notification', (SELECT count(*) = 1 FROM marketplace.notifications WHERE type = 'buyer_request_match' AND user_id = '${ids.buyer}' AND buyer_request_id = '${ids.buyerRequest}' AND listing_id = '${ids.listing}'));
 INSERT INTO results VALUES ('activation preserves saved-search notification', (SELECT count(*) = 1 FROM marketplace.notifications WHERE type = 'saved_search_match' AND user_id = '${ids.savedOwner}' AND saved_search_id = '${ids.savedSearch}' AND listing_id = '${ids.listing}'));

@@ -7,13 +7,14 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { getIntlLocale, localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
+import { getNotificationsCopy } from "./notifications-copy";
 
 type NotificationRow = { id: string; type: string; listingId: string | null; conversationId: string | null; liveStreamId: string | null; createdAt: string; readAt: string | null };
 type Cursor = { beforeAt: string; beforeId: string };
 
 export function NotificationsClient() {
-  const { locale, dictionary } = useI18n();
-  const copy = dictionary.notifications;
+  const { locale } = useI18n();
+  const copy = getNotificationsCopy(locale);
   const [rows, setRows] = useState<NotificationRow[] | null>(null);
   const [nextCursor, setNextCursor] = useState<Cursor | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +43,7 @@ export function NotificationsClient() {
       if (!Array.isArray(data?.data)) throw new Error("request");
       setRows((current) => append ? [...(current ?? []), ...data.data!] : data.data!);
       setNextCursor(data.nextCursor ?? null);
-    } catch (cause) { setLoginRequired(cause instanceof Error && cause.message === "auth"); setError(String(copy.unavailable)); if (!append) setRows([]); }
+    } catch (cause) { setLoginRequired(cause instanceof Error && cause.message === "auth"); setError(copy.unavailable); if (!append) setRows([]); }
     finally { setLoadingMore(false); }
   }, [copy.unavailable, request]);
 
@@ -54,7 +55,7 @@ export function NotificationsClient() {
     try {
       await request(`/api/notifications/${id}/read`, { method: "POST" });
       setRows((current) => current?.map((row) => row.id === id ? { ...row, readAt: new Date().toISOString() } : row) ?? current);
-    } catch { setError(String(copy.actionFailed)); }
+    } catch { setError(copy.actionFailed); }
     finally { setPendingId(null); }
   }
 
@@ -63,14 +64,14 @@ export function NotificationsClient() {
     try {
       await request("/api/notifications/read-all", { method: "POST" });
       setRows((current) => current?.map((row) => ({ ...row, readAt: row.readAt ?? new Date().toISOString() })) ?? current);
-    } catch { setError(String(copy.actionFailed)); }
+    } catch { setError(copy.actionFailed); }
     finally { setMarkingAll(false); }
   }
 
-  if (rows === null && !error) return <LoadingState label={String(copy.loading)} />;
-  if (loginRequired) return <EmptyState title={String(dictionary.profile.loginRequiredTitle)} body={String(dictionary.profile.loginRequiredBody)} href={`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/notifications", locale))}`} action={String(dictionary.auth.verifyCode)} tone="profile" />;
-  if (error && !rows?.length) return <div className="grid gap-3"><ErrorState message={error} /><Button onClick={() => void load()}>{String(copy.retry)}</Button></div>;
-  if (!rows?.length) return <EmptyState title={String(copy.emptyTitle)} body={String(copy.emptyBody)} tone="profile" />;
+  if (rows === null && !error) return <LoadingState label={copy.loading} />;
+  if (loginRequired) return <EmptyState title={copy.loginTitle} body={copy.loginBody} href={`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/notifications", locale))}`} action={copy.loginAction} tone="profile" />;
+  if (error && !rows?.length) return <div className="grid gap-3"><ErrorState message={error} /><Button onClick={() => void load()}>{copy.retry}</Button></div>;
+  if (!rows?.length) return <EmptyState title={copy.emptyTitle} body={copy.emptyBody} tone="profile" />;
 
   const unread = rows.some((row) => !row.readAt);
   return <section className="mx-auto max-w-3xl">

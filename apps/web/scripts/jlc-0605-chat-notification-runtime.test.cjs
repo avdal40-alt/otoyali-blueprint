@@ -19,7 +19,7 @@ const sql = `BEGIN;
   INSERT INTO vehicle.models(id,make_id,name,slug) VALUES('${ids.model}','${ids.make}','Chat alert Model','chat-alert-${ids.model}');
   INSERT INTO vehicle.vehicle_profiles(id,make_id,model_id,year,mileage_km,fuel_type,transmission,created_source,profile_status,created_by) VALUES('${ids.vehicle}','${ids.make}','${ids.model}',2024,1,'gasoline','automatic','manual','active','${ids.seller}');
   INSERT INTO vehicle.profile_ownership(vehicle_profile_id,owner_id,ownership_type,is_current) VALUES('${ids.vehicle}','${ids.seller}','owner',true);
-  INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,seller_type) VALUES('${ids.listing}','${ids.vehicle}','${ids.seller}','active','active','Chat alert listing',1,'KZT',false,'Almaty','private');
+  INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,city_id,seller_type) VALUES('${ids.listing}','${ids.vehicle}','${ids.seller}','active','active','Chat alert listing',1,'KZT',false,'Almaty',(SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1),'private');
   ${role(ids.buyer)}
   SELECT * INTO TEMP TABLE conversation FROM public.get_or_create_listing_conversation('${ids.listing}'::uuid);
   SELECT * INTO TEMP TABLE buyer_message FROM public.send_conversation_message((SELECT conversation_id FROM conversation),'Private body must not be copied');

@@ -150,6 +150,12 @@ must be migrated by domain slice:
   alert and canonical-target runtime fixtures now select active KZ cities and
   KZT so they remain compatible with the existing JLC-0522 listing-market
   guard;
+- notifications: `NotificationsClient.tsx` now uses `notifications-copy.ts`
+  with direct RU/KK/EN/zh-CN copy for read state, actions, pagination, empty,
+  unavailable, and login states plus all active notification kinds; timestamps
+  continue to use canonical locale metadata and links retain the selected
+  locale. Chat and matching-notification runtime fixtures now select active KZ
+  cities and KZT, preserving the existing JLC-0522 market-write guard;
 - deterministic listing-text moderation now recognizes active Kazakhstan +7
   and domestic 8-prefixed phone numbers as contact details, retaining the
   historical Turkey matcher only for the Turkey market profile;
