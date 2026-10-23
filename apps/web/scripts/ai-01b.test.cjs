@@ -75,6 +75,9 @@ assert.deepEqual(resolveSearchText("не дороже 2 миллиона тен�
 assert.deepEqual(resolveSearchText("不超过 230 万 坚戈", { makes: [], models: [], variants: [], cities: [], districts: [] }, "zh-CN").patch.values, { priceMax: 2300000 });
 assert.deepEqual(resolveSearchText("230 万 坚戈 以下", { makes: [], models: [], variants: [], cities: [], districts: [] }, "zh-CN").patch.values, { priceMax: 2300000 });
 const emptyCatalog = { makes: [], models: [], variants: [], cities: [], districts: [] };
+assert.deepEqual(resolveSearchText("2018 or older", emptyCatalog, "en").patch.values, { yearMax: 2018 });
+assert.deepEqual(resolveSearchText("2018年及以前", emptyCatalog, "zh-CN").patch.values, { yearMax: 2018 });
+assert.deepEqual(resolveSearchText("2018年及以后", emptyCatalog, "zh-CN").patch.values, { yearMin: 2018 });
 assert.deepEqual(resolveSearchText("автомат бензин с фото", emptyCatalog, "ru").patch.values, { fuel: "gasoline", transmission: "automatic", hasPhotos: true });
 assert.deepEqual(resolveSearchText("робот dsg", emptyCatalog, "ru").patch.values, { transmission: "semi_automatic" });
 assert.deepEqual(resolveSearchText("полный привод", emptyCatalog, "ru").patch.values, { drivetrain: "awd" });
