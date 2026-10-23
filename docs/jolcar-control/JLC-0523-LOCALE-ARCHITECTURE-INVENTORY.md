@@ -40,6 +40,13 @@ must be migrated by domain slice:
   `app/dealer/[id]/page.tsx` now uses the canonical `profile.dealerPage`
   dictionary domain for its profile, tabs, empty, post, listing, and live UI;
   other listing/detail controls remain;
+- public listing-detail page: `app/listing/[id]/page.tsx` now consumes the
+  scoped `listing-detail-copy.ts` contract for all server-rendered listing
+  labels, video, seller, review-link, and empty-state copy. Russian, Kazakh,
+  English, and Simplified Chinese are direct complete dictionaries; the
+  inactive global registry is not used as a Turkish fallback for this page.
+  Interactive detail controls remain separately scoped for their own direct
+  coverage slices;
 - seller listing/video flows: `ListingVideoManager.tsx`,
   `my-listings-copy.ts` (migrated: the seller listing UI and safe lifecycle
   error mapper now use the canonical `myListings` dictionary domain rather
