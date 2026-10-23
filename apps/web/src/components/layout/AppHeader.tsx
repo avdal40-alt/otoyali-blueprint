@@ -49,8 +49,8 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-oto-border bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6 lg:px-8">
-        <Link href={localizePath("/", locale)} className="flex items-center" aria-label="Jolcar home">
-          <span className="text-2xl font-black tracking-tight text-oto-text sm:text-3xl">Jolcar</span>
+        <Link href={localizePath("/", locale)} className="flex items-center" aria-label="Jolmod home">
+          <span className="text-2xl font-black tracking-tight text-oto-text sm:text-3xl">Jolmod</span>
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-semibold text-oto-muted md:flex">
           <Link href={localizePath("/search", locale)} className="hover:text-oto-text">

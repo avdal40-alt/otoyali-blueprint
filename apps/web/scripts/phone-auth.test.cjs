@@ -6,8 +6,10 @@ const ts = require("typescript");
 const projectRoot = path.resolve(__dirname, "..");
 const sourcePath = path.join(projectRoot, "src", "lib", "auth", "phone.ts");
 const marketSourcePath = path.join(projectRoot, "src", "lib", "market.ts");
+const localeConfigSourcePath = path.join(projectRoot, "src", "i18n", "config.ts");
 const source = fs.readFileSync(sourcePath, "utf8");
 const marketSource = fs.readFileSync(marketSourcePath, "utf8");
+const localeConfigSource = fs.readFileSync(localeConfigSourcePath, "utf8");
 const compiled = ts.transpileModule(source, {
   compilerOptions: {
     esModuleInterop: true,
@@ -18,6 +20,7 @@ const compiled = ts.transpileModule(source, {
 }).outputText;
 const phoneModule = { exports: {} };
 const marketModule = { exports: {} };
+const localeConfigModule = { exports: {} };
 
 new Function("require", "module", "exports", ts.transpileModule(marketSource, {
   compilerOptions: {
@@ -27,8 +30,17 @@ new Function("require", "module", "exports", ts.transpileModule(marketSource, {
   fileName: marketSourcePath
 }).outputText)(require, marketModule, marketModule.exports);
 
+new Function("require", "module", "exports", ts.transpileModule(localeConfigSource, {
+  compilerOptions: {
+    esModuleInterop: true,
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022
+  },
+  fileName: localeConfigSourcePath
+}).outputText)(require, localeConfigModule, localeConfigModule.exports);
+
 new Function("require", "module", "exports", compiled)(
-  (request) => request === "@/lib/market" ? marketModule.exports : require(request),
+  (request) => request === "@/lib/market" ? marketModule.exports : request === "@/i18n/config" ? localeConfigModule.exports : require(request),
   phoneModule,
   phoneModule.exports
 );
@@ -78,11 +90,11 @@ assert.equal(normalizeStoredAuthPhoneToE164("123"), null);
 assert.equal(normalizeStoredAuthPhoneToE164("1234567890123456"), null);
 assert.equal(normalizeStoredAuthPhoneToE164("999999999999999"), null);
 
-const trCountries = getPhoneCountryOptions("tr");
-assert.equal(DEFAULT_PHONE_COUNTRY, "TR");
-assert.equal(trCountries[0].country, "TR");
-assert.equal(trCountries[0].callingCode, "+90");
-assert.ok(trCountries.some((item) => item.country === "KZ" && item.callingCode === "+7"));
-assert.ok(trCountries.some((item) => item.country === "RU" && item.callingCode === "+7"));
+const kazakhstanCountries = getPhoneCountryOptions("ru");
+assert.equal(DEFAULT_PHONE_COUNTRY, "KZ");
+assert.equal(kazakhstanCountries[0].country, "KZ");
+assert.equal(kazakhstanCountries[0].callingCode, "+7");
+assert.ok(kazakhstanCountries.some((item) => item.country === "TR" && item.callingCode === "+90"));
+assert.ok(kazakhstanCountries.some((item) => item.country === "RU" && item.callingCode === "+7"));
 
 console.log("phone-auth tests passed");

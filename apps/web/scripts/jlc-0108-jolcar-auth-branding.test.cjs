@@ -53,7 +53,7 @@ for (const file of [
   ["src", "components", "layout", "MarketplaceFooter.tsx"]
 ]) {
   const source = read(...file);
-  assert.match(source, /Jolcar|ACTIVE_MARKET_PROFILE\.brandName/);
+  assert.match(source, /Jolmod|ACTIVE_MARKET_PROFILE\.brandName/);
   assert.doesNotMatch(source, /yolmod|otoyali/i);
 }
 
@@ -61,4 +61,4 @@ for (const dictionary of ["en.ts", "tr.ts"]) {
   assert.match(read("src", "i18n", "dictionaries", dictionary), /phoneInputHelper: ".*\{example\}"/);
 }
 
-console.log("Jolcar auth phone hints and branding tests passed");
+console.log("Jolmod auth phone hints and branding tests passed");

@@ -1,5 +1,5 @@
 import type { Locale } from "@/i18n/types";
-import { t } from "@/i18n/get-dictionary";
+import { getAuthCopy } from "./auth-copy";
 export { safeNextPath } from "./return-path";
 
 export type AuthErrorCategory =
@@ -15,20 +15,7 @@ export type AuthErrorCategory =
   | "generic_auth_failure";
 
 export function authErrorMessage(category: AuthErrorCategory, locale: Locale = "tr") {
-  const keyByCategory: Record<AuthErrorCategory, string> = {
-    invalid_phone: "errors.invalidPhone",
-    ambiguous_phone_country: "errors.ambiguousPhoneCountry",
-    otp_send_failed: "errors.otpSendFailed",
-    sms_unavailable: "errors.smsUnavailable",
-    too_many_requests: "errors.tooManyRequests",
-    invalid_or_expired_otp: "errors.invalidOtp",
-    invalid_credentials: "errors.invalidCredentials",
-    missing_session: "errors.missingSession",
-    network_unavailable: "errors.networkUnavailable",
-    generic_auth_failure: "errors.generic"
-  };
-
-  return t(locale, keyByCategory[category]);
+  return getAuthCopy(locale).errors[category];
 }
 
 export function mapAuthError(error?: unknown, fallback: AuthErrorCategory = "generic_auth_failure"): AuthErrorCategory {

@@ -12,6 +12,10 @@ must be migrated by domain slice:
   `lib/auth/phone.ts` (migrated: canonical locale metadata now powers CLDR
   display names, sorting, and query normalization, with a language-neutral ISO
   country-code fallback rather than an embedded `tr/en` map);
+  password login and normalized authentication errors now use scoped direct
+  RU/KK/EN/zh-CN copy, preserving Kazakhstan +7 parsing and the existing
+  password-only normal-login path. OTP registration/recovery and password
+  enrollment screens remain the next auth coverage slice;
 - homepage/search/saved-search: `features/ai/search` language-recognition
   rules remain (`HomeTrustSection.tsx`, `SeoEntryLinks.tsx`,
   `ActiveFilterChips.tsx` UI labels, `SearchBar.tsx`, `SavedSearchButton.tsx`,
