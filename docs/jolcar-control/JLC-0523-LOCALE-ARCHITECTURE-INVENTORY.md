@@ -18,8 +18,8 @@ must be migrated by domain slice:
   `SearchFilters.tsx`, and AI Search result, availability, clarification, and
   catalog-validation messages migrated to canonical dictionary domains;
   Kazakhstan price and mileage semantic recognition now covers Russian,
-  Kazakh, English, and Simplified Chinese KZT/tenge terms (including both
-  minimum and maximum thresholds, the
+  Kazakh, English, and Simplified Chinese KZT/tenge terms (including minimum
+  and maximum price/mileage thresholds, the
   English `tenge` spelling and Russian/Kazakh/Chinese maximum-threshold wording); its in-memory
   parser keeps a mileage threshold from being misclassified as a price threshold,
   and fallback city-option ordering now uses the selected locale's collation,
