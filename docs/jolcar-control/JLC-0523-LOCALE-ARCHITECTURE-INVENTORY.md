@@ -138,6 +138,10 @@ must be migrated by domain slice:
   failure states, authenticated empty state, logout, and profile navigation;
   profile persistence, the active KZ market fallback, Kazakhstan city choices,
   and locale-preserving logout paths remain unchanged;
+- favorites: `FavoritesClient.tsx` now uses `favorites-copy.ts` with direct
+  RU/KK/EN/zh-CN copy for unavailable configuration, load failure, and the
+  empty search CTA; the authenticated favorite query, signed-media handling,
+  and locale-preserving login return path remain unchanged;
 - deterministic listing-text moderation now recognizes active Kazakhstan +7
   and domestic 8-prefixed phone numbers as contact details, retaining the
   historical Turkey matcher only for the Turkey market profile;

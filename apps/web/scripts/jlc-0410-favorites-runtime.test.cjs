@@ -54,6 +54,8 @@ async function session(id, name) {
       INSERT INTO identity.seller_phone_verifications(user_id, phone_e164) VALUES ('${ids.seller}','+905550000410');`);
 
     const [makeId, modelId] = sql("SELECT m.make_id || '|' || m.id FROM vehicle.models AS m JOIN vehicle.makes AS mk ON mk.id=m.make_id WHERE mk.is_active AND m.is_active ORDER BY m.id LIMIT 1").split("|");
+    const cityId = sql("SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1");
+    assert.match(cityId, /^[0-9a-f-]{36}$/i, "Kazakhstan city fixture must be available");
     const { data: listing, error: listingError } = await seller.rpc("create_own_private_listing_draft", {
       p_make_id: makeId,
       p_model_id: modelId,
@@ -74,7 +76,7 @@ async function session(id, name) {
       p_currency: "KZT",
       p_price_negotiable: false,
       p_city: "Almaty",
-      p_city_id: null,
+      p_city_id: cityId,
       p_district_id: null
     });
     assert.ifError(listingError);

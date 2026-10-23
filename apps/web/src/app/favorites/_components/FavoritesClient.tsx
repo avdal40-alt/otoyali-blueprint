@@ -9,6 +9,7 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { signImageStorageUrlMap } from "@/lib/media/storage-urls";
+import { getFavoritesCopy } from "./favorites-copy";
 
 const FAVORITE_LISTING_COLUMNS = [
   "listing_id",
@@ -41,7 +42,8 @@ const FAVORITE_LISTING_COLUMNS = [
 ].join(",");
 
 export function FavoritesClient() {
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
+  const copy = getFavoritesCopy(locale);
   const router = useRouter();
   const [listings, setListings] = useState<HomeListing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +52,7 @@ export function FavoritesClient() {
   useEffect(() => {
     async function load() {
       if (!hasSupabaseEnv()) {
-        setError(String(dictionary.errors.missingSupabaseEnv));
+        setError(copy.configurationUnavailable);
         setLoading(false);
         return;
       }
@@ -81,24 +83,24 @@ export function FavoritesClient() {
         const signed = await signImageStorageUrlMap(supabase, rows.map((row) => row.cover_image_url));
         setListings(rows.map((row) => ({ ...row, cover_image_url: signed.get(row.cover_image_url ?? "") ?? null })));
       } catch {
-        setError(String(dictionary.favorites.loadFailed));
+        setError(copy.loadFailed);
       } finally {
         setLoading(false);
       }
     }
 
     void load();
-  }, [dictionary.errors.missingSupabaseEnv, dictionary.favorites.loadFailed, locale, router]);
+  }, [copy.configurationUnavailable, copy.loadFailed, locale, router]);
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;
   if (listings.length === 0) {
     return (
       <EmptyState
-        title={String(dictionary.favorites.emptyTitle)}
-        body={String(dictionary.favorites.emptyBody)}
+        title={copy.emptyTitle}
+        body={copy.emptyBody}
         href={localizePath("/search", locale)}
-        action={String(dictionary.favorites.searchListings)}
+        action={copy.searchListings}
       />
     );
   }
