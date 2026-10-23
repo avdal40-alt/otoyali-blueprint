@@ -14,8 +14,10 @@ must be migrated by domain slice:
   country-code fallback rather than an embedded `tr/en` map);
   password login and normalized authentication errors now use scoped direct
   RU/KK/EN/zh-CN copy, preserving Kazakhstan +7 parsing and the existing
-  password-only normal-login path. OTP registration/recovery and password
-  enrollment screens remain the next auth coverage slice;
+  password-only normal-login path. OTP registration, verification, resend,
+  recovery, and password enrollment/reset now use the same direct launch-copy
+  contract; deterministic coverage verifies complete keys and valid UTF-8
+  Simplified Chinese without changing OTP eligibility or return paths;
 - homepage/search/saved-search: `features/ai/search` language-recognition
   rules remain (`HomeTrustSection.tsx`, `SeoEntryLinks.tsx`,
   `ActiveFilterChips.tsx` UI labels, `SearchBar.tsx`, `SavedSearchButton.tsx`,

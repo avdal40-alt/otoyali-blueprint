@@ -20,12 +20,14 @@ import { getPasswordEnrollmentStatus } from "@/lib/auth/password-enrollment";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { interpolate } from "@/i18n/get-dictionary";
+import { getAuthCopy } from "@/lib/auth/auth-copy";
 
 const RESEND_COOLDOWN_SECONDS = 60;
 const RESEND_COOLDOWN_MS = RESEND_COOLDOWN_SECONDS * 1000;
 
 export function OtpClient() {
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
+  const copy = getAuthCopy(locale);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [transaction, setTransaction] = useState<OtpPhoneTransaction | null>(null);
@@ -36,7 +38,7 @@ export function OtpClient() {
   const [resendAvailableAt, setResendAvailableAt] = useState(0);
   const [now, setNow] = useState(Date.now());
   const resendRemainingSeconds = resendAvailableAt > now ? Math.ceil((resendAvailableAt - now) / 1000) : 0;
-  const maskedPhone = transaction ? maskE164Phone(transaction.phone) : String(dictionary.auth.phoneMissing);
+  const maskedPhone = transaction ? maskE164Phone(transaction.phone) : copy.phoneMissing;
 
   useEffect(() => {
     const storedTransaction = readOtpPhoneTransaction();
@@ -68,7 +70,7 @@ export function OtpClient() {
     }
 
     if (!hasSupabaseEnv()) {
-      setError(String(dictionary.errors.authConfiguration));
+      setError(copy.authConfiguration);
       return;
     }
 
@@ -121,7 +123,7 @@ export function OtpClient() {
     }
 
     if (!hasSupabaseEnv()) {
-      setError(String(dictionary.errors.authConfiguration));
+      setError(copy.authConfiguration);
       return;
     }
 
@@ -153,20 +155,20 @@ export function OtpClient() {
   return (
     <div className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft">
       <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolmod</p>
-      <h1 className="mt-2 text-2xl font-black text-oto-text">{String(dictionary.auth.verifyTitle)}</h1>
-      <p className="mt-2 text-sm leading-6 text-oto-muted">{interpolate(String(dictionary.auth.verifyBody), { phone: maskedPhone })}</p>
+      <h1 className="mt-2 text-2xl font-black text-oto-text">{copy.verifyTitle}</h1>
+      <p className="mt-2 text-sm leading-6 text-oto-muted">{interpolate(copy.verifyBody, { phone: maskedPhone })}</p>
       <div className="mt-5 grid gap-4">
-        <OtpInput value={token} onChange={setToken} label={String(dictionary.auth.otpLabel)} />
+        <OtpInput value={token} onChange={setToken} label={copy.otpLabel} />
         {error ? <ErrorState message={error} /> : null}
         <Button onClick={verify} disabled={loading || token.length !== 6 || !transaction}>
-          {loading ? String(dictionary.auth.verifying) : String(dictionary.auth.verifyCode)}
+          {loading ? copy.verifying : copy.verifyCode}
         </Button>
         <Button onClick={resend} variant="secondary" disabled={resending || !transaction || resendRemainingSeconds > 0}>
           {resending
-            ? String(dictionary.auth.sending)
+            ? copy.sending
             : resendRemainingSeconds > 0
-              ? interpolate(String(dictionary.auth.resendCooldown), { seconds: resendRemainingSeconds })
-              : String(dictionary.auth.resendCode)}
+              ? interpolate(copy.resendCooldown, { seconds: resendRemainingSeconds })
+              : copy.resendCode}
         </Button>
       </div>
     </div>

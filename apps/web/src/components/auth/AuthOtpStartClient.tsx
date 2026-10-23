@@ -13,23 +13,24 @@ import { DEFAULT_PHONE_COUNTRY, parseAuthPhoneNumber, type AuthPhoneCountry } fr
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { getAuthCopy } from "@/lib/auth/auth-copy";
 
 type Purpose = OtpPhoneTransaction["purpose"];
 export function AuthOtpStartClient({ purpose }: { purpose: Purpose }) {
-  const { locale, dictionary } = useI18n(); const router = useRouter(); const searchParams = useSearchParams();
+  const { locale } = useI18n(); const copy = getAuthCopy(locale); const router = useRouter(); const searchParams = useSearchParams();
   const [phone, setPhone] = useState(""); const [country, setCountry] = useState<AuthPhoneCountry>(DEFAULT_PHONE_COUNTRY);
   const [error, setError] = useState<string | null>(null); const [loading, setLoading] = useState(false);
   const parsed = parseAuthPhoneNumber(phone, country); const next = localizePath(safeNextPath(searchParams.get("next"), "/profile"), locale);
   useEffect(() => { if (phone.trim().startsWith("+")) { const result = parseAuthPhoneNumber(phone, country); if (result.ok && result.country !== country) setCountry(result.country); } }, [phone, country]);
-  const title = purpose === "registration" ? String(dictionary.auth.createAccountTitle) : purpose === "recovery" ? String(dictionary.auth.forgotPasswordTitle) : String(dictionary.auth.legacyTitle);
-  const body = purpose === "registration" ? String(dictionary.auth.createAccountBody) : purpose === "recovery" ? String(dictionary.auth.forgotPasswordBody) : String(dictionary.auth.legacyBody);
+  const title = purpose === "registration" ? copy.createAccountTitle : purpose === "recovery" ? copy.forgotPasswordTitle : copy.legacyTitle;
+  const body = purpose === "registration" ? copy.createAccountBody : purpose === "recovery" ? copy.forgotPasswordBody : copy.legacyBody;
   async function submit() {
     setError(null); if (!parsed.ok) { setError(authErrorMessage(parsed.error === "ambiguous_country" ? "ambiguous_phone_country" : "invalid_phone", locale)); return; }
-    if (!hasSupabaseEnv()) { setError(String(dictionary.errors.authConfiguration)); return; }
+    if (!hasSupabaseEnv()) { setError(copy.authConfiguration); return; }
     const metadata = buildPhoneSignupMetadata({ selectedCountry: country, locale }); if (!metadata) { setError(authErrorMessage("invalid_phone", locale)); return; }
     setLoading(true); const { error: otpError } = await getSupabaseBrowserClient().auth.signInWithOtp({ phone: parsed.e164, options: { shouldCreateUser: purpose === "registration", ...(purpose === "registration" ? { data: metadata } : {}) } }); setLoading(false);
     if (otpError) { setError(authErrorMessage(mapAuthError(otpError, "otp_send_failed"), locale)); return; }
     saveOtpPhoneTransaction(createOtpPhoneTransaction(parsed.e164, country, purpose)); router.push(localizePath(`/otp?next=${encodeURIComponent(next)}`, locale));
   }
-  return <div className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft"><p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolmod</p><h1 className="mt-2 text-2xl font-black text-oto-text">{title}</h1><p className="mt-2 text-sm leading-6 text-oto-muted">{body}</p><div className="mt-5 grid gap-4"><PhoneInput value={phone} onChange={setPhone} selectedCountry={country} onCountryChange={setCountry} locale={locale} label={String(dictionary.auth.phoneLabel)} countryLabel={String(dictionary.auth.countryLabel)} searchLabel={String(dictionary.auth.countrySearchLabel)} searchPlaceholder={String(dictionary.auth.countrySearchPlaceholder)} placeholder={String(dictionary.auth.phonePlaceholder)} noResults={String(dictionary.auth.countryNoResults)} helperText={String(dictionary.auth.phoneInputHelper)} />{error ? <ErrorState message={error} /> : null}<Button onClick={submit} disabled={loading || !parsed.ok}>{loading ? String(dictionary.auth.sending) : String(dictionary.auth.sendCode)}</Button><Link className="text-center text-sm font-bold text-oto-blue" href={`${localizePath("/login", locale)}?next=${encodeURIComponent(next)}`}>{String(dictionary.auth.backToLogin)}</Link></div></div>;
+  return <div className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft"><p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolmod</p><h1 className="mt-2 text-2xl font-black text-oto-text">{title}</h1><p className="mt-2 text-sm leading-6 text-oto-muted">{body}</p><div className="mt-5 grid gap-4"><PhoneInput value={phone} onChange={setPhone} selectedCountry={country} onCountryChange={setCountry} locale={locale} label={copy.phoneLabel} countryLabel={copy.countryLabel} searchLabel={copy.countrySearchLabel} searchPlaceholder={copy.countrySearchPlaceholder} placeholder={copy.phonePlaceholder} noResults={copy.countryNoResults} helperText={copy.phoneInputHelper} />{error ? <ErrorState message={error} /> : null}<Button onClick={submit} disabled={loading || !parsed.ok}>{loading ? copy.sending : copy.sendCode}</Button><Link className="text-center text-sm font-bold text-oto-blue" href={`${localizePath("/login", locale)}?next=${encodeURIComponent(next)}`}>{copy.backToLogin}</Link></div></div>;
 }
