@@ -47,6 +47,11 @@ must be migrated by domain slice:
   inactive global registry is not used as a Turkish fallback for this page.
   Interactive detail controls remain separately scoped for their own direct
   coverage slices;
+- listing-detail buyer contact: `ContactSellerButton.tsx` now uses scoped
+  Russian, Kazakh, English, and Simplified Chinese copy for loading,
+  authenticated-contact errors, and service-environment failures. Its existing
+  login redirect, authenticated API request, and server-side contact policy are
+  unchanged;
 - seller listing/video flows: `ListingVideoManager.tsx`,
   `my-listings-copy.ts` (migrated: the seller listing UI and safe lifecycle
   error mapper now use the canonical `myListings` dictionary domain rather

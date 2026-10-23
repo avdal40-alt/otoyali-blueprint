@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { getListingContactCopy } from "./listing-contact-copy";
 
 type ContactSellerButtonProps = {
   listingId: string;
@@ -14,7 +15,8 @@ type ContactSellerButtonProps = {
 type ContactResponse = { data?: { phone?: unknown } };
 
 export function ContactSellerButton({ listingId }: ContactSellerButtonProps) {
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
+  const copy = getListingContactCopy(locale);
   const router = useRouter();
   const pathname = usePathname();
   const [phone, setPhone] = useState<string | null>(null);
@@ -26,7 +28,7 @@ export function ContactSellerButton({ listingId }: ContactSellerButtonProps) {
   async function contact() {
     setMessage(null);
     if (!hasSupabaseEnv()) {
-      setMessage(String(dictionary.errors.missingSupabaseEnv));
+      setMessage(copy.environmentUnavailable);
       return;
     }
 
@@ -57,13 +59,13 @@ export function ContactSellerButton({ listingId }: ContactSellerButtonProps) {
 
       const returnedPhone = payload?.data?.phone;
       if (!response.ok || typeof returnedPhone !== "string" || !/^\+[1-9][0-9]{1,14}$/.test(returnedPhone)) {
-        setMessage(String(dictionary.listing.contactUnavailable));
+        setMessage(copy.contactUnavailable);
         return;
       }
 
       setPhone(returnedPhone);
     } catch {
-      setMessage(String(dictionary.listing.contactUnavailable));
+      setMessage(copy.contactUnavailable);
     } finally {
       setLoading(false);
     }
@@ -77,7 +79,7 @@ export function ContactSellerButton({ listingId }: ContactSellerButtonProps) {
         </a>
       ) : (
         <Button onClick={contact} variant="orange" className="w-full" disabled={loading}>
-          {loading ? String(dictionary.common.loading) : String(dictionary.listing.contactSeller)}
+          {loading ? copy.loading : copy.contactSeller}
         </Button>
       )}
       {message ? <p className="text-sm font-semibold text-oto-muted" role="status">{message}</p> : null}
