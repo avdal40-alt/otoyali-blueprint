@@ -59,7 +59,7 @@ export function resolveSearchText(text: string, catalog: SearchCatalog, locale: 
   if (/(baştan başla|filtreleri temizle|reset search|start over|сбросить поиск|очистить фильтры|іздеуді қалпына келтір|сүзгілерді тазала|重置搜索|清除筛选)/.test(normalized)) return { patch: { operation: "reset" } };
   if (/(doğrulanmış galeri|verified dealer|проверенный дилер|расталған дилер|认证经销商)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "verifiedDealer", unsupported: true, message: messages.verifiedDealerUnavailable } };
   if (/(hangisi en iyi|which is best|\bbetter\b|какой лучше|қайсысы жақсы|哪个更好)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "criteria", message: messages.compareCriteria } };
-  if (/(daha yeni|daha ucuz|düşük kilometre|newer|cheaper|low mileage|новее|дешевле|меньше пробег|жаңарақ|арзанырақ|аз жүрген|更新|更便宜|低里程)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "threshold", message: messages.threshold } };
+  if (/(daha yeni|daha ucuz|düşük kilometre|newer|cheaper|low mileage|новее|дешевле|меньше пробег|жаңарақ|арзанырақ|аз жүрген|更新|更便宜|(?<!最)低里程)/.test(normalized)) return { patch: { operation: "keep" }, clarification: { field: "threshold", message: messages.threshold } };
   const values: Record<string, unknown> = { ...numericFilters(normalized, locale) };
   if (/(dizel|diesel|дизел|дизель|柴油)/.test(normalized)) values.fuel = "diesel";
   if (/(benzin|gasoline|petrol|бензин|汽油)/.test(normalized)) values.fuel = "gasoline";
@@ -92,6 +92,8 @@ export function resolveSearchText(text: string, catalog: SearchCatalog, locale: 
   if (/(video olan|with video|cars with video|с видео|бейнесі бар|带视频)/.test(normalized)) values.hasVideo = true;
   if (/(fotoğraflı|with photos|с фото|фотосуреті бар|带照片)/.test(normalized)) values.hasPhotos = true;
   if (/(en ucuz|cheapest|самый дешев|ең арзан|最便宜)/.test(normalized)) values.sort = "price_asc";
+  if (/(en pahalı|most expensive|самы(?:й|и) дорог|ең қымбат|最贵)/.test(normalized)) values.sort = "price_desc";
+  if (/(en düşük kilometre|lowest mileage|минимальн\S* пробег|ең аз жүріс|最低里程)/.test(normalized)) values.sort = "mileage_asc";
   if (/(en yeni|newest|самый новый|ең жаңа|最新)/.test(normalized)) values.sort = "newest";
   const resolution = resolveNamedEntities(normalized, catalog, values, locale);
   return resolution.clarification ? { patch: { operation: "keep" }, clarification: resolution.clarification } : { patch: { operation: "set", values: searchIntentObject.partial().parse(values) } };
