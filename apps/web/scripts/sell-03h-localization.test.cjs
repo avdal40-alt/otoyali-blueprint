@@ -46,6 +46,7 @@ const {
 const tr = getSellCopy("tr");
 const en = getSellCopy("en");
 const ru = getSellCopy("ru");
+const kk = getSellCopy("kk");
 
 assert.equal(getSellCopy("de"), tr, "Unsupported locale must use the application Turkish fallback");
 assert.equal(getSellCopy(), tr, "Missing locale must use the application Turkish fallback");
@@ -61,10 +62,14 @@ function shape(value) {
 }
 assert.deepEqual(shape(en), shape(tr), "TR and EN sell copy must expose the same typed contract");
 assert.deepEqual(shape(ru), shape(tr), "RU sell copy must expose the complete typed contract");
+assert.deepEqual(shape(kk), shape(tr), "KK sell copy must expose the complete typed contract");
 assert.notEqual(ru, tr, "RU seller copy must not resolve through the Turkish fallback");
+assert.notEqual(kk, tr, "KK seller copy must not resolve through the Turkish fallback");
 assert.equal(ru.publish, "Опубликовать объявление");
 assert.equal(ru.currency, "Валюта");
 assert.equal(ru.requiredCity, "Выберите город.");
+assert.equal(kk.publish, "Хабарландыруды жариялау");
+assert.equal(kk.currency, "Валюта");
 assert.doesNotMatch(Object.values(ru).filter((value) => typeof value === "string").join("\n"), /TODO|\?\?\?/i);
 assert.match(copySource, /@\/i18n\/dictionaries\/sell-wizard/);
 assert.doesNotMatch(copySource, /const tr =|const en =|Record<Locale/);
