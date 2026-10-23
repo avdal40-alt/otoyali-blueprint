@@ -162,6 +162,7 @@ export const tr = {
     priceMax: "Fiyat max",
     yearMin: "Yıl min",
     yearMax: "Yıl max",
+    mileageMin: "Kilometre min",
     mileageMax: "Kilometre max",
     fuelType: "Yakıt tipi",
     allFuelTypes: "Tüm yakıt tipleri",
@@ -185,6 +186,7 @@ export const tr = {
     yearDesc: "Önce yeni yıl",
     mileageAsc: "Önce düşük kilometre",
     activeFilters: {
+      mileageMin: "Km min",
       mileageMax: "Km max",
       engineVolume: "Motor hacmi",
       damageState: "Hasar durumu",

@@ -12,6 +12,7 @@ export type ListingSearchFilters = {
   priceMax: string;
   yearMin: string;
   yearMax: string;
+  mileageMin: string;
   mileageMax: string;
   fuelType: string;
   transmission: string;
@@ -41,6 +42,7 @@ export const defaultSearchFilters: ListingSearchFilters = {
   priceMax: "",
   yearMin: "",
   yearMax: "",
+  mileageMin: "",
   mileageMax: "",
   fuelType: "",
   transmission: "",
@@ -78,6 +80,7 @@ export function parseSearchParams(searchParams: RawSearchParams): ListingSearchF
     priceMax: normalizeInteger(value("price_max", "priceMax", "max_price")),
     yearMin: normalizeInteger(value("year_min", "yearMin", "min_year"), 32767),
     yearMax: normalizeInteger(value("year_max", "yearMax", "max_year"), 32767),
+    mileageMin: normalizeInteger(value("min_mileage", "mileage_min", "mileageMin"), 2147483647),
     mileageMax: normalizeInteger(value("max_mileage", "mileage_max", "mileageMax"), 2147483647),
     fuelType: listValue("fuel_type", "fuelType"),
     transmission: listValue("transmission"),
@@ -110,6 +113,7 @@ export function buildSearchUrl(filters: Partial<ListingSearchFilters>, path = "/
   add(params, "price_max", normalizeInteger(filters.priceMax ?? ""));
   add(params, "year_min", normalizeInteger(filters.yearMin ?? "", 32767));
   add(params, "year_max", normalizeInteger(filters.yearMax ?? "", 32767));
+  add(params, "min_mileage", normalizeInteger(filters.mileageMin ?? "", 2147483647));
   add(params, "max_mileage", normalizeInteger(filters.mileageMax ?? "", 2147483647));
   addList(params, "fuel_type", filters.fuelType);
   addList(params, "transmission", filters.transmission);

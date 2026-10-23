@@ -117,6 +117,7 @@ export function SearchClient({
         filters.city ||
         filters.yearMin ||
         filters.yearMax ||
+        filters.mileageMin ||
         filters.mileageMax ||
         filters.fuelType ||
         filters.transmission ||

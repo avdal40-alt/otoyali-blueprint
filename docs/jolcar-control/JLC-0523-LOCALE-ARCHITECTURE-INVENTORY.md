@@ -22,6 +22,7 @@ must be migrated by domain slice:
   and maximum price/mileage thresholds, the
   English `tenge` spelling and Russian/Kazakh/Chinese maximum-threshold wording); its in-memory
   parser keeps a mileage threshold from being misclassified as a price threshold,
+  and the normal search URL/request/UI boundary preserves both mileage bounds,
   and fallback city-option ordering now uses the selected locale's collation,
   and its listing query/city filter no longer applies Turkish normalization or collation;
   AI Search result, availability, clarification, and catalog-validation

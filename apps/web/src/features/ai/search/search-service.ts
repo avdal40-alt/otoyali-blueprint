@@ -77,6 +77,7 @@ function searchHref(intent: SearchIntent, catalog: SearchCatalog) {
   add(params, "price_max", intent.priceMax);
   add(params, "year_min", intent.yearMin);
   add(params, "year_max", intent.yearMax);
+  add(params, "min_mileage", intent.mileageMin);
   add(params, "max_mileage", intent.mileageMax);
   add(params, "fuel_type", intent.fuel);
   add(params, "transmission", intent.transmission);

@@ -30,7 +30,7 @@ export function buildSearchRequest(
     city_ids: matchIds(filters.city, cities, "city_name", "city_id"),
     price_min: integer(filters.priceMin), price_max: integer(filters.priceMax),
     year_min: integer(filters.yearMin, 32767), year_max: integer(filters.yearMax, 32767),
-    mileage_max: integer(filters.mileageMax, 2147483647), fuel_types: selectedValues(filters.fuelType),
+    mileage_min: integer(filters.mileageMin, 2147483647), mileage_max: integer(filters.mileageMax, 2147483647), fuel_types: selectedValues(filters.fuelType),
     transmissions: selectedValues(filters.transmission), body_types: selectedValues(filters.bodyType),
     drive_types: filters.driveType ? [filters.driveType] : [], colors: filters.color ? [filters.color] : [],
     condition: filters.condition || undefined, seller_types: filters.sellerType ? [filters.sellerType] : [],

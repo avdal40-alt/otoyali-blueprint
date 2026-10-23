@@ -26,6 +26,7 @@ export function ActiveFilterChips({
     priceMax: String(dictionary.search.priceMax),
     yearMin: String(dictionary.search.yearMin),
     yearMax: String(dictionary.search.yearMax),
+    mileageMin: activeFiltersCopy.mileageMin,
     mileageMax: activeFiltersCopy.mileageMax,
     fuelType: String(dictionary.search.fuelType),
     transmission: String(dictionary.search.transmission),

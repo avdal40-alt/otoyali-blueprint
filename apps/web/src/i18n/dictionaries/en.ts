@@ -162,6 +162,7 @@ export const en = {
     priceMax: "Max price",
     yearMin: "Min year",
     yearMax: "Max year",
+    mileageMin: "Min mileage",
     mileageMax: "Max mileage",
     fuelType: "Fuel type",
     allFuelTypes: "All fuel types",
@@ -185,6 +186,7 @@ export const en = {
     yearDesc: "Newest model year",
     mileageAsc: "Lowest mileage first",
     activeFilters: {
+      mileageMin: "Min km",
       mileageMax: "Max km",
       engineVolume: "Engine volume",
       damageState: "Damage status",

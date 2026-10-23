@@ -17,6 +17,7 @@ export function filterListings(listings: HomeListing[], filters: ListingSearchFi
   const priceMax = toNumber(filters.priceMax);
   const yearMin = toNumber(filters.yearMin);
   const yearMax = toNumber(filters.yearMax);
+  const mileageMin = toNumber(filters.mileageMin);
   const mileageMax = toNumber(filters.mileageMax);
   const makeValues = selectedValues(filters.make);
   const modelValues = selectedValues(filters.model);
@@ -42,6 +43,7 @@ export function filterListings(listings: HomeListing[], filters: ListingSearchFi
     if (priceMax && price > priceMax) return false;
     if (yearMin && year < yearMin) return false;
     if (yearMax && year > yearMax) return false;
+    if (mileageMin && (!mileage || mileage < mileageMin)) return false;
     if (mileageMax && (!mileage || mileage > mileageMax)) return false;
     if (fuelValues.length > 0 && !fuelValues.includes(listing.fuel_type ?? "")) return false;
     if (transmissionValues.length > 0 && !transmissionValues.includes(listing.transmission ?? "")) return false;

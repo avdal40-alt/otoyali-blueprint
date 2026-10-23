@@ -47,6 +47,7 @@ const filters = {
   priceMax: "2000000",
   yearMin: "2022",
   yearMax: "2025",
+  mileageMin: "5000",
   mileageMax: "10000",
   fuelType: "electric,hybrid",
   transmission: "automatic",
@@ -72,6 +73,7 @@ assert.deepEqual(request, {
     price_max: 2000000,
     year_min: 2022,
     year_max: 2025,
+    mileage_min: 5000,
     mileage_max: 10000,
     fuel_types: ["electric", "hybrid"],
     transmissions: ["automatic"],
@@ -86,6 +88,8 @@ assert.deepEqual(request, {
     has_photos: true
   }
 }, "advanced controls use the canonical server filter contract");
+assert.equal(parseSearchParams({ min_mileage: "5000" }).mileageMin, "5000", "minimum mileage survives the URL boundary");
+assert.match(buildSearchUrl({ mileageMin: "5000" }), /min_mileage=5000/, "minimum mileage is serialized into search URLs");
 
 const client = fs.readFileSync(path.join(root, "apps/web/src/app/search/_components/SearchClient.tsx"), "utf8");
 assert.match(client, /<MobileFilterDrawer[\s\S]*?\{renderFilterPanel\(\)\}/, "mobile drawer renders the same controlled filter panel");

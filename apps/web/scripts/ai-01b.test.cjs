@@ -26,6 +26,7 @@ assert.match(intent, /мың/);
 assert.match(intent, /坚戈/);
 assert.doesNotMatch(intent, /\btry\b|\btl\b/i);
 assert.match(intent, /mileageMax/);
+assert.match(service, /min_mileage/);
 assert.match(intent, /getAiSearchMessages/);
 assert.doesNotMatch(intent, /The model does not belong to the selected make/);
 assert.doesNotMatch(intent, /The district does not belong to the selected city/);

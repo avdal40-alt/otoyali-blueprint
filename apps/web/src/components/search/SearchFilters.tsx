@@ -188,7 +188,10 @@ export function SearchFilters({
               <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder={String(dictionary.search.yearMin)} inputMode="numeric" />
               <Input value={filters.yearMax} onChange={(event) => setValue("yearMax", event.target.value)} placeholder={String(dictionary.search.yearMax)} inputMode="numeric" />
             </div>
-            <Input value={filters.mileageMax} onChange={(event) => setValue("mileageMax", event.target.value)} placeholder={String(dictionary.search.mileageMax)} inputMode="numeric" />
+            <div className="grid grid-cols-2 gap-2">
+              <Input value={filters.mileageMin} onChange={(event) => setValue("mileageMin", event.target.value)} placeholder={String(dictionary.search.mileageMin)} inputMode="numeric" />
+              <Input value={filters.mileageMax} onChange={(event) => setValue("mileageMax", event.target.value)} placeholder={String(dictionary.search.mileageMax)} inputMode="numeric" />
+            </div>
 
             <MultiSelectGroup
               label={String(dictionary.search.fuelType)}
