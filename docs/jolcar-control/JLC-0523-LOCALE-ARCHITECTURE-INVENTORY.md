@@ -25,7 +25,7 @@ must be migrated by domain slice:
   AI Search result, availability, clarification, and catalog-validation
   messages now have direct RU/KK/EN/zh-CN dictionary coverage; deterministic
   reset, comparison, threshold, fuel, transmission, media, and sorting intent
-  recognition (including year bounds, condition, seller type, semi-automatic/robot transmission, and drivetrain terms) now covers
+  recognition (including inclusive and exclusive year bounds, condition, seller type, semi-automatic/robot transmission, and drivetrain terms) now covers
   the same four launch languages without changing the
   Kazakhstan search catalog or market context; remaining legacy
   value-formatters remain for the four-real-dictionary expansion);
