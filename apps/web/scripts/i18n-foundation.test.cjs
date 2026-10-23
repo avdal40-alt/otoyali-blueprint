@@ -84,22 +84,23 @@ function runMiddleware(pathname, options) {
   return { request, response: middleware.middleware(request) };
 }
 
-assert.deepEqual(Object.keys(config.LOCALE_REGISTRY), ["tr", "en", "ru", "ar", "zh-CN"]);
+assert.deepEqual(Object.keys(config.LOCALE_REGISTRY), ["tr", "en", "ru", "kk", "ar", "zh-CN"]);
 assert.equal(config.DEFAULT_LOCALE, "tr");
 assert.equal(config.getLocaleTag("tr"), "tr-TR");
 assert.equal(config.getLocaleDirection("ar"), "rtl");
 assert.equal(config.getLocaleTag("zh-CN"), "zh-CN");
 assert.equal(config.isKnownLocale("toString"), false);
 assert.deepEqual(config.SUPPORTED_LOCALES, ["tr", "en"]);
-assert.deepEqual(config.FUTURE_LOCALES, ["ru", "ar", "zh-CN"]);
+assert.deepEqual(config.FUTURE_LOCALES, ["ru", "kk", "ar", "zh-CN"]);
 assert.deepEqual(Object.keys(config.LOCALE_CONFIG), ["tr", "en"], "Compatibility configuration must not expose future locales");
 assert.equal(config.normalizeLocale("ru"), "tr", "Unreleased locales must not be publicly negotiated yet");
+assert.equal(config.normalizeLocale("kk"), "tr", "Unreleased locales must not be publicly negotiated yet");
 assert.equal(config.normalizeLocale("ar"), "tr", "Unreleased locales must not be publicly negotiated yet");
 assert.equal(config.normalizeLocale("zh-CN"), "tr", "Unreleased locales must not be publicly negotiated yet");
 
-assert.equal(market.CURRENT_MARKET.id, "turkey");
-assert.equal(market.CURRENT_MARKET.currencyCode, "TRY");
-assert.equal(market.CURRENT_MARKET.defaultPhoneCountry, "TR");
+assert.equal(market.CURRENT_MARKET.id, "kazakhstan");
+assert.equal(market.CURRENT_MARKET.currencyCode, "KZT");
+assert.equal(market.CURRENT_MARKET.defaultPhoneCountry, "KZ");
 assert.equal("locale" in market.CURRENT_MARKET, false, "Market configuration must not derive from locale");
 
 assert.deepEqual(completeness.findMissingTranslationKeys(tr, en), []);

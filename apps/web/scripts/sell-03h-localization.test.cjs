@@ -75,6 +75,11 @@ assert.equal(kk.publish, "Хабарландыруды жариялау");
 assert.equal(kk.currency, "Валюта");
 assert.equal(zhCN.publish, "发布房源");
 assert.equal(zhCN.currency, "货币");
+for (const [locale, copy] of Object.entries({ ru, kk, en, "zh-CN": zhCN })) {
+  assert.deepEqual(shape(copy), shape(tr), `${locale} must retain the complete SellCopy contract`);
+  const text = JSON.stringify(copy);
+  assert.doesNotMatch(text, /TODO|\?\?\?/i, `${locale} must not contain placeholder seller copy`);
+}
 assert.doesNotMatch(Object.values(ru).filter((value) => typeof value === "string").join("\n"), /TODO|\?\?\?/i);
 assert.match(copySource, /@\/i18n\/dictionaries\/sell-wizard/);
 assert.doesNotMatch(copySource, /const tr =|const en =|Record<Locale/);
