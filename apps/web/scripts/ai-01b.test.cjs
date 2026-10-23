@@ -69,11 +69,15 @@ assert.equal(normalizeNaturalLanguageNumber("2.3 million KZT", "price", "en"), 2
 assert.equal(normalizeNaturalLanguageNumber("230 万 坚戈", "price", "zh-CN"), 2300000);
 assert.deepEqual(resolveSearchText("2 миллион 300 мың теңге дейін", { makes: [], models: [], variants: [], cities: [], districts: [] }, "kk").patch.values, { priceMax: 2300000 });
 assert.deepEqual(resolveSearchText("under 2 million tenge", { makes: [], models: [], variants: [], cities: [], districts: [] }, "en").patch.values, { priceMax: 2000000 });
+assert.deepEqual(resolveSearchText("from 2 million tenge", { makes: [], models: [], variants: [], cities: [], districts: [] }, "en").patch.values, { priceMin: 2000000 });
 assert.deepEqual(resolveSearchText("less than 2 million tenge", { makes: [], models: [], variants: [], cities: [], districts: [] }, "en").patch.values, { priceMax: 2000000 });
 assert.deepEqual(resolveSearchText("up to 50 thousand km", { makes: [], models: [], variants: [], cities: [], districts: [] }, "en").patch.values, { mileageMax: 50000 });
 assert.deepEqual(resolveSearchText("не дороже 2 миллиона тенге", { makes: [], models: [], variants: [], cities: [], districts: [] }, "ru").patch.values, { priceMax: 2000000 });
+assert.deepEqual(resolveSearchText("от 2 миллионов тенге", { makes: [], models: [], variants: [], cities: [], districts: [] }, "ru").patch.values, { priceMin: 2000000 });
 assert.deepEqual(resolveSearchText("不超过 230 万 坚戈", { makes: [], models: [], variants: [], cities: [], districts: [] }, "zh-CN").patch.values, { priceMax: 2300000 });
 assert.deepEqual(resolveSearchText("230 万 坚戈 以下", { makes: [], models: [], variants: [], cities: [], districts: [] }, "zh-CN").patch.values, { priceMax: 2300000 });
+assert.deepEqual(resolveSearchText("2 миллион теңгеден бастап", { makes: [], models: [], variants: [], cities: [], districts: [] }, "kk").patch.values, { priceMin: 2000000 });
+assert.deepEqual(resolveSearchText("200 万 坚戈 以上", { makes: [], models: [], variants: [], cities: [], districts: [] }, "zh-CN").patch.values, { priceMin: 2000000 });
 const emptyCatalog = { makes: [], models: [], variants: [], cities: [], districts: [] };
 assert.deepEqual(resolveSearchText("2018 or older", emptyCatalog, "en").patch.values, { yearMax: 2018 });
 assert.deepEqual(resolveSearchText("2018年及以前", emptyCatalog, "zh-CN").patch.values, { yearMax: 2018 });
