@@ -79,10 +79,12 @@ assert.deepEqual(resolveSearchText("автомат бензин с фото", em
 assert.deepEqual(resolveSearchText("робот dsg", emptyCatalog, "ru").patch.values, { transmission: "semi_automatic" });
 assert.deepEqual(resolveSearchText("полный привод", emptyCatalog, "ru").patch.values, { drivetrain: "awd" });
 assert.deepEqual(resolveSearchText("б/у", emptyCatalog, "ru").patch.values, { condition: "used" });
+assert.deepEqual(resolveSearchText("дилер", emptyCatalog, "ru").patch.values, { sellerType: "dealer" });
 assert.deepEqual(resolveSearchText("ең арзан қолмен дизель", emptyCatalog, "kk").patch.values, { fuel: "diesel", transmission: "manual", sort: "price_asc" });
 assert.deepEqual(resolveSearchText("半自动", emptyCatalog, "zh-CN").patch.values, { transmission: "semi_automatic" });
 assert.deepEqual(resolveSearchText("四驱", emptyCatalog, "zh-CN").patch.values, { drivetrain: "4wd" });
 assert.deepEqual(resolveSearchText("新车", emptyCatalog, "zh-CN").patch.values, { condition: "new" });
+assert.deepEqual(resolveSearchText("私人卖家", emptyCatalog, "zh-CN").patch.values, { sellerType: "private" });
 assert.deepEqual(resolveSearchText("带视频 自动 汽油", emptyCatalog, "zh-CN").patch.values, { fuel: "gasoline", transmission: "automatic", hasVideo: true });
 assert.equal(resolveSearchText("清除筛选", emptyCatalog, "zh-CN").patch.operation, "reset");
 console.log("AI-01B natural-language Search v1 adapter contract passed");

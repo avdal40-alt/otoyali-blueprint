@@ -73,6 +73,8 @@ export function resolveSearchText(text: string, catalog: SearchCatalog, locale: 
   if (/(\brwd\b|rear[ -]?wheel drive|задн\S* привод|артқы жетекті|后驱)/.test(normalized)) values.drivetrain = "rwd";
   if (/(\bawd\b|all[ -]?wheel drive|полн(?:ый|ыи) привод|толық жетекті|全轮驱动)/.test(normalized)) values.drivetrain = "awd";
   if (/(\b4wd\b|four[ -]?wheel drive|4x4|四驱)/.test(normalized)) values.drivetrain = "4wd";
+  if (/(\bdealer\b|дилер|автосалон|дилерден|经销商)/.test(normalized)) values.sellerType = "dealer";
+  if (/(private seller|\bowner\b|частн(?:ый|ыи)|жеке сатушы|私人卖家)/.test(normalized)) values.sellerType = "private";
   if (/\bsuv\b/.test(normalized)) values.bodyType = "suv";
   if (/(video olan|with video|cars with video|с видео|бейнесі бар|带视频)/.test(normalized)) values.hasVideo = true;
   if (/(fotoğraflı|with photos|с фото|фотосуреті бар|带照片)/.test(normalized)) values.hasPhotos = true;
