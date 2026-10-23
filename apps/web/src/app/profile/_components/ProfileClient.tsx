@@ -13,12 +13,14 @@ import { normalizeStoredAuthPhoneToE164 } from "@/lib/auth/phone";
 import { cityLabel } from "@/lib/format";
 import { getPreferredCityNames } from "@/lib/location";
 import { CURRENT_MARKET } from "@/lib/market";
+import { getProfileCopy } from "./profile-copy";
 
 const fallbackCities = [...getPreferredCityNames()];
 
 export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   const router = useRouter();
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
+  const copy = getProfileCopy(locale);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
@@ -33,7 +35,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   useEffect(() => {
     async function load() {
       if (!hasSupabaseEnv()) {
-        setError(String(dictionary.errors.authConfiguration));
+        setError(copy.authConfiguration);
         setLoading(false);
         return;
       }
@@ -64,7 +66,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
       const { data, error: profileError } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
       if (profileError) {
         logClientError("profile.load", profileError);
-        setError(String(dictionary.profile.loadFailed));
+        setError(copy.loadFailed);
       }
       const { count, error: listingCountError } = await supabase
         .schema("marketplace")
@@ -80,7 +82,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
     }
 
     void load();
-  }, [dictionary.errors.authConfiguration, dictionary.profile.loadFailed, locale]);
+  }, [copy.authConfiguration, copy.loadFailed, locale]);
 
   async function save() {
     if (!profile || !userId) return;
@@ -108,7 +110,7 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
 
     if (updateError) {
       logClientError("profile.save", updateError);
-      setError(String(dictionary.profile.saveFailed));
+      setError(copy.saveFailed);
     } else {
       setSaved(true);
       setProfile((current) => current ? { ...current, full_name: fullName, display_name: displayName } : current);
@@ -126,83 +128,81 @@ export function ProfileClient({ cities = [] }: { cities?: City[] }) {
   if (!userId) {
     return (
       <EmptyState
-        title={String(dictionary.profile.loginRequiredTitle)}
-        body={String(dictionary.profile.loginRequiredBody)}
+        title={copy.loginRequiredTitle}
+        body={copy.loginRequiredBody}
         href={`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/profile", locale))}`}
-        action={String(dictionary.auth.verifyCode)}
+        action={copy.loginRequiredAction}
       />
     );
   }
 
   const isDealer = profile?.seller_type === "dealer";
-  const sellerContactsCopy = dictionary.profile.sellerContacts as Record<string, string>;
-
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
       <section className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-        <h1 className="text-2xl font-black text-oto-text">{String(dictionary.profile.title)}</h1>
-        <p className="mt-1 text-sm text-oto-muted">{String(dictionary.profile.detailsHint)}</p>
+        <h1 className="text-2xl font-black text-oto-text">{copy.title}</h1>
+        <p className="mt-1 text-sm text-oto-muted">{copy.detailsHint}</p>
 
         <div className="mt-4 grid gap-3 rounded-md bg-oto-surface p-4 text-sm font-bold text-oto-muted md:grid-cols-4">
-          <p>{String(dictionary.profile.accountId)}: <span className="text-oto-text">{userId.slice(0, 8)}...{userId.slice(-4)}</span></p>
-          <p>{String(dictionary.profile.phone)}: <span className="text-oto-text">{maskPhone(profile?.phone, String(dictionary.profile.noPhone))}</span></p>
-          <p>{String(dictionary.profile.listingCount)}: <span className="text-oto-text">{listingCount ?? 0}</span></p>
-          <p>{String(dictionary.profile.createdAt)}: <span className="text-oto-text">{createdAt ? new Intl.DateTimeFormat(getIntlLocale(locale)).format(new Date(createdAt)) : String(dictionary.common.noInfo)}</span></p>
+          <p>{copy.accountId}: <span className="text-oto-text">{userId.slice(0, 8)}...{userId.slice(-4)}</span></p>
+          <p>{copy.phone}: <span className="text-oto-text">{maskPhone(profile?.phone, copy.noPhone)}</span></p>
+          <p>{copy.listingCount}: <span className="text-oto-text">{listingCount ?? 0}</span></p>
+          <p>{copy.createdAt}: <span className="text-oto-text">{createdAt ? new Intl.DateTimeFormat(getIntlLocale(locale)).format(new Date(createdAt)) : copy.noInfo}</span></p>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-2">
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">{isDealer ? String(dictionary.profile.contactName) : String(dictionary.profile.fullName)}</span>
-            <Input value={profile?.full_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, full_name: event.target.value } : current)} placeholder={isDealer ? String(dictionary.profile.contactName) : String(dictionary.profile.fullName)} />
+            <span className="text-xs font-bold text-oto-muted">{isDealer ? copy.contactName : copy.fullName}</span>
+            <Input value={profile?.full_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, full_name: event.target.value } : current)} placeholder={isDealer ? copy.contactName : copy.fullName} />
           </label>
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">{isDealer ? String(dictionary.profile.dealerName) : String(dictionary.profile.displayName)}</span>
-            <Input value={profile?.display_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, display_name: event.target.value } : current)} placeholder={isDealer ? String(dictionary.profile.dealerName) : String(dictionary.profile.displayName)} />
+            <span className="text-xs font-bold text-oto-muted">{isDealer ? copy.dealerName : copy.displayName}</span>
+            <Input value={profile?.display_name ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, display_name: event.target.value } : current)} placeholder={isDealer ? copy.dealerName : copy.displayName} />
           </label>
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">{String(dictionary.profile.phone)}</span>
+            <span className="text-xs font-bold text-oto-muted">{copy.phone}</span>
             <Input
               value={profile?.phone ?? ""}
               readOnly
               aria-readonly="true"
-              helperText={String(dictionary.profile.phoneVerifiedHint)}
+              helperText={copy.phoneVerifiedHint}
             />
           </label>
           <label className="grid gap-1">
-            <span className="text-xs font-bold text-oto-muted">{String(dictionary.profile.city)}</span>
+            <span className="text-xs font-bold text-oto-muted">{copy.city}</span>
             <Select value={profile?.city ?? ""} onChange={(event) => setProfile((current) => current ? { ...current, city: event.target.value } : current)}>
-              <option value="">{String(dictionary.profile.selectCity)}</option>
+              <option value="">{copy.selectCity}</option>
               {profileCities.map((city) => <option key={city} value={city}>{cityLabel(city, locale)}</option>)}
             </Select>
           </label>
           <label className="grid gap-1 md:col-span-2">
-            <span className="text-xs font-bold text-oto-muted">{String(dictionary.profile.sellerType)}</span>
+            <span className="text-xs font-bold text-oto-muted">{copy.sellerType}</span>
             <Input
-              value={isDealer ? String(dictionary.profile.verifiedDealer) : String(dictionary.profile.privateSeller)}
+              value={isDealer ? copy.verifiedDealer : copy.privateSeller}
               readOnly
               aria-readonly="true"
-              helperText={String(dictionary.profile.dealerStatusHint)}
+              helperText={copy.dealerStatusHint}
             />
           </label>
         </div>
         {error ? <div className="mt-4"><ErrorState message={error} /></div> : null}
-        {saved ? <p className="mt-4 rounded-md bg-green-50 p-3 text-sm font-semibold text-oto-success" role="status">{String(dictionary.profile.saveSuccess)}</p> : null}
+        {saved ? <p className="mt-4 rounded-md bg-green-50 p-3 text-sm font-semibold text-oto-success" role="status">{copy.saveSuccess}</p> : null}
         <div className="mt-5 flex flex-wrap gap-3">
-          <Button onClick={save} disabled={saving}>{saving ? String(dictionary.profile.saving) : String(dictionary.common.save)}</Button>
-          <Button onClick={logout} variant="secondary">{String(dictionary.profile.logout)}</Button>
+          <Button onClick={save} disabled={saving}>{saving ? copy.saving : copy.save}</Button>
+          <Button onClick={logout} variant="secondary">{copy.logout}</Button>
         </div>
       </section>
       <aside className="grid h-fit gap-3 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-        <ButtonLink href={localizePath("/my-listings", locale)} variant="secondary">{String(dictionary.navigation.myListings)}</ButtonLink>
-        <ButtonLink href={localizePath("/profile/seller-contacts", locale)} variant="secondary">{sellerContactsCopy.title}</ButtonLink>
-        <ButtonLink href={localizePath("/favorites", locale)} variant="secondary">{String(dictionary.navigation.favorites)}</ButtonLink>
-        <ButtonLink href={localizePath("/profile/messages", locale)} variant="secondary">{String(dictionary.navigation.messages)}</ButtonLink>
-        <ButtonLink href={localizePath("/notifications", locale)} variant="secondary">{String(dictionary.navigation.notifications)}</ButtonLink>
-        <ButtonLink href={localizePath("/profile/saved-searches", locale)} variant="secondary">{String(dictionary.notifications.savedSearches)}</ButtonLink>
-        {isDealer ? <ButtonLink href={localizePath("/profile/dealer-crm", locale)} variant="secondary">Dealer CRM</ButtonLink> : null}
-        {isDealer ? <ButtonLink href={localizePath("/profile/dealer-analytics", locale)} variant="secondary">Dealer analytics</ButtonLink> : null}
-        <ButtonLink href={localizePath("/settings", locale)} variant="secondary">{String(dictionary.navigation.settings)}</ButtonLink>
-        <ButtonLink href={localizePath("/sell", locale)} variant="orange">{String(dictionary.common.publishListing)}</ButtonLink>
+        <ButtonLink href={localizePath("/my-listings", locale)} variant="secondary">{copy.myListings}</ButtonLink>
+        <ButtonLink href={localizePath("/profile/seller-contacts", locale)} variant="secondary">{copy.sellerContacts}</ButtonLink>
+        <ButtonLink href={localizePath("/favorites", locale)} variant="secondary">{copy.favorites}</ButtonLink>
+        <ButtonLink href={localizePath("/profile/messages", locale)} variant="secondary">{copy.messages}</ButtonLink>
+        <ButtonLink href={localizePath("/notifications", locale)} variant="secondary">{copy.notifications}</ButtonLink>
+        <ButtonLink href={localizePath("/profile/saved-searches", locale)} variant="secondary">{copy.savedSearches}</ButtonLink>
+        {isDealer ? <ButtonLink href={localizePath("/profile/dealer-crm", locale)} variant="secondary">{copy.dealerCrm}</ButtonLink> : null}
+        {isDealer ? <ButtonLink href={localizePath("/profile/dealer-analytics", locale)} variant="secondary">{copy.dealerAnalytics}</ButtonLink> : null}
+        <ButtonLink href={localizePath("/settings", locale)} variant="secondary">{copy.settings}</ButtonLink>
+        <ButtonLink href={localizePath("/sell", locale)} variant="orange">{copy.publishListing}</ButtonLink>
       </aside>
     </div>
   );

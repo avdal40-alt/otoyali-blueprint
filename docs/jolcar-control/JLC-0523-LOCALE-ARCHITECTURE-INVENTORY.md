@@ -132,6 +132,12 @@ must be migrated by domain slice:
   and configured Kazakhstan city choices rather than Turkey defaults;
 - profile timezone fallback is now likewise owned by the active market profile
   (Asia/Almaty for Kazakhstan), leaving existing stored profiles unchanged;
+- profile overview and editing: `ProfileClient.tsx` now uses the scoped
+  `profile-copy.ts` contract with complete direct RU/KK/EN/zh-CN copy for
+  account data, verified-phone presentation, seller/dealer state, save and
+  failure states, authenticated empty state, logout, and profile navigation;
+  profile persistence, the active KZ market fallback, Kazakhstan city choices,
+  and locale-preserving logout paths remain unchanged;
 - deterministic listing-text moderation now recognizes active Kazakhstan +7
   and domestic 8-prefixed phone numbers as contact details, retaining the
   historical Turkey matcher only for the Turkey market profile;
