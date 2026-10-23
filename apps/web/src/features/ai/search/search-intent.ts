@@ -75,6 +75,12 @@ export function resolveSearchText(text: string, catalog: SearchCatalog, locale: 
   if (/(\b4wd\b|four[ -]?wheel drive|4x4|四驱)/.test(normalized)) values.drivetrain = "4wd";
   if (/(\bdealer\b|дилер|автосалон|дилерден|经销商)/.test(normalized)) values.sellerType = "dealer";
   if (/(private seller|\bowner\b|частн(?:ый|ыи)|жеке сатушы|私人卖家)/.test(normalized)) values.sellerType = "private";
+  if (/(\bwhite\b|бел(?:ый|ыи)|ақ|白色?)/.test(normalized)) values.color = "white";
+  if (/(\bblack\b|черн|қара|黑色?)/.test(normalized)) values.color = "black";
+  if (/(\b(?:gray|grey)\b|сер(?:ый|ыи)|сұр|灰色?)/.test(normalized)) values.color = "gray";
+  if (/(\bblue\b|син|көк|蓝色?)/.test(normalized)) values.color = "blue";
+  if (/(\bred\b|красн|қызыл|红色?)/.test(normalized)) values.color = "red";
+  if (/(\bsilver\b|серебрист|күміс|银色?)/.test(normalized)) values.color = "silver";
   if (/(\bsedan\b|седан|轿车)/.test(normalized)) values.bodyType = "sedan";
   if (/(\bhatchback\b|хэтчбек|掀背)/.test(normalized)) values.bodyType = "hatchback";
   if (/(\bsuv\b|внедорожник|жол талғамаитын|越野)/.test(normalized)) values.bodyType = "suv";

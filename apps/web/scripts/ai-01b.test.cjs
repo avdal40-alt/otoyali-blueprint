@@ -81,6 +81,10 @@ assert.deepEqual(resolveSearchText("2018年及以后", emptyCatalog, "zh-CN").pa
 assert.deepEqual(resolveSearchText("2018 года и старше", emptyCatalog, "ru").patch.values, { yearMax: 2018 });
 assert.deepEqual(resolveSearchText("2018 жылдан кейін", emptyCatalog, "kk").patch.values, { yearMin: 2019 });
 assert.deepEqual(resolveSearchText("2018年以前", emptyCatalog, "zh-CN").patch.values, { yearMax: 2017 });
+assert.deepEqual(resolveSearchText("белый", emptyCatalog, "ru").patch.values, { color: "white" });
+assert.deepEqual(resolveSearchText("қара", emptyCatalog, "kk").patch.values, { color: "black" });
+assert.deepEqual(resolveSearchText("blue", emptyCatalog, "en").patch.values, { color: "blue" });
+assert.deepEqual(resolveSearchText("银色", emptyCatalog, "zh-CN").patch.values, { color: "silver" });
 assert.deepEqual(resolveSearchText("седан", emptyCatalog, "ru").patch.values, { bodyType: "sedan" });
 assert.deepEqual(resolveSearchText("жол талғамайтын", emptyCatalog, "kk").patch.values, { bodyType: "suv" });
 assert.deepEqual(resolveSearchText("pickup", emptyCatalog, "en").patch.values, { bodyType: "pickup" });
