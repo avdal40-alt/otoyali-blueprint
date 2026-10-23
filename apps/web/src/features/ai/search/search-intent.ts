@@ -75,7 +75,14 @@ export function resolveSearchText(text: string, catalog: SearchCatalog, locale: 
   if (/(\b4wd\b|four[ -]?wheel drive|4x4|四驱)/.test(normalized)) values.drivetrain = "4wd";
   if (/(\bdealer\b|дилер|автосалон|дилерден|经销商)/.test(normalized)) values.sellerType = "dealer";
   if (/(private seller|\bowner\b|частн(?:ый|ыи)|жеке сатушы|私人卖家)/.test(normalized)) values.sellerType = "private";
-  if (/\bsuv\b/.test(normalized)) values.bodyType = "suv";
+  if (/(\bsedan\b|седан|轿车)/.test(normalized)) values.bodyType = "sedan";
+  if (/(\bhatchback\b|хэтчбек|掀背)/.test(normalized)) values.bodyType = "hatchback";
+  if (/(\bsuv\b|внедорожник|жол талғамаитын|越野)/.test(normalized)) values.bodyType = "suv";
+  if (/(\bcoupe\b|купе|双门)/.test(normalized)) values.bodyType = "coupe";
+  if (/(\b(?:wagon|estate)\b|универсал|旅行车)/.test(normalized)) values.bodyType = "wagon";
+  if (/(\bpickup\b|пикап|皮卡)/.test(normalized)) values.bodyType = "pickup";
+  if (/(\bminivan\b|минивэн|小型客车)/.test(normalized)) values.bodyType = "minivan";
+  if (/(\bcommercial\b|коммерческ|коммерциялық|商用)/.test(normalized)) values.bodyType = "commercial";
   if (/(video olan|with video|cars with video|с видео|бейнесі бар|带视频)/.test(normalized)) values.hasVideo = true;
   if (/(fotoğraflı|with photos|с фото|фотосуреті бар|带照片)/.test(normalized)) values.hasPhotos = true;
   if (/(en ucuz|cheapest|самый дешев|ең арзан|最便宜)/.test(normalized)) values.sort = "price_asc";
