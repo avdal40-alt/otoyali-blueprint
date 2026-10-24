@@ -13,6 +13,7 @@ import {
 } from "@/lib/supabase/client";
 import { useI18n } from "@/i18n/client";
 import { getIntlLocale, localizePath } from "@/i18n/config";
+import { getMessagesCopy } from "../../messages-copy";
 
 type Message = {
   messageId: string;
@@ -44,8 +45,8 @@ export function ConversationClient({
 }: {
   conversationId: string;
 }) {
-  const { locale, dictionary } = useI18n();
-  const copy = dictionary.messages;
+  const { locale } = useI18n();
+  const copy = getMessagesCopy(locale);
   const [messages, setMessages] = useState<Message[] | null>(null);
   const [responses, setResponses] = useState<ListingResponse[]>([]);
   const [error, setError] = useState(false);

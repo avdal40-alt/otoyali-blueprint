@@ -209,6 +209,12 @@ must be migrated by domain slice:
   RU/KK/EN/zh-CN feedback and accessibility copy. Its unsupported Jolmod
   fallback is Russian; favorite ownership and KZ public-read isolation remain
   unchanged.
+- global messages: conversation start, inbox, and conversation detail now use
+  `messages-copy.ts` with direct RU/KK/EN/zh-CN copy and Russian fallback.
+  Conversation APIs, read/unread state, seller responses, locale-preserving
+  links, and canonical Intl timestamps remain unchanged. The unread runtime
+  fixture now seeds a KZ city, retaining its authorization purpose while
+  respecting the existing JLC-0522 listing-market trigger.
 - Kazakhstan SEO and route generation: the active KZ market now owns explicit
   Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
   families, with Russian unprefixed and the other three safely prefixed. Shared

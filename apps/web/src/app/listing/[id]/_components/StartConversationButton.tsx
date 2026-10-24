@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/Button";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { getMessagesCopy } from "@/app/profile/messages/messages-copy";
 
 export function StartConversationButton({ listingId }: { listingId: string }) {
-  const { locale, dictionary } = useI18n(); const router = useRouter(); const pathname = usePathname();
+  const { locale } = useI18n(); const copy = getMessagesCopy(locale); const router = useRouter(); const pathname = usePathname();
   const [error, setError] = useState<string | null>(null); const [loading, setLoading] = useState(false);
   async function start() {
-    setError(null); if (!hasSupabaseEnv()) return setError(String(dictionary.messages.unavailable));
+    setError(null); if (!hasSupabaseEnv()) return setError(copy.unavailable);
     const { data } = await getSupabaseBrowserClient().auth.getSession();
     if (!data.session) { router.push(`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath(pathname, locale))}`); return; }
     setLoading(true);
@@ -20,7 +21,7 @@ export function StartConversationButton({ listingId }: { listingId: string }) {
       const result = await response.json() as { data?: { conversationId?: string } };
       if (!response.ok || !result.data?.conversationId) throw new Error("unavailable");
       router.push(localizePath(`/profile/messages/${result.data.conversationId}`, locale));
-    } catch { setError(String(dictionary.messages.unavailable)); } finally { setLoading(false); }
+    } catch { setError(copy.unavailable); } finally { setLoading(false); }
   }
-  return <div><Button type="button" variant="secondary" onClick={start} disabled={loading} aria-describedby={error ? "conversation-error" : undefined}>{loading ? String(dictionary.common.loading) : String(dictionary.messages.start)}</Button>{error ? <p id="conversation-error" role="alert" className="mt-2 text-sm text-oto-danger">{error}</p> : null}</div>;
+  return <div><Button type="button" variant="secondary" onClick={start} disabled={loading} aria-describedby={error ? "conversation-error" : undefined}>{loading ? copy.loading : copy.start}</Button>{error ? <p id="conversation-error" role="alert" className="mt-2 text-sm text-oto-danger">{error}</p> : null}</div>;
 }
