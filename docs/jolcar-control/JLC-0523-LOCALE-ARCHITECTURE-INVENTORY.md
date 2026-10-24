@@ -172,6 +172,9 @@ must be migrated by domain slice:
   entry presentation, loading and empty states, trust content, and app CTA.
   Its contract gate enforces exact key parity, Kazakhstan identity, direct
   launch resolution, Turkish exclusion, and Simplified Chinese integrity;
+- global search: `global-launch-search-copy.ts` now supplies direct RU/KK/EN/
+  zh-CN copy for every remaining canonical search key; exact-shape and Chinese
+  integrity gates prevent Turkish fallback or placeholder launch copy.
 - Kazakhstan SEO and route generation: the active KZ market now owns explicit
   Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
   families, with Russian unprefixed and the other three safely prefixed. Shared
