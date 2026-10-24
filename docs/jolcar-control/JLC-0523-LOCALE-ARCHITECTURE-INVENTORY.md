@@ -225,6 +225,13 @@ must be migrated by domain slice:
   controls, seller-type controls, and the public-video dealer marker. It falls
   back to Russian for unsupported Jolmod values; filter, video, and market
   semantics remain unchanged.
+- global video: the public video page and homepage teaser now use the scoped
+  `video-copy.ts` contract with direct RU/KK/EN/zh-CN copy for their complete
+  active text surface, including playback feedback, empty state, public-video
+  guidance, and teaser cards. Unsupported Jolmod values resolve through
+  Russian; explicit Turkish copy remains solely for historical Yolmod support.
+  Video routes, playback, visibility, media authorization, and telemetry are
+  unchanged.
 - Kazakhstan SEO and route generation: the active KZ market now owns explicit
   Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
   families, with Russian unprefixed and the other three safely prefixed. Shared

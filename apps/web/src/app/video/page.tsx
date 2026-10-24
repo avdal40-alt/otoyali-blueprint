@@ -16,6 +16,7 @@ import type { Locale } from "@/i18n/types";
 import { VideoShareButton } from "./_components/VideoShareButton";
 import { PublicVideoPlayer } from "./_components/PublicVideoPlayer";
 import { getStatusCopy } from "@/i18n/status-copy";
+import { getVideoCopy } from "./video-copy";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -27,6 +28,7 @@ export default async function VideoPage({
 }) {
   const locale = await getRequestLocale();
   const dictionary = getDictionary(locale);
+  const videoCopy = getVideoCopy(locale);
   const resolvedSearchParams = await searchParams;
   const listingId = singleValue(resolvedSearchParams.listing);
   const videosResult = await getVideoFeed({ listingId, limit: 6 });
@@ -40,14 +42,14 @@ export default async function VideoPage({
           <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
               <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-100">
-                {String(dictionary.video.label)}
+                {videoCopy.label}
               </span>
-              <h1 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">{String(dictionary.video.title)}</h1>
+              <h1 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">{videoCopy.title}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-50 md:text-base">
-                {String(dictionary.video.subtitle)}
+                {videoCopy.subtitle}
               </p>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-blue-100">
-                {String(dictionary.video.body)}
+                {videoCopy.body}
               </p>
             </div>
             <ButtonLink href={localizePath("/sell", locale)} variant="orange" className="w-full md:w-auto">
@@ -67,19 +69,19 @@ export default async function VideoPage({
               ))}
             </div>
             <aside className="hidden h-fit rounded-oto border border-oto-border bg-white p-5 shadow-soft lg:sticky lg:top-24 lg:block">
-              <h2 className="text-lg font-black text-oto-text">{String(dictionary.video.label)}</h2>
+              <h2 className="text-lg font-black text-oto-text">{videoCopy.label}</h2>
               <div className="mt-4 grid gap-3 text-sm leading-6 text-oto-muted">
-                <p>{String(dictionary.video.approvedVideos)}</p>
-                <p>{String(dictionary.video.moderationCopy)}</p>
-                <p>{String(dictionary.video.performanceCopy)}</p>
+                <p>{videoCopy.approvedVideos}</p>
+                <p>{videoCopy.moderationCopy}</p>
+                <p>{videoCopy.performanceCopy}</p>
               </div>
             </aside>
           </section>
         ) : (
           <div className="mt-8">
             <EmptyState
-              title={String(dictionary.video.emptyTitle)}
-              body={String(dictionary.video.emptyBody)}
+              title={videoCopy.emptyTitle}
+              body={videoCopy.emptyBody}
               href={localizePath("/sell", locale)}
               action={String(dictionary.common.publishListing)}
             />
@@ -95,7 +97,8 @@ export default async function VideoPage({
 function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
   const dictionary = getDictionary(locale);
   const statusCopy = getStatusCopy(locale);
-  const title = video.title?.trim() || video.listing_title?.trim() || String(dictionary.video.vehicleVideo);
+  const videoCopy = getVideoCopy(locale);
+  const title = video.title?.trim() || video.listing_title?.trim() || videoCopy.vehicleVideo;
   const poster = video.poster_url || video.thumbnail_url || video.cover_image_url || undefined;
   const details = [
     video.year ? String(video.year) : null,
@@ -107,7 +110,7 @@ function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
   return (
     <article className="overflow-hidden rounded-oto border border-oto-border bg-white shadow-oto">
       <div className="relative bg-black">
-        <PublicVideoPlayer src={video.video_url || undefined} poster={poster} listingId={video.listing_id} videoId={video.video_id} locale={locale} errorLabel={String(dictionary.video.playbackError)} retryLabel={String(dictionary.video.retryPlayback)} />
+        <PublicVideoPlayer src={video.video_url || undefined} poster={poster} listingId={video.listing_id} videoId={video.video_id} locale={locale} errorLabel={videoCopy.playbackError} retryLabel={videoCopy.retryPlayback} />
         {video.seller_type === "dealer" ? (
           <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-oto-blue shadow-soft">
             {statusCopy.dealer}
@@ -134,17 +137,17 @@ function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
             <p className="line-clamp-1 text-sm font-black text-oto-text">{video.listing_title}</p>
           ) : null}
           <p className="text-base font-black text-oto-text">{formatPrice(video.price_amount, video.currency, locale)}</p>
-          <p className="mt-1 text-xs font-bold text-oto-muted">{details.join(" · ") || String(dictionary.video.detailsComingSoon)}</p>
+          <p className="mt-1 text-xs font-bold text-oto-muted">{details.join(" · ") || videoCopy.detailsComingSoon}</p>
         </div>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_1.45fr_1fr]">
           {video.listing_id ? (
             <ButtonLink href={localizePath(`/listing/${video.listing_id}`, locale)} className="h-10 px-3 text-xs">
-              {String(dictionary.video.seeListing)}
+              {videoCopy.seeListing}
             </ButtonLink>
           ) : (
             <ButtonLink href={localizePath("/search", locale)} className="h-10 px-3 text-xs">
-              {String(dictionary.video.browseListings)}
+              {videoCopy.browseListings}
             </ButtonLink>
           )}
           {video.listing_id ? (
@@ -153,14 +156,14 @@ function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
             </ButtonLink>
           ) : (
             <ButtonLink href={`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/video", locale))}`} variant="secondary" className="h-10 px-3 text-xs">
-              {String(dictionary.video.login)}
+              {videoCopy.login}
             </ButtonLink>
           )}
           <VideoShareButton title={title} listingId={video.listing_id} />
         </div>
 
         <p className="mt-4 text-xs font-semibold leading-5 text-oto-muted">
-          {String(dictionary.video.contentProvided)}
+          {videoCopy.contentProvided}
         </p>
       </div>
     </article>

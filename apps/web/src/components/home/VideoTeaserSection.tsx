@@ -1,22 +1,22 @@
 import { ButtonLink } from "@/components/ui/Button";
-import { getDictionary } from "@/i18n/get-dictionary";
+import { getVideoCopy } from "@/app/video/video-copy";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 
 export function VideoTeaserSection({ locale = "tr" }: { locale?: Locale }) {
-  const dictionary = getDictionary(locale);
+  const copy = getVideoCopy(locale);
   const previews = [
     {
-      title: String(dictionary.video.vehicleVideo),
-      body: String(dictionary.video.vehicleVideoBody)
+      title: copy.vehicleVideo,
+      body: copy.vehicleVideoBody
     },
     {
-      title: String(dictionary.video.dealerDeals),
-      body: String(dictionary.video.dealerDealsBody)
+      title: copy.dealerDeals,
+      body: copy.dealerDealsBody
     },
     {
-      title: String(dictionary.video.shortPromos),
-      body: String(dictionary.video.shortPromosBody)
+      title: copy.shortPromos,
+      body: copy.shortPromosBody
     }
   ];
 
@@ -25,14 +25,14 @@ export function VideoTeaserSection({ locale = "tr" }: { locale?: Locale }) {
       <div className="grid gap-6 p-5 md:grid-cols-[0.9fr_1.1fr] md:p-7">
         <div>
           <span className="rounded-full bg-cyan-400 px-3 py-1 text-xs font-black text-[#061A40]">
-            {String(dictionary.video.label)}
+            {copy.label}
           </span>
-          <h2 className="mt-4 text-2xl font-black tracking-tight md:text-3xl">{String(dictionary.video.title)}</h2>
+          <h2 className="mt-4 text-2xl font-black tracking-tight md:text-3xl">{copy.title}</h2>
           <p className="mt-3 text-sm leading-6 text-blue-50">
-            {String(dictionary.video.subtitle)}
+            {copy.subtitle}
           </p>
           <ButtonLink href={localizePath("/video", locale)} variant="orange" className="mt-5 w-full md:w-auto">
-            {String(dictionary.video.discover)}
+            {copy.discover}
           </ButtonLink>
         </div>
         <div className="grid gap-3 sm:grid-cols-3 md:items-stretch">
