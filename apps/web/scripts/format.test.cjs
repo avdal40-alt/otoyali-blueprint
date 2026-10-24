@@ -58,6 +58,15 @@ assert.equal(format.formatNumber(1, "tr", invalidMarket), "");
 assert.equal(format.formatDate("2026-10-10", "tr", invalidMarket), "");
 assert.equal(format.formatNumber(1234567, "kk", kazakhstan), new Intl.NumberFormat("kk-KZ", { maximumFractionDigits: 0 }).format(1234567));
 assert.equal(format.formatDate("2026-10-10T00:00:00.000Z", "zh-CN", kazakhstan), new Intl.DateTimeFormat("zh-CN", { day: "2-digit", month: "short", year: "numeric" }).format(new Date("2026-10-10T00:00:00.000Z")));
+for (const [locale, intlLocale] of [["ru", "ru-KZ"], ["kk", "kk-KZ"], ["en", "en-US"], ["zh-CN", "zh-CN"]]) {
+  const formatted = new Intl.NumberFormat(intlLocale, { maximumFractionDigits: 0 }).format(1234567);
+  assert.equal(format.formatCurrency(1234567, "KZT", locale, kazakhstan), `${formatted} ₸`, `${locale} must retain Kazakhstan tenge formatting`);
+  assert.equal(format.formatNumber(1234567, locale, kazakhstan), formatted, `${locale} must use its configured number locale`);
+  assert.equal(format.formatMileage(1234567, locale, kazakhstan), `${formatted} km`, `${locale} must retain mileage units`);
+  assert.equal(format.formatDate("2026-10-10T00:00:00.000Z", locale, kazakhstan), new Intl.DateTimeFormat(intlLocale, { day: "2-digit", month: "short", year: "numeric" }).format(new Date("2026-10-10T00:00:00.000Z")), `${locale} must use its configured date locale`);
+}
+assert.equal(format.formatCurrency(null, "KZT", "ru", kazakhstan), "ru price");
+assert.equal(format.formatMileage(null, "zh-CN", kazakhstan), "zh-CN no info");
 assert.equal(format.fuelLabel("diesel", "ru"), "Дизель");
 assert.equal(format.transmissionLabel("automatic", "kk"), "Автоматты");
 assert.equal(format.bodyTypeLabel("suv", "zh-CN"), "SUV");

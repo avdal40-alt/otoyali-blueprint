@@ -110,7 +110,9 @@ must be migrated by domain slice:
   being narrowed to the released Turkish/English registry; direct Russian,
   Kazakh, and Simplified Chinese labels now cover every shared vehicle enum
   group, while released Turkish/English labels remain on their existing
-  dictionary path;
+  dictionary path; the formatter gate now verifies each RU/KK/EN/zh-CN
+  configured Intl locale for KZT currency, number, mileage, date, enum, and
+  no-data output without changing market identity;
 - service pricing: absent offering currency now delegates to the active market
   formatter rather than injecting legacy TRY; explicitly stored historical
   currencies remain displayed as provided;
