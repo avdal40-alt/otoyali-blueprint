@@ -13,7 +13,7 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { useI18n } from "@/i18n/client";
 import { localizePath } from "@/i18n/config";
 import { t } from "@/i18n/get-dictionary";
-import type { ClientDictionary, Locale } from "@/i18n/types";
+import type { Locale } from "@/i18n/types";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { isMissingAuthSessionError } from "@/lib/auth/auth-ui";
@@ -21,6 +21,7 @@ import { safeAdminNextPath } from "@/lib/auth/admin-return-path";
 import { formatPrice } from "@/lib/format";
 import { signStorageUrlMap } from "@/lib/media/storage-urls";
 import type { ServiceProviderApplicationAdminRow } from "@/lib/supabase/types";
+import { getAdminNavigationCopy, type AdminNavigationCopy } from "./admin-navigation-copy";
 
 type AdminSection = "dashboard" | "listings" | "videos" | "services" | "reports" | "users" | "settings";
 
@@ -115,7 +116,8 @@ const navItems: Array<{ section: AdminSection; href: string; label: string }> = 
 ];
 
 export function AdminClient({ section }: { section: AdminSection }) {
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
+  const adminNavigation = getAdminNavigationCopy(locale);
   const pathname = usePathname();
   const router = useRouter();
   const [admin, setAdmin] = useState<AdminState>({ status: "loading", userId: null, role: null, error: null });
@@ -170,7 +172,7 @@ export function AdminClient({ section }: { section: AdminSection }) {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolcar Admin</p>
-              <h1 className="mt-1 text-2xl font-black text-oto-text">{adminNavLabel(section, dictionary)}</h1>
+              <h1 className="mt-1 text-2xl font-black text-oto-text">{adminNavLabel(section, adminNavigation)}</h1>
             </div>
             {admin.role ? <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-black text-oto-blue">{admin.role}</span> : null}
           </div>
@@ -181,7 +183,7 @@ export function AdminClient({ section }: { section: AdminSection }) {
                 href={localizePath(item.href, locale)}
                 className={item.section === section ? "rounded-full bg-oto-text px-3 py-2 text-xs font-black text-white" : "rounded-full bg-oto-surface px-3 py-2 text-xs font-black text-oto-muted"}
               >
-                {adminNavLabel(item.section, dictionary)}
+                {adminNavLabel(item.section, adminNavigation)}
               </Link>
             ))}
           </nav>
@@ -843,9 +845,8 @@ function SmallButton({ children, onClick, variant = "primary", disabled = false 
   );
 }
 
-function adminNavLabel(section: AdminSection, dictionary: ClientDictionary) {
-  if (section === "dashboard") return "Dashboard";
-  return String(dictionary.admin?.[section] ?? section);
+function adminNavLabel(section: AdminSection, copy: AdminNavigationCopy) {
+  return copy[section];
 }
 
 async function countRows(query: PromiseLike<{ count: number | null; error: { message: string } | null }>) {

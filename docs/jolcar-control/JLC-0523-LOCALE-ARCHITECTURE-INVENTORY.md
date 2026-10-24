@@ -232,6 +232,12 @@ must be migrated by domain slice:
   Russian; explicit Turkish copy remains solely for historical Yolmod support.
   Video routes, playback, visibility, media authorization, and telemetry are
   unchanged.
+- global admin boundary: active AdminClient navigation now resolves through a
+  direct RU/KK/EN/zh-CN `admin-navigation-copy.ts` adapter, while the admin
+  login client uses the existing scoped AuthCopy rather than historical global
+  auth/errors. Unsupported Jolmod values resolve through Russian; explicit
+  Turkish compatibility remains separate. Admin authorization RPCs, moderation
+  permissions, and staff/seller boundaries are unchanged.
 - Kazakhstan SEO and route generation: the active KZ market now owns explicit
   Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
   families, with Russian unprefixed and the other three safely prefixed. Shared

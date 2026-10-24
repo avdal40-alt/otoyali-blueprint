@@ -10,11 +10,13 @@ import { safeAdminNextPath } from "@/lib/auth/admin-return-path";
 import { DEFAULT_PHONE_COUNTRY, parseAuthPhoneNumber, type AuthPhoneCountry } from "@/lib/auth/phone";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { useI18n } from "@/i18n/client";
+import { getAuthCopy } from "@/lib/auth/auth-copy";
 
 type AccessState = "checking" | "ready" | "denied" | "error";
 
 export function AdminLoginClient() {
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
+  const copy = getAuthCopy(locale);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [phone, setPhone] = useState("");
@@ -37,7 +39,7 @@ export function AdminLoginClient() {
     async function checkExistingSession() {
       if (!hasSupabaseEnv()) {
         setAccess("error");
-        setError(String(dictionary.errors.authConfiguration));
+        setError(copy.authConfiguration);
         return;
       }
 
@@ -67,7 +69,7 @@ export function AdminLoginClient() {
     }
 
     void checkExistingSession();
-  }, [dictionary.errors.authConfiguration, locale, next, router]);
+  }, [copy.authConfiguration, locale, next, router]);
 
   async function verifyAdminAndRedirect() {
     const supabase = getSupabaseBrowserClient();
@@ -95,11 +97,11 @@ export function AdminLoginClient() {
       return;
     }
     if (!password) {
-      setError(String(dictionary.auth.passwordRequired));
+      setError(copy.passwordRequired);
       return;
     }
     if (!hasSupabaseEnv()) {
-      setError(String(dictionary.errors.authConfiguration));
+      setError(copy.authConfiguration);
       return;
     }
 
@@ -141,10 +143,10 @@ export function AdminLoginClient() {
           </div>
         ) : (
           <div className="mt-5 grid gap-4">
-            <PhoneInput value={phone} onChange={setPhone} selectedCountry={country} onCountryChange={setCountry} locale={locale} label="Telefon numarası" countryLabel={String(dictionary.auth.countryLabel)} searchLabel={String(dictionary.auth.countrySearchLabel)} searchPlaceholder={String(dictionary.auth.countrySearchPlaceholder)} placeholder={String(dictionary.auth.phonePlaceholder)} noResults={String(dictionary.auth.countryNoResults)} helperText={String(dictionary.auth.phoneInputHelper)} />
+            <PhoneInput value={phone} onChange={setPhone} selectedCountry={country} onCountryChange={setCountry} locale={locale} label={copy.phoneLabel} countryLabel={copy.countryLabel} searchLabel={copy.countrySearchLabel} searchPlaceholder={copy.countrySearchPlaceholder} placeholder={copy.phonePlaceholder} noResults={copy.countryNoResults} helperText={copy.phoneInputHelper} />
             <label className="grid gap-1 text-sm font-bold text-oto-text">Şifre<input className="h-11 rounded-button border border-oto-border px-3" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
             {error ? <ErrorState message={error} /> : null}
-            <Button type="button" onClick={() => void submit()} disabled={loading || !parsed.ok || !password}>{loading ? String(dictionary.auth.signingIn) : "Giriş yap"}</Button>
+            <Button type="button" onClick={() => void submit()} disabled={loading || !parsed.ok || !password}>{loading ? copy.signingIn : copy.signIn}</Button>
           </div>
         )}
       </section>
