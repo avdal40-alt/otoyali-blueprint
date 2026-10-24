@@ -5,6 +5,7 @@ import { isMarketplaceVerticalId } from "@/lib/marketplace/verticals";
 import type { AiServerConfig } from "../config";
 import { isAiIntentId } from "../domain/intents";
 import { cleanOptionalText, sanitizeAssistantContext } from "../domain/safety";
+import { inferAiResponseLanguage } from "../domain/response-language";
 import { searchIntentSchema } from "../search/search-intent";
 import { compareGenerationIdsSchema, compareListingIdsSchema } from "../listing/listing-expert";
 import type { AiActor, AiContext, AiConversationMessage, AiIntentId, AiRequest, AiResponse, AiSurface, AiUserState } from "../domain/types";
@@ -83,6 +84,7 @@ export function validateAssistantRequestPayload({
     request: {
       requestId,
       locale,
+      responseLanguage: inferAiResponseLanguage(userMessage, locale),
       intent,
       userMessage,
       conversation: conversationResult.conversation,

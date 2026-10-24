@@ -29,6 +29,7 @@ export const localDeterministicAiProvider: AiProvider = {
       requestId: request.requestId,
       status: response.status,
       message: response.message,
+      responseLanguage: request.responseLanguage,
       structuredData: response.structuredData,
       suggestions: response.suggestions,
       actions: response.actions,

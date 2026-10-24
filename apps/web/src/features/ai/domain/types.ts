@@ -136,6 +136,8 @@ export type AiContext = {
 export type AiRequest = {
   requestId: string;
   locale: Locale;
+  /** UI locale is presentation-only; generated content follows this query-derived language. */
+  responseLanguage: string;
   intent: AiIntentId;
   userMessage: string;
   conversation: AiConversationMessage[];
@@ -230,6 +232,7 @@ export type AiResponse = {
   requestId: string;
   status: AiResponseStatus;
   message: string;
+  responseLanguage?: string;
   structuredData?: AiStructuredData[];
   suggestions?: string[];
   actions?: AiAction[];
