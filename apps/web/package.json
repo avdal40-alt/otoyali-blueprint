@@ -19,6 +19,7 @@
     "test:saved-search-localization": "node scripts/saved-search-localization.test.cjs",
     "test:notifications-localization": "node scripts/notifications-localization.test.cjs",
     "test:messages-localization": "node scripts/messages-localization.test.cjs",
+    "test:status-localization": "node scripts/status-localization.test.cjs",
     "test:auth-signup-metadata": "node scripts/auth-signup-metadata.test.cjs",
     "test:jlc-0302": "node scripts/jlc-0302-registration-password-enrollment.test.cjs",
     "test:jlc-0302:runtime": "node scripts/jlc-0302-password-enrollment-runtime.test.cjs",

@@ -220,6 +220,11 @@ must be migrated by domain slice:
   Russian rather than Turkish. Login, OTP, recovery, enrollment, and return
   path behavior remain in their already-complete scoped boundary. Admin login
   is separately classified as the active Admin-domain consumer.
+- global status: direct `status-copy.ts` now covers the active featured,
+  dealer/private seller, and used/new condition labels for VehicleCard, search
+  controls, seller-type controls, and the public-video dealer marker. It falls
+  back to Russian for unsupported Jolmod values; filter, video, and market
+  semantics remain unchanged.
 - Kazakhstan SEO and route generation: the active KZ market now owns explicit
   Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
   families, with Russian unprefixed and the other three safely prefixed. Shared

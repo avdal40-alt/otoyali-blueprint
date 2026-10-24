@@ -1,0 +1,7 @@
+const assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path"),ts=require("typescript");
+const root=path.resolve(__dirname,".."),read=(...p)=>fs.readFileSync(path.join(root,...p),"utf8"),source=read("src","i18n","status-copy.ts");
+const m={exports:{}};new Function("exports","module",ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(m.exports,m);const {getStatusCopy}=m.exports,ru=getStatusCopy("ru"),kk=getStatusCopy("kk"),en=getStatusCopy("en"),zh=getStatusCopy("zh-CN");
+for(const [locale,copy] of Object.entries({ru,kk,en,"zh-CN":zh})){assert.deepEqual(Object.keys(copy).sort(),Object.keys(ru).sort(),`${locale} status shape`);if(locale!=="ru")assert.notEqual(copy,ru,`${locale} direct status copy`);assert.doesNotMatch(JSON.stringify(copy),/TODO|TBD|\?\?\?|\uFFFD|□/i)}
+assert.equal(getStatusCopy("de"),ru);assert.equal(getStatusCopy("tr"),ru);assert.match(JSON.stringify(zh),/[\u4E00-\u9FFF]/);assert.doesNotMatch(JSON.stringify(zh),/關|體|臺/);
+for(const file of [["src","components","vehicle","VehicleCard.tsx"],["src","components","search","ConditionTabs.tsx"],["src","components","home","HomeVehicleSearchPanel.tsx"],["src","app","video","page.tsx"]]){const c=read(...file);assert.match(c,/getStatusCopy/);assert.doesNotMatch(c,/dictionary\.status/)}
+console.log("Status four-language localization tests passed.");

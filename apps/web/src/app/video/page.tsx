@@ -15,6 +15,7 @@ import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { VideoShareButton } from "./_components/VideoShareButton";
 import { PublicVideoPlayer } from "./_components/PublicVideoPlayer";
+import { getStatusCopy } from "@/i18n/status-copy";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -93,6 +94,7 @@ export default async function VideoPage({
 
 function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
   const dictionary = getDictionary(locale);
+  const statusCopy = getStatusCopy(locale);
   const title = video.title?.trim() || video.listing_title?.trim() || String(dictionary.video.vehicleVideo);
   const poster = video.poster_url || video.thumbnail_url || video.cover_image_url || undefined;
   const details = [
@@ -108,7 +110,7 @@ function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
         <PublicVideoPlayer src={video.video_url || undefined} poster={poster} listingId={video.listing_id} videoId={video.video_id} locale={locale} errorLabel={String(dictionary.video.playbackError)} retryLabel={String(dictionary.video.retryPlayback)} />
         {video.seller_type === "dealer" ? (
           <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-oto-blue shadow-soft">
-            {String(dictionary.status.dealer)}
+            {statusCopy.dealer}
           </span>
         ) : null}
       </div>

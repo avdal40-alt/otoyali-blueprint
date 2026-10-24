@@ -13,6 +13,7 @@ import type { Locale } from "@/i18n/types";
 import { SpecChip } from "./SpecChip";
 import { FavoriteButton } from "./FavoriteButton";
 import { getListingActionsCopy } from "@/app/listing/[id]/_components/listing-actions-copy";
+import { getStatusCopy } from "@/i18n/status-copy";
 
 export function VehicleCard({
   listing,
@@ -29,6 +30,7 @@ export function VehicleCard({
   const { locale: contextLocale, dictionary } = useI18n();
   const activeLocale = locale ?? contextLocale;
   const actionsCopy = getListingActionsCopy(activeLocale);
+  const statusCopy = getStatusCopy(activeLocale);
   const [previewIndex, setPreviewIndex] = useState(0);
   const title = listing.title?.trim() || String(dictionary.common.noInfo);
   const city = cityLabel(listing.city, activeLocale);
@@ -62,7 +64,7 @@ export function VehicleCard({
         <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-2">
           {promoted ? (
             <span className="rounded-full bg-oto-orange px-3 py-1 text-xs font-black text-white shadow-soft">
-              {String(dictionary.status.featured)}
+              {statusCopy.featured}
             </span>
           ) : null}
           {listing.condition ? (

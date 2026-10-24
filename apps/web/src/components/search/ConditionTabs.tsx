@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn";
 import { useI18n } from "@/i18n/client";
+import { getStatusCopy } from "@/i18n/status-copy";
 
 export function ConditionTabs({
   value,
@@ -14,11 +15,12 @@ export function ConditionTabs({
   compact?: boolean;
   includeAll?: boolean;
 }) {
-  const { dictionary } = useI18n();
+  const { locale, dictionary } = useI18n();
+  const statusCopy = getStatusCopy(locale);
   const options = [
     ...(includeAll ? [{ value: "", label: String(dictionary.home.allListings) }] : []),
-    { value: "used", label: String(dictionary.status.used) },
-    { value: "new", label: String(dictionary.status.new) }
+    { value: "used", label: statusCopy.used },
+    { value: "new", label: statusCopy.new }
   ];
 
   return (

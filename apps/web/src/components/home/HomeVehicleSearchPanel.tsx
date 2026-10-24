@@ -11,6 +11,7 @@ import { Input, Select } from "@/components/ui/Input";
 import { ConditionTabs } from "@/components/search/ConditionTabs";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { getStatusCopy } from "@/i18n/status-copy";
 
 export function HomeVehicleSearchPanel({
   makes,
@@ -24,6 +25,7 @@ export function HomeVehicleSearchPanel({
   listings: HomeListing[];
 }) {
   const { locale, dictionary } = useI18n();
+  const statusCopy = getStatusCopy(locale);
   const router = useRouter();
   const [filters, setFilters] = useState<ListingSearchFilters>({ ...defaultSearchFilters, condition: "used" });
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -206,8 +208,8 @@ export function HomeVehicleSearchPanel({
               <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.sellerType)}</span>
               <Select value={filters.sellerType} onChange={(event) => setValue("sellerType", event.target.value)}>
                 <option value="">{String(dictionary.search.allSellerTypes)}</option>
-                <option value="private">{String(dictionary.status.private)}</option>
-                <option value="dealer">{String(dictionary.status.dealer)}</option>
+                <option value="private">{statusCopy.private}</option>
+                <option value="dealer">{statusCopy.dealer}</option>
               </Select>
             </label>
           </div>
