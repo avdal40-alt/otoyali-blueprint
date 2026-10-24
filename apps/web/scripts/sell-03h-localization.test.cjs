@@ -49,8 +49,8 @@ const ru = getSellCopy("ru");
 const kk = getSellCopy("kk");
 const zhCN = getSellCopy("zh-CN");
 
-assert.equal(getSellCopy("de"), tr, "Unsupported locale must use the application Turkish fallback");
-assert.equal(getSellCopy(), tr, "Missing locale must use the application Turkish fallback");
+assert.equal(getSellCopy("de"), ru, "Unsupported Jolmod locales must use the Russian fallback");
+assert.equal(getSellCopy(), ru, "Missing Jolmod locales must use the Russian fallback");
 assert.equal(getSellCopy("EN-us"), en, "Locale normalization must follow the application convention");
 
 function shape(value) {

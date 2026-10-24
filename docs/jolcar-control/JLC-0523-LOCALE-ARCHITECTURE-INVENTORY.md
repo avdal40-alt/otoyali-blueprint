@@ -186,6 +186,14 @@ must be migrated by domain slice:
   to Russian and never selects Turkish. Listing routes, report persistence and
   authorization, sharing mechanics, listing-detail/contact contracts, and KZ
   public-read and seller-write isolation remain unchanged.
+- seller entry and contact verification: the sell page and the active seller
+  entry/contact OTP components now use `sell-entry-copy.ts` for direct
+  RU/KK/EN/zh-CN entry, eligibility, rate-limit, and verification feedback.
+  Existing complete `SellCopy` remains the wizard source, now with Russian as
+  its unsupported Jolmod fallback while explicit Turkish support remains
+  available. The copy preserves Kazakhstan +7 presentation; seller-contact
+  request endpoints, return paths, eligibility flow, and JLC-0522 write
+  isolation are unchanged.
 - Kazakhstan SEO and route generation: the active KZ market now owns explicit
   Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
   families, with Russian unprefixed and the other three safely prefixed. Shared

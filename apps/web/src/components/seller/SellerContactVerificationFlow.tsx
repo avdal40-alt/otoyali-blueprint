@@ -8,6 +8,7 @@ import { ErrorState } from "@/components/ui/States";
 import { useI18n } from "@/i18n/client";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { parseSellerContactPhone, sellerContactPhonePlaceholder } from "@/lib/seller-phone-verification/client-policy";
+import { getSellEntryCopy, type SellEntryCopy } from "@/app/sell/_components/sell-entry-copy";
 
 type VerificationState = "phone" | "sending" | "otp" | "verifying" | "rateLimited" | "providerUnavailable";
 type ApiFailure = "auth_required" | "invalid_phone" | "rate_limited" | "verification_unavailable" | "challenge_unavailable" | "invalid_code" | "phone_already_verified" | "invalid_input";
@@ -18,14 +19,14 @@ type SellerContactVerificationFlowProps = {
   onAuthRequired?: () => void;
 };
 
-function messageFor(code: ApiFailure | null, dictionary: ReturnType<typeof useI18n>["dictionary"]) {
-  if (code === "invalid_phone") return String(dictionary.sell.sellerPhoneInvalid);
-  if (code === "rate_limited") return String(dictionary.sell.sellerPhoneRateLimited);
-  if (code === "challenge_unavailable") return String(dictionary.sell.sellerPhoneExpired);
-  if (code === "invalid_code") return String(dictionary.sell.sellerPhoneInvalidCode);
-  if (code === "verification_unavailable") return String(dictionary.sell.sellerPhoneUnavailable);
-  if (code === "phone_already_verified") return String(dictionary.sell.sellerPhoneAlreadyUsed);
-  return String(dictionary.sell.sellerPhoneGenericError);
+function messageFor(code: ApiFailure | null, copy: SellEntryCopy) {
+  if (code === "invalid_phone") return copy.invalidPhone;
+  if (code === "rate_limited") return copy.rateLimited;
+  if (code === "challenge_unavailable") return copy.expiredCode;
+  if (code === "invalid_code") return copy.invalidCode;
+  if (code === "verification_unavailable") return copy.unavailable;
+  if (code === "phone_already_verified") return copy.alreadyUsed;
+  return copy.genericError;
 }
 
 export function SellerContactVerificationFlow({
@@ -33,7 +34,8 @@ export function SellerContactVerificationFlow({
   onCancel,
   onAuthRequired
 }: SellerContactVerificationFlowProps) {
-  const { dictionary } = useI18n();
+  const { locale } = useI18n();
+  const copy = getSellEntryCopy(locale);
   const [state, setState] = useState<VerificationState>("phone");
   const [phone, setPhone] = useState("");
   const [challengeId, setChallengeId] = useState<string | null>(null);
@@ -150,30 +152,30 @@ export function SellerContactVerificationFlow({
     await onVerified();
   }
 
-  const error = errorCode ? messageFor(errorCode, dictionary) : null;
+  const error = errorCode ? messageFor(errorCode, copy) : null;
   const isOtp = state === "otp" || state === "verifying";
   const busy = state === "sending" || state === "verifying";
 
   return isOtp ? (
     <form className="grid gap-4" onSubmit={(event) => { event.preventDefault(); void verifyCode(); }}>
-      <p className="text-sm leading-6 text-oto-muted">{String(dictionary.sell.sellerPhoneCodeSent)}{maskedPhone ? ` ${maskedPhone}` : ""}</p>
-      <OtpInput id={otpInputId} value={code} onChange={setCode} label={String(dictionary.sell.sellerPhoneOtpLabel)} />
+      <p className="text-sm leading-6 text-oto-muted">{copy.codeSent}{maskedPhone ? ` ${maskedPhone}` : ""}</p>
+      <OtpInput id={otpInputId} value={code} onChange={setCode} label={copy.otpLabel} />
       {error ? <ErrorState message={error} /> : null}
-      <div aria-live="polite" className="sr-only">{busy ? String(dictionary.sell.sellerPhoneVerifying) : ""}</div>
-      <Button type="submit" disabled={busy || code.length !== 6} isLoading={state === "verifying"}>{String(dictionary.sell.sellerPhoneVerify)}</Button>
-      <Button type="button" variant="secondary" disabled={busy} onClick={() => { setChallengeId(null); setCode(""); setErrorCode(null); setState("phone"); }}>{String(dictionary.sell.sellerPhoneBack)}</Button>
+      <div aria-live="polite" className="sr-only">{busy ? copy.verifyingCode : ""}</div>
+      <Button type="submit" disabled={busy || code.length !== 6} isLoading={state === "verifying"}>{copy.verifyAndContinue}</Button>
+      <Button type="button" variant="secondary" disabled={busy} onClick={() => { setChallengeId(null); setCode(""); setErrorCode(null); setState("phone"); }}>{copy.changeNumber}</Button>
     </form>
   ) : (
     <form className="grid gap-4" onSubmit={(event) => { event.preventDefault(); void startVerification(); }}>
       <div>
-        <label className="mb-2 block text-sm font-bold text-oto-text" htmlFor="seller-contact-phone">{String(dictionary.sell.sellerPhoneLabel)}</label>
+        <label className="mb-2 block text-sm font-bold text-oto-text" htmlFor="seller-contact-phone">{copy.phoneLabel}</label>
         <Input id="seller-contact-phone" value={phone} onChange={(event) => setPhone(event.target.value)} inputMode="tel" autoComplete="tel" placeholder={sellerContactPhonePlaceholder()} aria-invalid={Boolean(error) || undefined} aria-describedby={error ? "seller-contact-phone-error" : undefined} disabled={busy} />
       </div>
       {error ? <p id="seller-contact-phone-error" role="alert" className="text-error text-oto-danger">{error}</p> : null}
-      <div aria-live="polite" className="sr-only">{busy ? String(dictionary.sell.sellerPhoneSending) : ""}</div>
-      <Button type="submit" disabled={busy || !phone.trim()} isLoading={state === "sending"}>{String(dictionary.sell.sellerPhoneSend)}</Button>
-      {state === "rateLimited" || state === "providerUnavailable" ? <Button type="button" variant="secondary" disabled={busy} onClick={() => { setErrorCode(null); setState("phone"); }}>{String(dictionary.sell.sellerPhoneRetry)}</Button> : null}
-      {onCancel ? <Button type="button" variant="secondary" disabled={busy} onClick={onCancel}>{String(dictionary.sell.sellerPhoneBack)}</Button> : null}
+      <div aria-live="polite" className="sr-only">{busy ? copy.sendingCode : ""}</div>
+      <Button type="submit" disabled={busy || !phone.trim()} isLoading={state === "sending"}>{copy.sendCode}</Button>
+      {state === "rateLimited" || state === "providerUnavailable" ? <Button type="button" variant="secondary" disabled={busy} onClick={() => { setErrorCode(null); setState("phone"); }}>{copy.retry}</Button> : null}
+      {onCancel ? <Button type="button" variant="secondary" disabled={busy} onClick={onCancel}>{copy.changeNumber}</Button> : null}
     </form>
   );
 }

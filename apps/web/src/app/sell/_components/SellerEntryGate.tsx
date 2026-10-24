@@ -12,18 +12,20 @@ import {
   type PlatformStaffClient,
 } from "@/lib/auth/platform-staff";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { getSellEntryCopy, type SellEntryCopy } from "./sell-entry-copy";
 
 type GateState = "checking" | "phone" | "error" | "eligible";
 type ApiFailure = "eligibility_unavailable";
 type SellerContact = { contact_id: string; masked_phone: string; is_current_account_phone: boolean; is_active: boolean };
 
-function messageFor(code: ApiFailure | null, dictionary: ReturnType<typeof useI18n>["dictionary"]) {
-  if (code === "eligibility_unavailable") return String(dictionary.sell.sellerPhoneUnavailable);
-  return String(dictionary.sell.sellerPhoneGenericError);
+function messageFor(code: ApiFailure | null, copy: SellEntryCopy) {
+  if (code === "eligibility_unavailable") return copy.unavailable;
+  return copy.genericError;
 }
 
 export function SellerEntryGate({ children }: { children: ReactNode }) {
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
+  const copy = getSellEntryCopy(locale);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -93,16 +95,16 @@ export function SellerEntryGate({ children }: { children: ReactNode }) {
   useEffect(() => { void checkEligibility(); }, [checkEligibility]);
 
   if (state === "eligible") return <>{children}</>;
-  if (state === "checking") return <LoadingState label={String(dictionary.sell.sellerPhoneChecking)} />;
+  if (state === "checking") return <LoadingState label={copy.checking} />;
 
-  const error = errorCode ? messageFor(errorCode, dictionary) : null;
+  const error = errorCode ? messageFor(errorCode, copy) : null;
   return (
     <section className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft md:p-6" aria-labelledby="seller-phone-verification-title">
-      <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolcar</p>
-      <h2 id="seller-phone-verification-title" className="mt-2 text-2xl font-black text-oto-text">{String(dictionary.sell.sellerPhoneTitle)}</h2>
-      <p className="mt-2 text-sm leading-6 text-oto-muted">{String(dictionary.sell.sellerPhoneBody)}</p>
-      <p className="mt-3 rounded-md bg-oto-surface p-3 text-xs font-semibold leading-5 text-oto-muted">{String(dictionary.sell.sellerPhoneAuthIndependent)}</p>
-      {error ? <div className="mt-5"><ErrorState message={error} /><Button className="mt-4" type="button" variant="secondary" onClick={() => void checkEligibility()}>{String(dictionary.sell.sellerPhoneRetry)}</Button></div> : null}
+      <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolmod</p>
+      <h2 id="seller-phone-verification-title" className="mt-2 text-2xl font-black text-oto-text">{copy.phoneVerificationTitle}</h2>
+      <p className="mt-2 text-sm leading-6 text-oto-muted">{copy.phoneVerificationBody}</p>
+      <p className="mt-3 rounded-md bg-oto-surface p-3 text-xs font-semibold leading-5 text-oto-muted">{copy.phoneVerificationIndependent}</p>
+      {error ? <div className="mt-5"><ErrorState message={error} /><Button className="mt-4" type="button" variant="secondary" onClick={() => void checkEligibility()}>{copy.retry}</Button></div> : null}
       {state === "phone" ? <div className="mt-5"><SellerContactVerificationFlow onVerified={async () => { await checkEligibility(); }} onAuthRequired={redirectToLogin} /></div> : null}
     </section>
   );

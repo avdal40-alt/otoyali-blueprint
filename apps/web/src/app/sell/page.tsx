@@ -19,6 +19,7 @@ import { SellWizard } from "./_components/SellWizard";
 import { SellerEntryGate } from "./_components/SellerEntryGate";
 import { getSellEditTarget } from "./sell-route-state";
 import { getSellCopy } from "./sell-copy";
+import { getSellEntryCopy } from "./_components/sell-entry-copy";
 
 export default async function SellPage({
   searchParams
@@ -29,6 +30,7 @@ export default async function SellPage({
   const resolvedSearchParams = await searchParams;
   const dictionary = getDictionary(locale);
   const sellCopy = getSellCopy(locale);
+  const entryCopy = getSellEntryCopy(locale);
   const verticalId = getPublishVerticalFromSearchParam(resolvedSearchParams?.vertical);
   const vertical = getMarketplaceVertical(verticalId);
   const editTarget = getSellEditTarget(resolvedSearchParams);
@@ -38,7 +40,7 @@ export default async function SellPage({
       <>
         <AppHeader />
         <PageContainer className="max-w-4xl">
-          <SectionHeader title={String(dictionary.sell.title)} eyebrow={String(dictionary.sell.eyebrow)} />
+          <SectionHeader title={entryCopy.title} eyebrow={entryCopy.eyebrow} />
           <section className="rounded-oto border border-oto-border bg-white p-5 shadow-soft md:p-6">
             <Badge>{t(locale, "verticals.status.coming_soon")}</Badge>
             <h1 className="mt-4 text-2xl font-black text-oto-text">{t(locale, vertical.labelKey)}</h1>
@@ -64,7 +66,7 @@ export default async function SellPage({
       <>
         <AppHeader />
         <PageContainer className="max-w-4xl">
-          <SectionHeader title={String(dictionary.sell.title)} eyebrow={String(dictionary.sell.eyebrow)} />
+          <SectionHeader title={entryCopy.title} eyebrow={entryCopy.eyebrow} />
           <ErrorState message={sellCopy.listingUnavailable} />
         </PageContainer>
         <MarketplaceFooter />
@@ -79,17 +81,17 @@ export default async function SellPage({
     <>
       <AppHeader />
       <PageContainer className="max-w-4xl">
-        <SectionHeader title={String(dictionary.sell.title)} eyebrow={String(dictionary.sell.eyebrow)} />
+        <SectionHeader title={entryCopy.title} eyebrow={entryCopy.eyebrow} />
         <div className="mb-5 rounded-oto border border-oto-border bg-white p-4 text-sm leading-6 text-oto-muted shadow-soft">
-          {String(dictionary.sell.agreementPrefix)}{" "}
+          {sellCopy.agreementPrefix}{" "}
           <Link href={localizePath("/listing-rules", locale)} className="font-black text-oto-blue">
-            {String(dictionary.sell.listingRules)}
+            {sellCopy.listingRules}
           </Link>
-          {" "}{String(dictionary.sell.agreementMiddle)}{" "}
+          {" "}{sellCopy.agreementMiddle}{" "}
           <Link href={localizePath("/terms", locale)} className="font-black text-oto-blue">
-            {String(dictionary.sell.terms)}
+            {sellCopy.terms}
           </Link>
-          {" "}{String(dictionary.sell.agreementSuffix)}
+          {" "}{sellCopy.agreementSuffix}
         </div>
         {editTarget.kind === "edit" ? (
           <SellWizard mode="editRejected" editListingId={editTarget.listingId} locale={locale} makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />

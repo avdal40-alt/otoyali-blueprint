@@ -1,4 +1,3 @@
-import { normalizeLocale } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import type { PreparedImageVariantName } from "@/lib/media/client-image-processing";
 
@@ -265,13 +264,13 @@ const zhCN: typeof tr = {
   sellerContactTitle: "已验证的卖家联系方式", sellerContactLabel: "联系电话", sellerContactMissing: "创建房源前请添加并验证联系电话。", sellerContactManage: "管理电话号码", sellerContactAccount: "账户电话", sellerContactRequired: "创建房源前请选择已验证的卖家联系电话。", listingContactTitle: "房源联系电话", listingContactHelp: "请选择买家联系您时使用的已验证号码。", listingContactUnavailable: "没有可用的已验证联系方式。", listingContactLabel: "联系电话", keepCurrentContact: "保留当前选择", existingContact: "当前联系电话", existingContactHelp: "此房源当前使用现有联系电话。", contactUpdateFailure: "房源更改已保存，但无法更新联系电话。请再次尝试更新。", sellerType: "卖家类型", sellerTypeVerification: "经销商状态将在验证后授予。", phone: "电话", verifiedPhone: "已通过登录时使用的电话验证。", authorizedPersonName: "授权联系人姓名", yourName: "您的姓名", dealerName: "经销商名称", displayName: "显示名称", selectSellerType: "选择卖家类型。", missingPhone: "缺少电话号码，请重新登录。", enterAuthorizedPerson: "请输入授权联系人姓名。", enterYourName: "请输入您的姓名。", enterDealerName: "请输入经销商名称。", enterDisplayName: "请输入显示名称。", requiredVehicleIdentity: "请填写品牌、车型和年份。", invalidYear: "请输入有效年份。", usedMileageRequired: "请填写二手车的里程。", invalidMileage: "请输入有效里程。", invalidPrice: "请输入有效价格。", variantLabels: { original: "原始图片", large: "大图", card: "卡片图片", thumb: "缩略图" }
 };
 
-const sellCopies: Record<Locale, SellCopy> = { tr, en };
-
 export function getSellCopy(locale?: string | null): SellCopy {
-  if (locale?.toLowerCase().replace("_", "-").startsWith("ru")) return ru;
-  if (locale?.toLowerCase().replace("_", "-").startsWith("kk")) return kk;
-  if (locale?.toLowerCase().replace("_", "-").toLowerCase() === "zh-cn" || locale?.toLowerCase() === "zh") return zhCN;
-  return sellCopies[normalizeLocale(locale)];
+  const normalized = locale?.toLowerCase().replace("_", "-");
+  if (normalized === "tr" || normalized === "tr-tr") return tr;
+  if (normalized === "en" || normalized === "en-us") return en;
+  if (normalized === "kk" || normalized === "kk-kz") return kk;
+  if (normalized === "zh" || normalized === "zh-cn") return zhCN;
+  return ru;
 }
 
 export function getVariantUploadStatus(copy: SellCopy, name: PreparedImageVariantName) {

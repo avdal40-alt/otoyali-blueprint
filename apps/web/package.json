@@ -99,6 +99,7 @@
     "test:sell-03f": "node scripts/sell-03f-resubmit.test.cjs",
     "test:sell-03g": "node scripts/sell-03g-title-consistency.test.cjs",
     "test:sell-03h": "node scripts/sell-03h-localization.test.cjs",
+    "test:sell-entry-localization": "node scripts/sell-entry-localization.test.cjs",
     "test:listing-detail-localization": "node scripts/listing-detail-localization.test.cjs",
     "test:listing-contact-localization": "node scripts/listing-contact-localization.test.cjs",
     "test:listing-actions-localization": "node scripts/listing-actions-localization.test.cjs",
