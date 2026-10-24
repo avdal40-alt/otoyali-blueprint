@@ -215,6 +215,11 @@ must be migrated by domain slice:
   links, and canonical Intl timestamps remain unchanged. The unread runtime
   fixture now seeds a KZ city, retaining its authorization purpose while
   respecting the existing JLC-0522 listing-market trigger.
+- global auth closure: the callback completion client now uses the existing
+  direct AuthCopy contract, and AuthCopy defaults unsupported Jolmod values to
+  Russian rather than Turkish. Login, OTP, recovery, enrollment, and return
+  path behavior remain in their already-complete scoped boundary. Admin login
+  is separately classified as the active Admin-domain consumer.
 - Kazakhstan SEO and route generation: the active KZ market now owns explicit
   Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
   families, with Russian unprefixed and the other three safely prefixed. Shared

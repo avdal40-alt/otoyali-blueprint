@@ -7,9 +7,11 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { authErrorMessage, mapAuthError, safeNextPath } from "@/lib/auth/auth-ui";
 import { useI18n } from "@/i18n/client";
 import { localizePath } from "@/i18n/config";
+import { getAuthCopy } from "@/lib/auth/auth-copy";
 
 export function AuthCallbackClient() {
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
+  const copy = getAuthCopy(locale);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +19,7 @@ export function AuthCallbackClient() {
   useEffect(() => {
     async function completeCallback() {
       if (!hasSupabaseEnv()) {
-        setError(String(dictionary.errors.authConfiguration));
+        setError(copy.authConfiguration);
         return;
       }
 
@@ -46,8 +48,8 @@ export function AuthCallbackClient() {
     }
 
     void completeCallback();
-  }, [dictionary.errors.authConfiguration, locale, router, searchParams]);
+  }, [copy.authConfiguration, locale, router, searchParams]);
 
   if (error) return <ErrorState message={error} />;
-  return <LoadingState label={String(dictionary.auth.callbackLoading)} />;
+  return <LoadingState label={copy.verifying} />;
 }
