@@ -8,18 +8,18 @@ import { useI18n } from "@/i18n/client";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { localizePath } from "@/i18n/config";
 import { useRouter } from "next/navigation";
+import { getSellerContactsCopy } from "./seller-contacts-copy";
 
 type Contact = { contact_id: string; masked_phone: string; is_active: boolean; is_current_account_phone: boolean };
 
 export function SellerContactsClient() {
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
+  const text = getSellerContactsCopy(locale);
   const router = useRouter();
   const [contacts, setContacts] = useState<Contact[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [showVerification, setShowVerification] = useState(false);
   const [loadError, setLoadError] = useState(false);
-  const text = dictionary.profile.sellerContacts as Record<string, string>;
-
   const loadContacts = useCallback(async () => {
     if (!hasSupabaseEnv()) { setLoadError(true); setLoading(false); return; }
     setLoading(true); setLoadError(false);

@@ -194,6 +194,11 @@ must be migrated by domain slice:
   available. The copy preserves Kazakhstan +7 presentation; seller-contact
   request endpoints, return paths, eligibility flow, and JLC-0522 write
   isolation are unchanged.
+- profile seller contacts: seller-contact management now uses a scoped direct
+  RU/KK/EN/zh-CN contract for loading, capacity, account-number, retry, and
+  add/cancel states. The existing verified-contact RPCs and account-phone sync
+  remain unchanged. Profile helper fallback now resolves unsupported Jolmod
+  locales through Russian while explicit Turkish compatibility is retained.
 - Kazakhstan SEO and route generation: the active KZ market now owns explicit
   Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
   families, with Russian unprefixed and the other three safely prefixed. Shared

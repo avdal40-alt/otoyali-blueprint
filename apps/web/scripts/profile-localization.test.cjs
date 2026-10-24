@@ -47,6 +47,8 @@ const zh = getProfileCopy("zh-CN");
 assert.match(JSON.stringify(zh), /[\u4e00-\u9fff]/, "zh-CN profile copy must contain Simplified Chinese characters");
 assert.doesNotMatch(JSON.stringify(zh), /[�□]|\?\?\?|TODO/i, "zh-CN profile copy must not contain corrupted or placeholder text");
 assert.equal(getProfileCopy("zh").title, zh.title, "zh alias must resolve to Simplified Chinese profile copy");
+assert.equal(getProfileCopy("de"), getProfileCopy("ru"), "Unsupported Jolmod profile locales must fall back to Russian");
+assert.equal(getProfileCopy("tr").title, tr.title, "Explicit Turkish profile support must remain available");
 
 const clientSource = fs.readFileSync(clientFile, "utf8");
 assert.match(clientSource, /getProfileCopy\(locale\)/, "profile client must use the direct launch-language copy contract");

@@ -1,5 +1,3 @@
-import { normalizeLocale } from "@/i18n/config";
-
 export type ProfileCopy = {
   title: string; detailsHint: string; authConfiguration: string; loadFailed: string;
   saveFailed: string; saveSuccess: string; saving: string; save: string;
@@ -84,5 +82,6 @@ export function getProfileCopy(locale?: string | null): ProfileCopy {
   if (value?.startsWith("kk")) return kk;
   if (value === "zh-cn" || value === "zh") return zhCN;
   if (value?.startsWith("en")) return en;
-  return normalizeLocale(locale) === "en" ? en : tr;
+  if (value?.startsWith("tr")) return tr;
+  return ru;
 }
