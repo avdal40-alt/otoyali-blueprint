@@ -4009,7 +4009,7 @@
       "id": "JLC-0110",
       "order": 147,
       "phase": "P1-MULTICOUNTRY",
-      "title": "Activate Kazakhstan market with trusted Turkey/Kazakhstan isolation",
+      "title": "Activate Jolmod Kazakhstan market with trusted Turkey/Kazakhstan isolation",
       "priority": "P0",
       "type": "implementation",
       "status": "in_progress",
@@ -4018,18 +4018,18 @@
       "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
-      "description": "Implement the owner-approved Kazakhstan Jolcar profile, Russian/Kazakh launch locale behavior, KZ-only marketplace read and write boundaries, and preserve Turkey/Yolmod records and behavior.",
+      "description": "Implement the owner-approved Jolmod Kazakhstan profile with Russian, Kazakh, English, and Simplified Chinese launch behavior; Russian default/fallback; KZ-only marketplace read and write boundaries; and preserved Turkey/Yolmod records and behavior.",
       "acceptance_criteria": [
-        "active profile is Kazakhstan/Jolcar/KZT with Russian default and Kazakh supported",
+        "active profile is Kazakhstan/Jolmod/KZT with Russian default/fallback and Kazakh, English, and Simplified Chinese supported",
         "Turkey profile remains Turkey/Yolmod/TRY",
         "public listing/search/detail/dealer/review/feed paths fail closed to KZ in Jolcar context",
         "seller draft/edit/media/moderation lifecycle cannot select or spoof another market",
         "historical Turkey data remains unchanged and inaccessible through Jolcar public paths",
-        "Russian/Kazakh launch surfaces contain no Turkish fallback/copy"
+        "Russian, Kazakh, English, and Simplified Chinese launch surfaces contain no Turkish fallback/copy"
       ],
-      "verification": ["market profile tests", "KZ/TR read isolation matrix", "seller payload spoofing matrix", "Russian/Kazakh UI and SEO review", "typecheck", "lint"],
-      "evidence": "2026-10-21 source audit after the owner product decision: active profile remains yolmodTurkey; KZ is planned. The i18n registry and dictionaries include only released tr/en; other public copy frequently falls back to Turkish. marketplace.cities.country_code and listings.city_id provide a canonical market signal, but ff_home_listings, ff_listing_details, search/count RPCs and public review/dealer projections lack KZ enforcement. create_own_listing_draft checks only active city ID, accepts arbitrary currency, and calls Turkey-specific seller phone verification. No code/data migration has yet changed these paths.",
-      "notes": "Do not deploy or unpause until every criterion has objective Preview/runtime evidence. Preserve all historical TR rows. The market must not be activated through a frontend-only filter."
+      "verification": ["market profile tests", "KZ/TR read isolation matrix", "seller payload spoofing matrix", "RU/KK/EN/zh-CN UI and SEO review", "typecheck", "lint"],
+      "evidence": "2026-10-21 source audit after the owner product decision established Jolmod Kazakhstan with Russian default/fallback, Kazakh, English, and Simplified Chinese launch support. marketplace.cities.country_code and listings.city_id provide a canonical market signal; trusted KZ read/write isolation work is tracked separately. Historical Turkey/Yolmod data remains preserved. No production data was modified.",
+      "notes": "Do not deploy or unpause until every criterion has objective Preview/runtime evidence. Preserve all historical TR rows. The market must not be activated through a frontend-only filter; language selection changes presentation only, never KZ market identity."
     }
   ]
 }

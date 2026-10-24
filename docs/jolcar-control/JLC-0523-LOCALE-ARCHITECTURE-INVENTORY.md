@@ -194,6 +194,11 @@ must be migrated by domain slice:
   available. The copy preserves Kazakhstan +7 presentation; seller-contact
   request endpoints, return paths, eligibility flow, and JLC-0522 write
   isolation are unchanged.
+- global sell closure: the active-consumer trace finds no remaining
+  `dictionary.sell` reads. Seller wizard, page entry, contact verification,
+  contact management, and existing AI-sell boundaries resolve through their
+  scoped contracts; the global historical `sell` section therefore does not
+  block Jolmod launch activation.
 - profile seller contacts: seller-contact management now uses a scoped direct
   RU/KK/EN/zh-CN contract for loading, capacity, account-number, retry, and
   add/cancel states. The existing verified-contact RPCs and account-phone sync
