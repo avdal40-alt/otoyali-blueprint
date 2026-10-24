@@ -5,9 +5,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
+import { getFavoritesCopy } from "@/app/favorites/_components/favorites-copy";
 
 export function FavoriteButton({ listingId }: { listingId: string }) {
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
+  const copy = getFavoritesCopy(locale);
   const router = useRouter();
   const pathname = usePathname();
   const [active, setActive] = useState(false);
@@ -39,7 +41,7 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
 
   async function toggleFavorite() {
     if (!hasSupabaseEnv()) {
-      alert(String(dictionary.errors.missingSupabaseEnv));
+      alert(copy.configurationUnavailable);
       return;
     }
 
@@ -66,7 +68,7 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
         setActive(true);
       }
     } catch {
-      setError(String(dictionary.favorites.actionFailed));
+      setError(copy.actionFailed);
     } finally {
       setBusy(false);
     }
@@ -83,7 +85,7 @@ export function FavoriteButton({ listingId }: { listingId: string }) {
           void toggleFavorite();
         }}
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-oto-border bg-white text-oto-text transition hover:bg-oto-surface disabled:opacity-50"
-        aria-label={String(dictionary.navigation.favorites)}
+        aria-label={copy.favorite}
       >
         <svg width="19" height="19" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} aria-hidden="true">
           <path

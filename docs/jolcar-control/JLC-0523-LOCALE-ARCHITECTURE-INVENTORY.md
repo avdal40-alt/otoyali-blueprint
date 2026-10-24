@@ -204,6 +204,11 @@ must be migrated by domain slice:
   add/cancel states. The existing verified-contact RPCs and account-phone sync
   remain unchanged. Profile helper fallback now resolves unsupported Jolmod
   locales through Russian while explicit Turkish compatibility is retained.
+- global favorites closure: the reusable FavoriteButton and favorites page
+  heading now use the existing scoped FavoritesCopy contract for direct
+  RU/KK/EN/zh-CN feedback and accessibility copy. Its unsupported Jolmod
+  fallback is Russian; favorite ownership and KZ public-read isolation remain
+  unchanged.
 - Kazakhstan SEO and route generation: the active KZ market now owns explicit
   Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
   families, with Russian unprefixed and the other three safely prefixed. Shared
