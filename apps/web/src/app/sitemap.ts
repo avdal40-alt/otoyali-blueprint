@@ -5,7 +5,6 @@ import { getMakes, getModels } from "@/lib/queries/makes";
 import { ACTIVE_MARKET_PROFILE, getMarketSeoRouteConfig } from "@/lib/market";
 import { getPublicSiteUrl } from "@/lib/seo/metadata";
 import { citySeoSlug, makeSeoSlug, modelSeoSlug } from "@/lib/seo/slugs";
-import { getSitemapVerticals } from "@/lib/marketplace/verticals";
 import { getServiceProviders } from "@/lib/queries/services";
 
 export const dynamic = "force-dynamic";
@@ -39,9 +38,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       add(path, path === "/" ? 1 : localeIndex === 0 ? 0.8 : 0.65);
     }
   }
-
-  const verticalRoutes = getSitemapVerticals().flatMap((vertical) => [vertical.routes.tr, vertical.routes.en]);
-  for (const path of verticalRoutes) add(path, path === "/search" ? 0.8 : 0.65);
 
   for (const make of makesResult.data) {
     const makeSlug = makeSeoSlug(make.make_name, make.make_slug);

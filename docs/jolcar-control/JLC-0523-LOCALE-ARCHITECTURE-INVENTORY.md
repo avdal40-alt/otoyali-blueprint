@@ -167,6 +167,15 @@ must be migrated by domain slice:
   staged global-loader foundation only: registry activation remains blocked
   until the remaining active global domains (including home and search) have
   equally direct coverage;
+- Kazakhstan SEO and route generation: the active KZ market now owns explicit
+  Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
+  families, with Russian unprefixed and the other three safely prefixed. Shared
+  sitemap/robots producers no longer add legacy Turkey vertical routes to a KZ
+  build. The root metadata source has direct KZ-language titles, descriptions,
+  Open Graph locales, canonical/alternate helpers, Russian fallback, and a
+  source-level Simplified Chinese integrity check. Turkish remains absent from
+  KZ SEO output; middleware/registry activation is still deliberately blocked
+  by the unfinished global client dictionary domains.
 - deterministic listing-text moderation now recognizes active Kazakhstan +7
   and domestic 8-prefixed phone numbers as contact details, retaining the
   historical Turkey matcher only for the Turkey market profile;

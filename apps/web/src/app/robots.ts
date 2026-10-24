@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 import { ACTIVE_MARKET_PROFILE, getMarketSeoRouteConfig } from "@/lib/market";
 import { getPublicSiteUrl } from "@/lib/seo/metadata";
-import { getSitemapVerticals } from "@/lib/marketplace/verticals";
 
 export default function robots(): MetadataRoute.Robots {
   const siteUrl = getPublicSiteUrl();
@@ -17,12 +16,10 @@ export default function robots(): MetadataRoute.Robots {
     `${locale.serviceProviderPrefix}/`,
     `${locale.serviceProviderPrefix}/*`
   ]);
-  const verticalRoutes = getSitemapVerticals().flatMap((vertical) => [vertical.routes.tr, vertical.routes.en]);
-
   return {
     rules: {
       userAgent: "*",
-      allow: [...new Set(["/", ...configuredRoutes, ...verticalRoutes])],
+      allow: [...new Set(["/", ...configuredRoutes])],
       disallow: [...routeConfig.disallow]
     },
     ...(siteUrl ? { sitemap: `${siteUrl}/sitemap.xml` } : {})

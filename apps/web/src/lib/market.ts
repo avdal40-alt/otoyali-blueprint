@@ -55,6 +55,7 @@ export type CurrencyPlacement = "prefix" | "suffix";
  * or URL structure.
  */
 export type MarketSeoRouteLocale = {
+  locale: string;
   staticPaths: readonly string[];
   makePrefix: string;
   cityPrefix: string;
@@ -167,6 +168,7 @@ export const MARKET_SEO_ROUTE_CONFIG = {
   TR: {
     locales: [
       {
+        locale: "tr",
         staticPaths: ["/", "/search", "/video", "/ikinci-el-araba", "/sifir-km-araba", "/elektrikli-araclar", "/otomatik-vites-araclar", "/suv-araclar", "/ai-asistan", "/terms", "/privacy", "/cookies", "/listing-rules", "/moderation-policy", "/trust", "/contact"],
         makePrefix: "/marka",
         cityPrefix: "/sehir",
@@ -174,6 +176,7 @@ export const MARKET_SEO_ROUTE_CONFIG = {
         serviceProviderPrefix: "/servisler"
       },
       {
+        locale: "en",
         staticPaths: ["/en", "/en/search", "/en/video", "/en/used-cars", "/en/new-cars", "/en/electric-vehicles", "/en/automatic-cars", "/en/suv", "/en/ai-assistant", "/en/terms", "/en/privacy", "/en/cookies", "/en/listing-rules", "/en/moderation-policy", "/en/trust", "/en/contact"],
         makePrefix: "/en/make",
         cityPrefix: "/en/city",
@@ -184,9 +187,40 @@ export const MARKET_SEO_ROUTE_CONFIG = {
     disallow: ["/profile", "/en/profile", "/my-listings", "/en/my-listings", "/settings", "/en/settings", "/admin", "/admin/*", "/en/admin", "/en/admin/*", "/login", "/en/login", "/otp", "/en/otp", "/debug", "/api/private"]
   },
   KZ: {
-    // These launch locales are configured now, but cannot be emitted until a
-    // Jolcar host and public route implementation are explicitly enabled.
-    locales: [],
+      locales: [
+        {
+          locale: "ru",
+          staticPaths: ["/", "/search", "/video", "/about", "/trust", "/contact", "/terms", "/privacy", "/cookies", "/listing-rules", "/moderation-policy"],
+          makePrefix: "/make",
+          cityPrefix: "/city",
+          listingPrefix: "/listing",
+          serviceProviderPrefix: "/services"
+        },
+        {
+          locale: "kk",
+          staticPaths: ["/kk", "/kk/search", "/kk/video", "/kk/about", "/kk/trust", "/kk/contact", "/kk/terms", "/kk/privacy", "/kk/cookies", "/kk/listing-rules", "/kk/moderation-policy"],
+          makePrefix: "/kk/make",
+          cityPrefix: "/kk/city",
+          listingPrefix: "/kk/listing",
+          serviceProviderPrefix: "/kk/services"
+        },
+        {
+          locale: "en",
+          staticPaths: ["/en", "/en/search", "/en/video", "/en/about", "/en/trust", "/en/contact", "/en/terms", "/en/privacy", "/en/cookies", "/en/listing-rules", "/en/moderation-policy"],
+          makePrefix: "/en/make",
+          cityPrefix: "/en/city",
+          listingPrefix: "/en/listing",
+          serviceProviderPrefix: "/en/services"
+        },
+        {
+          locale: "zh-CN",
+          staticPaths: ["/zh-CN", "/zh-CN/search", "/zh-CN/video", "/zh-CN/about", "/zh-CN/trust", "/zh-CN/contact", "/zh-CN/terms", "/zh-CN/privacy", "/zh-CN/cookies", "/zh-CN/listing-rules", "/zh-CN/moderation-policy"],
+          makePrefix: "/zh-CN/make",
+          cityPrefix: "/zh-CN/city",
+          listingPrefix: "/zh-CN/listing",
+          serviceProviderPrefix: "/zh-CN/services"
+        }
+      ],
     disallow: ["/profile", "/my-listings", "/settings", "/admin", "/admin/*", "/login", "/otp", "/debug", "/api/private"]
   }
 } as const satisfies Record<MarketProfile["countryCode"], MarketSeoRouteConfig>;

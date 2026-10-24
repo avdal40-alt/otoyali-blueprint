@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ACTIVE_MARKET_PROFILE, type MarketProfile } from "@/lib/market";
+import { ACTIVE_MARKET_PROFILE, getMarketSeoRouteConfig, type MarketProfile } from "@/lib/market";
 
 export function getPublicSiteUrl(profile: MarketProfile = ACTIVE_MARKET_PROFILE) {
   return profile.siteUrl;
@@ -14,6 +14,26 @@ export function absoluteUrl(path: string, profile: MarketProfile = ACTIVE_MARKET
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const siteUrl = getPublicSiteUrl(profile);
   return siteUrl ? `${siteUrl}${normalizedPath}` : undefined;
+}
+
+/**
+ * Produces KZ launch alternates from the market-owned SEO route configuration.
+ * Language only changes the path prefix; it never selects a different market.
+ */
+export function getMarketLocaleAlternatePaths(path: string, profile: MarketProfile = ACTIVE_MARKET_PROFILE) {
+  const routeConfig = getMarketSeoRouteConfig(profile);
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const knownLocales = routeConfig.locales.map((route) => route.locale);
+  const firstSegment = normalizedPath.split("/").filter(Boolean)[0];
+  const barePath = firstSegment && knownLocales.includes(firstSegment)
+    ? normalizedPath.slice(firstSegment.length + 1) || "/"
+    : normalizedPath;
+  const defaultLocale = routeConfig.locales[0]?.locale;
+
+  return Object.fromEntries(routeConfig.locales.map((route) => [
+    route.locale,
+    route.locale === defaultLocale ? barePath : `/${route.locale}${barePath === "/" ? "" : barePath}`
+  ]));
 }
 
 export function buildSeoMetadata({
@@ -33,15 +53,16 @@ export function buildSeoMetadata({
 }): Metadata {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = absoluteUrl(normalizedPath, profile);
+  const resolvedAlternates = alternates ?? getMarketLocaleAlternatePaths(normalizedPath, profile);
 
   return {
     title,
     description,
     alternates: {
       canonical: url ?? normalizedPath,
-      languages: alternates
+      languages: resolvedAlternates
         ? Object.fromEntries(
-            Object.entries(alternates).map(([locale, alternatePath]) => [
+            Object.entries(resolvedAlternates).map(([locale, alternatePath]) => [
               locale,
               absoluteUrl(alternatePath, profile) ?? (alternatePath.startsWith("/") ? alternatePath : `/${alternatePath}`)
             ])

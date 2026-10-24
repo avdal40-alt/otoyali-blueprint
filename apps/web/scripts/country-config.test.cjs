@@ -150,7 +150,8 @@ for (const [fileName, source] of [["layout", layoutSource], ["footer", footerSou
 assert.equal(layoutSource.includes('"https://yolmod.com"'), false, "Root metadata must not independently hardcode the active host");
 assert.match(layoutSource, /getMetadataBase\(\)/);
 assert.match(layoutSource, /getPublicSiteUrl\(\)/);
-assert.match(layoutSource, /ACTIVE_MARKET_PROFILE\.metadata/);
+assert.match(layoutSource, /getActiveLaunchMetadata/);
+assert.match(layoutSource, /getMarketLocaleAlternatePaths/);
 assert.doesNotMatch(metadataSource, /tr_TR/);
 
 console.log("Country/brand configuration tests passed.");

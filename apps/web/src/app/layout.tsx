@@ -6,41 +6,54 @@ import { getClientDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
 import { PlatformStaffNavigationProvider } from "@/components/layout/PlatformStaffNavigation";
 import { ACTIVE_MARKET_PROFILE } from "@/lib/market";
-import { getMetadataBase, getPublicSiteUrl } from "@/lib/seo/metadata";
+import { getMarketLocaleAlternatePaths, getMetadataBase, getPublicSiteUrl } from "@/lib/seo/metadata";
+import { getActiveLaunchMetadata } from "@/lib/seo/kz-launch-metadata";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  metadataBase: getMetadataBase(),
-  title: {
-    default: `${ACTIVE_MARKET_PROFILE.brandName} - ${ACTIVE_MARKET_PROFILE.metadata.defaultTitle}`,
-    template: `%s | ${ACTIVE_MARKET_PROFILE.brandName}`
-  },
-  description: ACTIVE_MARKET_PROFILE.metadata.description,
-  applicationName: ACTIVE_MARKET_PROFILE.brandName,
-  manifest: "/manifest.webmanifest",
-  icons: {
-    icon: [
-      { url: "/brand/favicon.svg", type: "image/svg+xml" },
-      { url: "/brand/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/brand/android-chrome-512x512.png", sizes: "512x512", type: "image/png" }
-    ],
-    shortcut: "/brand/favicon.svg",
-    apple: "/brand/apple-touch-icon.png"
-  },
-  openGraph: {
-    title: ACTIVE_MARKET_PROFILE.brandName,
-    description: ACTIVE_MARKET_PROFILE.metadata.openGraphDescription,
-    url: getPublicSiteUrl() ?? undefined,
-    siteName: ACTIVE_MARKET_PROFILE.brandName,
-    locale: ACTIVE_MARKET_PROFILE.metadata.defaultLocale,
-    type: "website"
-  },
-  appleWebApp: {
-    capable: true,
-    title: ACTIVE_MARKET_PROFILE.brandName,
-    statusBarStyle: "default"
-  }
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  const copy = getActiveLaunchMetadata(locale);
+  const siteUrl = getPublicSiteUrl();
+  const alternatePaths = getMarketLocaleAlternatePaths("/");
+  const canonicalPath = alternatePaths[locale] ?? alternatePaths.ru ?? "/";
+
+  return {
+    metadataBase: getMetadataBase(),
+    title: {
+      default: `${ACTIVE_MARKET_PROFILE.brandName} - ${copy.title}`,
+      template: `%s | ${ACTIVE_MARKET_PROFILE.brandName}`
+    },
+    description: copy.description,
+    alternates: {
+      canonical: siteUrl ? `${siteUrl}${canonicalPath}` : canonicalPath,
+      languages: Object.fromEntries(Object.entries(alternatePaths).map(([language, path]) => [language, siteUrl ? `${siteUrl}${path}` : path]))
+    },
+    applicationName: ACTIVE_MARKET_PROFILE.brandName,
+    manifest: "/manifest.webmanifest",
+    icons: {
+      icon: [
+        { url: "/brand/favicon.svg", type: "image/svg+xml" },
+        { url: "/brand/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+        { url: "/brand/android-chrome-512x512.png", sizes: "512x512", type: "image/png" }
+      ],
+      shortcut: "/brand/favicon.svg",
+      apple: "/brand/apple-touch-icon.png"
+    },
+    openGraph: {
+      title: ACTIVE_MARKET_PROFILE.brandName,
+      description: copy.openGraphDescription,
+      url: siteUrl ?? undefined,
+      siteName: ACTIVE_MARKET_PROFILE.brandName,
+      locale: copy.openGraphLocale,
+      type: "website"
+    },
+    appleWebApp: {
+      capable: true,
+      title: ACTIVE_MARKET_PROFILE.brandName,
+      statusBarStyle: "default"
+    }
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
