@@ -1,0 +1,14 @@
+const assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path"),ts=require("typescript");
+const root=path.resolve(__dirname,".."),read=(...p)=>fs.readFileSync(path.join(root,...p),"utf8");
+function load(source,file,deps={}){const out=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022},fileName:file}).outputText;const module={exports:{}};new Function("exports","module","require",out)(module.exports,module,(id)=>deps[id]??require(id));return module.exports;}
+const config=load(read("src","i18n","config.ts"),"config.ts");
+const shared=load(read("src","i18n","global-launch-shared-copy.ts"),"shared.ts");
+const home=load(read("src","i18n","global-launch-home-copy.ts"),"home.ts");
+const search=load(read("src","i18n","global-launch-search-copy.ts"),"search.ts");
+const en=load(read("src","i18n","dictionaries","en.ts"),"en.ts").en,tr=load(read("src","i18n","dictionaries","tr.ts"),"tr.ts").tr;
+const loader=load(read("src","i18n","get-dictionary.ts"),"loader.ts",{"./config":config,"./global-launch-shared-copy":shared,"./global-launch-home-copy":home,"./global-launch-search-copy":search,"./dictionaries/en":{en},"./dictionaries/tr":{tr}});
+assert.equal(loader.JOLMOD_DEFAULT_LOCALE,"ru");
+for(const locale of ["ru","kk","en","zh-CN"]){const d=loader.getJolmodGlobalDictionary(locale);for(const section of ["common","navigation","footer","home","search"])assert.ok(d[section],`${locale}.${section}`);}
+assert.deepEqual(loader.getJolmodGlobalDictionary("unsupported"),loader.getJolmodGlobalDictionary("ru"));
+assert.notDeepEqual(loader.getJolmodGlobalDictionary("unsupported").home,tr.home,"Jolmod must not fall back to Turkish");
+console.log("Jolmod global loader tests passed.");

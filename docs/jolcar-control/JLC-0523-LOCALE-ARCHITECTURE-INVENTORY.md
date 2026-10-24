@@ -175,6 +175,11 @@ must be migrated by domain slice:
 - global search: `global-launch-search-copy.ts` now supplies direct RU/KK/EN/
   zh-CN copy for every remaining canonical search key; exact-shape and Chinese
   integrity gates prevent Turkish fallback or placeholder launch copy.
+- global-loader foundation: `getJolmodGlobalDictionary()` composes only the
+  prepared shared-shell, home, and search launch contracts. It resolves every
+  supported Jolmod launch locale directly and defaults unsupported values to
+  Russian, never Turkish. This remains preparatory: active client consumers of
+  further legacy sections must be migrated before registry activation.
 - Kazakhstan SEO and route generation: the active KZ market now owns explicit
   Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
   families, with Russian unprefixed and the other three safely prefixed. Shared

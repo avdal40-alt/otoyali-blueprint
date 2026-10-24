@@ -1,6 +1,9 @@
 import { en } from "./dictionaries/en";
 import { tr } from "./dictionaries/tr";
 import { DEFAULT_LOCALE, normalizeLocale } from "./config";
+import { getGlobalLaunchHomeCopy } from "./global-launch-home-copy";
+import { getGlobalLaunchSearchCopy } from "./global-launch-search-copy";
+import { getGlobalLaunchSharedCopy } from "./global-launch-shared-copy";
 import type { ClientDictionary, Dictionary, DictionarySection, Locale, TranslationParams } from "./types";
 
 const dictionaries: Record<"tr" | "en", Dictionary> = {
@@ -9,6 +12,20 @@ const dictionaries: Record<"tr" | "en", Dictionary> = {
 };
 
 const missingTranslationKeys = new Set<string>();
+
+export const JOLMOD_DEFAULT_LOCALE = "ru";
+
+export function getJolmodGlobalDictionary(locale?: string | null) {
+  const resolvedLocale = locale === "kk" || locale === "en" || locale === "zh-CN" || locale === "ru"
+    ? locale
+    : JOLMOD_DEFAULT_LOCALE;
+  const shared = getGlobalLaunchSharedCopy(resolvedLocale);
+  const home = getGlobalLaunchHomeCopy(resolvedLocale);
+  const search = getGlobalLaunchSearchCopy(resolvedLocale);
+  if (!shared || !home || !search) throw new Error(`Missing Jolmod global dictionary for ${resolvedLocale}`);
+
+  return { ...shared, ...home, ...search };
+}
 
 export function getDictionary(locale?: string | null): Dictionary {
   const normalizedLocale = normalizeLocale(locale);

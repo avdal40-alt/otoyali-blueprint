@@ -142,6 +142,7 @@
     "test:global-launch-shared-copy": "node scripts/global-launch-shared-copy.test.cjs",
     "test:global-launch-home-copy": "node scripts/global-launch-home-copy.test.cjs",
     "test:global-launch-search-copy": "node scripts/global-launch-search-copy.test.cjs",
+    "test:jolmod-global-loader": "node scripts/jolmod-global-loader.test.cjs",
     "test:i18n-routing": "node scripts/i18n-routing-runtime.test.cjs",
     "test:i18n-02": "node scripts/i18n-02-shared-ui.test.cjs",
     "test:i18n-03": "node scripts/i18n-03-auth-profile.test.cjs",
