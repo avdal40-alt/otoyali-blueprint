@@ -12,6 +12,7 @@ import { useI18n } from "@/i18n/client";
 import type { Locale } from "@/i18n/types";
 import { SpecChip } from "./SpecChip";
 import { FavoriteButton } from "./FavoriteButton";
+import { getListingActionsCopy } from "@/app/listing/[id]/_components/listing-actions-copy";
 
 export function VehicleCard({
   listing,
@@ -27,6 +28,7 @@ export function VehicleCard({
 }) {
   const { locale: contextLocale, dictionary } = useI18n();
   const activeLocale = locale ?? contextLocale;
+  const actionsCopy = getListingActionsCopy(activeLocale);
   const [previewIndex, setPreviewIndex] = useState(0);
   const title = listing.title?.trim() || String(dictionary.common.noInfo);
   const city = cityLabel(listing.city, activeLocale);
@@ -82,7 +84,7 @@ export function VehicleCard({
           <>
             <button
               type="button"
-              aria-label={String(dictionary.listing.previousPhoto)}
+              aria-label={actionsCopy.previousPhoto}
               onClick={(event) => shiftImage(event, -1)}
               className="absolute left-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-lg font-black text-oto-text shadow-soft transition hover:bg-white md:hidden md:group-hover:flex"
             >
@@ -90,7 +92,7 @@ export function VehicleCard({
             </button>
             <button
               type="button"
-              aria-label={String(dictionary.listing.nextPhoto)}
+              aria-label={actionsCopy.nextPhoto}
               onClick={(event) => shiftImage(event, 1)}
               className="absolute right-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-lg font-black text-oto-text shadow-soft transition hover:bg-white md:hidden md:group-hover:flex"
             >
@@ -133,8 +135,8 @@ export function VehicleCard({
           <span className="truncate text-right">{makeModel}</span>
         </div>
         <div className="mt-2 flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs text-oto-muted">
-          <span>{String(dictionary.listing.publishedAt)}: {formatDate(listing.published_at, activeLocale)}</span>
-          <span>{String(dictionary.listing.views)}: {formatNumber(listing.views_count ?? 0, activeLocale)}</span>
+          <span>{actionsCopy.published}: {formatDate(listing.published_at, activeLocale)}</span>
+          <span>{actionsCopy.views}: {formatNumber(listing.views_count ?? 0, activeLocale)}</span>
         </div>
       </div>
     </article>

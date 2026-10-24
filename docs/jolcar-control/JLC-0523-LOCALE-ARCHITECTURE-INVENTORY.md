@@ -180,6 +180,12 @@ must be migrated by domain slice:
   supported Jolmod launch locale directly and defaults unsupported values to
   Russian, never Turkish. This remains preparatory: active client consumers of
   further legacy sections must be migrated before registry activation.
+- listing actions: `listing-actions-copy.ts` now gives VehicleCard photo
+  navigation and publication metrics plus the share and report controls direct
+  RU/KK/EN/zh-CN copy. The compact adapter defaults unsupported Jolmod values
+  to Russian and never selects Turkish. Listing routes, report persistence and
+  authorization, sharing mechanics, listing-detail/contact contracts, and KZ
+  public-read and seller-write isolation remain unchanged.
 - Kazakhstan SEO and route generation: the active KZ market now owns explicit
   Russian, Kazakh, English, and Simplified Chinese sitemap/robots route
   families, with Russian unprefixed and the other three safely prefixed. Shared

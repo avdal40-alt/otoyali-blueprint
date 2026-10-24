@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { useI18n } from "@/i18n/client";
 import { localizePath } from "@/i18n/config";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
+import { getListingActionsCopy } from "./listing-actions-copy";
 
 const reasonValues = [
   "wrong_information",
@@ -17,7 +18,8 @@ const reasonValues = [
 ] as const;
 
 export function ReportListingButton({ listingId }: { listingId: string }) {
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
+  const copy = getListingActionsCopy(locale);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<(typeof reasonValues)[number]>(reasonValues[0]);
   const [description, setDescription] = useState("");
@@ -34,7 +36,7 @@ export function ReportListingButton({ listingId }: { listingId: string }) {
 
     if (!hasSupabaseEnv()) {
       setStatus("error");
-      setMessage(String(dictionary.errors.missingSupabaseEnv));
+      setMessage(copy.environmentUnavailable);
       return;
     }
 
@@ -56,46 +58,46 @@ export function ReportListingButton({ listingId }: { listingId: string }) {
 
     if (error) {
       setStatus("error");
-      setMessage(error.message);
+      setMessage(copy.failure);
       return;
     }
 
     setStatus("success");
     setDescription("");
-    setMessage(String(dictionary.listing.reportSuccess));
+    setMessage(copy.success);
   }
 
   return (
     <div className="mt-5 rounded-md border border-oto-border bg-oto-surface p-4">
       <button type="button" onClick={() => setOpen((current) => !current)} className="text-sm font-black text-oto-blue">
-        {String(dictionary.listing.reportListing)}
+        {copy.reportListing}
       </button>
       <p className="mt-2 text-sm leading-6 text-oto-muted">
-        {String(dictionary.listing.reportHelp)}
+        {copy.reportHelp}
       </p>
 
       {open ? (
         <form onSubmit={submit} className="mt-4 grid gap-3">
           <label className="grid gap-1 text-sm font-bold text-oto-text">
-            {String(dictionary.listing.reportReasonLabel)}
+            {copy.reason}
             <select value={reason} onChange={(event) => setReason(event.target.value as (typeof reasonValues)[number])} className="h-11 rounded-md border border-oto-border bg-white px-3">
               {reasonValues.map((item) => (
-                <option key={item} value={item}>{String(dictionary.listing[`reportReason${item.split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join("")}`])}</option>
+                <option key={item} value={item}>{copy[item === "wrong_information" ? "wrongInformation" : item === "suspicious_seller" ? "suspiciousSeller" : item === "inappropriate_content" ? "inappropriateContent" : item]}</option>
               ))}
             </select>
           </label>
           <label className="grid gap-1 text-sm font-bold text-oto-text">
-            {String(dictionary.listing.reportDescriptionLabel)}
+            {copy.description}
             <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={3} className="rounded-md border border-oto-border bg-white p-3" />
           </label>
           {status === "login" ? (
             <Link href={loginHref} className="text-sm font-black text-oto-blue">
-              {String(dictionary.listing.reportLogin)}
+              {copy.login}
             </Link>
           ) : null}
           {message ? <p className={status === "success" ? "text-sm font-bold text-emerald-700" : "text-sm font-bold text-oto-danger"}>{message}</p> : null}
           <Button type="submit" disabled={status === "checking" || status === "submitting"}>
-            {status === "submitting" ? String(dictionary.listing.reportSending) : String(dictionary.listing.reportSubmit)}
+            {status === "submitting" ? copy.submitting : copy.submit}
           </Button>
         </form>
       ) : null}

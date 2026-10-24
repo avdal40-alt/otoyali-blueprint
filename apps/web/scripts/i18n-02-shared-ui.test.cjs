@@ -142,7 +142,8 @@ assert.match(read("src", "components", "layout", "MarketplaceFooter.tsx"), /<Lan
 assert.doesNotMatch(switcher, /\bru\b|zh-CN|العربية/);
 
 const shareListing = read("src", "app", "listing", "[id]", "_components", "ShareListingButton.tsx");
-assert.match(shareListing, /dictionary\.listing\.linkCopied/);
+assert.match(shareListing, /getListingActionsCopy/);
+assert.match(shareListing, /copy\.copied/);
 assert.doesNotMatch(shareListing, /locale === "en"/);
 
 console.log("I18N-02 shared UI tests passed.");

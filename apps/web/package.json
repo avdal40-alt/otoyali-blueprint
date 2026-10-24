@@ -101,6 +101,7 @@
     "test:sell-03h": "node scripts/sell-03h-localization.test.cjs",
     "test:listing-detail-localization": "node scripts/listing-detail-localization.test.cjs",
     "test:listing-contact-localization": "node scripts/listing-contact-localization.test.cjs",
+    "test:listing-actions-localization": "node scripts/listing-actions-localization.test.cjs",
     "test:sell-03i": "node scripts/sell-03i-browser-blockers.test.cjs",
     "test:sell-route-state": "node scripts/sell-route-state.test.cjs",
     "test:i18n-foundation": "node scripts/i18n-foundation.test.cjs",

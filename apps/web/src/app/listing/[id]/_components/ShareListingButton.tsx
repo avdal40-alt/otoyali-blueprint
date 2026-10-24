@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useI18n } from "@/i18n/client";
+import { getListingActionsCopy } from "./listing-actions-copy";
 
 export function ShareListingButton({ title }: { title: string }) {
-  const { dictionary } = useI18n();
+  const { locale } = useI18n();
+  const copy = getListingActionsCopy(locale);
   const [copied, setCopied] = useState(false);
 
   async function share() {
@@ -26,7 +28,7 @@ export function ShareListingButton({ title }: { title: string }) {
 
   return (
     <Button type="button" variant="secondary" onClick={() => void share()} className="w-full">
-      {copied ? String(dictionary.listing.linkCopied) : String(dictionary.listing.share)}
+      {copied ? copy.copied : copy.share}
     </Button>
   );
 }
