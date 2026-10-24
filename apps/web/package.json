@@ -139,6 +139,7 @@
     "test:jlc-1302": "npm run test:jlc-0402 && npm run test:jlc-0403 && npm run test:jlc-0404 && npm run test:jlc-0405 && npm run test:jlc-0406 && npm run test:jlc-0407 && npm run test:jlc-0307 && npm run test:launch-03d3c6-buyer-e2e && npm run test:jlc-0501 && npm run test:jlc-0504 && npm run test:jlc-0505 && npm run test:jlc-0507 && npm run test:jlc-0509 && npm run test:jlc-0606 && npm run test:jlc-0605 && npm run test:jlc-0804 && npm run test:jlc-0706 && npm run test:jlc-0904 && npm run test:jlc-0907 && npm run test:jlc-0909 && npm run test:jlc-0916 && npm run test:jlc-0918 && npm run test:jlc-1006 && npm run test:jlc-1102",
     "test:location-contract": "node scripts/location-contract.test.cjs",
     "test:format": "node scripts/format.test.cjs",
+    "test:global-launch-shared-copy": "node scripts/global-launch-shared-copy.test.cjs",
     "test:i18n-routing": "node scripts/i18n-routing-runtime.test.cjs",
     "test:i18n-02": "node scripts/i18n-02-shared-ui.test.cjs",
     "test:i18n-03": "node scripts/i18n-03-auth-profile.test.cjs",

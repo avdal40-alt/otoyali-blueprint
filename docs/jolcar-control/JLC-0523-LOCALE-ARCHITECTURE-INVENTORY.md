@@ -158,6 +158,15 @@ must be migrated by domain slice:
   continue to use canonical locale metadata and links retain the selected
   locale. Chat and matching-notification runtime fixtures now select active KZ
   cities and KZT, preserving the existing JLC-0522 market-write guard;
+- global shared shell: `global-launch-shared-copy.ts` now defines complete
+  direct RU/KK/EN/zh-CN `common`, `navigation`, and `footer` contracts for the
+  header, mobile navigation, footer, dialogs, and common state controls. Its
+  deterministic gate requires the exact historical section shape, Jolmod/KZ
+  public identity, direct resolution for every launch locale, Turkish
+  exclusion, and valid non-corrupted Simplified Chinese source. This is a
+  staged global-loader foundation only: registry activation remains blocked
+  until the remaining active global domains (including home and search) have
+  equally direct coverage;
 - deterministic listing-text moderation now recognizes active Kazakhstan +7
   and domestic 8-prefixed phone numbers as contact details, retaining the
   historical Turkey matcher only for the Turkey market profile;
