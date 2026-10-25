@@ -284,6 +284,11 @@ must be migrated by domain slice:
   copy; unsupported Jolmod UI locales fall back to Russian, never Turkish.
   This changes no service authorization, moderation workflow, provider data,
   booking state, price policy, or Kazakhstan market context.
+- marketplace vertical pages: active cards, category landing pages, future
+  vertical notices, capability/status labels, and attribute labels now resolve
+  through direct RU/KK/EN/zh-CN copy with Russian fallback. Existing routes,
+  vertical feature flags, publishing availability, and Kazakhstan market data
+  are unchanged; Turkish is not a Jolmod UI fallback.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale

@@ -24,6 +24,7 @@
     "test:my-listings-localization": "node scripts/my-listings-localization.test.cjs",
     "test:dealer-page-localization": "node scripts/dealer-page-localization.test.cjs",
     "test:services-localization": "node scripts/services-localization.test.cjs",
+    "test:vertical-page-localization": "node scripts/vertical-page-localization.test.cjs",
     "test:admin-client-localization": "node scripts/admin-client-localization.test.cjs",
     "test:ai-response-language": "node scripts/ai-response-language.test.cjs",
     "test:ai-client-localization": "node scripts/ai-client-localization.test.cjs",
