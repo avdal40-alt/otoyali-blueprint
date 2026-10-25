@@ -21,6 +21,7 @@
     "test:messages-localization": "node scripts/messages-localization.test.cjs",
     "test:status-localization": "node scripts/status-localization.test.cjs",
     "test:video-localization": "node scripts/video-localization.test.cjs",
+    "test:my-listings-localization": "node scripts/my-listings-localization.test.cjs",
     "test:admin-client-localization": "node scripts/admin-client-localization.test.cjs",
     "test:ai-response-language": "node scripts/ai-response-language.test.cjs",
     "test:ai-client-localization": "node scripts/ai-client-localization.test.cjs",

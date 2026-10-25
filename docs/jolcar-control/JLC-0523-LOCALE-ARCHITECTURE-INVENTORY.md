@@ -267,10 +267,11 @@ must be migrated by domain slice:
   page keeps its remaining seller-contact and publish controls within VideoCopy.
   The trace closes the historical active listing, sell, profile, favorites,
   messages, notifications, auth, errors, status, video, admin, and AI reads.
-  It also identified a separate, still-blocking My Listings / seller-video
-  management residual that must be moved off `dictionary.myListings` before
-  registry activation; compatibility composition in `get-dictionary.ts` alone
-  is not considered an active-client consumer.
+  The My Listings pages and seller-video manager now also resolve through a
+  direct RU/KK/EN/zh-CN contract with Russian fallback. Listing lifecycle,
+  authenticated video upload/remove calls, media authorization, and KZ write
+  isolation remain unchanged. The remaining `get-dictionary.ts` composition is
+  compatibility-only and is not an active-client consumer.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale
