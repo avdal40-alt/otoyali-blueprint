@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { getDictionary } from "@/i18n/get-dictionary";
+import { getJolmodGlobalDictionary } from "@/i18n/get-dictionary";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 
 export function SeoEntryLinks({ locale = "tr" }: { locale?: Locale }) {
-  const dictionary = getDictionary(locale);
+  const dictionary = getJolmodGlobalDictionary(locale);
   const labels = dictionary.home.seoEntryLinks as Record<string, string>;
   const categoryLinks = [
     { label: labels.usedCars, href: "/ikinci-el-araba" },

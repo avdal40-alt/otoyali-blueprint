@@ -1,7 +1,7 @@
 import type { HomeListing, ListingMedia } from "@/lib/supabase/types";
 import { VehicleCard } from "@/components/vehicle/VehicleCard";
 import { EmptyState } from "@/components/ui/States";
-import { getDictionary } from "@/i18n/get-dictionary";
+import { getJolmodGlobalDictionary } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 
 export function HotListingsSection({
@@ -13,7 +13,7 @@ export function HotListingsSection({
   mediaByListing?: Record<string, ListingMedia[]>;
   locale?: Locale;
 }) {
-  const dictionary = getDictionary(locale);
+  const dictionary = getJolmodGlobalDictionary(locale);
   const hotListings = listings.slice(0, 4);
 
   return (

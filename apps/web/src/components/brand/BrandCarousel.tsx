@@ -1,11 +1,11 @@
 import type { Make } from "@/lib/supabase/types";
 import { EmptyState } from "@/components/ui/States";
-import { getDictionary } from "@/i18n/get-dictionary";
+import { getJolmodGlobalDictionary } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 import { BrandCard } from "./BrandCard";
 
 export function BrandCarousel({ makes, locale = "tr" }: { makes: Make[]; locale?: Locale }) {
-  const dictionary = getDictionary(locale);
+  const dictionary = getJolmodGlobalDictionary(locale);
   if (makes.length === 0) {
     return <EmptyState title={String(dictionary.home.noMakesTitle)} body={String(dictionary.home.noMakesBody)} />;
   }
