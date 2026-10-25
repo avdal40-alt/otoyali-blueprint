@@ -322,6 +322,10 @@ must be migrated by domain slice:
   the no-store maintenance response now uses Russian as its default/fallback
   language while retaining its existing 503, retry, and cache-control behavior.
   The i18n foundation harness now explicitly loads the direct launch adapters.
+- AI assistant landing page: its future-feature title, description, CTA,
+  feature list, and metadata fallback now use direct RU/KK/EN/zh-CN Jolmod
+  copy with Russian fallback. This does not change the separate multilingual
+  AI response-language policy or provider behavior.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale

@@ -1,19 +1,22 @@
 import { FutureVerticalPage } from "@/components/verticals/FutureVerticalPage";
 import { buildSeoMetadata } from "@/lib/seo/metadata";
+import { getAiAssistantPageCopy } from "@/i18n/ai-assistant-page-copy";
+import { getRequestLocale } from "@/i18n/server";
 
 export const metadata = buildSeoMetadata({
-  title: "Jolcar AI Asistan | Jolcar",
-  description: "Araç bulma, ilan karşılaştırma, fiyat yorumlama ve ilan açıklaması hazırlama desteği yakında.",
+  title: "AI-ассистент Jolmod",
+  description: "Помощь с поиском автомобиля, сравнением объявлений, оценкой цены и подготовкой описания появится скоро.",
   path: "/ai-asistan"
 });
 
-export default function AiAssistantPage() {
+export default async function AiAssistantPage() {
+  const copy = getAiAssistantPageCopy(await getRequestLocale());
   return (
     <FutureVerticalPage
-      title="Jolcar AI Asistan"
-      description="Araç bulma, ilan karşılaştırma, fiyat yorumlama ve ilan açıklaması hazırlama desteği yakında."
-      ctaLabel="İlanları keşfet"
-      sections={["AI ile araç bul", "Bu ilanı özetle", "Benim için karşılaştır", "İlan açıklamasını iyileştir", "Fiyatı yorumla"]}
+      title={copy.title}
+      description={copy.description}
+      ctaLabel={copy.ctaLabel}
+      sections={copy.sections}
     />
   );
 }
