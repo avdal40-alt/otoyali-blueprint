@@ -31,6 +31,7 @@
     "test:trust-page-localization": "node scripts/trust-page-localization.test.cjs",
     "test:marketplace-seo-localization": "node scripts/marketplace-seo-localization.test.cjs",
     "test:category-seo-localization": "node scripts/category-seo-localization.test.cjs",
+    "test:dynamic-seo-localization": "node scripts/dynamic-seo-localization.test.cjs",
     "test:admin-client-localization": "node scripts/admin-client-localization.test.cjs",
     "test:ai-response-language": "node scripts/ai-response-language.test.cjs",
     "test:ai-client-localization": "node scripts/ai-client-localization.test.cjs",

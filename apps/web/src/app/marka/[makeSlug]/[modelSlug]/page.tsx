@@ -3,6 +3,8 @@ import { MarketplaceSeoPage, type MarketplaceSeoConfig } from "@/components/seo/
 import { getSeoCatalog, findMakeBySlug, findModelBySlug } from "@/lib/seo/catalog";
 import { makeSeoSlug, modelSeoSlug } from "@/lib/seo/slugs";
 import { buildSeoMetadata } from "@/lib/seo/metadata";
+import { getRequestLocale } from "@/i18n/server";
+import { getDynamicSeoCopy } from "@/i18n/dynamic-seo-copy";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -12,6 +14,7 @@ type PageProps = {
 };
 
 export async function generateMetadata({ params }: PageProps) {
+  const copy=getDynamicSeoCopy(await getRequestLocale());
   const resolvedParams = await params;
   const { makes, models } = await getSeoCatalog();
   const make = findMakeBySlug(makes, resolvedParams.makeSlug);
@@ -19,21 +22,20 @@ export async function generateMetadata({ params }: PageProps) {
 
   if (!make?.make_name || !model?.model_name) {
     return buildSeoMetadata({
-      title: "Model Bulunamadı",
-      description: "Aradığınız model için aktif SEO sayfası bulunamadı.",
+      title: copy.notFound, description: copy.notFoundBody,
       path: `/marka/${resolvedParams.makeSlug}/${resolvedParams.modelSlug}`,
       noIndex: true
     });
   }
 
   return buildSeoMetadata({
-    title: `${make.make_name} ${model.model_name} İlanları`,
-    description: `${make.make_name} ${model.model_name} ilanlarını fiyat, yıl, kilometre, yakıt tipi ve şehir bilgilerine göre karşılaştırın.`,
+    title: copy.listings(`${make.make_name} ${model.model_name}`), description: copy.description(`${make.make_name} ${model.model_name}`),
     path: `/marka/${makeSeoSlug(make.make_name, make.make_slug)}/${modelSeoSlug(model.model_name, model.model_slug)}`
   });
 }
 
 export default async function MakeModelSeoPage({ params }: PageProps) {
+  const copy=getDynamicSeoCopy(await getRequestLocale());
   const resolvedParams = await params;
   const { makes, models } = await getSeoCatalog();
   const make = findMakeBySlug(makes, resolvedParams.makeSlug);
@@ -47,21 +49,17 @@ export default async function MakeModelSeoPage({ params }: PageProps) {
   const fullName = `${make.make_name} ${model.model_name}`;
   const config: MarketplaceSeoConfig = {
     path,
-    h1: `${fullName} ilanları`,
-    description: `${fullName} ilanlarını fiyat, yıl, kilometre, yakıt tipi ve şehir bilgilerine göre karşılaştırın.`,
-    ctaLabel: `${model.model_name} ilanlarını gör`,
+    h1: copy.listings(fullName), description: copy.description(fullName), ctaLabel: copy.cta(fullName),
     filters: { make: make.make_name, model: model.model_name },
     breadcrumbs: [
-      { label: "Ana sayfa", href: "/" },
-      { label: "Marka", href: "/search" },
+      { label: copy.home, href: "/" }, { label: copy.make, href: "/search" },
       { label: make.make_name, href: `/marka/${makeSeoSlug(make.make_name, make.make_slug)}` },
       { label: model.model_name }
     ],
     summary: [
-      { label: "Marka", value: make.make_name },
-      { label: "Model", value: model.model_name }
+      { label: copy.make, value: make.make_name }, { label: copy.model, value: model.model_name }
     ],
-    seoText: `${fullName} ilanları sayfasında fiyat, yıl, kilometre, yakıt tipi ve şehir bilgilerini karşılaştırabilirsiniz. Daha ayrıntılı sonuçlar için arama filtrelerini kullanabilirsiniz.`
+    seoText: copy.seoText(fullName)
   };
 
   return <MarketplaceSeoPage config={config} />;

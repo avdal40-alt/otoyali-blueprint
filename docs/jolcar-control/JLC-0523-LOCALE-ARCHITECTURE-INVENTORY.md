@@ -340,6 +340,9 @@ must be migrated by domain slice:
   RU/KK/EN/zh-CN Jolmod content with Russian fallback. Existing route paths,
   listing filters, canonical handling, and KZ-only listing queries remain
   unchanged.
+- dynamic make, model, and city SEO routes now use direct RU/KK/EN/zh-CN
+  metadata and page copy with Russian fallback; route paths, catalog lookup,
+  filters, canonical handling, and KZ listing scope are unchanged.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale
