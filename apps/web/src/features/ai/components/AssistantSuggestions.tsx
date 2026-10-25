@@ -14,13 +14,13 @@ export function AssistantSuggestions({
   disabled?: boolean;
   onSelect: (text: string, intent: AiIntentId) => void;
 }) {
-  const { dictionary } = useI18n();
+  const { locale } = useI18n();
   const suggestions = getSuggestionsForSurface(surface);
 
   return (
     <div className="grid gap-2">
       {suggestions.map((suggestion) => {
-        const text = readAiCopy(dictionary, suggestion.textKey.replace(/^ai\./, ""), suggestion.id);
+        const text = readAiCopy(locale, suggestion.textKey.replace(/^ai\./, ""));
         return (
           <button
             key={suggestion.id}

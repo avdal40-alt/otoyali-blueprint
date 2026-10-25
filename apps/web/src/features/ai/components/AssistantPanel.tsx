@@ -24,7 +24,7 @@ export function AssistantPanel({
   context: AiContext;
   onClose: () => void;
 }) {
-  const { dictionary } = useI18n();
+  const { locale } = useI18n();
   const [input, setInput] = useState("");
   const { messages, isLoading, error, sendMessage, clear } = useAssistant(context);
 
@@ -59,7 +59,7 @@ export function AssistantPanel({
 
   return (
     <div className="fixed inset-0 z-modal bg-oto-text/40 md:bg-transparent" role="presentation">
-      <button type="button" aria-label={readAiCopy(dictionary, "close", "Close")} className="absolute inset-0 cursor-default md:hidden" onClick={onClose} />
+      <button type="button" aria-label={readAiCopy(locale, "close")} className="absolute inset-0 cursor-default md:hidden" onClick={onClose} />
       <aside
         role="dialog"
         aria-modal="true"
@@ -72,20 +72,20 @@ export function AssistantPanel({
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-oto-blue text-sm font-black text-white">R</span>
               <div>
                 <h2 id="rif-assistant-title" className="text-base font-black text-oto-text">
-                  {readAiCopy(dictionary, "title", "Rif")}
+                  {readAiCopy(locale, "title")}
                 </h2>
-                <p className="text-xs font-semibold text-oto-muted">{readAiCopy(dictionary, "subtitle", "Local preview assistant")}</p>
+                <p className="text-xs font-semibold text-oto-muted">{readAiCopy(locale, "subtitle")}</p>
               </div>
             </div>
             <Badge variant="ai" className="mt-2">
-              {readAiCopy(dictionary, "status.localPreview", "Local preview")}
+              {readAiCopy(locale, "status.localPreview")}
             </Badge>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="rounded-full p-2 text-oto-muted transition hover:bg-oto-surface hover:text-oto-text"
-            aria-label={readAiCopy(dictionary, "close", "Close")}
+            aria-label={readAiCopy(locale, "close")}
           >
             <Icon name="close" />
           </button>
@@ -94,7 +94,7 @@ export function AssistantPanel({
         <div className="flex-1 overflow-y-auto bg-oto-surface/60 px-4 py-4">
           {messages.length === 0 ? (
             <div className="rounded-oto border border-oto-border bg-white p-4 shadow-soft">
-              <p className="text-sm font-semibold leading-6 text-oto-text">{readAiCopy(dictionary, "introMessage", "Rif is in local preview and can provide general guidance only.")}</p>
+              <p className="text-sm font-semibold leading-6 text-oto-text">{readAiCopy(locale, "introMessage")}</p>
               <div className="mt-4">
                 <AssistantSuggestions surface={context.surface} disabled={isLoading} onSelect={sendSuggestion} />
               </div>
@@ -109,7 +109,7 @@ export function AssistantPanel({
           {isLoading ? (
             <div className="mt-4 flex items-center gap-2 text-sm font-bold text-oto-muted" aria-live="polite">
               <Spinner className="h-4 w-4" />
-              {readAiCopy(dictionary, "loading", "Rif is preparing a response...")}
+              {readAiCopy(locale, "loading")}
             </div>
           ) : null}
           {error ? <div className="mt-4"><AiStateMessage state="error">{error}</AiStateMessage></div> : null}
@@ -124,16 +124,16 @@ export function AssistantPanel({
               onChange={(event) => setInput(event.target.value)}
               rows={2}
               maxLength={700}
-              placeholder={readAiCopy(dictionary, "placeholder", "Ask Rif...")}
-              aria-label={readAiCopy(dictionary, "inputLabel", "Message to Rif")}
+              placeholder={readAiCopy(locale, "placeholder")}
+              aria-label={readAiCopy(locale, "inputLabel")}
               className="min-h-[68px] resize-none"
             />
             <div className="flex items-center justify-between gap-2">
               <button type="button" onClick={clear} className="text-xs font-black text-oto-muted transition hover:text-oto-blue">
-                {readAiCopy(dictionary, "clear", "Clear")}
+                {readAiCopy(locale, "clear")}
               </button>
               <Button type="submit" disabled={isLoading || !input.trim()} size="sm" rightIcon={<Icon name="chevronRight" />}>
-                {readAiCopy(dictionary, "send", "Send")}
+                {readAiCopy(locale, "send")}
               </Button>
             </div>
           </form>

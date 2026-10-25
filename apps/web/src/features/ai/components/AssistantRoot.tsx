@@ -14,7 +14,7 @@ const AssistantPanel = dynamic(() => import("./AssistantPanel").then((module) =>
 });
 
 export function AssistantRoot() {
-  const { locale, dictionary } = useI18n();
+  const { locale } = useI18n();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
@@ -39,13 +39,13 @@ export function AssistantRoot() {
           type="button"
           onClick={() => setOpen(true)}
           className="fixed bottom-24 right-4 z-toast inline-flex h-14 items-center gap-2 rounded-full bg-oto-text px-4 text-sm font-black text-white shadow-modal transition hover:bg-oto-blue focus-visible:ring-2 focus-visible:ring-oto-blue/30 md:bottom-6 md:right-6"
-          aria-label={readAiCopy(dictionary, "open", "Open Rif assistant")}
+          aria-label={readAiCopy(locale, "open")}
           aria-expanded={open}
         >
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-oto-blue text-white">
             <Icon name="info" className="h-4 w-4" />
           </span>
-          <span>{readAiCopy(dictionary, "launcher", "Rif")}</span>
+          <span>{readAiCopy(locale, "launcher")}</span>
         </button>
       ) : null}
       {open ? <AssistantPanel open={open} context={context} onClose={() => setOpen(false)} /> : null}

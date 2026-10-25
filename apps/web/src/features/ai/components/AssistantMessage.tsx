@@ -8,7 +8,7 @@ import type { AssistantChatMessage } from "../hooks/useAssistant";
 import { readAiCopy } from "./copy";
 
 export function AssistantMessage({ message }: { message: AssistantChatMessage }) {
-  const { dictionary } = useI18n();
+  const { locale } = useI18n();
   const isUser = message.role === "user";
 
   return (
@@ -29,7 +29,7 @@ export function AssistantMessage({ message }: { message: AssistantChatMessage })
                 <div key={item.type} className="flex flex-wrap gap-2">
                   {item.capabilities.map((capability) => (
                     <Badge key={capability} variant="ai">
-                      {readAiCopy(dictionary, `capabilities.${capability}.label`, capability)}
+                      {readAiCopy(locale, `capabilities.${capability}.label`)}
                     </Badge>
                   ))}
                 </div>
@@ -97,7 +97,7 @@ export function AssistantMessage({ message }: { message: AssistantChatMessage })
       ) : null}
       {!isUser && message.warnings?.includes("feature_not_connected") ? (
         <p className="max-w-[88%] text-xs font-semibold leading-5 text-oto-muted">
-          {readAiCopy(dictionary, "featureNotConnected", "Advanced AI features are not connected yet.")}
+          {readAiCopy(locale, "featureNotConnected")}
         </p>
       ) : null}
     </article>
