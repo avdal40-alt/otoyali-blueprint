@@ -1,14 +1,6 @@
-import { LegalPage, type LegalSection } from "@/components/legal/LegalPage";
-import { buildSeoMetadata } from "@/lib/seo/metadata";
-import { getRequestLocale } from "@/i18n/server";
+import { JolmodLegalDocumentPage } from "@/components/legal/JolmodLegalDocumentPage";
 
-export const metadata = buildSeoMetadata({
-  title: "Kullanım Şartları",
-  description: "Jolcar platform kullanım şartları, ilan yayınlama sorumlulukları ve moderasyon kuralları.",
-  path: "/terms"
-});
-
-const sections: LegalSection[] = [
+/* const sections: LegalSection[] = [
   {
     title: "Jolcar nedir?",
     body: "Jolcar, kullanıcıların araç ilanlarını keşfetmesine, aramasına, incelemesine ve yayınlamasına yardımcı olan bir dijital platformdur."
@@ -84,25 +76,6 @@ const enSections: LegalSection[] = [
     title: "Moderation",
     body: "Jolcar may reject, archive, or remove listings that appear suspicious, misleading, prohibited, or risky for user safety."
   }
-];
+]; */
 
-export default async function TermsPage() {
-  const locale = await getRequestLocale();
-  const isEnglish = locale === "en";
-
-  return (
-    <LegalPage
-      title={isEnglish ? "Terms of Use" : "Kullanım Şartları"}
-      description={
-        isEnglish
-          ? "Jolcar Terms of Use explain platform usage, user responsibilities, and safety boundaries."
-          : "Jolcar kullanım şartları; platformun nasıl kullanılacağını, kullanıcı sorumluluklarını ve güvenlik sınırlarını açıklar."
-      }
-      sections={isEnglish ? enSections : sections}
-      actions={[
-        { href: "/listing-rules", label: isEnglish ? "Review listing rules" : "İlan kurallarını incele" },
-        { href: "/contact", label: isEnglish ? "Contact" : "İletişim" }
-      ]}
-    />
-  );
-}
+export default function TermsPage() { return <JolmodLegalDocumentPage documentKey="terms" />; }

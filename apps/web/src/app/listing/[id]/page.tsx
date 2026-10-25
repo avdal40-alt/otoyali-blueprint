@@ -211,6 +211,9 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
                 <Link href={localizePath("/listing-rules", locale)} className="text-oto-blue hover:underline">
                   {copy.listingRules}
                 </Link>
+                <Link href={localizePath("/safety", locale)} className="text-oto-blue hover:underline">
+                  {copy.safeShopping}
+                </Link>
                 <Link href={localizePath("/trust", locale)} className="text-oto-muted hover:text-oto-blue">
                   {copy.safeShopping}
                 </Link>

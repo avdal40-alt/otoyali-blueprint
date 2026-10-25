@@ -4,6 +4,7 @@ import Link from "next/link";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { ACTIVE_MARKET_PROFILE } from "@/lib/market";
+import { getJolmodLegalDocument } from "@/i18n/jolmod-legal-documents";
 import {
   platformStaffNavigationAction,
   usePlatformStaffNavigation
@@ -12,6 +13,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function MarketplaceFooter() {
   const { locale, dictionary } = useI18n();
+  const legal = (key: "terms" | "listingRules" | "privacy" | "consent" | "aiTerms" | "safety" | "support" | "legal") => getJolmodLegalDocument(key, locale).title;
   const marketplaceAction = platformStaffNavigationAction(usePlatformStaffNavigation());
   const groups = [
     {
@@ -38,10 +40,14 @@ export function MarketplaceFooter() {
     {
       title: String(dictionary.footer.policies),
       links: [
-        { href: "/terms", label: String(dictionary.footer.terms) },
-        { href: "/privacy", label: String(dictionary.footer.privacy) },
-        { href: "/cookies", label: String(dictionary.footer.cookies) },
-        { href: "/moderation-policy", label: String(dictionary.footer.moderation) }
+        { href: "/terms", label: legal("terms") },
+        { href: "/listing-rules", label: legal("listingRules") },
+        { href: "/privacy", label: legal("privacy") },
+        { href: "/personal-data-consent", label: legal("consent") },
+        { href: "/ai-terms", label: legal("aiTerms") },
+        { href: "/safety", label: legal("safety") },
+        { href: "/contact", label: legal("support") },
+        { href: "/legal", label: legal("legal") }
       ]
     },
     {

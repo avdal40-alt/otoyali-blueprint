@@ -10,7 +10,7 @@ import { localizePath } from "@/i18n/config";
 export type LegalSection = {
   title: string;
   body?: string;
-  items?: string[];
+  items?: readonly string[];
 };
 
 export type LegalAction = {
