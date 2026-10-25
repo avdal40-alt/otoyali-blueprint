@@ -330,6 +330,11 @@ must be migrated by domain slice:
   through direct RU/KK/EN/zh-CN Jolmod copy with Russian fallback. Obsolete
   Turkey-specific verification references were removed without asserting any
   government, insurance, inspection, or seller-verification integration.
+- shared marketplace SEO chrome: listing preview, empty states, safety copy,
+  internal-link labels, and category labels now resolve through direct
+  RU/KK/EN/zh-CN copy with Russian fallback. SEO route-specific prose remains
+  a separate migration slice; public listing visibility and canonical routes
+  were not changed.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale

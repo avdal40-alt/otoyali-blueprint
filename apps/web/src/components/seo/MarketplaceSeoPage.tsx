@@ -17,6 +17,8 @@ import { absoluteUrl } from "@/lib/seo/metadata";
 import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
 import { defaultSearchFilters, buildSearchUrl, type ListingSearchFilters } from "@/lib/search/search-params";
 import { filterListings } from "@/lib/search/filter-listings";
+import { getRequestLocale } from "@/i18n/server";
+import { getMarketplaceSeoCopy, type MarketplaceSeoCopy } from "@/i18n/marketplace-seo-copy";
 
 export type BreadcrumbItem = {
   label: string;
@@ -35,6 +37,7 @@ export type MarketplaceSeoConfig = {
 };
 
 export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoConfig }) {
+  const copy = getMarketplaceSeoCopy(await getRequestLocale());
   const [listingsResult, makesResult, modelsResult, citiesResult] = await Promise.all([
     getHomeListings(80),
     getMakes(),
@@ -83,9 +86,9 @@ export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoCon
 
         <section className="mt-8">
           <SectionHeader
-            title="Öne çıkan ilanlar"
-            eyebrow="İlan önizlemesi"
-            action={<Link href={searchUrl} className="text-sm font-black text-oto-blue">Tümünü gör</Link>}
+            title={copy.featured}
+            eyebrow={copy.preview}
+            action={<Link href={searchUrl} className="text-sm font-black text-oto-blue">{copy.viewAll}</Link>}
           />
           {previewListings.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -98,27 +101,25 @@ export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoCon
             </div>
           ) : (
             <EmptyState
-              title="Bu kategori için aktif ilan bulunamadı"
-              body="Filtreleri arama sayfasında değiştirerek güncel ilanları keşfedebilirsiniz."
+              title={copy.emptyTitle}
+              body={copy.emptyBody}
               href={searchUrl}
-              action="Aramada incele"
+              action={copy.openSearch}
             />
           )}
         </section>
 
-        <InternalLinks makes={makesResult.data} models={modelsResult.data} cities={citiesResult.data} currentPath={config.path} />
+        <InternalLinks makes={makesResult.data} models={modelsResult.data} cities={citiesResult.data} currentPath={config.path} copy={copy} />
 
         <section className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-            <h2 className="text-lg font-black text-oto-text">{config.h1} hakkında</h2>
+            <h2 className="text-lg font-black text-oto-text">{config.h1} {copy.aboutSuffix}</h2>
             <div className="mt-3 text-sm leading-7 text-oto-muted">{config.seoText}</div>
           </div>
           <div className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
-            <h2 className="text-lg font-black text-oto-text">Güvenli keşif</h2>
+            <h2 className="text-lg font-black text-oto-text">{copy.safeDiscovery}</h2>
             <div className="mt-3 grid gap-3 text-sm leading-6 text-oto-muted">
-              <p>Jolcar&apos;da ilanları kayıt olmadan inceleyebilir, filtreleri kullanarak ihtiyacınıza uygun araçları karşılaştırabilirsiniz.</p>
-              <p>Bu sayfalar yalnızca aktif ve herkese açık ilan verilerini kullanır; özel satıcı bilgileri gösterilmez.</p>
-              <p>Detaylı filtreleme ve daha fazla ilan için arama sayfasına geçebilirsiniz.</p>
+              <p>{copy.safeBody}</p><p>{copy.safePublic}</p><p>{copy.safeSearch}</p>
             </div>
           </div>
         </section>
@@ -146,28 +147,24 @@ function InternalLinks({
   makes,
   models,
   cities,
-  currentPath
+  currentPath, copy
 }: {
   makes: Make[];
   models: Model[];
   cities: City[];
   currentPath: string;
+  copy: MarketplaceSeoCopy;
 }) {
   const categoryLinks = [
-    { label: "İkinci el araba ilanları", href: "/ikinci-el-araba" },
-    { label: "Sıfır km araba ilanları", href: "/sifir-km-araba" },
-    { label: "Elektrikli araçlar", href: "/elektrikli-araclar" },
-    { label: "Otomatik vites araçlar", href: "/otomatik-vites-araclar" },
-    { label: "SUV araçlar", href: "/suv-araclar" },
-    { label: "Tüm ilanlar", href: "/search" }
+    { label: copy.used, href: "/ikinci-el-araba" },{ label: copy.newCars, href: "/sifir-km-araba" },{ label: copy.electric, href: "/elektrikli-araclar" },{ label: copy.automatic, href: "/otomatik-vites-araclar" },{ label: copy.suv, href: "/suv-araclar" },{ label: copy.allListings, href: "/search" }
   ].filter((item) => item.href !== currentPath);
 
   const makeLinks = prioritizedMakes(makes).slice(0, 8).map((make) => ({
-    label: make.make_name || "Marka",
+    label: make.make_name || copy.makeFallback,
     href: `/marka/${makeSeoSlug(make.make_name, make.make_slug)}`
   }));
   const cityLinks = prioritizedCities(cities).slice(0, 8).map((city) => ({
-    label: city.city_name || "Şehir",
+    label: city.city_name || copy.cityFallback,
     href: `/sehir/${citySeoSlug(city.city_name, city.city_slug)}`
   }));
   const modelLinks = models.slice(0, 8).map((model) => ({
@@ -177,9 +174,7 @@ function InternalLinks({
 
   return (
     <section className="mt-8 grid gap-4 lg:grid-cols-3">
-      <LinkGroup title="Popüler kategoriler" links={categoryLinks} />
-      <LinkGroup title="Popüler markalar" links={makeLinks} />
-      <LinkGroup title="Popüler şehirler" links={cityLinks} extraLinks={modelLinks.slice(0, 4)} />
+      <LinkGroup title={copy.categories} links={categoryLinks} /><LinkGroup title={copy.makes} links={makeLinks} /><LinkGroup title={copy.cities} links={cityLinks} extraLinks={modelLinks.slice(0, 4)} />
     </section>
   );
 }
