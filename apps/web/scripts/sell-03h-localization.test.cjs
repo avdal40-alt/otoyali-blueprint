@@ -139,7 +139,9 @@ assert.ok(!wizard.includes('<Panel title="Satıcı bilgileri">'));
 assert.ok(wizard.includes("<Panel title={copy.sellerInformation}>") );
 
 // The provider locale drives all copy; stored enum values remain unchanged while labels are localized.
-assert.ok(wizard.includes("const copy = getSellCopy(locale)"));
+assert.ok(wizard.includes("const copy = hydrateSellCopy(serializedCopy)"));
+assert.ok(page.includes("const sellCopy = getSellCopy(locale)"));
+assert.ok(page.includes("const serializedSellCopy = serializeSellCopy(sellCopy)"));
 assert.ok(!wizard.includes("useI18n"), "SellWizard must consume the server-normalized locale prop");
 assert.ok(!wizard.includes('locale === "en" ?'));
 for (const wiring of [
@@ -157,8 +159,8 @@ for (const storedValue of ['"gasoline"', '"automatic"', '"heavy_damage"', '"priv
 }
 
 // Catalog selector labels use the display-only helper, while title/data paths remain canonical.
-assert.ok(wizard.includes('{getSellCatalogDisplayName({ kind: "make", item: make, locale })}'));
-assert.ok(wizard.includes('{getSellCatalogDisplayName({ kind: "model", item: model, locale })}'));
+assert.ok(wizard.includes('{getSellCatalogDisplayName("make", make, copy)}'));
+assert.ok(wizard.includes('{getSellCatalogDisplayName("model", model, copy)}'));
 assert.ok(!wizard.includes(">{make.make_name}</option>"), "Make options must not leak the raw sentinel name");
 assert.ok(!wizard.includes(">{model.model_name}</option>"), "Model options must not leak the raw sentinel name");
 assert.ok(wizard.includes("makeName: selectedMake?.make_name"), "Generated titles must keep raw canonical make data");
@@ -203,7 +205,7 @@ function inspectHooks(node) {
 inspectHooks(wizardAst);
 assert.equal(callbackHasLocalizedDependency, true, "Model loader must refresh when localized failure copy changes");
 assert.equal(effectDependsOnCallback, true, "Effects invoking the model loader must depend on the callback");
-assert.ok(wizard.includes("getSellModelRequestContextKey(routeKey, locale)"), "Model request currentness must include same-route locale changes");
+assert.ok(wizard.includes("`route:${routeKey}:locale:${locale}`"), "Model request currentness must include same-route locale changes");
 assert.ok(wizard.includes("modelRequestGuard.current.setTarget(modelRequestContextKey)"), "Locale context changes must invalidate the old model generation during render");
 
 console.log("SELL-03H sell-flow localization tests passed.");
