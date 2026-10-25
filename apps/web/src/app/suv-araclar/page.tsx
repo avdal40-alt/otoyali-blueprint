@@ -1,16 +1,16 @@
 import { MarketplaceSeoPage } from "@/components/seo/MarketplaceSeoPage";
-import { suvCarsSeoConfig } from "@/lib/seo/category-pages";
+import { getCategorySeoConfig } from "@/lib/seo/category-pages";
 import { buildSeoMetadata } from "@/lib/seo/metadata";
+import { getRequestLocale } from "@/i18n/server";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export const metadata = buildSeoMetadata({
-  title: "SUV Araç İlanları",
-  description: suvCarsSeoConfig.description,
-  path: suvCarsSeoConfig.path
-});
+export async function generateMetadata() {
+  const config = getCategorySeoConfig("suv", await getRequestLocale());
+  return buildSeoMetadata({ title: config.h1, description: config.description, path: config.path });
+}
 
-export default function SuvCarsPage() {
-  return <MarketplaceSeoPage config={suvCarsSeoConfig} />;
+export default async function SuvCarsPage() {
+  return <MarketplaceSeoPage config={getCategorySeoConfig("suv", await getRequestLocale())} />;
 }

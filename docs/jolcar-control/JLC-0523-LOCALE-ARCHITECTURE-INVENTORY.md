@@ -335,6 +335,11 @@ must be migrated by domain slice:
   RU/KK/EN/zh-CN copy with Russian fallback. SEO route-specific prose remains
   a separate migration slice; public listing visibility and canonical routes
   were not changed.
+- public category SEO routes: the used, new, electric, automatic, and SUV
+  pages now source their on-page copy and request-derived metadata from direct
+  RU/KK/EN/zh-CN Jolmod content with Russian fallback. Existing route paths,
+  listing filters, canonical handling, and KZ-only listing queries remain
+  unchanged.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale

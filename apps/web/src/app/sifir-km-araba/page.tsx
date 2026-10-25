@@ -1,16 +1,16 @@
 import { MarketplaceSeoPage } from "@/components/seo/MarketplaceSeoPage";
-import { newCarsSeoConfig } from "@/lib/seo/category-pages";
+import { getCategorySeoConfig } from "@/lib/seo/category-pages";
 import { buildSeoMetadata } from "@/lib/seo/metadata";
+import { getRequestLocale } from "@/i18n/server";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export const metadata = buildSeoMetadata({
-  title: "Sıfır Km Araba İlanları",
-  description: newCarsSeoConfig.description,
-  path: newCarsSeoConfig.path
-});
+export async function generateMetadata() {
+  const config = getCategorySeoConfig("new", await getRequestLocale());
+  return buildSeoMetadata({ title: config.h1, description: config.description, path: config.path });
+}
 
-export default function NewCarsPage() {
-  return <MarketplaceSeoPage config={newCarsSeoConfig} />;
+export default async function NewCarsPage() {
+  return <MarketplaceSeoPage config={getCategorySeoConfig("new", await getRequestLocale())} />;
 }

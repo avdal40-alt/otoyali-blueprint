@@ -1,87 +1,34 @@
 import type { MarketplaceSeoConfig } from "@/components/seo/MarketplaceSeoPage";
-import { ACTIVE_MARKET_SCOPE_LABEL } from "@/lib/market";
+import { getCategorySeoCopy, type CategorySeoKind } from "@/i18n/category-seo-copy";
 
-export const usedCarsSeoConfig: MarketplaceSeoConfig = {
-  path: "/ikinci-el-araba",
-  h1: "İkinci el araba ilanları",
-  description: "Türkiye genelindeki ikinci el araba ilanlarını marka, model, şehir, fiyat ve teknik özelliklere göre keşfedin.",
-  ctaLabel: "İlanları incele",
-  filters: { condition: "used" },
-  breadcrumbs: [
-    { label: "Ana sayfa", href: "/" },
-    { label: "İkinci el araba ilanları" }
-  ],
-  summary: [
-    { label: "Durum", value: "İkinci el" },
-    { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
-  ],
-  seoText: "İkinci el araba ilanları sayfası, aktif araçları marka, model, şehir ve teknik özelliklere göre keşfetmeniz için hazırlanmıştır. Daha ayrıntılı filtreler için arama sayfasını kullanabilirsiniz."
+const categoryPaths: Record<CategorySeoKind, string> = {
+  used: "/ikinci-el-araba",
+  new: "/sifir-km-araba",
+  electric: "/elektrikli-araclar",
+  automatic: "/otomatik-vites-araclar",
+  suv: "/suv-araclar"
 };
 
-export const newCarsSeoConfig: MarketplaceSeoConfig = {
-  path: "/sifir-km-araba",
-  h1: "Sıfır km araba ilanları",
-  description: "Sıfır kilometre araç ilanlarını marka, model, şehir ve fiyat seçenekleriyle karşılaştırın.",
-  ctaLabel: "Sıfır km araçları gör",
-  filters: { condition: "new" },
-  breadcrumbs: [
-    { label: "Ana sayfa", href: "/" },
-    { label: "Sıfır km araba ilanları" }
-  ],
-  summary: [
-    { label: "Durum", value: "Sıfır km" },
-    { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
-  ],
-  seoText: "Sıfır kilometre araç ilanlarında marka, model, şehir ve fiyat seçeneklerini hızlıca karşılaştırabilirsiniz. Jolcar, yeni araç arama deneyimini sade ve filtrelenebilir tutar."
+const categoryFilters: Record<CategorySeoKind, MarketplaceSeoConfig["filters"]> = {
+  used: { condition: "used" },
+  new: { condition: "new" },
+  electric: { fuelType: "electric" },
+  automatic: { transmission: "automatic" },
+  suv: { bodyType: "suv" }
 };
 
-export const electricCarsSeoConfig: MarketplaceSeoConfig = {
-  path: "/elektrikli-araclar",
-  h1: "Elektrikli araç ilanları",
-  description: "Elektrikli araç ilanlarını menzil, fiyat, şehir ve marka seçeneklerine göre keşfedin.",
-  ctaLabel: "Elektrikli araçları gör",
-  filters: { fuelType: "electric" },
-  breadcrumbs: [
-    { label: "Ana sayfa", href: "/" },
-    { label: "Elektrikli araç ilanları" }
-  ],
-  summary: [
-    { label: "Yakıt", value: "Elektrikli" },
-    { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
-  ],
-  seoText: "Elektrikli araç ilanları, şehir içi kullanım ve düşük kullanım maliyeti arayan kullanıcılar için ayrı bir keşif alanı sunar. İlan detaylarında fiyat, yıl, kilometre ve teknik bilgileri karşılaştırabilirsiniz."
-};
+export function getCategorySeoConfig(kind: CategorySeoKind, locale?: string | null): MarketplaceSeoConfig {
+  const copy = getCategorySeoCopy(locale)[kind];
+  const path = categoryPaths[kind];
 
-export const automaticCarsSeoConfig: MarketplaceSeoConfig = {
-  path: "/otomatik-vites-araclar",
-  h1: "Otomatik vites araba ilanları",
-  description: "Otomatik vites araç ilanlarını fiyat, şehir, marka ve model seçenekleriyle karşılaştırın.",
-  ctaLabel: "Otomatik vites araçları gör",
-  filters: { transmission: "automatic" },
-  breadcrumbs: [
-    { label: "Ana sayfa", href: "/" },
-    { label: "Otomatik vites araba ilanları" }
-  ],
-  summary: [
-    { label: "Vites", value: "Otomatik" },
-    { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
-  ],
-  seoText: "Otomatik vites araç ilanları, konforlu sürüş ve şehir içi kullanım kolaylığı arayanlar için filtrelenmiş bir başlangıç noktasıdır. Daha fazla seçenek için arama sayfasındaki filtreleri kullanabilirsiniz."
-};
-
-export const suvCarsSeoConfig: MarketplaceSeoConfig = {
-  path: "/suv-araclar",
-  h1: "SUV araç ilanları",
-  description: "SUV araç ilanlarını şehir, fiyat, marka, model ve teknik özelliklere göre inceleyin.",
-  ctaLabel: "SUV araçları gör",
-  filters: { bodyType: "suv" },
-  breadcrumbs: [
-    { label: "Ana sayfa", href: "/" },
-    { label: "SUV araç ilanları" }
-  ],
-  summary: [
-    { label: "Kasa tipi", value: "SUV" },
-    { label: "Kapsam", value: ACTIVE_MARKET_SCOPE_LABEL }
-  ],
-  seoText: "SUV araç ilanları, geniş iç hacim ve yüksek sürüş pozisyonu arayan kullanıcılar için pratik bir keşif sayfasıdır. Marka, model, şehir ve fiyat filtreleriyle sonuçları daraltabilirsiniz."
-};
+  return {
+    path,
+    h1: copy.h1,
+    description: copy.description,
+    ctaLabel: copy.ctaLabel,
+    filters: categoryFilters[kind],
+    breadcrumbs: [{ label: "Jolmod", href: "/" }, { label: copy.h1 }],
+    summary: [{ label: copy.summaryLabel, value: copy.summaryValue }],
+    seoText: copy.seoText
+  };
+}
