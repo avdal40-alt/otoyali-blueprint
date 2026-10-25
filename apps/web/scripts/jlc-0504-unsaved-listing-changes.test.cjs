@@ -6,7 +6,7 @@ const ts = require("typescript");
 const root = path.resolve(__dirname, "..");
 const source = fs.readFileSync(path.join(root, "src", "app", "sell", "unsaved-listing-changes.ts"), "utf8");
 const wizard = fs.readFileSync(path.join(root, "src", "app", "sell", "_components", "SellWizard.tsx"), "utf8");
-const copy = fs.readFileSync(path.join(root, "src", "app", "sell", "sell-copy.ts"), "utf8");
+const copy = fs.readFileSync(path.join(root, "src", "i18n", "dictionaries", "sell-wizard.ts"), "utf8");
 const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
 const testModule = { exports: {} };
 new Function("exports", "module", output)(testModule.exports, testModule);
