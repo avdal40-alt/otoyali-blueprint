@@ -29,15 +29,17 @@ try {
   const model = sql("SELECT m.make_id || '|' || m.id FROM vehicle.models m JOIN vehicle.makes mk ON mk.id=m.make_id WHERE mk.is_active AND m.is_active ORDER BY m.id LIMIT 1");
   const [makeId, modelId] = model.split("|");
   assert.ok(makeId && modelId, "local vehicle fixture is required");
+  const kzCityId = sql("SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1");
+  assert.match(kzCityId, /^[0-9a-f-]{36}$/i, "Kazakhstan city fixture is required");
 
   sql(`INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, is_sso_user, is_anonymous, created_at, updated_at) VALUES
     ('${userA}', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'launch03d3c3-a-${run}@local.test', '', now(), '{"provider":"email","providers":["email"]}', '{}', false, false, now(), now()),
     ('${userB}', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'launch03d3c3-b-${run}@local.test', '', now(), '{"provider":"email","providers":["email"]}', '{}', false, false, now(), now());
-    UPDATE public.profiles SET full_name='LOCAL RLS USER A', display_name='LOCAL RLS USER A', seller_type='private', city='Ankara' WHERE id='${userA}';
-    UPDATE public.profiles SET full_name='LOCAL RLS USER B', display_name='LOCAL RLS USER B', seller_type='private', city='Ankara' WHERE id='${userB}';
+    UPDATE public.profiles SET full_name='LOCAL RLS USER A', display_name='LOCAL RLS USER A', seller_type='private', city='Almaty' WHERE id='${userA}';
+    UPDATE public.profiles SET full_name='LOCAL RLS USER B', display_name='LOCAL RLS USER B', seller_type='private', city='Almaty' WHERE id='${userB}';
     INSERT INTO identity.seller_phone_verifications (user_id, phone_e164) VALUES ('${userA}', '+905550000001');`);
 
-  listingId = value(asUser(userA, `SELECT listing_id FROM public.create_own_private_listing_draft('${makeId}'::uuid, '${modelId}'::uuid, NULL::uuid, 2021::smallint, 1000::integer, 'used'::text, 'gasoline'::vehicle.fuel_type, 'automatic'::vehicle.transmission_type, 'sedan'::text, 'front'::text, 'LOCAL TEST'::text, 1.6::numeric, 'unknown'::text, 1::smallint, 'LOCAL_RLS_RUNTIME_${run}'::text, '1000000'::text, 'TRY'::text, false, 'Ankara'::text, NULL::uuid, NULL::uuid)`));
+  listingId = value(asUser(userA, `SELECT listing_id FROM public.create_own_private_listing_draft('${makeId}'::uuid, '${modelId}'::uuid, NULL::uuid, 2021::smallint, 1000::integer, 'used'::text, 'gasoline'::vehicle.fuel_type, 'automatic'::vehicle.transmission_type, 'sedan'::text, 'front'::text, 'LOCAL TEST'::text, 1.6::numeric, 'unknown'::text, 1::smallint, 'LOCAL_RLS_RUNTIME_${run}'::text, '1000000'::text, 'KZT'::text, false, 'Almaty'::text, '${kzCityId}'::uuid, NULL::uuid)`));
   assert.match(listingId, /^[0-9a-f-]{36}$/i, "owner draft creation must return an id");
 
   let state = sql(`SELECT seller_id || '|' || status || '|' || moderation_status || '|' || coalesce(published_at::text,'') FROM marketplace.listings WHERE id='${listingId}'`).split("|");
@@ -48,14 +50,14 @@ try {
   assert.equal(ownRead, `${listingId}|draft|draft`);
 
   const tokens = sql(`SELECT l.updated_at || '|' || v.updated_at FROM marketplace.listings l JOIN vehicle.vehicle_profiles v ON v.id=l.vehicle_profile_id WHERE l.id='${listingId}'`).split("|");
-  const saved = value(asUser(userA, `SELECT saved_listing_id || '|' || saved_status || '|' || saved_moderation_status FROM public.save_own_listing_edit('${listingId}'::uuid, '${tokens[0]}'::timestamptz, '${tokens[1]}'::timestamptz, '${makeId}'::uuid, '${modelId}'::uuid, 2021::smallint, 1001::integer, 'used'::text, 'gasoline'::vehicle.fuel_type, 'automatic'::vehicle.transmission_type, 'sedan'::text, 'front'::text, 'LOCAL TEST'::text, 1.6::numeric, 'unknown'::text, 1::smallint, 'LOCAL_RLS_RUNTIME_UPDATED_${run}'::text, '1000000'::text, 'TRY'::text, false, 'Ankara'::text)`));
+  const saved = value(asUser(userA, `SELECT saved_listing_id || '|' || saved_status || '|' || saved_moderation_status FROM public.save_own_listing_edit('${listingId}'::uuid, '${tokens[0]}'::timestamptz, '${tokens[1]}'::timestamptz, '${makeId}'::uuid, '${modelId}'::uuid, 2021::smallint, 1001::integer, 'used'::text, 'gasoline'::vehicle.fuel_type, 'automatic'::vehicle.transmission_type, 'sedan'::text, 'front'::text, 'LOCAL TEST'::text, 1.6::numeric, 'unknown'::text, 1::smallint, 'LOCAL_RLS_RUNTIME_UPDATED_${run}'::text, '1000000'::text, 'KZT'::text, false, 'Almaty'::text)`));
   assert.equal(saved, `${listingId}|draft|draft`);
   assert.equal(sql(`SELECT count(*) FROM marketplace.listings WHERE seller_id='${userA}' AND description LIKE 'LOCAL_RLS_RUNTIME_%'`), "1");
 
   // A second editor using the pre-save tokens must not overwrite the owner's
   // first save. The RPC's optimistic-lock failure rolls back its temporary
   // draft-to-pending bridge, preserving the private draft state.
-  assert.equal(asUser(userA, `SELECT * FROM public.save_own_listing_edit('${listingId}'::uuid, '${tokens[0]}'::timestamptz, '${tokens[1]}'::timestamptz, '${makeId}'::uuid, '${modelId}'::uuid, 2021::smallint, 1002::integer, 'used'::text, 'gasoline'::vehicle.fuel_type, 'automatic'::vehicle.transmission_type, 'sedan'::text, 'front'::text, 'LOCAL TEST'::text, 1.6::numeric, 'unknown'::text, 1::smallint, 'LOCAL_RLS_RUNTIME_STALE_${run}'::text, '1000000'::text, 'TRY'::text, false, 'Ankara'::text)`, true), null);
+  assert.equal(asUser(userA, `SELECT * FROM public.save_own_listing_edit('${listingId}'::uuid, '${tokens[0]}'::timestamptz, '${tokens[1]}'::timestamptz, '${makeId}'::uuid, '${modelId}'::uuid, 2021::smallint, 1002::integer, 'used'::text, 'gasoline'::vehicle.fuel_type, 'automatic'::vehicle.transmission_type, 'sedan'::text, 'front'::text, 'LOCAL TEST'::text, 1.6::numeric, 'unknown'::text, 1::smallint, 'LOCAL_RLS_RUNTIME_STALE_${run}'::text, '1000000'::text, 'KZT'::text, false, 'Almaty'::text)`, true), null);
   assert.equal(sql(`SELECT description || '|' || status || '|' || moderation_status FROM marketplace.listings WHERE id='${listingId}'`), `LOCAL_RLS_RUNTIME_UPDATED_${run}|draft|draft`);
 
   const anonDirect = value(sql(`BEGIN; SET LOCAL ROLE anon; SELECT count(*) FROM marketplace.listings WHERE id='${listingId}'; COMMIT;`));
@@ -63,7 +65,7 @@ try {
   assert.equal(anonDirect, "0"); assert.equal(anonBrowse, "0");
   assert.equal(value(asUser(userB, `SELECT count(*) FROM marketplace.listings WHERE id='${listingId}'`)), "0");
   assert.equal(asUser(userB, `SELECT public.get_own_listing_for_edit('${listingId}'::uuid)`, true), null);
-  assert.equal(asUser(userB, `SELECT * FROM public.save_own_listing_edit('${listingId}'::uuid, now(), now(), '${makeId}'::uuid, '${modelId}'::uuid, 2021::smallint, 2::integer, 'used'::text, 'gasoline'::vehicle.fuel_type, 'automatic'::vehicle.transmission_type, 'sedan'::text, 'front'::text, 'X'::text, 1.6::numeric, 'unknown'::text, 1::smallint, 'X'::text, '1'::text, 'TRY'::text, false, 'Ankara'::text)`, true), null);
+  assert.equal(asUser(userB, `SELECT * FROM public.save_own_listing_edit('${listingId}'::uuid, now(), now(), '${makeId}'::uuid, '${modelId}'::uuid, 2021::smallint, 2::integer, 'used'::text, 'gasoline'::vehicle.fuel_type, 'automatic'::vehicle.transmission_type, 'sedan'::text, 'front'::text, 'X'::text, 1.6::numeric, 'unknown'::text, 1::smallint, 'X'::text, '1'::text, 'KZT'::text, false, 'Almaty'::text)`, true), null);
   assert.equal(asUser(userB, `SELECT * FROM public.submit_own_listing_for_review('${listingId}'::uuid)`, true), null);
   assert.equal(sql(`SELECT status || '|' || moderation_status || '|' || seller_id FROM marketplace.listings WHERE id='${listingId}'`), `draft|draft|${userA}`);
 
