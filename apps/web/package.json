@@ -281,22 +281,22 @@
     "libphonenumber-js": "^1.13.9",
     "next": "15.5.28",
     "next-intl": "^4.14.2",
-    "openai": "^4.104.0",
+    "openai": "^6.49.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "read-excel-file": "9.3.10",
     "sharp": "0.35.5",
     "unzipper-esm": "0.13.3",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "pg": "8.13.1",
     "@types/node": "^20.16.10",
     "@types/react": "^18.3.9",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
     "eslint": "8.57.1",
     "eslint-config-next": "15.5.28",
+    "pg": "8.13.1",
     "postcss": "8.5.26",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.2"

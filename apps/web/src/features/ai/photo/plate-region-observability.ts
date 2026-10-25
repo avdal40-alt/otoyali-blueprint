@@ -47,13 +47,17 @@ export function getNormalizedImageMetadata(image: unknown, correlationId?: strin
 }
 
 function safeIssuePath(issue: ZodIssue) {
-  return issue.path.slice(0, 10).map((segment) => typeof segment === "number" ? segment : segment.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 64));
+  return issue.path.slice(0, 10).map((segment) => {
+    if (typeof segment === "number") return segment;
+    if (typeof segment === "string") return segment.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 64);
+    return "symbol";
+  });
 }
 
 function issueCategory(issue: ZodIssue) {
   switch (issue.code) {
     case "invalid_type": return "type";
-    case "invalid_enum_value": return "enum";
+    case "invalid_value": return "enum";
     case "unrecognized_keys": return "object_shape";
     case "too_small":
     case "too_big": return "range";
