@@ -61,7 +61,7 @@ export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoCon
         <section className="rounded-oto border border-oto-border bg-gradient-to-br from-white via-white to-blue-50 px-5 py-7 shadow-soft md:px-7">
           <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
-              <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolcar Marketplace</p>
+              <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolmod Marketplace</p>
               <h1 className="mt-2 text-3xl font-black tracking-tight text-oto-text md:text-4xl">{config.h1}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-oto-muted md:text-base">{config.description}</p>
             </div>
@@ -266,16 +266,16 @@ function prioritizedMakes(makes: Make[]) {
     const aIndex = priority.indexOf(a.make_name ?? "");
     const bIndex = priority.indexOf(b.make_name ?? "");
     if (aIndex !== -1 || bIndex !== -1) return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-    return (a.make_name ?? "").localeCompare(b.make_name ?? "", "tr");
+    return (a.make_name ?? "").localeCompare(b.make_name ?? "", "ru");
   });
 }
 
 function prioritizedCities(cities: City[]) {
-  const priority = ["İstanbul", "Ankara", "İzmir", "Antalya", "Bursa", "Adana", "Konya", "Gaziantep"];
+  const priority = ["Алматы", "Астана", "Шымкент", "Қарағанды", "Актобе", "Тараз", "Павлодар", "Өскемен"];
   return [...cities].sort((a, b) => {
     const aIndex = priority.indexOf(a.city_name ?? "");
     const bIndex = priority.indexOf(b.city_name ?? "");
     if (aIndex !== -1 || bIndex !== -1) return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-    return (a.city_name ?? "").localeCompare(b.city_name ?? "", "tr");
+    return (a.city_name ?? "").localeCompare(b.city_name ?? "", "ru");
   });
 }
