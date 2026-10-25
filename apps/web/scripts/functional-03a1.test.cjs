@@ -26,7 +26,7 @@ const sql = `BEGIN;
   INSERT INTO vehicle.models(id,make_id,name,slug) VALUES('${ids.model}','${ids.make}','Chat Model','chat-${ids.model}');
   INSERT INTO vehicle.vehicle_profiles(id,make_id,model_id,year,mileage_km,fuel_type,transmission,created_source,profile_status,created_by) VALUES('${ids.vehicle}','${ids.make}','${ids.model}',2024,1,'gasoline','automatic','manual','active','${ids.seller}');
   INSERT INTO vehicle.profile_ownership(vehicle_profile_id,owner_id,ownership_type,is_current) VALUES('${ids.vehicle}','${ids.seller}','owner',true);
-  INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,seller_type) VALUES('${ids.listing}','${ids.vehicle}','${ids.seller}','active','active','Chat listing',1,'TRY',false,'Istanbul','private');
+  INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,city_id,seller_type) VALUES('${ids.listing}','${ids.vehicle}','${ids.seller}','active','active','Chat listing',1,'KZT',false,'Almaty',(SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1),'private');
   ${role("anon")}
   DO $$ BEGIN BEGIN PERFORM * FROM ${call}; INSERT INTO results VALUES('anon denied',false); EXCEPTION WHEN insufficient_privilege THEN INSERT INTO results VALUES('anon denied',true); END; END $$;
   ${role("authenticated", ids.buyer)}
