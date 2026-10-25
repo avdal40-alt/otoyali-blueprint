@@ -310,6 +310,10 @@ must be migrated by domain slice:
   RU/KK/EN/zh-CN copy with Russian fallback. The vehicle video badge reuses the
   existing direct navigation label. Compatibility-only payload sections remain
   deliberately unchanged until their consumers are traced and migrated.
+- active vertical detail pages now use the Jolmod brand in their related-content
+  section. The subsequent trace identified hard-coded Turkey-first legal, SEO,
+  about, and maintenance route content as separate migration work; it is not
+  hidden by the direct dictionary adapters.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale
