@@ -2,6 +2,7 @@
 
 import { FormEvent, type ReactNode, useCallback, useMemo, useRef, useState, useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import type { City, HomeListing, Make, Model, Profile } from "@/lib/supabase/types";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
@@ -21,10 +22,18 @@ import { getPreferredCityNames } from "@/lib/location";
 import { generateVehicleListingTitle } from "@/lib/marketplace/listing-title";
 import { normalizeEditEngineVolume } from "@/lib/listings/edit-payload";
 import { isCurrentEditTarget, LatestRequestGuard } from "../sell-route-state";
-import { getSellCatalogDisplayName, getSellCopy, getSellModelRequestContextKey, getVariantUploadStatus, isSellCatalogOther, type SellCopy } from "../sell-copy";
-import { ListingDescriptionAssistant } from "./ListingDescriptionAssistant";
-import { SellAssistant, type AssistedListingDraft } from "./SellAssistant";
+import type { SellCopy } from "../sell-copy";
+import type { AssistedListingDraft } from "./SellAssistant";
 import { createListingDraftChangeSnapshot, hasMeaningfulListingChanges, type ListingDraftChangeState } from "../unsaved-listing-changes";
+
+const ListingDescriptionAssistant = dynamic(
+  () => import("./ListingDescriptionAssistant").then((module) => module.ListingDescriptionAssistant),
+  { ssr: false }
+);
+const SellAssistant = dynamic(
+  () => import("./SellAssistant").then((module) => module.SellAssistant),
+  { ssr: false }
+);
 
 type PhotoItem = {
   id: string;
@@ -52,6 +61,36 @@ type ExistingMedia = {
 };
 
 type ActiveCreateDraft = { listingId: string; vehicleProfileId: string };
+
+export type SerializableSellCopy = Omit<SellCopy, "photosUploading" | "photoProtected" | "photoCount"> & {
+  photosUploadingTemplate: string;
+  photoProtectedOne: string;
+  photoProtectedMany: string;
+  photoCountTemplate: string;
+};
+
+function hydrateSellCopy(copy: SerializableSellCopy): SellCopy {
+  const { photosUploadingTemplate, photoProtectedOne, photoProtectedMany, photoCountTemplate, ...staticCopy } = copy;
+  return {
+    ...staticCopy,
+    photosUploading: (current, total) => photosUploadingTemplate.replace("{current}", String(current)).replace("{total}", String(total)),
+    photoProtected: (count) => count > 1 ? photoProtectedMany : photoProtectedOne,
+    photoCount: (count, max) => photoCountTemplate.replace("{count}", String(count)).replace("{max}", String(max))
+  };
+}
+
+function isSellCatalogOther(item: Make | Model): boolean {
+  return ("make_slug" in item && item.make_slug === "diger") || ("model_slug" in item && item.model_slug === "diger");
+}
+
+function getSellCatalogDisplayName(kind: "make" | "model", item: Make | Model, copy: SellCopy): string {
+  if (isSellCatalogOther(item)) return copy.catalogOther;
+  return kind === "make" ? (item as Make).make_name ?? "" : (item as Model).model_name ?? "";
+}
+
+function getVariantUploadStatus(copy: SellCopy, name: PreparedImageVariantName): string {
+  return `${copy.variantLabels[name]} ${copy.uploading}`;
+}
 
 export type SellWizardMode = "create" | "editRejected";
 
@@ -135,24 +174,28 @@ const driveTypeOptions = ["front", "rear", "4x4", "awd"];
 const damageOptions = ["unknown", "none", "painted", "replaced", "heavy_damage"];
 const colorOptions = ["", "white", "black", "gray", "blue", "red", "silver"];
 
-export function SellWizard({
-  mode,
-  editListingId,
-  locale,
-  makes,
-  models,
-  cities,
-  listings
-}: {
+export type SellWizardProps = {
   mode: SellWizardMode;
   editListingId: string | null;
   locale: Locale;
+  copy: SerializableSellCopy;
   makes: Make[];
   models: Model[];
   cities?: City[];
   listings: HomeListing[];
-}) {
-  const copy = getSellCopy(locale);
+};
+
+export function SellWizard({
+  mode,
+  editListingId,
+  locale,
+  copy: serializedCopy,
+  makes,
+  models,
+  cities,
+  listings
+}: SellWizardProps) {
+  const copy = hydrateSellCopy(serializedCopy);
   const steps = copy.steps;
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
@@ -203,7 +246,7 @@ export function SellWizard({
     submissionRequestGuard.current.setTarget(routeKey);
     profileRequestGuard.current.setTarget(routeKey);
   }
-  const modelRequestContextKey = getSellModelRequestContextKey(routeKey, locale);
+  const modelRequestContextKey = `route:${routeKey}:locale:${locale}`;
   if (renderedModelRequestContextKey.current !== modelRequestContextKey) {
     renderedModelRequestContextKey.current = modelRequestContextKey;
     modelRequestGuard.current.setTarget(modelRequestContextKey);
@@ -1166,13 +1209,13 @@ export function SellWizard({
             <Field label={copy.make}>
               <Select value={state.makeId} onChange={(event) => updateMake(event.target.value)}>
                 <option value="">{copy.selectMake}</option>
-                {makes.map((make) => <option key={make.make_id} value={make.make_id}>{getSellCatalogDisplayName({ kind: "make", item: make, locale })}</option>)}
+                {makes.map((make) => <option key={make.make_id} value={make.make_id}>{getSellCatalogDisplayName("make", make, copy)}</option>)}
               </Select>
             </Field>
             <Field label={copy.model}>
               <Select value={state.modelId} onChange={(event) => update("modelId", event.target.value)} disabled={!state.makeId}>
                 <option value="">{modelsLoading ? copy.modelsLoading : copy.selectModel}</option>
-                {filteredModels.map((model) => <option key={model.model_id} value={model.model_id}>{getSellCatalogDisplayName({ kind: "model", item: model, locale })}</option>)}
+                {filteredModels.map((model) => <option key={model.model_id} value={model.model_id}>{getSellCatalogDisplayName("model", model, copy)}</option>)}
               </Select>
               {modelsError ? <span className="text-xs font-bold text-oto-danger">{modelsError}</span> : null}
             </Field>

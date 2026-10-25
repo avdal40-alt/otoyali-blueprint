@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { SellerContactVerificationFlow } from "@/components/seller/SellerContactVerificationFlow";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/Button";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { localizePath } from "@/i18n/config";
@@ -13,6 +13,11 @@ import {
 } from "@/lib/auth/platform-staff";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getSellEntryCopy, type SellEntryCopy } from "./sell-entry-copy";
+
+const SellerContactVerificationFlow = dynamic(
+  () => import("@/components/seller/SellerContactVerificationFlow").then((module) => module.SellerContactVerificationFlow),
+  { ssr: false }
+);
 
 type GateState = "checking" | "phone" | "error" | "eligible";
 type ApiFailure = "eligibility_unavailable";

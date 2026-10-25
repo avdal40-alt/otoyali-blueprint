@@ -1,7 +1,6 @@
-import { DEFAULT_LOCALE, isKnownLocale, isSupportedLocale, normalizeLocale } from "@/i18n/config";
-import { getKazakhstanFormatEnumLabel } from "@/i18n/dictionaries/format-enum-labels";
+import { DEFAULT_LOCALE, isKnownLocale, normalizeLocale } from "@/i18n/config";
+import { getFormatEnumLabel } from "@/i18n/dictionaries/format-enum-labels";
 import { getFormatFallbackMessages } from "@/i18n/dictionaries/format-fallbacks";
-import { t } from "@/i18n/get-dictionary";
 import type { Locale, LocaleId } from "@/i18n/types";
 import { CURRENT_MARKET } from "@/lib/market";
 import type { CurrencyPlacement, MarketProfile } from "@/lib/market";
@@ -145,9 +144,8 @@ function enumLabel(group: keyof typeof enumLabelValues, value?: string | null, l
   if (!value) return getFormatFallbackMessages(normalizedLocale).noInfo;
   const normalizedValue = value.toLocaleLowerCase("en-US");
   if (enumLabelValues[group].includes(normalizedValue as never)) {
-    const directLabel = getKazakhstanFormatEnumLabel(normalizedLocale, group, normalizedValue);
+    const directLabel = getFormatEnumLabel(normalizedLocale, group, normalizedValue);
     if (directLabel) return directLabel;
-    return t(isSupportedLocale(normalizedLocale) ? normalizedLocale : DEFAULT_LOCALE, `format.enumLabels.${group}.${normalizedValue}`);
   }
 
   return titleCase(value.replace(/_/g, " "));

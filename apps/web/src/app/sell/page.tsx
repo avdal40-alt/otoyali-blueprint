@@ -14,11 +14,27 @@ import { localizePath } from "@/i18n/config";
 import { t } from "@/i18n/get-dictionary";
 import { canPublishVertical, getPublishVerticalFromSearchParam } from "@/lib/marketplace/publish";
 import { getMarketplaceVertical } from "@/lib/marketplace/verticals";
-import { SellWizard } from "./_components/SellWizard";
+import type { SerializableSellCopy } from "./_components/SellWizard";
+import { SellWizardLoader } from "./_components/SellWizardLoader";
 import { SellerEntryGate } from "./_components/SellerEntryGate";
 import { getSellEditTarget } from "./sell-route-state";
 import { getSellCopy } from "./sell-copy";
 import { getSellEntryCopy } from "./_components/sell-entry-copy";
+
+function serializeSellCopy(copy: ReturnType<typeof getSellCopy>): SerializableSellCopy {
+  const { photosUploading, photoProtected, photoCount, ...staticCopy } = copy;
+  const currentMarker = 10101;
+  const totalMarker = 20202;
+  const countMarker = 30303;
+  const maxMarker = 40404;
+  return {
+    ...staticCopy,
+    photosUploadingTemplate: photosUploading(currentMarker, totalMarker).replace(String(currentMarker), "{current}").replace(String(totalMarker), "{total}"),
+    photoProtectedOne: photoProtected(1),
+    photoProtectedMany: photoProtected(2),
+    photoCountTemplate: photoCount(countMarker, maxMarker).replace(String(countMarker), "{count}").replace(String(maxMarker), "{max}")
+  };
+}
 
 export default async function SellPage({
   searchParams
@@ -28,6 +44,7 @@ export default async function SellPage({
   const locale = await getRequestLocale();
   const resolvedSearchParams = await searchParams;
   const sellCopy = getSellCopy(locale);
+  const serializedSellCopy = serializeSellCopy(sellCopy);
   const entryCopy = getSellEntryCopy(locale);
   const verticalId = getPublishVerticalFromSearchParam(resolvedSearchParams?.vertical);
   const vertical = getMarketplaceVertical(verticalId);
@@ -92,10 +109,10 @@ export default async function SellPage({
           {" "}{sellCopy.agreementSuffix}
         </div>
         {editTarget.kind === "edit" ? (
-          <SellWizard mode="editRejected" editListingId={editTarget.listingId} locale={locale} makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />
+          <SellWizardLoader mode="editRejected" editListingId={editTarget.listingId} locale={locale} copy={serializedSellCopy} makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />
         ) : (
           <SellerEntryGate>
-            <SellWizard mode="create" editListingId={null} locale={locale} makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />
+            <SellWizardLoader mode="create" editListingId={null} locale={locale} copy={serializedSellCopy} makes={makesResult.data} models={[]} cities={citiesResult.data} listings={listingsResult.data} />
           </SellerEntryGate>
         )}
       </PageContainer>

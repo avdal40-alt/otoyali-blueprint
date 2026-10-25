@@ -1,8 +1,28 @@
 import type { LocaleId } from "@/i18n/types";
 
-type KazakhstanFormatLocale = Extract<LocaleId, "ru" | "kk" | "zh-CN">;
+type FormatEnumLocale = Extract<LocaleId, "tr" | "en" | "ru" | "kk" | "zh-CN">;
 
 const labels = {
+  tr: {
+    fuel: { gasoline: "Benzin", diesel: "Dizel", lpg: "LPG", electric: "Elektrikli", hybrid: "Hibrit", other: "Diğer" },
+    transmission: { manual: "Manuel", automatic: "Otomatik", semi_automatic: "Yarı otomatik" },
+    condition: { used: "İkinci el", new: "Sıfır km" },
+    sellerType: { private: "Bireysel", individual: "Bireysel", dealer: "Galeri", corporate: "Galeri" },
+    bodyType: { sedan: "Sedan", hatchback: "Hatchback", suv: "SUV", wagon: "Station wagon", coupe: "Coupe", pickup: "Pickup", minivan: "Minivan", commercial: "Ticari", other: "Diğer" },
+    driveType: { front: "Önden çekiş", rear: "Arkadan itiş", awd: "AWD", "4x4": "4x4" },
+    damageState: { unknown: "Bilinmiyor", none: "Hasarsız", minor: "Hafif hasarlı", major: "Ağır hasarlı", painted: "Boyalı", replaced: "Değişenli", heavy_damage: "Ağır hasar kayıtlı" },
+    color: { white: "Beyaz", black: "Siyah", gray: "Gri", blue: "Mavi", red: "Kırmızı", silver: "Gümüş" }
+  },
+  en: {
+    fuel: { gasoline: "Petrol", diesel: "Diesel", lpg: "LPG", electric: "Electric", hybrid: "Hybrid", other: "Other" },
+    transmission: { manual: "Manual", automatic: "Automatic", semi_automatic: "Semi-automatic" },
+    condition: { used: "Used", new: "New" },
+    sellerType: { private: "Individual seller", individual: "Individual seller", dealer: "Dealer", corporate: "Dealer" },
+    bodyType: { sedan: "Sedan", hatchback: "Hatchback", suv: "SUV", wagon: "Station wagon", coupe: "Coupe", pickup: "Pickup", minivan: "Minivan", commercial: "Commercial", other: "Other" },
+    driveType: { front: "Front-wheel drive", rear: "Rear-wheel drive", awd: "AWD", "4x4": "4x4" },
+    damageState: { unknown: "Unknown", none: "No damage", minor: "Minor damage", major: "Major damage", painted: "Painted", replaced: "Replaced parts", heavy_damage: "Heavy damage record" },
+    color: { white: "White", black: "Black", gray: "Gray", blue: "Blue", red: "Red", silver: "Silver" }
+  },
   ru: {
     fuel: { gasoline: "Бензин", diesel: "Дизель", lpg: "Газ", electric: "Электро", hybrid: "Гибрид", other: "Другое" },
     transmission: { manual: "Механика", automatic: "Автомат", semi_automatic: "Робот" },
@@ -33,10 +53,12 @@ const labels = {
     damageState: { unknown: "未知", none: "无事故", minor: "轻微损伤", major: "严重损伤", painted: "补漆", replaced: "更换过部件", heavy_damage: "重大事故损伤" },
     color: { white: "白色", black: "黑色", gray: "灰色", blue: "蓝色", red: "红色", silver: "银色" }
   }
-} as const satisfies Record<KazakhstanFormatLocale, Record<string, Record<string, string>>>;
+} as const satisfies Record<FormatEnumLocale, Record<string, Record<string, string>>>;
 
-export function getKazakhstanFormatEnumLabel(locale: LocaleId, group: string, value: string) {
-  const localeLabels = labels[locale as KazakhstanFormatLocale];
+export function getFormatEnumLabel(locale: LocaleId, group: string, value: string) {
+  const localeLabels = labels[locale as FormatEnumLocale];
   const groupLabels = localeLabels?.[group as keyof typeof labels.ru] as Record<string, string> | undefined;
   return groupLabels?.[value];
 }
+
+export const getKazakhstanFormatEnumLabel = getFormatEnumLabel;
