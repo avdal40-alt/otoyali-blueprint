@@ -1443,7 +1443,7 @@ function ProfileFields({
   profile: SellerProfileState;
   cities: string[];
   onChange: <K extends keyof SellerProfileState>(key: K, value: SellerProfileState[K]) => void;
-  locale: "tr" | "en";
+  locale: Locale;
   copy: SellCopy;
 }) {
   const isDealer = profile.sellerType === "dealer";
@@ -1525,7 +1525,7 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function SuccessState({ onCreateNew, copy, locale }: { onCreateNew: () => void; copy: SellCopy; locale: "tr" | "en" }) {
+function SuccessState({ onCreateNew, copy, locale }: { onCreateNew: () => void; copy: SellCopy; locale: Locale }) {
   return (
     <Panel title={copy.successTitle}>
       <p className="text-sm leading-6 text-oto-muted">

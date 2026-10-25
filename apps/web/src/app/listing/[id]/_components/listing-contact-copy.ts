@@ -1,4 +1,3 @@
-import { normalizeLocale } from "@/i18n/config";
 
 type ListingContactCopy = {
   loading: string;
@@ -33,5 +32,5 @@ export function getListingContactCopy(locale?: string | null): ListingContactCop
   if (normalized?.startsWith("kk")) return kk;
   if (normalized === "zh-cn" || normalized === "zh") return zhCN;
   if (normalized?.startsWith("en")) return en;
-  return normalizeLocale(locale) === "en" ? en : tr;
+  return { ...ru };
 }

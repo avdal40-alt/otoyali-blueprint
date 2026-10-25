@@ -1,4 +1,3 @@
-import { normalizeLocale } from "@/i18n/config";
 
 export type ListingDetailCopy = {
   noInfo: string;
@@ -62,5 +61,5 @@ export function getListingDetailCopy(locale?: string | null): ListingDetailCopy 
   if (normalized?.startsWith("kk")) return kk;
   if (normalized === "zh-cn" || normalized === "zh") return zhCN;
   if (normalized?.startsWith("en")) return en;
-  return normalizeLocale(locale) === "en" ? en : tr;
+  return { ...ru };
 }

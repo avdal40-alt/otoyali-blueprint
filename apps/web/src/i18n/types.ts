@@ -4,9 +4,11 @@ import type { LOCALE_REGISTRY } from "./config";
 export type LocaleId = keyof typeof LOCALE_REGISTRY;
 
 /** Locales currently released in the application and backed by messages. */
-export type Locale = {
-  [Id in LocaleId]: (typeof LOCALE_REGISTRY)[Id]["released"] extends true ? Id : never;
-}[LocaleId];
+/**
+ * Locale values that can still occur in compatibility records. Public routing
+ * and negotiation are governed separately by SUPPORTED_LOCALES.
+ */
+export type Locale = Exclude<LocaleId, "ar">;
 export type LocaleDirection = "ltr" | "rtl";
 
 export type TranslationValue = string | DictionarySection;

@@ -348,3 +348,19 @@ The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale
 registry release is authorized until each affected surface has real Russian,
 Kazakh, English, and Simplified Chinese coverage with Russian fallback behavior.
+
+## 2026-10-26 residual verification
+
+- listing detail and buyer-contact compatibility fallbacks now resolve to direct
+  Russian copy for unsupported Jolmod locales; Turkish is not a fallback.
+- the vehicle-grid empty state uses the existing scoped Jolmod search contract;
+  public listing and video routes, media authorization, and KZ listing isolation
+  are unchanged.
+- public video keeps its direct RU/KK/EN/zh-CN contract and Russian fallback.
+  Focused deterministic listing/video, listing-detail, listing-contact, video,
+  and i18n-foundation checks passed, along with TypeScript, lint, and diff
+  integrity verification.
+- the KZ locale-routing foundation now recognizes direct `zh-CN`, keeps Russian
+  as the unprefixed default/fallback, and rewrites non-default launch locale
+  prefixes to locale-neutral Kazakhstan routes. Registry activation remains
+  subject to the final whole-app active-consumer gate.

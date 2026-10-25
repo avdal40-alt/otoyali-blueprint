@@ -12,7 +12,13 @@ function loadModule(source) {
   const loadedModule = { exports: {} };
   const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   new Function("exports", "module", "require", output)(loadedModule.exports, loadedModule, (request) => {
-    if (request === "@/i18n/config") return { normalizeLocale: (locale) => locale?.toLowerCase().startsWith("en") ? "en" : "tr" };
+    if (request === "@/i18n/config") return { normalizeLocale: (locale) => {
+      const normalized = locale?.toLowerCase();
+      if (normalized?.startsWith("en")) return "en";
+      if (normalized?.startsWith("kk")) return "kk";
+      if (normalized?.startsWith("zh")) return "zh-CN";
+      return "ru";
+    } };
     throw new Error(`Unexpected dependency: ${request}`);
   });
   return loadedModule.exports;
@@ -41,7 +47,8 @@ assert.equal(en.safeShopping, "Safe buying advice");
 assert.equal(zhCN.watchVideo, "观看视频");
 assert.equal(getListingDetailCopy("zh").description, zhCN.description);
 assert.equal(getListingDetailCopy("EN-us").seller, en.seller);
-assert.equal(getListingDetailCopy("de"), tr, "Unsupported locales retain historical fallback until registry activation");
+assert.deepEqual(getListingDetailCopy("de"), ru, "Unsupported Jolmod locales must fall back to Russian");
+assert.notEqual(getListingDetailCopy("de"), tr, "Turkish must never be the Jolmod listing-detail fallback");
 
 assert.match(pageSource, /const copy = getListingDetailCopy\(locale\)/);
 assert.match(pageSource, /\{copy\.reviewOwners\}/);

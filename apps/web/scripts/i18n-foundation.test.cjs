@@ -92,18 +92,17 @@ function runMiddleware(pathname, options) {
 }
 
 assert.deepEqual(Object.keys(config.LOCALE_REGISTRY), ["tr", "en", "ru", "kk", "ar", "zh-CN"]);
-assert.equal(config.DEFAULT_LOCALE, "tr");
+assert.equal(config.DEFAULT_LOCALE, "ru");
 assert.equal(config.getLocaleTag("tr"), "tr-TR");
 assert.equal(config.getLocaleDirection("ar"), "rtl");
 assert.equal(config.getLocaleTag("zh-CN"), "zh-CN");
 assert.equal(config.isKnownLocale("toString"), false);
-assert.deepEqual(config.SUPPORTED_LOCALES, ["tr", "en"]);
-assert.deepEqual(config.FUTURE_LOCALES, ["ru", "kk", "ar", "zh-CN"]);
-assert.deepEqual(Object.keys(config.LOCALE_CONFIG), ["tr", "en"], "Compatibility configuration must not expose future locales");
-assert.equal(config.normalizeLocale("ru"), "tr", "Unreleased locales must not be publicly negotiated yet");
-assert.equal(config.normalizeLocale("kk"), "tr", "Unreleased locales must not be publicly negotiated yet");
-assert.equal(config.normalizeLocale("ar"), "tr", "Unreleased locales must not be publicly negotiated yet");
-assert.equal(config.normalizeLocale("zh-CN"), "tr", "Unreleased locales must not be publicly negotiated yet");
+assert.deepEqual(config.SUPPORTED_LOCALES, ["en", "ru", "kk", "zh-CN"]);
+assert.deepEqual(config.FUTURE_LOCALES, ["tr", "ar"]);
+assert.deepEqual(Object.keys(config.LOCALE_CONFIG), ["en", "ru", "kk", "zh-CN"]);
+assert.equal(config.normalizeLocale("tr"), "ru", "Turkish must not be publicly negotiated for Jolmod");
+assert.equal(config.normalizeLocale("ar"), "ru", "Unreleased locales must use the Russian fallback");
+assert.equal(config.normalizeLocale("zh-CN"), "zh-CN");
 
 assert.equal(market.CURRENT_MARKET.id, "kazakhstan");
 assert.equal(market.CURRENT_MARKET.currencyCode, "KZT");
@@ -117,10 +116,10 @@ assert.equal(config.getLocaleDirection("tr"), "ltr");
 assert.equal(config.getLocaleTag("en"), "en");
 assert.equal(config.getLocaleDirection("en"), "ltr");
 
-assert.equal(config.localizePath("/ikinci-el-araba", "en"), "/en/used-cars");
-assert.equal(config.localizePath("/en/used-cars", "tr"), "/ikinci-el-araba");
-assert.equal(config.localizePath("/servisler/basvuru", "en"), "/en/services/apply");
-assert.equal(config.localizePath("/en/services/apply", "tr"), "/servisler/basvuru");
+assert.equal(config.localizePath("/listing/123", "en"), "/en/listing/123");
+assert.equal(config.localizePath("/en/listing/123", "ru"), "/listing/123");
+assert.equal(config.localizePath("/listing/123", "kk"), "/kk/listing/123");
+assert.equal(config.localizePath("/listing/123", "zh-CN"), "/zh-CN/listing/123");
 
 let result = runMiddleware("/api/ai/assistant", { acceptLanguage: "en" });
 assert.equal(result.response.kind, "next", "API requests must not be locale redirected");
@@ -138,23 +137,24 @@ result = runMiddleware("/auth/callback?code=test", { locale: "en" });
 assert.equal(result.response.kind, "next", "Locale cookies must not prefix auth callbacks");
 
 result = runMiddleware("/about");
-assert.equal(result.response.kind, "next", "Turkish public paths remain unprefixed");
-assert.equal(result.response.requestHeaders.get(config.LOCALE_HEADER_NAME), "tr");
+assert.equal(result.response.kind, "next", "Russian public paths remain unprefixed");
+assert.equal(result.response.requestHeaders.get(config.LOCALE_HEADER_NAME), "ru");
 result = runMiddleware("/en/about");
 assert.equal(result.response.kind, "rewrite");
 assert.equal(new URL(result.response.url).pathname, "/about");
-result = runMiddleware("/tr/about");
+result = runMiddleware("/ru/about");
 assert.equal(result.response.kind, "redirect");
 assert.equal(new URL(result.response.url).pathname, "/about");
-result = runMiddleware("/about", { locale: "tr" });
-assert.equal(result.response.kind, "next", "The Turkish canonical redirect must not loop");
+result = runMiddleware("/about", { locale: "ru" });
+assert.equal(result.response.kind, "next", "The Russian canonical redirect must not loop");
 
-for (const locale of ["ru", "ar", "zh-CN"]) {
+for (const locale of ["kk", "en", "zh-CN"]) {
   result = runMiddleware(`/${locale}`, { acceptLanguage: locale, locale });
-  assert.equal(result.response.kind, "next", `${locale} must not become a public locale route`);
-  assert.equal(result.response.requestHeaders.get(config.LOCALE_HEADER_NAME), "tr");
-  assert.equal(config.pickLocaleFromAcceptLanguage(locale), "tr");
+  assert.equal(result.response.kind, "rewrite", `${locale} must rewrite to the KZ locale-neutral route`);
+  assert.equal(result.response.requestHeaders.get(config.LOCALE_HEADER_NAME), locale);
+  assert.equal(config.pickLocaleFromAcceptLanguage(locale), locale);
 }
+assert.equal(config.pickLocaleFromAcceptLanguage("tr"), "ru");
 
 const originalCutoverMode = process.env.NEXT_PUBLIC_YOLMOD_CUTOVER_MODE;
 process.env.NEXT_PUBLIC_YOLMOD_CUTOVER_MODE = "maintenance";
@@ -175,10 +175,10 @@ else process.env.NEXT_PUBLIC_YOLMOD_CUTOVER_MODE = originalCutoverMode;
 const originalWarn = console.warn;
 const warnings = [];
 console.warn = (message) => warnings.push(message);
-tr.__i18nRegression = { fallback: "Turkish fallback" };
+tr.__i18nRegression = { fallback: "Compatibility fallback" };
 en.__i18nRegression = {};
-assert.equal(dictionaries.t("en", "__i18nRegression.fallback"), "Turkish fallback");
-assert.equal(dictionaries.t("en", "__i18nRegression.fallback"), "Turkish fallback");
+assert.equal(dictionaries.t("en", "__i18nRegression.fallback"), "Compatibility fallback");
+assert.equal(dictionaries.t("en", "__i18nRegression.fallback"), "Compatibility fallback");
 assert.equal(dictionaries.t("en", "missing.key"), tr.common.translationUnavailable, "Missing keys must never reach users as raw keys");
 console.warn = originalWarn;
 delete tr.__i18nRegression;

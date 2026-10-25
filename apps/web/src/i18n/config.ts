@@ -16,7 +16,7 @@ export const LOCALE_REGISTRY = {
     label: "Turkish",
     nativeLabel: "Türkçe",
     intlLocale: "tr-TR",
-    released: true
+    released: false
   },
   en: {
     tag: "en",
@@ -33,7 +33,7 @@ export const LOCALE_REGISTRY = {
     label: "Russian",
     nativeLabel: "Русский",
     intlLocale: "ru-RU",
-    released: false
+    released: true
   },
   kk: {
     tag: "kk",
@@ -41,7 +41,7 @@ export const LOCALE_REGISTRY = {
     label: "Kazakh",
     nativeLabel: "Қазақша",
     intlLocale: "kk-KZ",
-    released: false
+    released: true
   },
   ar: {
     tag: "ar",
@@ -57,7 +57,7 @@ export const LOCALE_REGISTRY = {
     label: "Simplified Chinese",
     nativeLabel: "简体中文",
     intlLocale: "zh-CN",
-    released: false
+    released: true
   }
 } as const;
 
@@ -69,7 +69,7 @@ export const SUPPORTED_LOCALES = (Object.keys(LOCALE_REGISTRY) as LocaleId[]).fi
 export const FUTURE_LOCALES = (Object.keys(LOCALE_REGISTRY) as LocaleId[]).filter(
   (locale) => !LOCALE_REGISTRY[locale].released
 );
-export const DEFAULT_LOCALE: Locale = "tr";
+export const DEFAULT_LOCALE: Locale = "ru";
 export const LOCALE_COOKIE_NAME = "otoyali_locale";
 export const LOCALE_HEADER_NAME = "x-otoyali-locale";
 
@@ -125,7 +125,10 @@ export function isKnownLocale(value?: string | null): value is LocaleId {
 
 export function normalizeLocale(value?: string | null): Locale {
   if (!value) return DEFAULT_LOCALE;
-  const candidate = value.toLowerCase().split(/[-_]/)[0];
+  const exact = value.trim().toLowerCase();
+  const exactLocale = (Object.keys(LOCALE_REGISTRY) as LocaleId[]).find((locale) => locale.toLowerCase() === exact);
+  if (exactLocale && isSupportedLocale(exactLocale)) return exactLocale;
+  const candidate = exact.split(/[-_]/)[0];
   return isSupportedLocale(candidate) ? candidate : DEFAULT_LOCALE;
 }
 
@@ -176,11 +179,12 @@ export function localizePath(
 
   const { pathname, suffix } = splitHref(href);
   const stripped = stripLocalePrefix(pathname).pathname;
-  const turkishPath = englishPathToTurkishPath(stripped);
-  const targetPath = locale === "en" ? turkishPathToEnglishPath(turkishPath) : turkishPath;
+  // Jolmod's Kazakhstan routes are locale-neutral. The locale prefix changes
+  // presentation only; it must never map a KZ route to a Turkey-first path.
+  const targetPath = stripped;
 
   if (locale === DEFAULT_LOCALE) {
-    return `${options.forceDefaultLocalePrefix ? getLocalePath(DEFAULT_LOCALE, targetPath).replace(/^\//, "/tr/").replace("/tr//", "/tr/") : targetPath}${suffix}`;
+    return `${options.forceDefaultLocalePrefix ? getLocalePath(DEFAULT_LOCALE, targetPath) : targetPath}${suffix}`;
   }
 
   return `${getLocalePath(locale, targetPath)}${suffix}`;
@@ -194,8 +198,7 @@ export function getLocaleSwitchPath(currentHref: string, locale: Locale) {
 export function rewriteLocalePath(pathname: string) {
   const { locale, pathname: stripped } = stripLocalePrefix(pathname);
   if (!locale) return normalizePathname(pathname);
-  if (locale === "tr") return stripped;
-  return englishPathToTurkishPath(stripped);
+  return stripped;
 }
 
 export function turkishPathToEnglishPath(pathname: string) {

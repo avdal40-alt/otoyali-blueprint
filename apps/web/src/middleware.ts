@@ -9,6 +9,7 @@ import {
   rewriteLocalePath,
   stripLocalePrefix
 } from "./i18n/config";
+import type { Locale } from "./i18n/types";
 
 const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 const MAINTENANCE_PATH = "/maintenance";
@@ -72,31 +73,31 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(LOCALE_HEADER_NAME, locale);
 
-  if (pathLocale === "tr") {
+  if (pathLocale === DEFAULT_LOCALE) {
     url.pathname = rewriteLocalePath(pathname);
     const response = NextResponse.redirect(url);
-    setLocaleCookie(response, "tr");
+    setLocaleCookie(response, DEFAULT_LOCALE);
     return response;
   }
 
-  if (pathLocale === "en") {
+  if (pathLocale) {
     url.pathname = rewriteLocalePath(pathname);
     const response = NextResponse.rewrite(url, {
       request: {
         headers: requestHeaders
       }
     });
-    setLocaleCookie(response, "en");
+    setLocaleCookie(response, pathLocale);
     return response;
   }
 
-  if (!cookieLocale && acceptLocale === "en") {
-    const target = localizePath(`${pathname}${url.search}`, "en");
+  if (!cookieLocale && acceptLocale && acceptLocale !== DEFAULT_LOCALE) {
+    const target = localizePath(`${pathname}${url.search}`, acceptLocale);
     const targetUrl = new URL(target, request.url);
     url.pathname = targetUrl.pathname;
     url.search = targetUrl.search;
     const response = NextResponse.redirect(url);
-    setLocaleCookie(response, "en");
+    setLocaleCookie(response, acceptLocale);
     return response;
   }
 
@@ -113,7 +114,7 @@ export function middleware(request: NextRequest) {
   return response;
 }
 
-function setLocaleCookie(response: NextResponse, locale: "tr" | "en") {
+function setLocaleCookie(response: NextResponse, locale: Locale) {
   response.cookies.set(LOCALE_COOKIE_NAME, locale, {
     path: "/",
     sameSite: "lax",

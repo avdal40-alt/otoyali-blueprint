@@ -33,7 +33,7 @@ export function getJolmodGlobalDictionary(locale?: string | null) {
 
 export function getDictionary(locale?: string | null): Dictionary {
   const normalizedLocale = normalizeLocale(locale);
-  return dictionaries[normalizedLocale] ?? dictionaries[DEFAULT_LOCALE];
+  return dictionaries[normalizedLocale === "en" ? "en" : "tr"];
 }
 
 export function getClientDictionary(locale?: string | null): ClientDictionary {
@@ -77,12 +77,12 @@ export function t(locale: Locale | string | null | undefined, key: string, param
   if (moderationValue !== undefined) return interpolate(moderationValue, params);
   const dictionary = getDictionary(locale);
   const localizedValue = readKey(dictionary, key);
-  const fallbackValue = readKey(dictionaries[DEFAULT_LOCALE], key);
+  const fallbackValue = readKey(dictionaries.tr, key);
   const value = localizedValue ?? fallbackValue;
 
   if (typeof value !== "string") {
     reportMissingTranslation(normalizeLocale(locale), key);
-    return String(readKey(dictionaries[DEFAULT_LOCALE], "common.translationUnavailable") ?? "");
+    return String(readKey(dictionaries.tr, "common.translationUnavailable") ?? "");
   }
 
   if (localizedValue === undefined) {

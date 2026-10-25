@@ -8,9 +8,9 @@ import { VehicleCard } from "./VehicleCard";
 export function VehicleGrid({
   listings,
   listingMedia = [],
-  title = "İlan bulunamadı",
-  body = "Filtreleri değiştirerek tekrar deneyin.",
-  locale = "tr",
+  title,
+  body,
+  locale = "ru",
   variant = "default"
 }: {
   listings: HomeListing[];
@@ -24,7 +24,7 @@ export function VehicleGrid({
   const dictionary = getJolmodGlobalDictionary(locale);
 
   if (listings.length === 0) {
-    return <EmptyState title={title} body={body} href={localizePath("/sell", locale)} action={String(dictionary.common.publishListing)} />;
+    return <EmptyState title={title ?? String(dictionary.search.noResultsTitle)} body={body ?? String(dictionary.search.noResultsBody)} href={localizePath("/sell", locale)} action={String(dictionary.common.publishListing)} />;
   }
 
   return (

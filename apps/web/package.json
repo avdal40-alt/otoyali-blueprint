@@ -29,6 +29,7 @@
     "test:legal-page-localization": "node scripts/legal-page-localization.test.cjs",
     "test:jlc-0523-legal-support": "node scripts/jlc-0523-legal-support.test.cjs",
     "test:jlc-0523-legal-acceptance": "node scripts/jlc-0523-legal-acceptance.test.cjs",
+    "test:jlc-0523-listing-video-localization": "node scripts/jlc-0523-listing-video-localization.test.cjs",
     "test:about-page-localization": "node scripts/about-page-localization.test.cjs",
     "test:trust-page-localization": "node scripts/trust-page-localization.test.cjs",
     "test:marketplace-seo-localization": "node scripts/marketplace-seo-localization.test.cjs",
