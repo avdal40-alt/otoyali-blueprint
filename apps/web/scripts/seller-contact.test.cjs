@@ -230,10 +230,13 @@ async function runtime() {
 
     INSERT INTO marketplace.listings (
       id, vehicle_profile_id, seller_id, status, moderation_status,
-      title, price_amount, city, seller_type, seller_contact_phone_id
+      title, price_amount, currency, price_negotiable, city, city_id,
+      seller_type, seller_contact_phone_id
     ) VALUES (
       '${ids.listing}', '${ids.vehicle}', '${ids.seller}', 'active', 'active',
-      'Seller contact test', 100000, 'Istanbul', 'private', '${ids.contact}'
+      'Seller contact test', 100000, 'KZT', FALSE, 'Almaty',
+      (SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1),
+      'private', '${ids.contact}'
     );
 
     ${check("function is SECURITY DEFINER with empty search_path", `
