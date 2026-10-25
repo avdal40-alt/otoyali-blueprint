@@ -304,6 +304,12 @@ must be migrated by domain slice:
   entry historical-loader read was removed. The seven route-local legal content
   documents still require a separate, legally reviewed Kazakhstan copy slice;
   existing routing, seller workflow, and market data remain unchanged.
+- root client payload: all active raw client reads are confined to the direct
+  Jolmod shared, Home, and search contracts (`common`, `navigation`, `footer`,
+  `home`, and `search`), so those payload sections now resolve through direct
+  RU/KK/EN/zh-CN copy with Russian fallback. The vehicle video badge reuses the
+  existing direct navigation label. Compatibility-only payload sections remain
+  deliberately unchanged until their consumers are traced and migrated.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale

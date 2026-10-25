@@ -38,13 +38,14 @@ export function getDictionary(locale?: string | null): Dictionary {
 
 export function getClientDictionary(locale?: string | null): ClientDictionary {
   const dictionary = getDictionary(locale);
+  const jolmodGlobal = getJolmodGlobalDictionary(locale);
 
   return {
-    common: dictionary.common,
-    navigation: dictionary.navigation,
-    footer: dictionary.footer,
-    home: dictionary.home,
-    search: dictionary.search,
+    common: jolmodGlobal.common,
+    navigation: jolmodGlobal.navigation,
+    footer: jolmodGlobal.footer,
+    home: jolmodGlobal.home,
+    search: jolmodGlobal.search,
     listing: dictionary.listing,
     sell: dictionary.sell,
     profile: dictionary.profile,

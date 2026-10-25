@@ -15,4 +15,6 @@ assert.equal(loader.JOLMOD_DEFAULT_LOCALE,"ru");
 for(const locale of ["ru","kk","en","zh-CN"]){const d=loader.getJolmodGlobalDictionary(locale);for(const section of ["common","navigation","footer","home","search"])assert.ok(d[section],`${locale}.${section}`);}
 assert.deepEqual(loader.getJolmodGlobalDictionary("unsupported"),loader.getJolmodGlobalDictionary("ru"));
 assert.notDeepEqual(loader.getJolmodGlobalDictionary("unsupported").home,tr.home,"Jolmod must not fall back to Turkish");
+for(const locale of ["ru","kk","en","zh-CN","unsupported"]){const client=loader.getClientDictionary(locale);const expected=loader.getJolmodGlobalDictionary(locale);for(const section of ["common","navigation","footer","home","search"])assert.deepEqual(client[section],expected[section],`Client ${locale}.${section} must use the Jolmod launch contract`);}
+assert.equal(loader.getClientDictionary("unsupported").common.appName,"Jolmod");
 console.log("Jolmod global loader tests passed.");

@@ -77,7 +77,7 @@ export function VehicleCard({
               href={localizePath(`/video?listing=${listing.listing_id}`, activeLocale)}
               className="rounded-full bg-oto-blue px-3 py-1 text-xs font-black text-white shadow-soft"
             >
-              {String(dictionary.common.video)}
+              {String(dictionary.navigation.video)}
             </Link>
           ) : null}
         </div>
