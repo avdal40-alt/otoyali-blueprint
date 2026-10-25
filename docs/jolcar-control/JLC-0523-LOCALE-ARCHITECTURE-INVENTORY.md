@@ -276,6 +276,14 @@ must be migrated by domain slice:
   direct RU/KK/EN/zh-CN adapter at the existing translation boundary, with
   Russian fallback. This preserves the public dealer query and follow flow;
   it neither enables nor configures Dealer Live infrastructure.
+- service marketplace: public services discovery, provider profiles, the
+  provider application flow, service status/price/duration formatting, and
+  existing service-application admin controls now resolve through a scoped
+  direct RU/KK/EN/zh-CN service contract. Category and specialization labels,
+  form validation, and accessibility-adjacent form chrome have real launch
+  copy; unsupported Jolmod UI locales fall back to Russian, never Turkish.
+  This changes no service authorization, moderation workflow, provider data,
+  booking state, price policy, or Kazakhstan market context.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale

@@ -5,8 +5,10 @@ const config=load(read("src","i18n","config.ts"),"config.ts");
 const shared=load(read("src","i18n","global-launch-shared-copy.ts"),"shared.ts");
 const home=load(read("src","i18n","global-launch-home-copy.ts"),"home.ts");
 const search=load(read("src","i18n","global-launch-search-copy.ts"),"search.ts");
+const dealer=load(read("src","i18n","dealer-page-copy.ts"),"dealer.ts");
+const services=load(read("src","i18n","service-page-copy.ts"),"services.ts");
 const en=load(read("src","i18n","dictionaries","en.ts"),"en.ts").en,tr=load(read("src","i18n","dictionaries","tr.ts"),"tr.ts").tr;
-const loader=load(read("src","i18n","get-dictionary.ts"),"loader.ts",{"./config":config,"./global-launch-shared-copy":shared,"./global-launch-home-copy":home,"./global-launch-search-copy":search,"./dictionaries/en":{en},"./dictionaries/tr":{tr}});
+const loader=load(read("src","i18n","get-dictionary.ts"),"loader.ts",{"./config":config,"./global-launch-shared-copy":shared,"./global-launch-home-copy":home,"./global-launch-search-copy":search,"./dealer-page-copy":dealer,"./service-page-copy":services,"./dictionaries/en":{en},"./dictionaries/tr":{tr}});
 assert.equal(loader.JOLMOD_DEFAULT_LOCALE,"ru");
 for(const locale of ["ru","kk","en","zh-CN"]){const d=loader.getJolmodGlobalDictionary(locale);for(const section of ["common","navigation","footer","home","search"])assert.ok(d[section],`${locale}.${section}`);}
 assert.deepEqual(loader.getJolmodGlobalDictionary("unsupported"),loader.getJolmodGlobalDictionary("ru"));

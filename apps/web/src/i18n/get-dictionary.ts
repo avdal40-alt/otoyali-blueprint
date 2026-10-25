@@ -5,6 +5,7 @@ import { getGlobalLaunchHomeCopy } from "./global-launch-home-copy";
 import { getGlobalLaunchSearchCopy } from "./global-launch-search-copy";
 import { getGlobalLaunchSharedCopy } from "./global-launch-shared-copy";
 import { getDealerPageValue } from "./dealer-page-copy";
+import { getServicePageValue } from "./service-page-copy";
 import type { ClientDictionary, Dictionary, DictionarySection, Locale, TranslationParams } from "./types";
 
 const dictionaries: Record<"tr" | "en", Dictionary> = {
@@ -65,6 +66,8 @@ export function getClientDictionary(locale?: string | null): ClientDictionary {
 export function t(locale: Locale | string | null | undefined, key: string, params?: TranslationParams) {
   const directValue = getDealerPageValue(locale, key);
   if (directValue !== undefined) return interpolate(directValue, params);
+  const serviceValue = getServicePageValue(locale, key);
+  if (serviceValue !== undefined) return interpolate(serviceValue, params);
   const dictionary = getDictionary(locale);
   const localizedValue = readKey(dictionary, key);
   const fallbackValue = readKey(dictionaries[DEFAULT_LOCALE], key);
