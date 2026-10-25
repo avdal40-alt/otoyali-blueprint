@@ -262,13 +262,15 @@ must be migrated by domain slice:
   response-language policy continues to derive a response language from the
   latest meaningful query (with UI-locale fallback only for ambiguous input),
   while preserving the KZ/KZT marketplace context.
-- final active-client trace follow-up: Settings now has its own direct launch
-  copy for editable-account fields and login/configuration states; the public
-  video page keeps its remaining seller-contact and publish controls within
-  VideoCopy. No active component reference to a historical global listing,
-  sell, profile, favorites, messages, notifications, auth, errors, status,
-  video, admin, or AI dictionary section remains; the remaining references are
-  compatibility composition in `get-dictionary.ts` only.
+- active-client trace follow-up: Settings now has its own direct launch copy
+  for editable-account fields and login/configuration states; the public video
+  page keeps its remaining seller-contact and publish controls within VideoCopy.
+  The trace closes the historical active listing, sell, profile, favorites,
+  messages, notifications, auth, errors, status, video, admin, and AI reads.
+  It also identified a separate, still-blocking My Listings / seller-video
+  management residual that must be moved off `dictionary.myListings` before
+  registry activation; compatibility composition in `get-dictionary.ts` alone
+  is not considered an active-client consumer.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale
