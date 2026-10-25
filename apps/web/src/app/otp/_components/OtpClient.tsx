@@ -21,6 +21,7 @@ import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { interpolate } from "@/i18n/get-dictionary";
 import { getAuthCopy } from "@/lib/auth/auth-copy";
+import { recordRequiredLegalAcceptance } from "@/lib/auth/legal-acceptance";
 
 const RESEND_COOLDOWN_SECONDS = 60;
 const RESEND_COOLDOWN_MS = RESEND_COOLDOWN_SECONDS * 1000;
@@ -86,6 +87,9 @@ export function OtpClient() {
 
     const { data: userData } = await supabase.auth.getUser();
     if (userData.user && transaction.purpose === "registration") {
+      if (!transaction.legalAccepted) { setError(copy.legalAcceptanceRequired); return; }
+      const acceptanceError = await recordRequiredLegalAcceptance({ supabase, userId: userData.user.id });
+      if (acceptanceError) { setError(copy.legalAcceptanceSaveFailed); return; }
       const signupMetadata = buildPhoneSignupMetadata({ selectedCountry: transaction.country, locale });
       const profileUpdate = {
         language: signupMetadata?.language ?? locale,
@@ -146,7 +150,7 @@ export function OtpClient() {
       return;
     }
 
-    const refreshedTransaction = createOtpPhoneTransaction(transaction.phone, transaction.country, transaction.purpose);
+    const refreshedTransaction = createOtpPhoneTransaction(transaction.phone, transaction.country, transaction.purpose, transaction.legalAccepted);
     saveOtpPhoneTransaction(refreshedTransaction);
     setTransaction(refreshedTransaction);
     setResendAvailableAt(Date.now() + RESEND_COOLDOWN_MS);

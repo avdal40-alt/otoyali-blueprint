@@ -1,0 +1,23 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const root = path.resolve(__dirname, "..");
+const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
+const migration = fs.readFileSync(path.resolve(root, "..", "..", "supabase", "migrations", "20261025120000_jlc_0523_legal_acceptance.sql"), "utf8");
+const registration = read("src/components/auth/AuthOtpStartClient.tsx");
+const otp = read("src/app/otp/_components/OtpClient.tsx");
+const login = read("src/app/login/_components/LoginClient.tsx");
+
+assert.ok(migration.includes("CREATE TABLE public.legal_document_acceptances"));
+assert.ok(migration.includes("PRIMARY KEY (user_id, document_key, document_version)"));
+assert.ok(migration.includes("ENABLE ROW LEVEL SECURITY"));
+assert.ok(migration.includes("legal_document_acceptances_select_own"));
+assert.ok(migration.includes("legal_document_acceptances_insert_own"));
+assert.ok(migration.includes("REVOKE UPDATE, DELETE"));
+assert.ok(registration.includes("purpose === \"registration\" && !legalAccepted"));
+assert.ok(registration.includes("/personal-data-consent"));
+assert.ok(otp.includes("recordRequiredLegalAcceptance"));
+assert.ok(otp.includes("transaction.legalAccepted"));
+assert.ok(login.includes("signInWithPassword"));
+assert.ok(!login.includes("signInWithOtp"), "routine password login must not require OTP");
+console.log("JLC-0523 legal acceptance checks passed");

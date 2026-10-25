@@ -8,17 +8,19 @@ export type OtpPhoneTransaction = {
   phone: string;
   country: AuthPhoneCountry;
   purpose: "registration" | "legacy_enrollment" | "recovery";
+  legalAccepted: boolean;
   createdAt: number;
   expiresAt: number;
 };
 
-export function createOtpPhoneTransaction(phone: string, country: AuthPhoneCountry, purpose: OtpPhoneTransaction["purpose"] = "registration"): OtpPhoneTransaction {
+export function createOtpPhoneTransaction(phone: string, country: AuthPhoneCountry, purpose: OtpPhoneTransaction["purpose"] = "registration", legalAccepted = false): OtpPhoneTransaction {
   const now = Date.now();
 
   return {
     phone,
     country,
     purpose,
+    legalAccepted: purpose !== "registration" || legalAccepted,
     createdAt: now,
     expiresAt: now + OTP_TRANSACTION_TTL_MS
   };
@@ -42,6 +44,7 @@ export function readOtpPhoneTransaction(): OtpPhoneTransaction | null {
       typeof parsed.phone !== "string" ||
       typeof parsed.country !== "string" ||
       (parsed.purpose !== "registration" && parsed.purpose !== "legacy_enrollment" && parsed.purpose !== "recovery") ||
+      typeof parsed.legalAccepted !== "boolean" ||
       typeof parsed.createdAt !== "number" ||
       typeof parsed.expiresAt !== "number" ||
       parsed.expiresAt < Date.now()
@@ -65,6 +68,7 @@ export function readOtpPhoneTransaction(): OtpPhoneTransaction | null {
       phone: parsed.phone,
       country: parsed.country,
       purpose: parsed.purpose,
+      legalAccepted: parsed.legalAccepted,
       createdAt: parsed.createdAt,
       expiresAt: parsed.expiresAt
     };
