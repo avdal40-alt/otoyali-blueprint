@@ -15,7 +15,9 @@ export type VideoCopy = {
   retryPlayback: string;
   detailsComingSoon: string;
   seeListing: string;
+  contactSeller: string;
   browseListings: string;
+  publishListing: string;
   login: string;
   contentProvided: string;
   vehicleVideoBody: string;
@@ -41,7 +43,9 @@ const ru: VideoCopy = {
   retryPlayback: "Повторить",
   detailsComingSoon: "Характеристики появятся позже",
   seeListing: "Открыть объявление",
+  contactSeller: "Связаться с продавцом",
   browseListings: "Смотреть объявления",
+  publishListing: "Разместить объявление",
   login: "Войти",
   contentProvided: "Содержание предоставлено продавцом.",
   vehicleVideoBody: "Смотрите короткие видео автомобилей от продавцов.",
@@ -67,7 +71,9 @@ const kk: VideoCopy = {
   retryPlayback: "Қайталау",
   detailsComingSoon: "Сипаттамалары кейінірек қосылады",
   seeListing: "Хабарландыруды ашу",
+  contactSeller: "Сатушымен байланысу",
   browseListings: "Хабарландыруларды көру",
+  publishListing: "Хабарландыру жариялау",
   login: "Кіру",
   contentProvided: "Мазмұнды сатушы ұсынған.",
   vehicleVideoBody: "Сатушылар ұсынған көліктердің қысқа бейнелерін көріңіз.",
@@ -93,7 +99,9 @@ const en: VideoCopy = {
   retryPlayback: "Try again",
   detailsComingSoon: "Details will be available soon",
   seeListing: "View listing",
+  contactSeller: "Contact seller",
   browseListings: "Browse listings",
+  publishListing: "Publish listing",
   login: "Sign in",
   contentProvided: "Content provided by the seller.",
   vehicleVideoBody: "Watch short vehicle videos from sellers.",
@@ -119,7 +127,9 @@ const zhCN: VideoCopy = {
   retryPlayback: "重试",
   detailsComingSoon: "详细信息即将提供",
   seeListing: "查看车辆信息",
+  contactSeller: "联系卖家",
   browseListings: "浏览车辆信息",
+  publishListing: "发布车辆",
   login: "登录",
   contentProvided: "内容由卖家提供。",
   vehicleVideoBody: "观看卖家发布的车辆短视频。",
@@ -145,7 +155,9 @@ const tr: VideoCopy = {
   retryPlayback: "Tekrar dene",
   detailsComingSoon: "Ayrıntılar yakında eklenecek",
   seeListing: "İlanı görüntüle",
+  contactSeller: "Satıcı ile iletişime geç",
   browseListings: "İlanlara göz at",
+  publishListing: "İlan yayınla",
   login: "Giriş yap",
   contentProvided: "İçerik satıcı tarafından sağlanmıştır.",
   vehicleVideoBody: "Satıcılardan kısa araç videolarını izleyin.",

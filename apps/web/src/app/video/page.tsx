@@ -9,7 +9,6 @@ import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import { getVideoFeed } from "@/lib/queries/videos";
 import type { OtoyaliVideo } from "@/lib/supabase/types";
 import { cityLabel, formatMileage, formatPrice, fuelLabel, sellerTypeLabel } from "@/lib/format";
-import { getDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
 import { localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
@@ -27,7 +26,6 @@ export default async function VideoPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const locale = await getRequestLocale();
-  const dictionary = getDictionary(locale);
   const videoCopy = getVideoCopy(locale);
   const resolvedSearchParams = await searchParams;
   const listingId = singleValue(resolvedSearchParams.listing);
@@ -53,7 +51,7 @@ export default async function VideoPage({
               </p>
             </div>
             <ButtonLink href={localizePath("/sell", locale)} variant="orange" className="w-full md:w-auto">
-              {String(dictionary.common.publishListing)}
+              {videoCopy.publishListing}
             </ButtonLink>
           </div>
         </section>
@@ -83,7 +81,7 @@ export default async function VideoPage({
               title={videoCopy.emptyTitle}
               body={videoCopy.emptyBody}
               href={localizePath("/sell", locale)}
-              action={String(dictionary.common.publishListing)}
+              action={videoCopy.publishListing}
             />
           </div>
         )}
@@ -95,7 +93,6 @@ export default async function VideoPage({
 }
 
 function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
-  const dictionary = getDictionary(locale);
   const statusCopy = getStatusCopy(locale);
   const videoCopy = getVideoCopy(locale);
   const title = video.title?.trim() || video.listing_title?.trim() || videoCopy.vehicleVideo;
@@ -152,7 +149,7 @@ function VideoCard({ video, locale }: { video: OtoyaliVideo; locale: Locale }) {
           )}
           {video.listing_id ? (
             <ButtonLink href={localizePath(`/listing/${video.listing_id}`, locale)} variant="secondary" className="h-10 px-3 text-xs">
-              {String(dictionary.listing.contactSeller)}
+              {videoCopy.contactSeller}
             </ButtonLink>
           ) : (
             <ButtonLink href={`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/video", locale))}`} variant="secondary" className="h-10 px-3 text-xs">

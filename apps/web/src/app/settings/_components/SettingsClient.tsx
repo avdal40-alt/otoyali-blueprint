@@ -8,10 +8,11 @@ import { Input, Select } from "@/components/ui/Input";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { useI18n } from "@/i18n/client";
 import { getLocaleDefinition, localizePath, SUPPORTED_LOCALES } from "@/i18n/config";
+import { getSettingsCopy } from "./settings-copy";
 
 export function SettingsClient() {
-  const { locale, dictionary } = useI18n();
-  const settingsCopy = dictionary.profile.settings as Record<string, string>;
+  const { locale } = useI18n();
+  const settingsCopy = getSettingsCopy(locale);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +20,7 @@ export function SettingsClient() {
   useEffect(() => {
     async function load() {
       if (!hasSupabaseEnv()) {
-        setError(String(dictionary.errors.missingSupabaseEnv));
+        setError(settingsCopy.missingSupabaseEnv);
         setLoading(false);
         return;
       }
@@ -35,7 +36,7 @@ export function SettingsClient() {
       setLoading(false);
     }
     void load();
-  }, [dictionary.errors.missingSupabaseEnv]);
+  }, [settingsCopy.missingSupabaseEnv]);
 
   async function save() {
     if (!profile) return;
@@ -52,10 +53,10 @@ export function SettingsClient() {
   if (!profile) {
     return (
       <EmptyState
-        title={String(dictionary.profile.loginRequiredTitle)}
-        body={String(dictionary.profile.loginRequiredBody)}
+        title={settingsCopy.loginRequiredTitle}
+        body={settingsCopy.loginRequiredBody}
         href={`${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/settings", locale))}`}
-        action={String(dictionary.auth.verifyCode)}
+        action={settingsCopy.loginRequiredAction}
       />
     );
   }
