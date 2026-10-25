@@ -61,17 +61,17 @@ function assertMetadataKeys(value, expectedKeys) {
 
 assert.deepEqual(metadata({ country: "KZ", locale: "tr", timezone: "Asia/Almaty" }), {
   country: "KZ",
-  language: "tr",
+  language: "ru",
   timezone: "Asia/Almaty"
 });
 assert.deepEqual(metadata({ country: "RU", locale: "tr", timezone: "Europe/Moscow" }), {
   country: "RU",
-  language: "tr",
+  language: "ru",
   timezone: "Europe/Moscow"
 });
 assert.deepEqual(metadata({ country: "TR", locale: "tr", timezone: "Europe/Istanbul" }), {
   country: "TR",
-  language: "tr",
+  language: "ru",
   timezone: "Europe/Istanbul"
 });
 assert.deepEqual(metadata({ country: "US", locale: "en", timezone: "America/New_York" }), {
@@ -90,10 +90,10 @@ assert.equal(metadata({ country: "RU", locale: "tr", timezone: "Europe/Moscow" }
 assert.equal(metadata({ country: "US", locale: "en", timezone: "America/New_York" }).country, "US");
 assert.equal(metadata({ country: "CA", locale: "en", timezone: "America/Toronto" }).country, "CA");
 
-assert.equal(metadata({ country: "TR", locale: "tr", timezone: "Europe/Istanbul" }).language, "tr");
+assert.equal(metadata({ country: "TR", locale: "tr", timezone: "Europe/Istanbul" }).language, "ru");
 assert.equal(metadata({ country: "US", locale: "en", timezone: "America/New_York" }).language, "en");
-assert.equal(metadata({ country: "KZ", locale: "de", timezone: "Asia/Almaty" }).language, "tr");
-assert.equal(metadata({ country: "KZ", locale: "ru-KZ", timezone: "Asia/Almaty" }).language, "tr");
+assert.equal(metadata({ country: "KZ", locale: "de", timezone: "Asia/Almaty" }).language, "ru");
+assert.equal(metadata({ country: "KZ", locale: "ru-KZ", timezone: "Asia/Almaty" }).language, "ru");
 
 assert.equal(metadata({ country: "KZ", locale: "tr", timezone: "Asia/Almaty" }).timezone, "Asia/Almaty");
 assert.equal(metadata({ country: "TR", locale: "tr", timezone: "Europe/Istanbul" }).timezone, "Europe/Istanbul");

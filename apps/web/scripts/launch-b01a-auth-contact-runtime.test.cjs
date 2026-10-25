@@ -80,7 +80,9 @@ async function rpcOk(client, name, args) {
     assert.ok(otherContacts.length > 0 && otherContacts.every((row) => !ownerContacts.some((ownerContact) => ownerContact.contact_id === row.contact_id)), "buyer own-list access must never expose owner contacts");
 
     const [makeId, modelId] = sql("SELECT m.make_id || '|' || m.id FROM vehicle.models m JOIN vehicle.makes mk ON mk.id=m.make_id WHERE mk.is_active AND m.is_active ORDER BY m.id LIMIT 1").split("|");
-    const payload = { p_make_id: makeId, p_model_id: modelId, p_variant_id: null, p_year: 2021, p_mileage_km: 1, p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: "sedan", p_drive_type: "front", p_color: "test", p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: 1, p_description: `B01A_${randomUUID()}`, p_price_amount_text: "1000000", p_currency: "TRY", p_price_negotiable: false, p_city: "Ankara", p_city_id: null, p_district_id: null };
+    const kzCityId = sql("SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1");
+    assert.match(kzCityId, /^[0-9a-f-]{36}$/i, "Kazakhstan city fixture must be available");
+    const payload = { p_make_id: makeId, p_model_id: modelId, p_variant_id: null, p_year: 2021, p_mileage_km: 1, p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: "sedan", p_drive_type: "front", p_color: "test", p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: 1, p_description: `B01A_${randomUUID()}`, p_price_amount_text: "1000000", p_currency: "KZT", p_price_negotiable: false, p_city: "Almaty", p_city_id: kzCityId, p_district_id: null };
     const created = await owner.rpc("create_own_listing_draft_v2", { ...payload, p_seller_contact_phone_id: synced.contact_id });
     assert.ifError(created.error);
     const selectedListing = created.data?.[0]?.listing_id;

@@ -92,10 +92,10 @@ INSERT INTO vehicle.vehicle_profiles (id,make_id,model_id,year,mileage_km,fuel_t
  ('${ids.profileB}',(SELECT make_id FROM vehicle.models ORDER BY id LIMIT 1),(SELECT id FROM vehicle.models ORDER BY id LIMIT 1),2024,100,'gasoline','automatic','${ids.userB}');
 INSERT INTO vehicle.profile_ownership (vehicle_profile_id,owner_id,ownership_type,is_current) VALUES
  ('${ids.profileA1}','${ids.userA}','owner',true),('${ids.profileA2}','${ids.userA}','owner',true),('${ids.profileB}','${ids.userB}','owner',true);
-INSERT INTO marketplace.listings (id,vehicle_profile_id,seller_id,status,title,price_amount,city,moderation_status,published_at) VALUES
- ('${ids.listingA1}','${ids.profileA1}','${ids.userA}','active','Approved A1',100000,'Adana','active',now()),
- ('${ids.listingA2}','${ids.profileA2}','${ids.userA}','draft','Draft A2',100000,'Adana','pending_review',NULL),
- ('${ids.listingB}','${ids.profileB}','${ids.userB}','draft','Draft B',100000,'Adana','pending_review',NULL);
+INSERT INTO marketplace.listings (id,vehicle_profile_id,seller_id,status,title,price_amount,currency,price_negotiable,city,city_id,seller_type,moderation_status,published_at) VALUES
+ ('${ids.listingA1}','${ids.profileA1}','${ids.userA}','active','Approved A1',100000,'KZT',false,'Almaty',(SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1),'private','active',now()),
+ ('${ids.listingA2}','${ids.profileA2}','${ids.userA}','draft','Draft A2',100000,'KZT',false,'Almaty',(SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1),'private','pending_review',NULL),
+ ('${ids.listingB}','${ids.profileB}','${ids.userB}','draft','Draft B',100000,'KZT',false,'Almaty',(SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1),'private','pending_review',NULL);
 INSERT INTO storage.objects (bucket_id,name,owner,owner_id,metadata) VALUES
  ('listing-media','${pathA}',NULL,NULL,'{"mimetype":"image/webp","size":1}'),
  ('listing-media','${pathALarge}',NULL,NULL,'{"mimetype":"image/webp","size":1}'),

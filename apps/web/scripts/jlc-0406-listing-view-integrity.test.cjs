@@ -29,8 +29,8 @@ const sql = `BEGIN;
   INSERT INTO vehicle.vehicle_profiles(id,make_id,model_id,year,mileage_km,fuel_type,transmission,created_source,profile_status,created_by)
   VALUES('${ids.vehicle}','${ids.make}','${ids.model}',2024,1,'gasoline','automatic','manual','active','${ids.seller}');
   INSERT INTO vehicle.profile_ownership(vehicle_profile_id,owner_id,ownership_type,is_current) VALUES('${ids.vehicle}','${ids.seller}','owner',true);
-  INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,seller_type)
-  VALUES('${ids.listing}','${ids.vehicle}','${ids.seller}','active','active','View integrity listing',1,'KZT',false,'Almaty','private');
+  INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,city_id,seller_type)
+  VALUES('${ids.listing}','${ids.vehicle}','${ids.seller}','active','active','View integrity listing',1,'KZT',false,'Almaty',(SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1),'private');
   INSERT INTO results VALUES
     ('view event table is private', NOT has_table_privilege('anon','marketplace.listing_view_events','SELECT,INSERT,UPDATE,DELETE') AND NOT has_table_privilege('authenticated','marketplace.listing_view_events','SELECT,INSERT,UPDATE,DELETE')),
     ('view RPC is trusted-server only', NOT has_function_privilege('anon','public.record_listing_view(uuid,uuid)','EXECUTE') AND NOT has_function_privilege('authenticated','public.record_listing_view(uuid,uuid)','EXECUTE') AND has_function_privilege('service_role','public.record_listing_view(uuid,uuid)','EXECUTE'));
