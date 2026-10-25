@@ -69,7 +69,7 @@ async function main() {
   const port = await findAvailablePort();
   const baseUrl = `http://127.0.0.1:${port}`;
   const supabaseEnv = localSupabaseEnv();
-  const listingId = runLocalSql("SELECT id FROM marketplace.listings WHERE status = 'active' ORDER BY published_at DESC NULLS LAST LIMIT 1;");
+  const listingId = runLocalSql("SELECT listings.id FROM marketplace.listings JOIN marketplace.cities ON cities.id = listings.city_id WHERE listings.status = 'active' AND cities.country_code = 'KZ' AND cities.is_active ORDER BY listings.published_at DESC NULLS LAST LIMIT 1;");
   const dealerId = runLocalSql("SELECT id FROM public.profiles WHERE seller_type = 'dealer' ORDER BY created_at DESC LIMIT 1;");
   const fixtureLimitations = [];
   if (!listingId) fixtureLimitations.push("listing detail used a not-found route because this local database has no active listing fixture");
