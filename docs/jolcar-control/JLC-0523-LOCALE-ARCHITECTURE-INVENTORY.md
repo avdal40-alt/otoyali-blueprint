@@ -289,6 +289,11 @@ must be migrated by domain slice:
   through direct RU/KK/EN/zh-CN copy with Russian fallback. Existing routes,
   vertical feature flags, publishing availability, and Kazakhstan market data
   are unchanged; Turkish is not a Jolmod UI fallback.
+- moderation runtime: active moderation queue/detail controls, reason and
+  confidence labels, confirmation/error states, and their shared back/no-info
+  and service-form error labels now resolve through scoped direct
+  RU/KK/EN/zh-CN copy with Russian fallback. Moderation APIs, authorization,
+  evidence, and decision transitions are unchanged.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale

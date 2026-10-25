@@ -7,6 +7,7 @@ import { getGlobalLaunchSharedCopy } from "./global-launch-shared-copy";
 import { getDealerPageValue } from "./dealer-page-copy";
 import { getServicePageValue } from "./service-page-copy";
 import { getVerticalPageValue } from "./vertical-page-copy";
+import { getModerationRuntimeValue } from "./moderation-runtime-copy";
 import type { ClientDictionary, Dictionary, DictionarySection, Locale, TranslationParams } from "./types";
 
 const dictionaries: Record<"tr" | "en", Dictionary> = {
@@ -71,6 +72,8 @@ export function t(locale: Locale | string | null | undefined, key: string, param
   if (serviceValue !== undefined) return interpolate(serviceValue, params);
   const verticalValue = getVerticalPageValue(locale, key);
   if (verticalValue !== undefined) return interpolate(verticalValue, params);
+  const moderationValue = getModerationRuntimeValue(locale, key);
+  if (moderationValue !== undefined) return interpolate(moderationValue, params);
   const dictionary = getDictionary(locale);
   const localizedValue = readKey(dictionary, key);
   const fallbackValue = readKey(dictionaries[DEFAULT_LOCALE], key);
