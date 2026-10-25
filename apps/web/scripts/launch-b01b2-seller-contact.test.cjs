@@ -9,7 +9,7 @@ const copy = read("apps", "web", "src", "i18n", "dictionaries", "sell-wizard.ts"
 const writes = read("apps", "web", "src", "lib", "listings", "server-write.ts");
 assert.match(gate, /sync_own_verified_account_phone/);
 assert.match(gate, /list_own_verified_seller_contact_phones/);
-assert.match(gate, /import \{ SellerContactVerificationFlow \} from "@\/components\/seller\/SellerContactVerificationFlow"/);
+assert.match(gate, /import\("@\/components\/seller\/SellerContactVerificationFlow"\)\.then\(\(module\) => module\.SellerContactVerificationFlow\)/);
 assert.match(gate, /<SellerContactVerificationFlow onVerified=\{async \(\) => \{ await checkEligibility\(\); \}\} onAuthRequired=\{redirectToLogin\}/);
 assert.doesNotMatch(gate, /phone-verification\/start|phone-verification\/verify/);
 assert.doesNotMatch(gate, /async function startVerification|async function verifyCode|OtpInput/);
