@@ -27,6 +27,7 @@
     "test:vertical-page-localization": "node scripts/vertical-page-localization.test.cjs",
     "test:moderation-localization": "node scripts/moderation-localization.test.cjs",
     "test:legal-page-localization": "node scripts/legal-page-localization.test.cjs",
+    "test:about-page-localization": "node scripts/about-page-localization.test.cjs",
     "test:admin-client-localization": "node scripts/admin-client-localization.test.cjs",
     "test:ai-response-language": "node scripts/ai-response-language.test.cjs",
     "test:ai-client-localization": "node scripts/ai-client-localization.test.cjs",

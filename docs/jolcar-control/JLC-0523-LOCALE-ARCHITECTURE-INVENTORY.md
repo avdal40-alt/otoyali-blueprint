@@ -314,6 +314,10 @@ must be migrated by domain slice:
   section. The subsequent trace identified hard-coded Turkey-first legal, SEO,
   about, and maintenance route content as separate migration work; it is not
   hidden by the direct dictionary adapters.
+- public About page: its title, description, three product pillars, and home
+  action now resolve through direct RU/KK/EN/zh-CN Jolmod copy with Russian
+  fallback. This removes its Turkey-first market statement without changing
+  navigation, account behavior, listings, cities, or currency.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale
