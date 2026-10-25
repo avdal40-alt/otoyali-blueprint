@@ -326,6 +326,10 @@ must be migrated by domain slice:
   feature list, and metadata fallback now use direct RU/KK/EN/zh-CN Jolmod
   copy with Russian fallback. This does not change the separate multilingual
   AI response-language policy or provider behavior.
+- Trust Center: its public safety guidance, actions, and disclaimer now resolve
+  through direct RU/KK/EN/zh-CN Jolmod copy with Russian fallback. Obsolete
+  Turkey-specific verification references were removed without asserting any
+  government, insurance, inspection, or seller-verification integration.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale
