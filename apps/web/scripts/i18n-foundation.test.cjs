@@ -28,6 +28,13 @@ const dictionaries = loadModule(read("src", "i18n", "get-dictionary.ts"), "get-d
   if (request === "./config") return config;
   if (request === "./dictionaries/tr") return { tr };
   if (request === "./dictionaries/en") return { en };
+  if (request === "./global-launch-shared-copy") return { getGlobalLaunchSharedCopy: () => ({ common: {}, navigation: {}, footer: {} }) };
+  if (request === "./global-launch-home-copy") return { getGlobalLaunchHomeCopy: () => ({ home: {} }) };
+  if (request === "./global-launch-search-copy") return { getGlobalLaunchSearchCopy: () => ({ search: {} }) };
+  if (request === "./dealer-page-copy") return { getDealerPageValue: () => undefined };
+  if (request === "./service-page-copy") return { getServicePageValue: () => undefined };
+  if (request === "./vertical-page-copy") return { getVerticalPageValue: () => undefined };
+  if (request === "./moderation-runtime-copy") return { getModerationRuntimeValue: () => undefined };
   throw new Error(`Unexpected dictionary dependency: ${request}`);
 });
 

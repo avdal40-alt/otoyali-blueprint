@@ -318,6 +318,10 @@ must be migrated by domain slice:
   action now resolve through direct RU/KK/EN/zh-CN Jolmod copy with Russian
   fallback. This removes its Turkey-first market statement without changing
   navigation, account behavior, listings, cities, or currency.
+- shared fallbacks: the image placeholder now carries the Jolmod brand, and
+  the no-store maintenance response now uses Russian as its default/fallback
+  language while retaining its existing 503, retry, and cache-control behavior.
+  The i18n foundation harness now explicitly loads the direct launch adapters.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale

@@ -1,10 +1,10 @@
 const MAINTENANCE_HTML = `<!doctype html>
-<html lang="tr" dir="ltr">
+<html lang="ru" dir="ltr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Kısa bir bakımdayız | Jolcar</title>
+    <title>Короткое техническое обслуживание | Jolmod</title>
     <style>
       * { box-sizing: border-box; }
       body { margin: 0; background: #f8fafc; color: #172033; font-family: Arial, sans-serif; }
@@ -19,9 +19,9 @@ const MAINTENANCE_HTML = `<!doctype html>
   <body>
     <main>
       <section>
-        <div class="brand">Jolcar</div>
-        <h1>Kısa bir bakımdayız</h1>
-        <p>Daha güvenli bir deneyim için kısa bir güncelleme yapıyoruz. Lütfen birkaç dakika sonra yeniden deneyin.</p>
+        <div class="brand">Jolmod</div>
+        <h1>Мы проводим короткое техническое обслуживание</h1>
+        <p>Мы выполняем короткое обновление, чтобы сервис стал надёжнее. Пожалуйста, попробуйте снова через несколько минут.</p>
         <p class="english">We are completing a short update. Please try again in a few minutes.</p>
       </section>
     </main>
