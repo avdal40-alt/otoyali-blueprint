@@ -9,7 +9,6 @@ import { ErrorState } from "@/components/ui/States";
 import { getCities } from "@/lib/queries/cities";
 import { getHomeListings } from "@/lib/queries/listings";
 import { getMakes } from "@/lib/queries/makes";
-import { getDictionary } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
 import { localizePath } from "@/i18n/config";
 import { t } from "@/i18n/get-dictionary";
@@ -28,7 +27,6 @@ export default async function SellPage({
 }) {
   const locale = await getRequestLocale();
   const resolvedSearchParams = await searchParams;
-  const dictionary = getDictionary(locale);
   const sellCopy = getSellCopy(locale);
   const entryCopy = getSellEntryCopy(locale);
   const verticalId = getPublishVerticalFromSearchParam(resolvedSearchParams?.vertical);

@@ -3,7 +3,7 @@ import { MarketplaceFooter } from "@/components/layout/MarketplaceFooter";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ButtonLink } from "@/components/ui/Button";
-import { getDictionary } from "@/i18n/get-dictionary";
+import { getLegalPageCopy } from "@/i18n/legal-page-copy";
 import { getRequestLocale } from "@/i18n/server";
 import { localizePath } from "@/i18n/config";
 
@@ -19,16 +19,13 @@ export type LegalAction = {
   variant?: "primary" | "secondary" | "orange" | "ghost" | "danger";
 };
 
-const DEFAULT_DISCLAIMER =
-  "Bu sayfa MVP aşaması için hazırlanmış genel bilgilendirme metnidir. Yayın öncesinde profesyonel hukuk danışmanlığı ile güncellenmelidir.";
-
 export async function LegalPage({
-  eyebrow = "Jolcar",
+  eyebrow = "Jolmod",
   title,
   description,
   sections,
   actions = [],
-  disclaimer = DEFAULT_DISCLAIMER
+  disclaimer
 }: {
   eyebrow?: string;
   title: string;
@@ -38,8 +35,8 @@ export async function LegalPage({
   disclaimer?: string;
 }) {
   const locale = await getRequestLocale();
-  const dictionary = getDictionary(locale);
-  const resolvedDisclaimer = disclaimer === DEFAULT_DISCLAIMER ? String(dictionary.legal.disclaimer) : disclaimer;
+  const legalCopy = getLegalPageCopy(locale);
+  const resolvedDisclaimer = disclaimer ?? legalCopy.defaultDisclaimer;
 
   return (
     <>
@@ -80,7 +77,7 @@ export async function LegalPage({
         </div>
 
         <section className="mt-6 rounded-oto border border-oto-border bg-oto-surface p-5">
-          <h2 className="text-sm font-black uppercase tracking-wide text-oto-text">{String(dictionary.legal.note)}</h2>
+          <h2 className="text-sm font-black uppercase tracking-wide text-oto-text">{legalCopy.note}</h2>
           <p className="mt-2 text-sm leading-7 text-oto-muted">{resolvedDisclaimer}</p>
         </section>
       </PageContainer>

@@ -299,6 +299,11 @@ must be migrated by domain slice:
   Jolmod global Home/shared contract rather than the historical loader. The
   root client payload and other remaining legacy-loader consumers still block
   registry activation.
+- legal page shell: its visible note and default disclaimer now resolve through
+  a scoped RU/KK/EN/zh-CN contract with Russian fallback; the obsolete sell
+  entry historical-loader read was removed. The seven route-local legal content
+  documents still require a separate, legally reviewed Kazakhstan copy slice;
+  existing routing, seller workflow, and market data remain unchanged.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale
