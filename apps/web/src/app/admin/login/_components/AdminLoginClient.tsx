@@ -132,8 +132,8 @@ export function AdminLoginClient() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-oto-surface px-4 py-10">
       <section className="w-full max-w-md rounded-oto border border-oto-border bg-white p-6 shadow-soft" aria-labelledby="admin-login-title">
-        <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolcar Admin</p>
-        <h1 id="admin-login-title" className="mt-2 text-2xl font-black text-oto-text">Jolcar Admin</h1>
+        <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolmod Admin</p>
+        <h1 id="admin-login-title" className="mt-2 text-2xl font-black text-oto-text">Jolmod Admin</h1>
         <p className="mt-2 text-sm leading-6 text-oto-muted">Yönetim paneline giriş</p>
 
         {access === "denied" ? (
