@@ -122,8 +122,9 @@ assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
 assert.notEqual(market.MARKET_PROFILES.yolmodTurkey.countryCode, market.MARKET_PROFILES.jolcarKazakhstan.countryCode);
 assert.equal(i18n.normalizeLocale("invalid-locale"), i18n.DEFAULT_LOCALE, "invalid locale must fall back explicitly");
 assert.equal(i18n.normalizeLocale(null), i18n.DEFAULT_LOCALE, "missing locale must fall back explicitly");
-assert.equal(i18n.isSupportedLocale("ru"), false, "future locales must not become public accidentally");
-assert.deepEqual(i18n.SUPPORTED_LOCALES, ["tr", "en"]);
+assert.equal(i18n.isSupportedLocale("ru"), true, "Russian must be a public Jolmod locale");
+assert.equal(i18n.isSupportedLocale("tr"), false, "Turkish must not become a Jolmod UI locale");
+assert.deepEqual(i18n.SUPPORTED_LOCALES, ["en", "ru", "kk", "zh-CN"]);
 assert.doesNotMatch(marketSource, /O-001 remains an open product decision/);
 assert.doesNotMatch(marketSource, /O-005 is open/);
 
