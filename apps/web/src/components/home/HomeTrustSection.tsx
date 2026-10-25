@@ -1,8 +1,8 @@
-import { getDictionary } from "@/i18n/get-dictionary";
+import { getJolmodGlobalDictionary } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 
 export function HomeTrustSection({ locale = "tr" }: { locale?: Locale }) {
-  const dictionary = getDictionary(locale);
+  const dictionary = getJolmodGlobalDictionary(locale);
   const items = Object.values(dictionary.home.trustItems as Record<string, string>);
 
   return (

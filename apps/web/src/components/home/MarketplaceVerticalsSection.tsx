@@ -1,11 +1,11 @@
 import { SectionHeader } from "@/components/layout/PageContainer";
 import { MarketplaceVerticalCard } from "@/components/verticals/MarketplaceVerticalCard";
 import { getHomeFeaturedVerticals } from "@/lib/marketplace/verticals";
-import { getDictionary } from "@/i18n/get-dictionary";
+import { getJolmodGlobalDictionary } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 
 export function MarketplaceVerticalsSection({ locale = "tr" }: { locale?: Locale }) {
-  const dictionary = getDictionary(locale);
+  const dictionary = getJolmodGlobalDictionary(locale);
   const verticals = getHomeFeaturedVerticals();
 
   return (

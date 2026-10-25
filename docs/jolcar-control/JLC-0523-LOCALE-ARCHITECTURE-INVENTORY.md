@@ -294,6 +294,11 @@ must be migrated by domain slice:
   and service-form error labels now resolve through scoped direct
   RU/KK/EN/zh-CN copy with Russian fallback. Moderation APIs, authorization,
   evidence, and decision transitions are unchanged.
+- global Home composition: the active Home page and its application, trust,
+  marketplace-vertical, and popular-city sections now consume the direct
+  Jolmod global Home/shared contract rather than the historical loader. The
+  root client payload and other remaining legacy-loader consumers still block
+  registry activation.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale

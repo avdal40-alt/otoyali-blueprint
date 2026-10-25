@@ -11,7 +11,7 @@ import { NewsGrid } from "@/components/news/NewsGrid";
 import { HomeMarketplaceAction } from "./HomeMarketplaceAction";
 import { ErrorState } from "@/components/ui/States";
 import { localizePath } from "@/i18n/config";
-import { getDictionary } from "@/i18n/get-dictionary";
+import { getJolmodGlobalDictionary } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 import { HomeVehicleSearchPanel } from "./HomeVehicleSearchPanel";
 
@@ -30,7 +30,7 @@ export function HomePageContent({
   error?: string | null;
   locale?: Locale;
 }) {
-  const dictionary = getDictionary(locale);
+  const dictionary = getJolmodGlobalDictionary(locale);
 
   return (
     <>

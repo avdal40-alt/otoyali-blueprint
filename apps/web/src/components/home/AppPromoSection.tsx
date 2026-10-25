@@ -1,8 +1,8 @@
-import { getDictionary } from "@/i18n/get-dictionary";
+import { getJolmodGlobalDictionary } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 
 export function AppPromoSection({ locale = "tr" }: { locale?: Locale }) {
-  const dictionary = getDictionary(locale);
+  const dictionary = getJolmodGlobalDictionary(locale);
 
   return (
     <section className="mt-10 overflow-hidden rounded-oto border border-oto-border bg-oto-text p-5 text-white shadow-oto md:p-8">
