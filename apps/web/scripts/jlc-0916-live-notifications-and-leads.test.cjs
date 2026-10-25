@@ -34,7 +34,7 @@ INSERT INTO vehicle.makes(id,name,slug) VALUES ('${ids.make}','JLC 0916 Make','j
 INSERT INTO vehicle.models(id,make_id,name,slug) VALUES ('${ids.model}','${ids.make}','JLC 0916 Model','jlc-0916-${ids.model}');
 INSERT INTO vehicle.vehicle_profiles(id,make_id,model_id,year,mileage_km,fuel_type,transmission,created_source,profile_status,created_by) VALUES ('${ids.vehicle}','${ids.make}','${ids.model}',2024,1,'gasoline','automatic','manual','active','${ids.dealer}');
 INSERT INTO vehicle.profile_ownership(vehicle_profile_id,owner_id,ownership_type,is_current) VALUES ('${ids.vehicle}','${ids.dealer}','owner',true);
-INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,seller_type) VALUES ('${ids.listing}','${ids.vehicle}','${ids.dealer}','active','active','JLC 0916 fixture',1,'KZT',false,'Almaty','dealer');
+INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,city_id,seller_type) VALUES ('${ids.listing}','${ids.vehicle}','${ids.dealer}','active','active','JLC 0916 fixture',1,'KZT',false,'Almaty',(SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1),'dealer');
 ${role("authenticated", ids.dealer)}
 SELECT marketplace.create_own_dealer_live_stream('JLC 0916 live') AS id INTO TEMP TABLE stream_id;
 SELECT marketplace.attach_own_dealer_live_listings((SELECT id FROM stream_id), ARRAY['${ids.listing}'::uuid]);

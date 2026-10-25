@@ -36,7 +36,7 @@ INSERT INTO marketplace.buyer_requests(id,user_id,title,search_request,status) V
 INSERT INTO marketplace.buyer_requests(id,user_id,title,search_request,status) VALUES ('${ids.unmatchedBuyerRequest}','${ids.buyer}','JLC 0909 unmatched request','{"version":"v1","filters":{"model_ids":["${randomUUID()}"]}}','active');
 INSERT INTO vehicle.vehicle_profiles(id,make_id,model_id,year,mileage_km,fuel_type,transmission,created_source,profile_status,created_by) VALUES ('${ids.vehicle}','${ids.make}','${ids.model}',2024,1,'gasoline','automatic','manual','active','${ids.dealer}');
 INSERT INTO vehicle.profile_ownership(vehicle_profile_id,owner_id,ownership_type,is_current) VALUES ('${ids.vehicle}','${ids.dealer}','owner',true);
-INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,seller_type) VALUES ('${ids.listing}','${ids.vehicle}','${ids.dealer}','active','active','JLC 0909 fixture',1,'KZT',false,'Almaty','dealer');
+INSERT INTO marketplace.listings(id,vehicle_profile_id,seller_id,status,moderation_status,title,price_amount,currency,price_negotiable,city,city_id,seller_type) VALUES ('${ids.listing}','${ids.vehicle}','${ids.dealer}','active','active','JLC 0909 fixture',1,'KZT',false,'Almaty',(SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1),'dealer');
 INSERT INTO messaging.conversations(id,listing_id,buyer_id,seller_id) VALUES ('${ids.conversation}','${ids.listing}','${ids.buyer}','${ids.dealer}');
 INSERT INTO identity.listing_seller_contact_disclosures(id,buyer_id,listing_id) VALUES ('${ids.disclosure}','${ids.buyer}','${ids.listing}');
 ${role("authenticated", ids.dealer)}
