@@ -3,16 +3,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
-import { useI18n } from "@/i18n/client";
 import type { Locale } from "@/i18n/types";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getListingDescriptionAssistantCopy } from "./listing-description-assistant-copy";
 
 type DescriptionDraft = Record<string, string | number | boolean | null | undefined>;
 type DescriptionMode = "concise" | "standard" | "detailed";
 
 export function ListingDescriptionAssistant({ locale, draft, onApply }: { locale: Locale; draft: DescriptionDraft; onApply: (description: string) => void }) {
-  const { dictionary } = useI18n();
-  const t = dictionary.ai.sellDescription as Record<"generate" | "generating" | "length" | "concise" | "standard" | "detailed" | "help" | "apply" | "discard" | "error" | "unavailable" | "previewLabel", string>;
+  const t = getListingDescriptionAssistantCopy(locale);
   const [mode, setMode] = useState<DescriptionMode>("standard");
   const [preview, setPreview] = useState("");
   const [busy, setBusy] = useState(false);

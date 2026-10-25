@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useI18n } from "@/i18n/client";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getTrustStatusCopy, type TrustStatusCopy } from "./trust-status-copy";
 
 type TrustData = {
   providerStatus: "not_configured" | "unavailable" | "consent_required" | "available";
@@ -11,20 +12,10 @@ type TrustData = {
   signals: Array<{ code: "vin_present" | "vin_format_valid" | "vin_format_invalid" | "vin_reference_review_required" | "external_check_not_available" | "external_check_requires_consent"; provenance: "seller_supplied" | "yolmod_internal" | "external_provider" | "unavailable" }>;
 };
 
-type TrustCopy = {
-  title: string;
-  loading: string;
-  unavailable: string;
-  vinMissing: string;
-  provider: Record<TrustData["providerStatus"], string>;
-  signal: Record<TrustData["signals"][number]["code"], string>;
-  provenance: Record<TrustData["signals"][number]["provenance"], string>;
-};
-
 /** Owner-only display. The server route remains the authorization boundary. */
 export function TrustStatusCard({ listingId }: { listingId: string }) {
-  const { dictionary } = useI18n();
-  const copy = dictionary.ai.trust as unknown as TrustCopy;
+  const { locale } = useI18n();
+  const copy = getTrustStatusCopy(locale);
   const [state, setState] = useState<{ kind: "checking" } | { kind: "loading" } | { kind: "ready"; data: TrustData } | { kind: "unavailable" } | { kind: "hidden" }>({ kind: "checking" });
 
   useEffect(() => {
@@ -62,7 +53,7 @@ export function TrustStatusCard({ listingId }: { listingId: string }) {
   );
 }
 
-function TrustResultView({ data, copy }: { data: TrustData; copy: TrustCopy }) {
+function TrustResultView({ data, copy }: { data: TrustData; copy: TrustStatusCopy }) {
   return (
     <div className="mt-4 grid gap-3">
       {data.vinPresence === "missing" ? <p className="rounded-md bg-oto-surface p-3 text-sm font-semibold leading-6 text-oto-muted">{copy.vinMissing}</p> : null}

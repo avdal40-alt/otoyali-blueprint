@@ -4,16 +4,14 @@ import { FormEvent, KeyboardEvent, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { useI18n } from "@/i18n/client";
 import type { Locale } from "@/i18n/types";
 import { AiStateMessage } from "@/features/ai/components/AiStateMessage";
+import { getSellAssistantCopy } from "./sell-assistant-copy";
 
 export type AssistedListingDraft = Record<string, string | number | boolean | null | undefined>;
 type AssistantState = { draft: AssistedListingDraft; missingFields: string[]; nextQuestion?: string; clarification?: { message: string }; readyForReview: boolean };
-type SellAssistantCopy = { title: string; help: string; open: string; close: string; label: string; placeholder: string; send: string; sending: string; reset: string; summary: string; missing: string; apply: string; error: string; fields: Record<string, string> };
-
 export function SellAssistant({ locale, draft, onApply }: { locale: Locale; draft: AssistedListingDraft; onApply: (draft: AssistedListingDraft) => void }) {
-  const { dictionary } = useI18n(); const t = dictionary.ai.sellAssistant as unknown as SellAssistantCopy; const fieldsCopy = t.fields; const [open, setOpen] = useState(false); const [message, setMessage] = useState(""); const [state, setState] = useState<AssistantState | null>(null); const [busy, setBusy] = useState(false); const [error, setError] = useState<string | null>(null);
+  const t = getSellAssistantCopy(locale); const fieldsCopy = t.fields; const [open, setOpen] = useState(false); const [message, setMessage] = useState(""); const [state, setState] = useState<AssistantState | null>(null); const [busy, setBusy] = useState(false); const [error, setError] = useState<string | null>(null);
   const fields = useMemo(() => [["year", fieldsCopy.year], ["mileageKm", fieldsCopy.mileageKm], ["condition", fieldsCopy.condition], ["fuelType", fieldsCopy.fuelType], ["transmission", fieldsCopy.transmission], ["engineVolumeL", fieldsCopy.engineVolumeL], ["priceAmount", fieldsCopy.priceAmount], ["city", fieldsCopy.city]] as const, [fieldsCopy]);
   async function request(text = message) {
     if (busy || !text.trim()) return;

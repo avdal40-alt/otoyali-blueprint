@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/i18n/client";
 import type { Locale } from "@/i18n/types";
 import { formatPrice } from "@/lib/format";
+import { getPriceIntelligenceCopy, type PriceIntelligenceCopy } from "./price-intelligence-copy";
 
 type PriceResult =
   | { available: false; reason: "insufficient_comparables" | "invalid_target" }
@@ -19,28 +20,10 @@ type PriceResult =
       recency: "fresh" | "mixed" | "older";
     };
 
-type PriceCopy = {
-  title: string;
-  loading: string;
-  unavailable: string;
-  insufficient: string;
-  median: string;
-  range: string;
-  comparableCount: string;
-  higher: string;
-  lower: string;
-  near: string;
-  limited: string;
-  fresh: string;
-  mixed: string;
-  older: string;
-  explanation: string;
-};
-
 /** Renders only the bounded, server-derived asking-price result from AI-01F-A. */
 export function PriceIntelligenceCard({ listingId }: { listingId: string }) {
-  const { locale, dictionary } = useI18n();
-  const copy = dictionary.ai.price as unknown as PriceCopy;
+  const { locale } = useI18n();
+  const copy = getPriceIntelligenceCopy(locale);
   const [state, setState] = useState<{ kind: "loading" } | { kind: "ready"; data: PriceResult } | { kind: "unavailable" }>({ kind: "loading" });
 
   useEffect(() => {
@@ -74,7 +57,7 @@ export function PriceIntelligenceCard({ listingId }: { listingId: string }) {
   );
 }
 
-function PriceResultView({ data, locale, copy }: { data: Extract<PriceResult, { available: true }>; locale: Locale; copy: PriceCopy }) {
+function PriceResultView({ data, locale, copy }: { data: Extract<PriceResult, { available: true }>; locale: Locale; copy: PriceIntelligenceCopy }) {
   const absoluteDifference = Math.abs(data.differencePercent);
   const relation = absoluteDifference < 1 ? copy.near : data.differencePercent > 0 ? copy.higher : copy.lower;
   const recency = data.recency === "fresh" ? copy.fresh : data.recency === "mixed" ? copy.mixed : copy.older;

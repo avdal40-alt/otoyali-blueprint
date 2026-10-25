@@ -254,6 +254,14 @@ must be migrated by domain slice:
   Kazakhstan location dataset instead of Istanbul;
 - API validation and metadata: locale validation in API routes plus all
   canonical, hreflang, sitemap, and metadata route producers.
+- active AI client boundary: Assistant, SellAssistant, ListingDescriptionAssistant,
+  TrustStatusCard, and PriceIntelligenceCard now resolve only through scoped
+  direct RU/KK/EN/zh-CN UI-copy contracts. Unsupported Jolmod UI locales fall
+  back to Russian and never Turkish. The UI adapters do not alter provider,
+  seller, listing, moderation, privacy, or market behavior. The separate AI
+  response-language policy continues to derive a response language from the
+  latest meaningful query (with UI-locale fallback only for ambiguous input),
+  while preserving the KZ/KZT marketplace context.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale
