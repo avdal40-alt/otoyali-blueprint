@@ -272,6 +272,10 @@ must be migrated by domain slice:
   authenticated video upload/remove calls, media authorization, and KZ write
   isolation remain unchanged. The remaining `get-dictionary.ts` composition is
   compatibility-only and is not an active-client consumer.
+- public dealer profile: the active dealer-page labels now resolve through a
+  direct RU/KK/EN/zh-CN adapter at the existing translation boundary, with
+  Russian fallback. This preserves the public dealer query and follow flow;
+  it neither enables nor configures Dealer Live infrastructure.
 
 The inventory is intentionally source-specific: all of these must move to
 canonical dictionary/locale helpers in coherent domain slices. No locale
