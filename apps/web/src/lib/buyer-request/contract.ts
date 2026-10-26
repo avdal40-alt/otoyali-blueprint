@@ -16,8 +16,8 @@ export function validBuyerRequestTitle(value: unknown) {
 }
 
 export function buyerRequestErrorMessage(status: number) {
-  if (status === 401) return "Oturum gerekli.";
-  if (status === 422) return "Geçersiz alım talebi.";
-  if (status === 404) return "Alım talebi kullanılamıyor.";
-  return "Alım talebi şu anda kullanılamıyor.";
+  if (status === 401) return "Требуется авторизация.";
+  if (status === 422) return "Недопустимый запрос на покупку.";
+  if (status === 404) return "Запрос на покупку недоступен.";
+  return "Запрос на покупку сейчас недоступен.";
 }
