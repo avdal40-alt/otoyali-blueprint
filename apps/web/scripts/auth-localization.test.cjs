@@ -27,4 +27,7 @@ const zh = getAuthCopy("zh-CN");
 assert.match(zh.verifyTitle, /[\u4e00-\u9fff]/, "zh-CN must contain Simplified Chinese characters");
 assert.doesNotMatch(JSON.stringify(zh), /[�□]|\?\?\?|TODO/i, "zh-CN must not contain corrupted or placeholder text");
 assert.equal(getAuthCopy("zh").verifyCode, zh.verifyCode);
+const authUiSource = fs.readFileSync(path.join(root, "src", "lib", "auth", "auth-ui.ts"), "utf8");
+assert.doesNotMatch(authUiSource, /locale:\s*Locale\s*=\s*"tr"/, "auth UI helpers must not retain a Turkish runtime fallback");
+assert.match(authUiSource, /locale:\s*Locale\s*=\s*"ru"/, "auth UI helpers must default to the Russian Jolmod fallback");
 console.log("Auth four-language localization tests passed.");

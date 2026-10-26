@@ -4,7 +4,7 @@ import { getIntlLocale, localizePath } from "@/i18n/config";
 import { getJolmodGlobalDictionary } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 
-export function BrandCard({ make, locale = "tr" }: { make: Make; locale?: Locale }) {
+export function BrandCard({ make, locale = "ru" }: { make: Make; locale?: Locale }) {
   const dictionary = getJolmodGlobalDictionary(locale);
   const makeName = make.make_name?.trim() || String(dictionary.common.noInfo);
   const initial = makeName.slice(0, 1).toLocaleUpperCase(getIntlLocale(locale));

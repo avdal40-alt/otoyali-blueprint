@@ -33,6 +33,16 @@ const chinese = flatten(globalLaunchHomeCopy["zh-CN"].home).join(" ");
 assert.match(chinese, /[\u4E00-\u9FFF]/, "Chinese Home copy must contain Simplified Chinese characters");
 assert.doesNotMatch(chinese, /[\uFFFD□]|\?{2,}|關|體|臺|\b(?:todo|tbd)\b/i, "Chinese Home copy must not contain corruption, Traditional Chinese, or placeholders");
 
+for (const component of [
+  ["src", "components", "home", "HomePageContent.tsx"],
+  ["src", "components", "brand", "BrandCarousel.tsx"],
+  ["src", "components", "brand", "BrandCard.tsx"]
+]) {
+  const componentSource = read(...component);
+  assert.match(componentSource, /locale\s*=\s*"ru"/, `${component.join("/")} must default to the Russian Jolmod fallback`);
+  assert.doesNotMatch(componentSource, /locale\s*=\s*"tr"/, `${component.join("/")} must not retain a Turkish runtime fallback`);
+}
+
 function flatten(section) {
   return Object.values(section).flatMap((value) => typeof value === "string" ? [value] : flatten(value));
 }

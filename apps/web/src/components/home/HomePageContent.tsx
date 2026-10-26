@@ -21,7 +21,7 @@ export function HomePageContent({
   models,
   cities = [],
   error,
-  locale = "tr"
+  locale = "ru"
 }: {
   listings: HomeListing[];
   makes: Make[];

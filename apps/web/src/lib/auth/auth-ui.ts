@@ -14,7 +14,7 @@ export type AuthErrorCategory =
   | "network_unavailable"
   | "generic_auth_failure";
 
-export function authErrorMessage(category: AuthErrorCategory, locale: Locale = "tr") {
+export function authErrorMessage(category: AuthErrorCategory, locale: Locale = "ru") {
   return getAuthCopy(locale).errors[category];
 }
 
@@ -65,7 +65,7 @@ export function mapAuthError(error?: unknown, fallback: AuthErrorCategory = "gen
   return fallback;
 }
 
-export function friendlyAuthError(message?: string | null, locale: Locale = "tr") {
+export function friendlyAuthError(message?: string | null, locale: Locale = "ru") {
   return authErrorMessage(mapAuthError(message), locale);
 }
 
