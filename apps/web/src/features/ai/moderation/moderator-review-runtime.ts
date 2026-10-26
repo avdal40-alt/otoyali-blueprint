@@ -19,8 +19,8 @@ const validUuid = (value: string) => UUID_PATTERN.test(value);
 
 export async function requireModerator(supabase: SupabaseClient, userId: string) {
   const { data, error } = await supabase.rpc("is_admin", { uid: userId });
-  if (error) throw new ModeratorReviewError(500, "Admin yetkisi doğrulanamadı.");
-  if (!data) throw new ModeratorReviewError(403, "Bu işlem için admin yetkisi gerekir.");
+  if (error) throw new ModeratorReviewError(500, "Не удалось проверить права администратора.");
+  if (!data) throw new ModeratorReviewError(403, "Для этого действия требуются права администратора.");
 }
 
 export async function getModeratorQueue(supabase: SupabaseClient, input: { limit?: number; cursor?: string | null }): Promise<{ items: ModeratorQueueItem[]; nextCursor: string | null }> {
@@ -29,7 +29,7 @@ export async function getModeratorQueue(supabase: SupabaseClient, input: { limit
   let runs = supabase.schema("marketplace").from("listing_moderation_runs").select("id,listing_id,recommended_action,created_at").eq("recommended_action", "review").order("created_at", { ascending: true }).order("id", { ascending: true }).limit(QUEUE_SCAN_LIMIT);
   if (cursor) runs = runs.or(`created_at.gt.${cursor.createdAt},and(created_at.eq.${cursor.createdAt},id.gt.${cursor.runId})`);
   const { data: candidateRows, error: candidateError } = await runs;
-  if (candidateError) throw new ModeratorReviewError(500, "Moderasyon kuyruğu yüklenemedi.");
+  if (candidateError) throw new ModeratorReviewError(500, "Не удалось загрузить очередь модерации.");
   const candidates = (candidateRows ?? []) as Row[];
   if (!candidates.length) return { items: [], nextCursor: null };
   const listingIds = [...new Set(candidates.map((row) => str(row, "listing_id")).filter(validUuid))];
@@ -40,7 +40,7 @@ export async function getModeratorQueue(supabase: SupabaseClient, input: { limit
     supabase.schema("marketplace").from("listing_moderation_overrides").select("run_id").in("run_id", runIds),
     supabase.schema("marketplace").from("listing_moderation_signals").select("run_id,code,severity").in("run_id", runIds).limit(MAX_SIGNALS)
   ]);
-  if (listingError || relatedError || overrideError || signalError) throw new ModeratorReviewError(500, "Moderasyon kuyruğu yüklenemedi.");
+  if (listingError || relatedError || overrideError || signalError) throw new ModeratorReviewError(500, "Не удалось загрузить очередь модерации.");
   const listingById = new Map(((listings ?? []) as Row[]).map((row) => [str(row, "id"), row]));
   const latestByListing = new Map<string, string>();
   for (const row of (relatedRuns ?? []) as Row[]) if (!latestByListing.has(str(row, "listing_id"))) latestByListing.set(str(row, "listing_id"), str(row, "id"));
@@ -55,20 +55,20 @@ export async function getModeratorQueue(supabase: SupabaseClient, input: { limit
 }
 
 export async function getModeratorReviewDetail(supabase: SupabaseClient, listingId: string, runId: string): Promise<ModeratorReviewDetail> {
-  if (!validUuid(listingId) || !validUuid(runId)) throw new ModeratorReviewError(404, "İnceleme kaydı bulunamadı.");
+  if (!validUuid(listingId) || !validUuid(runId)) throw new ModeratorReviewError(404, "Запись проверки не найдена.");
   const [{ data: listing, error: listingError }, { data: run, error: runError }] = await Promise.all([
     supabase.schema("marketplace").from("listings").select("id,title,status,moderation_status,created_at,updated_at,vehicle_profile_id").eq("id", listingId).maybeSingle(),
     supabase.schema("marketplace").from("listing_moderation_runs").select("id,listing_id,recommended_action,created_at,engine,ruleset_version,provider_id,model_id,prompt_schema_version").eq("id", runId).eq("listing_id", listingId).maybeSingle()
   ]);
-  if (listingError || runError) throw new ModeratorReviewError(500, "İnceleme ayrıntısı yüklenemedi.");
-  if (!listing || !run) throw new ModeratorReviewError(404, "İnceleme kaydı bulunamadı.");
+  if (listingError || runError) throw new ModeratorReviewError(500, "Не удалось загрузить сведения о проверке.");
+  if (!listing || !run) throw new ModeratorReviewError(404, "Запись проверки не найдена.");
   const { data: history, error: historyError } = await supabase.schema("marketplace").from("listing_moderation_runs").select("id,recommended_action,created_at").eq("listing_id", listingId).order("created_at", { ascending: false }).order("id", { ascending: false }).limit(MAX_HISTORY);
-  if (historyError) throw new ModeratorReviewError(500, "İnceleme ayrıntısı yüklenemedi.");
+  if (historyError) throw new ModeratorReviewError(500, "Не удалось загрузить сведения о проверке.");
   const [{ data: signals, error: signalError }, { data: overrides, error: overrideError }] = await Promise.all([
     supabase.schema("marketplace").from("listing_moderation_signals").select("code,severity,confidence,source,field_name,evidence_class,evidence_excerpt,recommended_action").eq("run_id", runId).order("created_at", { ascending: true }).limit(MAX_SIGNALS),
     supabase.schema("marketplace").from("listing_moderation_overrides").select("run_id,decision,reason_code,created_at").in("run_id", ((history ?? []) as Row[]).map((row) => str(row, "id")))
   ]);
-  if (signalError || overrideError) throw new ModeratorReviewError(500, "İnceleme ayrıntısı yüklenemedi.");
+  if (signalError || overrideError) throw new ModeratorReviewError(500, "Не удалось загрузить сведения о проверке.");
   const historyRows = (history ?? []) as Row[]; const overrideByRun = new Map(((overrides ?? []) as Row[]).map((row) => [str(row, "run_id"), row]));
   const currentRunId = str(historyRows[0] ?? {}, "id");
   const media = await sanitizedMediaByProfile(supabase, [str(listing as Row, "vehicle_profile_id")], false);
@@ -76,18 +76,18 @@ export async function getModeratorReviewDetail(supabase: SupabaseClient, listing
 }
 
 export async function submitModeratorDecision(supabase: SupabaseClient, input: { listingId: string; runId: unknown; decision: unknown; reasonCode: unknown; rejectionReason: unknown }) {
-  if (!validUuid(input.listingId) || typeof input.runId !== "string" || !validUuid(input.runId)) throw new ModeratorReviewError(400, "Geçersiz inceleme kimliği.");
+  if (!validUuid(input.listingId) || typeof input.runId !== "string" || !validUuid(input.runId)) throw new ModeratorReviewError(400, "Недопустимый идентификатор проверки.");
   const decision = typeof input.decision === "string" ? input.decision.trim().toLowerCase() : "";
   const reasonCode = typeof input.reasonCode === "string" && input.reasonCode.trim() ? input.reasonCode.trim().toLowerCase() : null;
   const rejectionReason = typeof input.rejectionReason === "string" && input.rejectionReason.trim() ? input.rejectionReason.trim().replace(/\s+/g, " ") : null;
-  if ((decision !== "approve" && decision !== "reject") || (reasonCode && (!REASON_CODE_PATTERN.test(reasonCode) || reasonCode.length > 80)) || (decision === "reject" && !reasonCode) || (rejectionReason && rejectionReason.length > 1600)) throw new ModeratorReviewError(400, "Geçersiz moderasyon kararı.");
+  if ((decision !== "approve" && decision !== "reject") || (reasonCode && (!REASON_CODE_PATTERN.test(reasonCode) || reasonCode.length > 80)) || (decision === "reject" && !reasonCode) || (rejectionReason && rejectionReason.length > 1600)) throw new ModeratorReviewError(400, "Недопустимое решение модерации.");
   const { data, error } = await supabase.rpc("review_listing_moderation_with_override", { p_listing_id: input.listingId, p_run_id: input.runId, p_decision: decision, p_reason_code: reasonCode, p_rejection_reason: rejectionReason });
   if (error) throw mapRpcError(error.code ?? null);
   return Array.isArray(data) ? data[0] ?? null : data ?? null;
 }
 
-function mapRpcError(code: string | null) { const mapped: Record<string, [number, string]> = { OT401: [401, "Admin oturumu doğrulanamadı."], OT403: [403, "Bu işlem için admin yetkisi gerekir."], OT404: [404, "İnceleme kaydı bulunamadı."], OT409: [409, "Bu inceleme artık güncel değil veya karara bağlandı."], OT422: [400, "Geçersiz moderasyon kararı."] }; const [status, message] = mapped[code ?? ""] ?? [500, "Moderasyon kararı tamamlanamadı."]; return new ModeratorReviewError(status, message); }
+function mapRpcError(code: string | null) { const mapped: Record<string, [number, string]> = { OT401: [401, "Сеанс администратора не подтверждён."], OT403: [403, "Для этого действия требуются права администратора."], OT404: [404, "Запись проверки не найдена."], OT409: [409, "Эта проверка устарела или уже обработана."], OT422: [400, "Недопустимое решение модерации."] }; const [status, message] = mapped[code ?? ""] ?? [500, "Не удалось применить решение модерации."]; return new ModeratorReviewError(status, message); }
 function groupBy(rows: Row[], key: string) { const groups = new Map<string, Row[]>(); for (const row of rows) { const value = str(row, key); groups.set(value, [...(groups.get(value) ?? []), row]); } return groups; }
 function encodeCursor(createdAt: string, runId: string) { return Buffer.from(JSON.stringify({ createdAt, runId }), "utf8").toString("base64url"); }
-function decodeCursor(value: string | null) { if (!value) return null; try { const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as { createdAt?: unknown; runId?: unknown }; return typeof parsed.createdAt === "string" && !Number.isNaN(Date.parse(parsed.createdAt)) && typeof parsed.runId === "string" && validUuid(parsed.runId) ? { createdAt: parsed.createdAt, runId: parsed.runId } : null; } catch { throw new ModeratorReviewError(400, "Geçersiz sayfalama imleci."); } }
-async function sanitizedMediaByProfile(supabase: SupabaseClient, profileIds: string[], coverOnly: boolean) { const validIds = [...new Set(profileIds.filter(validUuid))]; const output = new Map<string, Array<{ mediaId: string; largePath: string; cardPath: string; thumbPath: string; isCover: boolean }>>(); if (!validIds.length) return output; let query = supabase.schema("vehicle").from("profile_media").select("id,vehicle_profile_id,large_path,card_path,thumb_path,is_cover").in("vehicle_profile_id", validIds).eq("processed_status", "processed").eq("blur_status", "blurred").order("sort_order", { ascending: true }); if (coverOnly) query = query.eq("is_cover", true); const { data, error } = await query; if (error) throw new ModeratorReviewError(500, "Sanitized medya yüklenemedi."); for (const row of (data ?? []) as Row[]) { const profileId = str(row, "vehicle_profile_id"); const mediaId = str(row, "id"); const largePath = str(row, "large_path"); const cardPath = str(row, "card_path"); const thumbPath = str(row, "thumb_path"); const base = `public/${profileId}/${mediaId}/`; if (!largePath.startsWith(base) || !cardPath.startsWith(base) || !thumbPath.startsWith(base)) continue; output.set(profileId, [...(output.get(profileId) ?? []), { mediaId, largePath, cardPath, thumbPath, isCover: row.is_cover === true }]); } return output; }
+function decodeCursor(value: string | null) { if (!value) return null; try { const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as { createdAt?: unknown; runId?: unknown }; return typeof parsed.createdAt === "string" && !Number.isNaN(Date.parse(parsed.createdAt)) && typeof parsed.runId === "string" && validUuid(parsed.runId) ? { createdAt: parsed.createdAt, runId: parsed.runId } : null; } catch { throw new ModeratorReviewError(400, "Недопустимый курсор страницы."); } }
+async function sanitizedMediaByProfile(supabase: SupabaseClient, profileIds: string[], coverOnly: boolean) { const validIds = [...new Set(profileIds.filter(validUuid))]; const output = new Map<string, Array<{ mediaId: string; largePath: string; cardPath: string; thumbPath: string; isCover: boolean }>>(); if (!validIds.length) return output; let query = supabase.schema("vehicle").from("profile_media").select("id,vehicle_profile_id,large_path,card_path,thumb_path,is_cover").in("vehicle_profile_id", validIds).eq("processed_status", "processed").eq("blur_status", "blurred").order("sort_order", { ascending: true }); if (coverOnly) query = query.eq("is_cover", true); const { data, error } = await query; if (error) throw new ModeratorReviewError(500, "Не удалось загрузить обработанные медиафайлы."); for (const row of (data ?? []) as Row[]) { const profileId = str(row, "vehicle_profile_id"); const mediaId = str(row, "id"); const largePath = str(row, "large_path"); const cardPath = str(row, "card_path"); const thumbPath = str(row, "thumb_path"); const base = `public/${profileId}/${mediaId}/`; if (!largePath.startsWith(base) || !cardPath.startsWith(base) || !thumbPath.startsWith(base)) continue; output.set(profileId, [...(output.get(profileId) ?? []), { mediaId, largePath, cardPath, thumbPath, isCover: row.is_cover === true }]); } return output; }
