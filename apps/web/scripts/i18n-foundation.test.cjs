@@ -22,6 +22,7 @@ function loadModule(source, fileName, requireImpl = require) {
 const config = loadModule(read("src", "i18n", "config.ts"), "config.ts");
 const market = loadModule(read("src", "lib", "market.ts"), "market.ts");
 const completeness = loadModule(read("src", "i18n", "completeness.ts"), "completeness.ts");
+const manifest = JSON.parse(read("public", "manifest.webmanifest"));
 const tr = loadModule(read("src", "i18n", "dictionaries", "tr.ts"), "tr.ts").tr;
 const en = loadModule(read("src", "i18n", "dictionaries", "en.ts"), "en.ts").en;
 const dictionaries = loadModule(read("src", "i18n", "get-dictionary.ts"), "get-dictionary.ts", (request) => {
@@ -108,6 +109,11 @@ assert.equal(market.CURRENT_MARKET.id, "kazakhstan");
 assert.equal(market.CURRENT_MARKET.currencyCode, "KZT");
 assert.equal(market.CURRENT_MARKET.defaultPhoneCountry, "KZ");
 assert.equal("locale" in market.CURRENT_MARKET, false, "Market configuration must not derive from locale");
+assert.equal(manifest.name, "Jolmod");
+assert.equal(manifest.short_name, "Jolmod");
+assert.equal(manifest.lang, "ru", "The PWA manifest must use the Russian Jolmod default");
+assert.match(manifest.description, /Казахстана/);
+assert.doesNotMatch(JSON.stringify(manifest), /Turkey|T\u00fcrkiye|Yolmod|Jolcar|\"lang\":\s*\"tr\"/i);
 
 assert.deepEqual(completeness.findMissingTranslationKeys(tr, en), []);
 assert.deepEqual(completeness.findMissingTranslationKeys({ common: { required: "Required" } }, { common: {} }), ["common.required"]);

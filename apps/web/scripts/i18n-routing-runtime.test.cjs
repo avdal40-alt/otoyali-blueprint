@@ -132,9 +132,8 @@ async function verifyApiSlash(origin, expectedStatus, label) {
 async function verifyNormal(origin) {
   let { response } = await request(origin, "/about", { headers: { "accept-language": "en" } });
   assert.equal(response.status, 307); assert.equal(response.headers.get("location"), "/en/about");
-  let result = await request(origin, "/en/about"); response = result.response; assert.equal(response.status, 200); assert.match(result.body, /AI-first transportation platform/i);
-  ({ response } = await request(origin, "/tr/about")); assert.equal(response.status, 307); assert.equal(response.headers.get("location"), "/about");
-  ({ response } = await request(origin, response.headers.get("location"))); assert.equal(response.status, 200); assertNoRedirect(response, "/tr/about final request");
+  let result = await request(origin, "/en/about"); response = result.response; assert.equal(response.status, 200); assert.match(result.body, /Kazakhstan(?:&#x27;|')s vehicle marketplace/i);
+  ({ response } = await request(origin, "/tr/about")); assert.equal(response.status, 404); assertNoRedirect(response, "/tr/about");
   ({ response } = await request(origin, "/api", { headers: { "accept-language": "en" } })); assert.equal(response.status, 404); assertNoRedirect(response, "/api");
   await verifyApiSlash(origin, 404, "normal");
   ({ response } = await request(origin, "/api/ai/assistant", { method: "POST", headers: { "accept-language": "en", "content-type": "application/json" }, body: "{}" })); assert.equal(response.status, 400); assertNoRedirect(response, "/api/ai/assistant");
@@ -146,7 +145,7 @@ async function verifyMaintenance(origin) {
     const { response, body } = await request(origin, pathname, { method, headers });
     assert.equal(response.status, 503, `${method} ${pathname} must be terminal 503 during maintenance`); assertNoRedirect(response, `${method} ${pathname}`);
     assert.equal(response.headers.get("retry-after"), "60"); assert.equal(response.headers.get("cache-control"), "no-store");
-    if (method !== "OPTIONS") assert.match(body, /Kısa bir bakımdayız/);
+    if (method !== "OPTIONS") assert.match(body, /Мы проводим короткое техническое обслуживание/);
   }
   let { response } = await request(origin, "/api", { headers: { "accept-language": "en" } });
   assert.equal(response.status, 503); assertNoRedirect(response, "/api maintenance"); assert.equal(response.headers.get("content-type"), "application/json");

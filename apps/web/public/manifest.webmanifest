@@ -1,14 +1,14 @@
 {
-  "name": "Jolcar",
-  "short_name": "Jolcar",
-  "description": "AI-first transportation platform for Turkey.",
+  "name": "Jolmod",
+  "short_name": "Jolmod",
+  "description": "Jolmod — автомобильная площадка Казахстана.",
   "start_url": "/",
   "scope": "/",
   "id": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#2563EB",
-  "lang": "tr",
+  "lang": "ru",
   "categories": ["shopping", "automotive", "news"],
   "icons": [
     {
@@ -32,18 +32,18 @@
   ],
   "shortcuts": [
     {
-      "name": "Araç ara",
-      "short_name": "Ara",
+      "name": "Поиск автомобилей",
+      "short_name": "Поиск",
       "url": "/search"
     },
     {
-      "name": "İlan yayınla",
-      "short_name": "İlan ver",
+      "name": "Подать объявление",
+      "short_name": "Подать",
       "url": "/sell"
     },
     {
-      "name": "Haberler",
-      "short_name": "Haber",
+      "name": "Новости",
+      "short_name": "Новости",
       "url": "/news"
     }
   ]
