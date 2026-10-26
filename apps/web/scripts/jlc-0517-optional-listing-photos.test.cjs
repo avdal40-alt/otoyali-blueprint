@@ -7,6 +7,7 @@ const repoRoot = path.resolve(webRoot, "..", "..");
 const read = (...parts) => fs.readFileSync(path.join(...parts), "utf8");
 const wizard = read(webRoot, "src", "app", "sell", "_components", "SellWizard.tsx");
 const copy = read(webRoot, "src", "app", "sell", "sell-copy.ts");
+const launchCopy = read(webRoot, "src", "i18n", "dictionaries", "sell-wizard.ts");
 const migrationName = fs.readdirSync(path.join(repoRoot, "supabase", "migrations"))
   .find((name) => name.endsWith("_jlc_0517_optional_listing_photos_cap.sql"));
 
@@ -24,7 +25,12 @@ for (const value of [
 assert.ok(!wizard.includes("state.photos.length < 3"), "the wizard must not warn or block fewer than three photos");
 assert.ok(!wizard.includes("persistedPhotos.length >= 3"), "the quality score must not penalize optional photos");
 assert.ok(!copy.includes("minimumPhotosHelp"), "the seller copy must not retain a minimum-photo requirement");
-assert.ok(copy.includes("15 fotoğraf") && copy.includes("15 photos"), "both locales must describe the 15-photo cap");
+for (const value of [
+  "You can upload up to 15 photos.",
+  "Можно загрузить до 15 фотографий.",
+  "15 фотосуретке дейін жүктей аласыз.",
+  "最多可上传 15 张照片。"
+]) assert.ok(launchCopy.includes(value), `launch seller copy must describe the 15-photo cap: ${value}`);
 
 for (const value of [
   "FOR UPDATE;",
