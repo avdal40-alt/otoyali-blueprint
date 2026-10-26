@@ -36,7 +36,9 @@ SELECT row_number || '|' || status || '|' || external_listing_id
   FROM public.apply_own_verified_galeri_excel_import(repeat('a', 64), '${row("stock-1")}'::jsonb);
 SELECT row_number || '|' || status || '|' || external_listing_id
   FROM public.apply_own_verified_galeri_excel_import(repeat('b', 64), '${row("stock-1", { year: "2021", mileage: "13000", price: "110000", title: "Updated imported stock", city: "Astana" })}'::jsonb);
-SELECT l.title || '|' || l.price_amount || '|' || l.city || '|' || vp.year || '|' || vp.mileage_km || '|' || l.status || '|' || l.moderation_status
+SELECT l.title || '|' || l.price_amount || '|' || l.city || '|' ||
+  (l.city_id = (SELECT id FROM marketplace.cities WHERE country_code = 'KZ' AND is_active AND lower(name) = 'astana' ORDER BY sort_order, id LIMIT 1)) || '|' ||
+  l.currency || '|' || vp.year || '|' || vp.mileage_km || '|' || l.status || '|' || l.moderation_status
   FROM marketplace.dealer_listing_external_ids dlei
   JOIN marketplace.listings l ON l.id = dlei.listing_id
   JOIN vehicle.vehicle_profiles vp ON vp.id = l.vehicle_profile_id
@@ -66,7 +68,7 @@ ROLLBACK;
 
 for (const expected of [
   "1|applied|stock-1",
-  "Updated imported stock|110000|Astana|2021|13000|draft|pending_review",
+  "Updated imported stock|110000|Astana|true|KZT|2021|13000|draft|pending_review",
   "1|unknown_vehicle_catalog",
   "1|archived|stock-1",
   "removed|true",

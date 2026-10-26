@@ -20,7 +20,7 @@ const owner = "00000000-0000-0000-0000-000000000201";
 const other = "00000000-0000-0000-0000-000000000202";
 const makeModel = query("SELECT ma.slug || '|' || mo.slug FROM vehicle.makes ma JOIN vehicle.models mo ON mo.make_id=ma.id WHERE ma.is_active AND mo.is_active ORDER BY ma.slug,mo.slug LIMIT 1").split("|");
 assert.equal(makeModel.length, 2);
-const row = (id) => JSON.stringify([{ external_listing_id: id, operation: "upsert", make_slug: makeModel[0], model_slug: makeModel[1], year: "2020", mileage_km: "12000", fuel_type: "gasoline", transmission: "automatic", title: "Test listing", price_amount: "100000", city: "Ankara" }]).replace(/'/g, "''");
+const row = (id) => JSON.stringify([{ external_listing_id: id, operation: "upsert", make_slug: makeModel[0], model_slug: makeModel[1], year: "2020", mileage_km: "12000", fuel_type: "gasoline", transmission: "automatic", title: "Test listing", price_amount: "100000", city: "Almaty" }]).replace(/'/g, "''");
 
 assert.throws(() => query("BEGIN; SET LOCAL ROLE anon; SELECT * FROM public.apply_own_verified_galeri_excel_import(repeat('a',64), '[]'); ROLLBACK;"), /permission denied/i, "anon denied");
 assert.throws(() => query(`BEGIN; INSERT INTO auth.users (id,aud,role,email,raw_app_meta_data,raw_user_meta_data,created_at,updated_at) VALUES ('${owner}','authenticated','authenticated','h-owner@example.test','{}','{}',now(),now()); SET LOCAL ROLE authenticated; SELECT set_config('request.jwt.claim.sub','${owner}',true); SELECT * FROM public.apply_own_verified_galeri_excel_import(repeat('a',64),'${row("ordinary")}'::jsonb); ROLLBACK;`), /verified Galeri required/i, "ordinary user denied");
