@@ -29,23 +29,23 @@ const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}
 const maxReasonLength = 1600;
 
 const reviewErrorResponses: Record<string, PublicReviewError> = {
-  OT401: { status: 401, message: "Admin oturumu doğrulanamadı." },
-  OT403: { status: 403, message: "Bu işlem için admin yetkisi gerekir." },
-  OT404: { status: 404, message: "İlan bulunamadı." },
-  OT409: { status: 409, message: "Bu ilan için seçilen moderasyon kararı artık geçerli değil." },
-  OT422: { status: 422, message: "Geçersiz ilan moderasyon kararı." }
+  OT401: { status: 401, message: "Сеанс администратора не подтверждён." },
+  OT403: { status: 403, message: "Для этого действия требуются права администратора." },
+  OT404: { status: 404, message: "Объявление не найдено." },
+  OT409: { status: 409, message: "Выбранное решение модерации для этого объявления больше не актуально." },
+  OT422: { status: 422, message: "Недопустимое решение модерации объявления." }
 };
 
 const genericReviewError: PublicReviewError = {
   status: 500,
-  message: "İlan moderasyonu tamamlanamadı."
+  message: "Не удалось завершить модерацию объявления."
 };
 
 export async function POST(request: NextRequest) {
   const correlationId = correlationIdFromRequest(request.headers);
   const authorization = request.headers.get("authorization");
   if (!authorization?.startsWith("Bearer ")) {
-    return NextResponse.json({ error: "Admin oturumu bulunamadı." }, { status: 401 });
+    return NextResponse.json({ error: "Сеанс администратора не найден." }, { status: 401 });
   }
 
   const payload = await readPayload(request);
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
   const supabase = createRequestSupabaseClient(authorization);
   if (!supabase) {
-    return NextResponse.json({ error: "Supabase ortam değişkenleri eksik." }, { status: 500 });
+    return NextResponse.json({ error: "Отсутствуют переменные окружения Supabase." }, { status: 500 });
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     if (userError) {
       safeLog("warn", "listing_review_auth_failed", { code: userError.code ?? null });
     }
-    return NextResponse.json({ error: "Admin oturumu doğrulanamadı." }, { status: 401 });
+    return NextResponse.json({ error: "Сеанс администратора не подтверждён." }, { status: 401 });
   }
 
   const { data, error } = await observeOperation({ path: "api", operation: "admin.listing_review", correlationId }, () => supabase.rpc("review_listing_moderation", {
@@ -94,7 +94,7 @@ async function readPayload(request: NextRequest): Promise<
   try {
     payload = (await request.json()) as ListingReviewPayload;
   } catch {
-    return { ok: false, error: "Geçersiz istek gövdesi." };
+    return { ok: false, error: "Недопустимое тело запроса." };
   }
 
   const listingId = typeof payload.listingId === "string" ? payload.listingId.trim() : "";
@@ -105,16 +105,16 @@ async function readPayload(request: NextRequest): Promise<
       : null;
 
   if (!uuidPattern.test(listingId)) {
-    return { ok: false, error: "Geçersiz ilan kimliği." };
+    return { ok: false, error: "Недопустимый идентификатор объявления." };
   }
   if (!allowedDecisions.has(decision)) {
-    return { ok: false, error: "Geçersiz ilan moderasyon kararı." };
+    return { ok: false, error: "Недопустимое решение модерации объявления." };
   }
   if (decision === "reject" && !rejectionReason) {
-    return { ok: false, error: "Ret kararı için gerekçe gerekir." };
+    return { ok: false, error: "Для отклонения требуется причина." };
   }
   if (rejectionReason && rejectionReason.length > maxReasonLength) {
-    return { ok: false, error: "Ret gerekçesi çok uzun." };
+    return { ok: false, error: "Причина отклонения слишком длинная." };
   }
 
   return {
