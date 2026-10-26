@@ -362,5 +362,21 @@ Kazakh, English, and Simplified Chinese coverage with Russian fallback behavior.
   integrity verification.
 - the KZ locale-routing foundation now recognizes direct `zh-CN`, keeps Russian
   as the unprefixed default/fallback, and rewrites non-default launch locale
-  prefixes to locale-neutral Kazakhstan routes. Registry activation remains
-  subject to the final whole-app active-consumer gate.
+  prefixes to locale-neutral Kazakhstan routes.
+
+## 2026-10-26 completion evidence
+
+- The committed registry releases exactly `ru`, `kk`, `en`, and `zh-CN` for
+  Jolmod. Russian is the default and unsupported-locale fallback; Turkish and
+  Arabic are unreleased and cannot participate in Jolmod negotiation or public
+  locale routing.
+- A final active-consumer trace classified the historical `tr`/`en` dictionary
+  modules and Turkey path mappings as compatibility-only. Active Jolmod
+  user-facing consumers use direct launch-copy adapters or scoped direct copy;
+  no active consumer relies on a Turkish fallback.
+- Fresh local regression at `230628b` passed the JLC-1508 master gate; KZ/TR
+  country/read/write/media gates; typecheck, lint, diff integrity, production
+  build; and the i18n routing, global-loader, auth, seller, listing, profile,
+  favorites, saved-search, messages, notifications, dealer, moderation, legal,
+  AI, and formatting suites. No remote database, SMS/provider, deployment, or
+  production operation was performed.
