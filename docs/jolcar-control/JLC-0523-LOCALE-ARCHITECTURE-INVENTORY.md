@@ -380,3 +380,8 @@ Kazakh, English, and Simplified Chinese coverage with Russian fallback behavior.
   favorites, saved-search, messages, notifications, dealer, moderation, legal,
   AI, and formatting suites. No remote database, SMS/provider, deployment, or
   production operation was performed.
+- The follow-up legal-acceptance grant migration explicitly revokes default
+  table access from `PUBLIC`, `anon`, and `authenticated`, then restores only
+  authenticated `SELECT`/`INSERT` and intentional service-role maintenance.
+  A rolled-back local database transaction verified RLS, exact table
+  privileges, and the own-row policies without applying any pending migration.
