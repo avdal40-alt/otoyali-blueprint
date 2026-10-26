@@ -104,18 +104,18 @@ export type ListingWriteRpcError = { code?: string | null; message?: string | nu
 export function listingWriteError(error: ListingWriteRpcError) {
   if (error.code === "OT403" && error.message === "seller phone verification required") return { status: 403, message: "SELLER_PHONE_VERIFICATION_REQUIRED" };
   if (error.code === "OT422" && error.message === "at least three finalized photos are required") {
-    return { status: 422, message: "İlanı incelemeye göndermek için en az 3 tamamlanmış fotoğraf ekleyin." };
+    return { status: 422, message: "Чтобы отправить объявление на проверку, добавьте не менее 3 обработанных фотографий." };
   }
   if (error.code === "OT422" && error.message === "a finalized cover photo is required") {
-    return { status: 422, message: "İlanı incelemeye göndermek için tamamlanmış bir kapak fotoğrafı seçin." };
+    return { status: 422, message: "Чтобы отправить объявление на проверку, выберите обработанную обложку." };
   }
   switch (error.code) {
-    case "OT401": return { status: 401, message: "Oturum doğrulanamadı." };
-    case "OT403": return { status: 403, message: "Bu işlem için yetkiniz yok." };
-    case "OT404": return { status: 404, message: "İlan bulunamadı." };
-    case "OT409": return { status: 409, message: "İlan değişti. Lütfen yenileyip tekrar deneyin." };
-    case "OT422": return { status: 422, message: "İstek geçerli değil." };
-    default: return { status: 500, message: "İlan işlemi tamamlanamadı." };
+    case "OT401": return { status: 401, message: "Не удалось подтвердить авторизацию." };
+    case "OT403": return { status: 403, message: "У вас нет прав на это действие." };
+    case "OT404": return { status: 404, message: "Объявление не найдено." };
+    case "OT409": return { status: 409, message: "Объявление изменилось. Обновите страницу и повторите попытку." };
+    case "OT422": return { status: 422, message: "Некорректный запрос." };
+    default: return { status: 500, message: "Не удалось выполнить операцию с объявлением." };
   }
 }
 
@@ -132,14 +132,14 @@ export async function createOwnListingDraft(authenticated: AuthenticatedRequestS
   if (error) return { error: listingWriteError(error), rawError: error } as const;
   const row = Array.isArray(data) ? data[0] : data;
   const result = row && typeof row === "object" ? row as { listing_id?: string; vehicle_profile_id?: string; created_at?: string } : null;
-  return result?.listing_id && result.vehicle_profile_id && result.created_at ? { data: { listingId: result.listing_id, vehicleProfileId: result.vehicle_profile_id, createdAt: result.created_at } } as const : { error: { status: 500, message: "İlan işlemi tamamlanamadı." } } as const;
+  return result?.listing_id && result.vehicle_profile_id && result.created_at ? { data: { listingId: result.listing_id, vehicleProfileId: result.vehicle_profile_id, createdAt: result.created_at } } as const : { error: { status: 500, message: "Не удалось выполнить операцию с объявлением." } } as const;
 }
 
 export async function saveOwnRejectedListing(authenticated: AuthenticatedRequestSupabase, listingId: string, payload: z.infer<typeof editListingSchema>) {
   const { data, error } = await authenticated.supabase.rpc("save_own_listing_edit", { p_listing_id: listingId, p_expected_listing_updated_at: payload.expectedListingUpdatedAt, p_expected_vehicle_updated_at: payload.expectedVehicleUpdatedAt, p_make_id: payload.makeId, p_model_id: payload.modelId, p_year: payload.year, p_mileage_km: payload.mileageKm, p_condition: payload.condition, p_fuel_type: payload.fuelType, p_transmission: payload.transmission, p_body_type: payload.bodyType, p_drive_type: payload.driveType, p_color: payload.color, p_engine_volume_l: payload.engineVolumeL, p_damage_state: payload.damageState, p_owner_count: payload.ownerCount, p_description: payload.description, p_price_amount_text: payload.priceAmount, p_currency: payload.currency, p_price_negotiable: payload.priceNegotiable, p_city: payload.city });
   if (error) return { error: listingWriteError(error), rawError: error } as const;
   const row = Array.isArray(data) ? data[0] : data; const result = row && typeof row === "object" ? row as Record<string, unknown> : null;
-  return result ? { data: { listingId: result.saved_listing_id, listingUpdatedAt: result.saved_listing_updated_at, vehicleUpdatedAt: result.saved_vehicle_updated_at, status: result.saved_status, moderationStatus: result.saved_moderation_status, title: result.saved_title, titleGenerated: result.saved_title_generated } } as const : { error: { status: 500, message: "İlan işlemi tamamlanamadı." } } as const;
+  return result ? { data: { listingId: result.saved_listing_id, listingUpdatedAt: result.saved_listing_updated_at, vehicleUpdatedAt: result.saved_vehicle_updated_at, status: result.saved_status, moderationStatus: result.saved_moderation_status, title: result.saved_title, titleGenerated: result.saved_title_generated } } as const : { error: { status: 500, message: "Не удалось выполнить операцию с объявлением." } } as const;
 }
 
 export const listingContactSwitchSchema = z.object({ sellerContactPhoneId: listingIdSchema }).strict();
@@ -157,5 +157,5 @@ export async function submitOwnListing(authenticated: AuthenticatedRequestSupaba
   const { data, error } = await authenticated.supabase.rpc(operation === "submit" ? "submit_own_listing_for_review" : "resubmit_own_listing_for_review", { p_listing_id: listingId });
   if (error) return { error: listingWriteError(error), rawError: error } as const;
   const row = Array.isArray(data) ? data[0] : data; const result = row && typeof row === "object" ? row as { listing_id?: string; status?: string; moderation_status?: string } : null;
-  return result?.listing_id && result.status && result.moderation_status ? { data: { listingId: result.listing_id, status: result.status, moderationStatus: result.moderation_status } } as const : { error: { status: 500, message: "İlan işlemi tamamlanamadı." } } as const;
+  return result?.listing_id && result.status && result.moderation_status ? { data: { listingId: result.listing_id, status: result.status, moderationStatus: result.moderation_status } } as const : { error: { status: 500, message: "Не удалось выполнить операцию с объявлением." } } as const;
 }

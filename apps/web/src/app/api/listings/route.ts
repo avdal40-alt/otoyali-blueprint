@@ -7,13 +7,13 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   const authenticated = await requireAuthenticatedRequestSupabase(request.headers.get("authorization"));
-  if (!authenticated) return NextResponse.json({ error: "Oturum doğrulanamadı." }, { status: 401, headers: privateApiHeaders });
+  if (!authenticated) return NextResponse.json({ error: "Не удалось подтвердить авторизацию." }, { status: 401, headers: privateApiHeaders });
 
   const payload = await parseBody(request, createListingSchema);
-  if (!payload) return NextResponse.json({ error: "İstek geçerli değil." }, { status: 422, headers: privateApiHeaders });
+  if (!payload) return NextResponse.json({ error: "Некорректный запрос." }, { status: 422, headers: privateApiHeaders });
 
   const result = await createOwnListingDraft(authenticated, payload);
-  if ("error" in result) { const error = result.error ?? { status: 500, message: "İlan işlemi tamamlanamadı." }; if (result.rawError) logListingWriteFailure("create", result.rawError, authenticated.userId); return NextResponse.json({ error: error.message }, { status: error.status, headers: privateApiHeaders }); }
+  if ("error" in result) { const error = result.error ?? { status: 500, message: "Не удалось выполнить операцию с объявлением." }; if (result.rawError) logListingWriteFailure("create", result.rawError, authenticated.userId); return NextResponse.json({ error: error.message }, { status: error.status, headers: privateApiHeaders }); }
   return NextResponse.json({ data: result.data }, { status: 201, headers: privateApiHeaders });
 }
 
