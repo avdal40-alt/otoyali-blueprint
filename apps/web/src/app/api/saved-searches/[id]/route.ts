@@ -10,11 +10,11 @@ function privateJson(body: object, status: number) {
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authenticated = await requireAuthenticatedRequest(request.headers.get("authorization"));
-  if (!authenticated) return privateJson({ error: "Oturum gerekli." }, 401);
+  if (!authenticated) return privateJson({ error: "Требуется авторизация." }, 401);
   const id = parseSavedSearchId((await params).id);
   const payload = await readJson(request);
   if (!id || !payload || Object.keys(payload).some((key) => !["title", "alertEnabled"].includes(key)) || typeof payload.title !== "string" || Array.from(payload.title.trim()).length > 120 || typeof payload.alertEnabled !== "boolean") {
-    return privateJson({ error: "Geçersiz kayıtlı arama." }, 422);
+    return privateJson({ error: "Некорректный сохранённый поиск." }, 422);
   }
   const { data, error } = await authenticated.supabase.schema("marketplace").rpc("update_own_saved_search_metadata", {
     p_saved_search_id: id,
@@ -31,9 +31,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authenticated = await requireAuthenticatedRequest(request.headers.get("authorization"));
-  if (!authenticated) return privateJson({ error: "Oturum gerekli." }, 401);
+  if (!authenticated) return privateJson({ error: "Требуется авторизация." }, 401);
   const id = parseSavedSearchId((await params).id);
-  if (!id) return privateJson({ error: "Kayıtlı arama kullanılamıyor." }, 404);
+  if (!id) return privateJson({ error: "Сохранённый поиск недоступен." }, 404);
   const { error } = await authenticated.supabase.schema("marketplace").rpc("delete_own_saved_search", { p_saved_search_id: id });
   if (error) {
     const status = rpcErrorStatus(error.code);

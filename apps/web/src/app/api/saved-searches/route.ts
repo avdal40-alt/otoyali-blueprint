@@ -34,7 +34,7 @@ function toSavedSearch(row: SavedSearchRow, includeLegacy = false) {
 
 export async function GET(request: NextRequest) {
   const authenticated = await requireAuthenticatedRequest(request.headers.get("authorization"));
-  if (!authenticated) return privateJson({ error: "Oturum gerekli." }, 401);
+  if (!authenticated) return privateJson({ error: "Требуется авторизация." }, 401);
   const { data, error } = await authenticated.supabase.schema("marketplace").rpc("list_own_saved_searches");
   if (error) {
     const status = rpcErrorStatus(error.code);
@@ -45,13 +45,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const authenticated = await requireAuthenticatedRequest(request.headers.get("authorization"));
-  if (!authenticated) return privateJson({ error: "Oturum gerekli." }, 401);
+  if (!authenticated) return privateJson({ error: "Требуется авторизация." }, 401);
   const payload = await readJson(request);
   if (!payload || Object.keys(payload).some((key) => !["request", "title", "alertEnabled"].includes(key)) || !isSavedSearchRequest(payload.request)) {
-    return privateJson({ error: "Geçersiz kayıtlı arama." }, 422);
+    return privateJson({ error: "Некорректный сохранённый поиск." }, 422);
   }
   const title = typeof payload.title === "string" && Array.from(payload.title.trim()).length <= 120 ? payload.title : null;
-  if (("title" in payload && title === null) || ("alertEnabled" in payload && typeof payload.alertEnabled !== "boolean")) return privateJson({ error: "Geçersiz kayıtlı arama." }, 422);
+  if (("title" in payload && title === null) || ("alertEnabled" in payload && typeof payload.alertEnabled !== "boolean")) return privateJson({ error: "Некорректный сохранённый поиск." }, 422);
   const { data, error } = await authenticated.supabase.schema("marketplace").rpc("create_saved_search", {
     p_request: payload.request,
     p_title: title,

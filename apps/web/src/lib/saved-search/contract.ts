@@ -36,11 +36,11 @@ export function rpcErrorStatus(code: string | null | undefined) {
 }
 
 export function rpcErrorMessage(status: number) {
-  if (status === 401) return "Oturum gerekli.";
-  if (status === 422) return "Geçersiz kayıtlı arama.";
-  if (status === 429) return "En fazla 5 arama kaydedebilirsiniz.";
-  if (status === 404) return "Kayıtlı arama kullanılamıyor.";
-  return "Kayıtlı arama şu anda kullanılamıyor.";
+  if (status === 401) return "Требуется авторизация.";
+  if (status === 422) return "Некорректный сохранённый поиск.";
+  if (status === 429) return "Можно сохранить не более 5 поисков.";
+  if (status === 404) return "Сохранённый поиск недоступен.";
+  return "Сохранённый поиск сейчас недоступен.";
 }
 
 export function isPlainObject(value: unknown): value is Record<string, unknown> {
