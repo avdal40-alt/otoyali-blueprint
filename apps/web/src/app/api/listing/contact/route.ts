@@ -20,7 +20,7 @@ function privateJson(body: object, status: number) {
 export async function POST(request: NextRequest) {
   const authorization = request.headers.get("authorization");
   if (!authorization?.startsWith("Bearer ")) {
-    return privateJson({ error: "Oturum gerekli." }, 401);
+    return privateJson({ error: "Требуется авторизация." }, 401);
   }
 
   const payload = await readPayload(request);
@@ -30,12 +30,12 @@ export async function POST(request: NextRequest) {
 
   const supabase = createRequestSupabaseClient(authorization);
   if (!supabase) {
-    return privateJson({ error: "Satıcı iletişimi şu anda kullanılamıyor." }, 500);
+    return privateJson({ error: "Контакт продавца сейчас недоступен." }, 500);
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) {
-    return privateJson({ error: "Oturum doğrulanamadı." }, 401);
+    return privateJson({ error: "Не удалось подтвердить авторизацию." }, 401);
   }
 
   const { data: reservation, error: reservationError } = await supabase.rpc("reserve_listing_seller_contact_disclosure", {
@@ -43,19 +43,19 @@ export async function POST(request: NextRequest) {
   });
   const allowed = Array.isArray(reservation) && reservation[0]?.allowed === true;
   if (reservationError || !allowed) {
-    return privateJson({ error: "Satıcı iletişimi şu anda kullanılamıyor." }, reservationError ? 403 : 429);
+    return privateJson({ error: "Контакт продавца сейчас недоступен." }, reservationError ? 403 : 429);
   }
 
   const { data, error } = await supabase.rpc("get_listing_seller_contact", {
     p_listing_id: payload.listingId
   });
   if (error) {
-    return privateJson({ error: "Satıcı iletişimi alınamadı." }, 403);
+    return privateJson({ error: "Не удалось получить контакт продавца." }, 403);
   }
 
   const phone = Array.isArray(data) ? data[0]?.phone : null;
   if (typeof phone !== "string" || !phonePattern.test(phone)) {
-    return privateJson({ error: "Satıcı iletişimi bu ilan için kullanılamıyor." }, 404);
+    return privateJson({ error: "Контакт продавца недоступен для этого объявления." }, 404);
   }
 
   return privateJson({ data: { phone } }, 200);
@@ -66,16 +66,16 @@ async function readPayload(request: NextRequest): Promise<{ ok: true; listingId:
   try {
     payload = (await request.json()) as ContactPayload;
   } catch {
-    return { ok: false, error: "Geçersiz istek gövdesi." };
+    return { ok: false, error: "Некорректный запрос." };
   }
 
   if (!payload || typeof payload !== "object" || Object.keys(payload).length !== 1 || !("listingId" in payload)) {
-    return { ok: false, error: "Geçersiz istek gövdesi." };
+    return { ok: false, error: "Некорректный запрос." };
   }
 
   const listingId = typeof payload.listingId === "string" ? payload.listingId.trim() : "";
   if (!uuidPattern.test(listingId)) {
-    return { ok: false, error: "Geçersiz ilan kimliği." };
+    return { ok: false, error: "Некорректный идентификатор объявления." };
   }
 
   return { ok: true, listingId };
