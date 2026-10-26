@@ -27,22 +27,22 @@ const allowedDecisions = new Set(["reviewing", "approved", "rejected", "archived
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const reviewRpcErrorResponses: Record<string, PublicReviewError> = {
-  OT401: { status: 401, message: "Admin oturumu doğrulanamadı." },
-  OT403: { status: 403, message: "Bu işlem için admin yetkisi gerekir." },
-  OT404: { status: 404, message: "Servis başvurusu bulunamadı." },
-  OT409: { status: 409, message: "Bu başvuru için seçilen durum değişikliği artık geçerli değil." },
-  OT422: { status: 400, message: "Geçersiz servis başvurusu kararı." }
+  OT401: { status: 401, message: "Сеанс администратора не подтверждён." },
+  OT403: { status: 403, message: "Для этого действия требуются права администратора." },
+  OT404: { status: 404, message: "Заявка на услуги не найдена." },
+  OT409: { status: 409, message: "Выбранное изменение статуса этой заявки больше не актуально." },
+  OT422: { status: 400, message: "Недопустимое решение по заявке на услуги." }
 };
 
 const genericReviewError: PublicReviewError = {
   status: 500,
-  message: "Servis başvurusu incelenemedi."
+  message: "Не удалось обработать заявку на услуги."
 };
 
 export async function POST(request: NextRequest) {
   const authorization = request.headers.get("authorization");
   if (!authorization?.startsWith("Bearer ")) {
-    return NextResponse.json({ error: "Admin oturumu bulunamadı." }, { status: 401 });
+    return NextResponse.json({ error: "Сеанс администратора не найден." }, { status: 401 });
   }
 
   const payload = await readPayload(request);
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
   const supabase = createRequestSupabaseClient(authorization);
   if (!supabase) {
-    return NextResponse.json({ error: "Supabase ortam değişkenleri eksik." }, { status: 500 });
+    return NextResponse.json({ error: "Отсутствуют переменные окружения Supabase." }, { status: 500 });
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     if (userError) {
       safeLog("warn", "service_application_review_auth_failed", { code: userError.code ?? null });
     }
-    return NextResponse.json({ error: "Admin oturumu doğrulanamadı." }, { status: 401 });
+    return NextResponse.json({ error: "Сеанс администратора не подтверждён." }, { status: 401 });
   }
 
   const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin", { uid: userData.user.id });
@@ -69,10 +69,10 @@ export async function POST(request: NextRequest) {
       code: adminError.code,
       userId: userData.user.id
     });
-    return NextResponse.json({ error: "Admin yetkisi doğrulanamadı." }, { status: 500 });
+    return NextResponse.json({ error: "Не удалось проверить права администратора." }, { status: 500 });
   }
   if (!isAdmin) {
-    return NextResponse.json({ error: "Bu işlem için admin yetkisi gerekir." }, { status: 403 });
+    return NextResponse.json({ error: "Для этого действия требуются права администратора." }, { status: 403 });
   }
 
   const { data, error } = await supabase.rpc("review_service_provider_application", {
@@ -102,7 +102,7 @@ async function readPayload(request: NextRequest): Promise<
   try {
     payload = (await request.json()) as ReviewPayload;
   } catch {
-    return { ok: false, error: "Geçersiz istek gövdesi." };
+    return { ok: false, error: "Недопустимое тело запроса." };
   }
 
   const applicationId = typeof payload.applicationId === "string" ? payload.applicationId.trim() : "";
@@ -110,13 +110,13 @@ async function readPayload(request: NextRequest): Promise<
   const reviewNote = typeof payload.reviewNote === "string" && payload.reviewNote.trim() ? payload.reviewNote.trim() : null;
 
   if (!uuidPattern.test(applicationId)) {
-    return { ok: false, error: "Geçersiz başvuru kimliği." };
+    return { ok: false, error: "Недопустимый идентификатор заявки." };
   }
   if (!allowedDecisions.has(decision)) {
-    return { ok: false, error: "Geçersiz başvuru kararı." };
+    return { ok: false, error: "Недопустимое решение по заявке." };
   }
   if ((decision === "rejected" || decision === "archived") && !reviewNote) {
-    return { ok: false, error: "Ret veya arşiv kararı için not gerekir." };
+    return { ok: false, error: "Для отклонения или архивации требуется примечание." };
   }
 
   return { ok: true, data: { applicationId, decision, reviewNote } };
