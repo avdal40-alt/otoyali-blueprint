@@ -3988,7 +3988,7 @@
       "title": "Jolmod four-language localization architecture",
       "priority": "P0",
       "type": "implementation",
-      "status": "in_progress",
+      "status": "complete",
       "release_gate": true,
       "dependencies": ["JLC-0107", "JLC-0110"],
       "requires_user_authorization": false,
