@@ -7,12 +7,12 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const out = (body: object, status = 200) => NextResponse.json(body, { status, headers });
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const authorization = request.headers.get("authorization"); const { id } = await context.params;
-  if (!authorization?.startsWith("Bearer ") || !uuid.test(id)) return out({ error: "Oturum gerekli." }, 401);
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim(), key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim(); if (!url || !key) return out({ error: "Video servisi kullanılamıyor." }, 500);
+  if (!authorization?.startsWith("Bearer ") || !uuid.test(id)) return out({ error: "Требуется авторизация." }, 401);
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim(), key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim(); if (!url || !key) return out({ error: "Видеосервис сейчас недоступен." }, 500);
   const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false }, global: { headers: { ...releaseHeaders(), Authorization: authorization } } });
-  const { data: user } = await supabase.auth.getUser(); if (!user.user) return out({ error: "Oturum gerekli." }, 401);
+  const { data: user } = await supabase.auth.getUser(); if (!user.user) return out({ error: "Требуется авторизация." }, 401);
   const { data: listing } = await supabase.schema("marketplace").from("listings").select("id").eq("id", id).eq("seller_id", user.user.id).maybeSingle();
-  if (!listing) return out({ error: "İlan bulunamadı." }, 404);
+  if (!listing) return out({ error: "Объявление не найдено." }, 404);
   const { data: video } = await supabase.schema("marketplace").from("listing_videos").select("id,status,moderation_status,visibility,duration_seconds,created_at,updated_at").eq("listing_id", id).eq("is_current", true).maybeSingle();
   const probe = `${user.user.id}/${YOLMOD_STORAGE_RELEASE_SEGMENT}/${id}/probe.mp4`;
   const { data: manageable } = await supabase.rpc("can_manage_own_listing_video_storage_path", { p_storage_path: probe });
