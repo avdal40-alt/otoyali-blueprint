@@ -9,36 +9,36 @@ async function conversationId(context: Context) { const id = (await context.para
 
 export async function POST(request: NextRequest, context: Context) {
   const authenticated = await requireAuthenticatedRequest(request.headers.get("authorization"));
-  if (!authenticated) return privateJson({ error: "Oturum gerekli." }, 401);
+  if (!authenticated) return privateJson({ error: "Требуется авторизация." }, 401);
   const id = await conversationId(context);
-  if (!id) return privateJson({ error: "Geçersiz görüşme kimliği." }, 422);
+  if (!id) return privateJson({ error: "Некорректный идентификатор переписки." }, 422);
   const retryAfter = rateLimit(authenticated.userId, "safety");
-  if (retryAfter) return privateJson({ error: "Çok fazla istek gönderildi." }, 429, retryAfter);
+  if (retryAfter) return privateJson({ error: "Слишком много запросов. Повторите попытку позже." }, 429, retryAfter);
   const { error } = await authenticated.supabase.rpc("block_conversation_participant", { p_conversation_id: id });
-  if (error) return privateJson({ error: "İşlem tamamlanamadı." }, publicRpcErrorStatus(error.code));
+  if (error) return privateJson({ error: "Не удалось выполнить действие." }, publicRpcErrorStatus(error.code));
   return privateJson({ data: { blocked: true } }, 200);
 }
 
 export async function GET(request: NextRequest, context: Context) {
   const authenticated = await requireAuthenticatedRequest(request.headers.get("authorization"));
-  if (!authenticated) return privateJson({ error: "Oturum gerekli." }, 401);
+  if (!authenticated) return privateJson({ error: "Требуется авторизация." }, 401);
   const id = await conversationId(context);
-  if (!id) return privateJson({ error: "Geçersiz görüşme kimliği." }, 422);
+  if (!id) return privateJson({ error: "Некорректный идентификатор переписки." }, 422);
   const { data, error } = await authenticated.supabase.rpc("get_conversation_send_state", { p_conversation_id: id });
-  if (error) return privateJson({ error: "Görüşme kullanılamıyor." }, publicRpcErrorStatus(error.code));
+  if (error) return privateJson({ error: "Переписка сейчас недоступна." }, publicRpcErrorStatus(error.code));
   const row = Array.isArray(data) ? data[0] : null;
-  if (typeof row?.is_blocked !== "boolean") return privateJson({ error: "Görüşme kullanılamıyor." }, 404);
+  if (typeof row?.is_blocked !== "boolean") return privateJson({ error: "Переписка сейчас недоступна." }, 404);
   return privateJson({ data: { blocked: row.is_blocked } }, 200);
 }
 
 export async function DELETE(request: NextRequest, context: Context) {
   const authenticated = await requireAuthenticatedRequest(request.headers.get("authorization"));
-  if (!authenticated) return privateJson({ error: "Oturum gerekli." }, 401);
+  if (!authenticated) return privateJson({ error: "Требуется авторизация." }, 401);
   const id = await conversationId(context);
-  if (!id) return privateJson({ error: "Geçersiz görüşme kimliği." }, 422);
+  if (!id) return privateJson({ error: "Некорректный идентификатор переписки." }, 422);
   const retryAfter = rateLimit(authenticated.userId, "safety");
-  if (retryAfter) return privateJson({ error: "Çok fazla istek gönderildi." }, 429, retryAfter);
+  if (retryAfter) return privateJson({ error: "Слишком много запросов. Повторите попытку позже." }, 429, retryAfter);
   const { error } = await authenticated.supabase.rpc("unblock_conversation_participant", { p_conversation_id: id });
-  if (error) return privateJson({ error: "İşlem tamamlanamadı." }, publicRpcErrorStatus(error.code));
+  if (error) return privateJson({ error: "Не удалось выполнить действие." }, publicRpcErrorStatus(error.code));
   return privateJson({ data: { blocked: false } }, 200);
 }

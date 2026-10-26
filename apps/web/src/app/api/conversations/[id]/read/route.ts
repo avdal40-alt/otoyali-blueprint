@@ -7,14 +7,14 @@ const privateJson = (body: object, status: number) => NextResponse.json(body, { 
 
 export async function POST(request: NextRequest, context: Context) {
   const authenticated = await requireAuthenticatedRequest(request.headers.get("authorization"));
-  if (!authenticated) return privateJson({ error: "Oturum gerekli." }, 401);
+  if (!authenticated) return privateJson({ error: "Требуется авторизация." }, 401);
   const id = (await context.params).id.trim();
-  if (!isUuid(id)) return privateJson({ error: "Geçersiz görüşme kimliği." }, 422);
+  if (!isUuid(id)) return privateJson({ error: "Некорректный идентификатор переписки." }, 422);
   let payload: unknown;
-  try { payload = await request.json(); } catch { return privateJson({ error: "Geçersiz istek gövdesi." }, 422); }
+  try { payload = await request.json(); } catch { return privateJson({ error: "Некорректный запрос." }, 422); }
   const messageId = parseReadPayload(payload);
-  if (!messageId) return privateJson({ error: "Geçersiz mesaj kimliği." }, 422);
+  if (!messageId) return privateJson({ error: "Некорректный идентификатор сообщения." }, 422);
   const { error } = await authenticated.supabase.rpc("mark_conversation_read", { p_conversation_id: id, p_message_id: messageId });
-  if (error) return privateJson({ error: "Görüşme kullanılamıyor." }, publicRpcErrorStatus(error.code));
+  if (error) return privateJson({ error: "Переписка сейчас недоступна." }, publicRpcErrorStatus(error.code));
   return privateJson({ data: { updated: true } }, 200);
 }

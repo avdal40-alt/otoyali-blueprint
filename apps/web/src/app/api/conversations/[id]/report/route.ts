@@ -7,16 +7,16 @@ const privateJson = (body: object, status: number, retryAfter?: number) => NextR
 
 export async function POST(request: NextRequest, context: Context) {
   const authenticated = await requireAuthenticatedRequest(request.headers.get("authorization"));
-  if (!authenticated) return privateJson({ error: "Oturum gerekli." }, 401);
+  if (!authenticated) return privateJson({ error: "Требуется авторизация." }, 401);
   const id = (await context.params).id.trim();
-  if (!isUuid(id)) return privateJson({ error: "Geçersiz görüşme kimliği." }, 422);
+  if (!isUuid(id)) return privateJson({ error: "Некорректный идентификатор переписки." }, 422);
   const retryAfter = rateLimit(authenticated.userId, "safety");
-  if (retryAfter) return privateJson({ error: "Çok fazla istek gönderildi." }, 429, retryAfter);
+  if (retryAfter) return privateJson({ error: "Слишком много запросов. Повторите попытку позже." }, 429, retryAfter);
   let payload: unknown;
-  try { payload = await request.json(); } catch { return privateJson({ error: "Geçersiz istek gövdesi." }, 422); }
+  try { payload = await request.json(); } catch { return privateJson({ error: "Некорректный запрос." }, 422); }
   const reason = parseReportPayload(payload);
-  if (!reason) return privateJson({ error: "Geçersiz bildirim nedeni." }, 422);
+  if (!reason) return privateJson({ error: "Некорректная причина жалобы." }, 422);
   const { error } = await authenticated.supabase.rpc("report_conversation", { p_conversation_id: id, p_reason: reason });
-  if (error) return privateJson({ error: "Bildirim gönderilemedi." }, publicRpcErrorStatus(error.code));
+  if (error) return privateJson({ error: "Не удалось отправить жалобу." }, publicRpcErrorStatus(error.code));
   return privateJson({ data: { reported: true } }, 201);
 }
