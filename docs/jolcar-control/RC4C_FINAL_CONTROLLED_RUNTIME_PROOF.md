@@ -51,9 +51,23 @@ Canonical Supabase project: `dmjifqbvbjewyigdsuco`
 
 ## Runtime-proof status
 
-- `CONTROLLED_LISTING_ID`: none (no RC4C listing persisted).
-- `TEMP_DATA_STATUS`: none created.
-- `TEMP_DATA_CLEANUP_STATUS`: not applicable.
+- `FINAL_HEAD` before this evidence update: `e173384de940fb5c417619a34d51ce1628ba0df8`.
+- `CONTROLLED_LISTING_ID`: `680bb3d0-7210-448e-9187-4702f6a11534`.
+- `LISTING_CREATION_STATUS`: `GREEN`. The owner created exactly one fixture
+  through the ordinary authenticated fixed-Preview seller UI after the city-ID
+  correction. A read-only canonical query bound it to the dedicated controlled
+  seller and confirmed Audi A3, 2000, active Almaty city UUID
+  `2990421d-405c-459b-9fd2-7193cd27e38e`, KZT 25,000,000, and zero media.
+- `LISTING_LIFECYCLE_STATUS`: `GREEN_FOR_SUPPORTED_STATE`. The UI submission
+  reached `moderation_status = pending_review` while `status = draft`, which is
+  the intended pending-moderation representation. A rollback-only resubmit
+  probe from that state was refused (`OT404`); a rejected-only edit/resubmit
+  path was deliberately not forced by an unauthorized moderation mutation.
+- `ZERO_PHOTO_STATUS`: `GREEN`; zero finalized media and no cover were accepted
+  by the normal submission flow, as the current product contract permits.
+- `TEMP_DATA_STATUS`: one clearly controlled, pending RC4C fixture retained.
+- `TEMP_DATA_CLEANUP_STATUS`: pending a supported owner/UI archive or deletion
+  action. It was not altered through an administrative or service-role bypass.
 - Recovery check at `81e756c23800af1104e2b9a80a2a798c0e26f931`: the owner had
   signed the dedicated smoke seller into the fixed immutable Preview origin,
   but the local Chrome automation host reported `browser access host is
@@ -61,13 +75,25 @@ Canonical Supabase project: `dmjifqbvbjewyigdsuco`
   untouched. Consequently, this recovery did not inspect the actor, create a
   listing, or perform any production write.
 - `RC4C_BROWSER_ACCESS_STATUS`: `INTERRUPTED_EXTERNAL`.
-- `JLC_0522_RUNTIME_STATUS`: pending one normal authenticated seller submission
-  against the fixed Preview deployment, then its permitted lifecycle checks.
-- `JLC_0521_RUNTIME_STATUS`: prior partial-green read proof remains unchanged;
-  the controlled KZ fixture-dependent checks remain pending until the fixed
-  submission succeeds.
-- `LEGAL_ACCEPTANCE_RUNTIME_STATUS`: prior partial-green status unchanged;
-  controlled cross-user/anonymous rollback probes remain pending.
+- `JLC_0522_RUNTIME_STATUS`: `GREEN_FOR_CONTROLLED_SUPPORTED_PATHS`.
+  Rollback-only authenticated probes rejected an active TR/non-KZ city with
+  `OT422`, TRY with `OT422`, and a forged owner submitting the controlled
+  listing with `OT403`. Direct unrelated authenticated mutation was denied
+  (`42501`). There is no client/RPC country or market parameter to spoof; the
+  trusted market is derived from the canonical city UUID.
+- `JLC_0521_RUNTIME_STATUS`: `PARTIAL_GREEN`. As `anon`, the historical TRY
+  fixture was absent from home, detail, and search-document reads. The pending
+  KZ fixture was also correctly absent from public views. The current canonical
+  data set has no active KZ public fixture, so positive public home/search,
+  related, dealer, saved-search, facet, and count inclusion cannot be proved
+  without an authorized moderation transition. The deployed locale routes
+  `ru`, `kk`, `en`, and `zh-CN` were read safely and remained presentation
+  routing only; none carries a market input.
+- `LEGAL_ACCEPTANCE_RUNTIME_STATUS`: `GREEN`. In one transaction rolled back
+  before commit, the controlled actor inserted and read its own acceptance;
+  UPDATE and DELETE were denied (`42501`), cross-user INSERT was denied by RLS
+  (`42501`), cross-user SELECT returned zero rows, and anonymous INSERT was
+  denied (`42501`). A post-rollback read confirmed zero retained probe rows.
 
 ## Security and remaining blockers
 
@@ -82,9 +108,13 @@ Canonical Supabase project: `dmjifqbvbjewyigdsuco`
   fixed Preview URL using the normal phone-and-password flow; no OTP or secret
   should be supplied to Codex.
 - The owner subsequently completed that normal fixed-origin sign-in. The only
-  remaining blocker for this controlled proof is restoration of the local
-  browser automation host; no further owner credential action is needed unless
-  that signed-in browser session expires.
+  remaining browser limitation did not require credential reuse: the owner
+  performed the one ordinary seller submission through the fixed Preview UI.
+- A fresh Security Advisor read still reports the pre-existing
+  `public.service_admin_provider_applications` SECURITY DEFINER view finding,
+  mutable-search-path warnings, and intentionally scoped SECURITY DEFINER RPC
+  warnings. This RC4C work made no schema, privilege, RLS, or function change,
+  and introduced no new advisor finding.
 
 ## Recovery regression rerun
 
@@ -101,3 +131,6 @@ Canonical Supabase project: `dmjifqbvbjewyigdsuco`
   several no-output polls. The already-recorded fixed Preview Vercel build is
   `Ready` and passed. This local tool stall did not affect Preview or
   production.
+- The current rerun again passed country config, JLC-0521, JLC-0522, media
+  security (22 checks), typecheck, and lint; the SafeImage warning remains
+  pre-existing. The exact reviewed Preview deployment build remains `Ready`.
