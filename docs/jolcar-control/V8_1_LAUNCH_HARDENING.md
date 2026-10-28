@@ -75,6 +75,12 @@ locale or fallback.
 
 ### Build and performance
 
+- The full `test:jlc-1508` master release gate passed in the detached,
+  unlinked `jolcar-rc4-isolated` workspace at `31b26bf`. It covers functional
+  E2E, security/RLS, performance, resilience/idempotency, observability,
+  TypeScript, production build, and `npm audit --omit=dev --audit-level=high`
+  (zero high-severity production dependency vulnerabilities). It did not use
+  the production Supabase link, a provider, Preview, or production.
 - The isolated routing production builds passed. Shared first-load JS is
   approximately `103 kB`; public search is `272 kB`; listing detail is `270 kB`.
   No material public-path bundle regression was observed.
