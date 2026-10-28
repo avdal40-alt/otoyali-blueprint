@@ -1,0 +1,3 @@
+# Local autonomous-run diagnostics are never application build inputs. Excluding
+# them keeps Preview uploads focused on the reviewed repository source.
+.jolcar-runtime/
