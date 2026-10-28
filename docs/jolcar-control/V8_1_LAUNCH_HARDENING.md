@@ -22,6 +22,9 @@
   canonical Almaty city data, the v2 verified-contact create contract, and the
   non-enumerating HTTP authorization response. Their direct RPC/API and
   no-partial-state media matrix passes.
+- `9b97384` updates media release-path coverage for the current KZ city/KZT
+  requirement, the v2 privacy-finalization RPC, and the opaque redaction plus
+  verification pipeline. It changes no application or database behavior.
 - `371f035` excludes local autonomous diagnostic logs from Preview uploads;
   it does not alter application source or Vercel production settings.
 
@@ -37,6 +40,8 @@ All passed locally after the fixture repair:
   `test:launch-03d3c3-draft-runtime-rls`,
   `test:launch-03d3c5-admin-moderation`
 - `test:jlc-0514`, `test:jlc-0517`
+- `test:prod-04c`, `test:jlc-0516-plate-privacy`,
+  `test:launch-03d3c7-public-media`, and `test:ai-01e-b1`
 - `test:security-lifecycle`, `test:security-02f`,
   `test:security-final-profile-privacy`,
   `test:security-final-seller-identity`, `test:security-final-storage`,
@@ -53,7 +58,8 @@ All passed locally:
 
 - `test:phone-auth`, `test:auth-return-path`, `test:auth-localization`,
   `test:auth-signup-metadata`, `test:launch-b01a`, `test:launch-b01b1`,
-  `test:launch-b01b2`
+  `test:launch-b01b2`, `test:phone-policy`, and
+  `test:jlc-0523-legal-acceptance`
 - `test:i18n-foundation`, `test:i18n-routing`, `test:jlc-1201`,
   `test:marketplace-seo-localization`, `test:category-seo-localization`, and
   `test:dynamic-seo-localization`
@@ -72,6 +78,10 @@ locale or fallback.
 - The isolated routing production builds passed. Shared first-load JS is
   approximately `103 kB`; public search is `272 kB`; listing detail is `270 kB`.
   No material public-path bundle regression was observed.
+- Current full local release gate passed: `test:country-config`,
+  `test:jlc-0521`, `test:jlc-0522`, media-reference security, TypeScript,
+  lint, `git diff --check`, and production build. Lint emits only the reviewed
+  `SafeImage` advisory below.
 - `SafeImage` intentionally uses sanitized persisted media derivatives with
   `srcset`, `sizes`, native lazy loading, async decode, and error fallback.
   A mechanical conversion to `next/image` would alter arbitrary/signed Supabase
