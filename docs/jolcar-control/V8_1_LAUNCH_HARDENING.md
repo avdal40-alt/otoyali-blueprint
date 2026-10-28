@@ -84,6 +84,13 @@ locale or fallback.
   `/trust`, `/sitemap.xml`, and `/robots.txt`; `/ru` performed the expected
   canonical redirect to unprefixed Russian. No authenticated mutation, SMS, or
   paid AI action was performed.
+- Current reviewed HEAD was then deployed Preview-only as
+  `dpl_CNz1XiDCaQu7rdEaPXKtso1F3ms2` at
+  `https://jolcar-staging-f3e70meow-otoyali.vercel.app` and reached `READY`
+  (build: 1m05s). Fresh protected smoke returned `200` for `/`, `/kk`, `/en`,
+  `/zh-CN`, `/search`, `/sell`, `/login`, `/register`, `/legal`, `/contact`,
+  `/trust`, `/sitemap.xml`, and `/robots.txt`; `/ru` was `307` and
+  `/tr/about` was `404` as required. Production was not deployed or promoted.
 - Preview environment-name inventory has public Supabase settings and AI
   feature configuration, but no explicit application Site URL/redirect callback
   variable was found. Supabase Auth dashboard values remain owner verification.
