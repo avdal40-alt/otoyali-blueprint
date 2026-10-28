@@ -54,6 +54,13 @@ Canonical Supabase project: `dmjifqbvbjewyigdsuco`
 - `CONTROLLED_LISTING_ID`: none (no RC4C listing persisted).
 - `TEMP_DATA_STATUS`: none created.
 - `TEMP_DATA_CLEANUP_STATUS`: not applicable.
+- Recovery check at `81e756c23800af1104e2b9a80a2a798c0e26f931`: the owner had
+  signed the dedicated smoke seller into the fixed immutable Preview origin,
+  but the local Chrome automation host reported `browser access host is
+  unavailable` on two independent checks. The authenticated session was left
+  untouched. Consequently, this recovery did not inspect the actor, create a
+  listing, or perform any production write.
+- `RC4C_BROWSER_ACCESS_STATUS`: `INTERRUPTED_EXTERNAL`.
 - `JLC_0522_RUNTIME_STATUS`: pending one normal authenticated seller submission
   against the fixed Preview deployment, then its permitted lifecycle checks.
 - `JLC_0521_RUNTIME_STATUS`: prior partial-green read proof remains unchanged;
@@ -74,3 +81,23 @@ Canonical Supabase project: `dmjifqbvbjewyigdsuco`
   controlled proof, the owner must sign the dedicated smoke seller into the
   fixed Preview URL using the normal phone-and-password flow; no OTP or secret
   should be supplied to Codex.
+- The owner subsequently completed that normal fixed-origin sign-in. The only
+  remaining blocker for this controlled proof is restoration of the local
+  browser automation host; no further owner credential action is needed unless
+  that signed-in browser session expires.
+
+## Recovery regression rerun
+
+- `npm run test:country-config`: PASS.
+- `npm run test:jlc-0521`: PASS.
+- `npm run test:jlc-0522`: PASS.
+- `npm run test:security-final-media-reference`: PASS (22 authorization checks).
+- `npm run typecheck`: PASS.
+- `npm run lint`: PASS (the pre-existing SafeImage `<img>` performance warning
+  remains the only warning).
+- `git diff --check`: PASS before this evidence update.
+- A local `npm run build` compiled successfully, then stalled during static
+  generation without an error or final result; it was stopped locally after
+  several no-output polls. The already-recorded fixed Preview Vercel build is
+  `Ready` and passed. This local tool stall did not affect Preview or
+  production.
