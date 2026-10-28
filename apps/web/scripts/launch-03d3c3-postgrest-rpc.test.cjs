@@ -21,16 +21,20 @@ async function user(id, suffix) {
 }
 (async () => { try {
   const [a, b, c] = await Promise.all([user(ids[0], "a"), user(ids[1], "b"), user(ids[2], "c")]);
-  sql(`UPDATE public.profiles SET seller_type='private', city='Ankara' WHERE id='${ids[0]}'; INSERT INTO identity.seller_phone_verifications(user_id, phone_e164) VALUES ('${ids[0]}','+905550000001');`);
+  sql(`UPDATE public.profiles SET seller_type='private', city='Almaty' WHERE id='${ids[0]}';
+    INSERT INTO identity.verified_seller_contact_phones(user_id, phone_e164, verified_at, verification_source, is_current_account_phone, is_active)
+    VALUES ('${ids[0]}','+77770000001', NOW(), 'seller_otp', TRUE, TRUE);`);
   const [makeId, modelId] = sql("SELECT m.make_id || '|' || m.id FROM vehicle.models m JOIN vehicle.makes k ON k.id=m.make_id WHERE k.is_active AND m.is_active LIMIT 1").split("|");
-  const payload = { p_make_id: makeId, p_model_id: modelId, p_variant_id: null, p_year: 2021, p_mileage_km: 1, p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: "sedan", p_drive_type: "front", p_color: "test", p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: 1, p_description: tag, p_price_amount_text: "1000000", p_currency: "TRY", p_price_negotiable: false, p_city: "Ankara", p_city_id: null, p_district_id: null };
+  const kzCityId = sql("SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1");
+  assert.match(kzCityId, /^[0-9a-f-]{36}$/i, "a canonical active Kazakhstan city is required for this KZ runtime fixture");
+  const payload = { p_make_id: makeId, p_model_id: modelId, p_variant_id: null, p_year: 2021, p_mileage_km: 1, p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: "sedan", p_drive_type: "front", p_color: "test", p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: 1, p_description: tag, p_price_amount_text: "1000000", p_currency: "KZT", p_price_negotiable: false, p_city: "Almaty", p_city_id: kzCityId, p_district_id: null };
   const legacyCreated = await a.rpc("create_own_listing_draft", { ...payload, p_description: `${tag}_LEGACY` }); assert.ifError(legacyCreated.error);
   const legacyListingId = legacyCreated.data?.[0]?.listing_id; assert.ok(legacyListingId);
   assert.equal(sql(`SELECT seller_id || '|' || status || '|' || moderation_status FROM marketplace.listings WHERE id='${legacyListingId}'`), `${ids[0]}|draft|pending_review`);
   const created = await a.rpc("create_own_private_listing_draft", payload); assert.ifError(created.error); listingId = created.data?.[0]?.listing_id; assert.ok(listingId);
   assert.equal(sql(`SELECT seller_id || '|' || status || '|' || moderation_status || '|' || (published_at IS NULL)::text FROM marketplace.listings WHERE id='${listingId}'`), `${ids[0]}|draft|draft|true`);
   const [listingUpdatedAt, vehicleUpdatedAt, originalDescription] = sql(`SELECT l.updated_at || '|' || v.updated_at || '|' || l.description FROM marketplace.listings l JOIN vehicle.vehicle_profiles v ON v.id=l.vehicle_profile_id WHERE l.id='${listingId}'`).split("|");
-  const crossUpdate = await b.rpc("save_own_listing_edit", { p_listing_id: listingId, p_expected_listing_updated_at: listingUpdatedAt, p_expected_vehicle_updated_at: vehicleUpdatedAt, p_make_id: makeId, p_model_id: modelId, p_year: 2021, p_mileage_km: 2, p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: "sedan", p_drive_type: "front", p_color: "test", p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: 1, p_description: `${tag}_UNAUTHORIZED`, p_price_amount_text: "1000000", p_currency: "TRY", p_price_negotiable: false, p_city: "Ankara" });
+  const crossUpdate = await b.rpc("save_own_listing_edit", { p_listing_id: listingId, p_expected_listing_updated_at: listingUpdatedAt, p_expected_vehicle_updated_at: vehicleUpdatedAt, p_make_id: makeId, p_model_id: modelId, p_year: 2021, p_mileage_km: 2, p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: "sedan", p_drive_type: "front", p_color: "test", p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: 1, p_description: `${tag}_UNAUTHORIZED`, p_price_amount_text: "1000000", p_currency: "KZT", p_price_negotiable: false, p_city: "Almaty" });
   assert.ok(crossUpdate.error, "USER B draft update must be rejected");
   assert.equal(sql(`SELECT seller_id || '|' || description || '|' || status || '|' || moderation_status FROM marketplace.listings WHERE id='${listingId}'`), `${ids[0]}|${originalDescription}|draft|draft`);
   const anonymous = await anon.rpc("create_own_private_listing_draft", payload); assert.ok(anonymous.error);
@@ -57,5 +61,5 @@ async function user(id, suffix) {
   assert.equal(sql(`SELECT count(*) FROM marketplace.listing_moderation_runs WHERE listing_id='${listingId}'`), "0");
   console.log("LAUNCH-03D3C3 PostgREST RPC privilege: PASS");
 } finally {
-  sql(`DELETE FROM public.admin_audit_logs WHERE actor_user_id IN ('${ids.join("','")}'); DELETE FROM marketplace.listings WHERE seller_id IN ('${ids.join("','")}'); DELETE FROM vehicle.profile_ownership WHERE owner_id IN ('${ids.join("','")}'); DELETE FROM vehicle.vehicle_profiles WHERE created_by IN ('${ids.join("','")}'); DELETE FROM identity.seller_phone_verifications WHERE user_id IN ('${ids.join("','")}'); DELETE FROM public.profiles WHERE id IN ('${ids.join("','")}'); DELETE FROM auth.users WHERE id IN ('${ids.join("','")}');`);
+  sql(`DELETE FROM public.admin_audit_logs WHERE actor_user_id IN ('${ids.join("','")}'); DELETE FROM marketplace.listings WHERE seller_id IN ('${ids.join("','")}'); DELETE FROM vehicle.profile_ownership WHERE owner_id IN ('${ids.join("','")}'); DELETE FROM vehicle.vehicle_profiles WHERE created_by IN ('${ids.join("','")}'); DELETE FROM identity.verified_seller_contact_phones WHERE user_id IN ('${ids.join("','")}'); DELETE FROM public.profiles WHERE id IN ('${ids.join("','")}'); DELETE FROM auth.users WHERE id IN ('${ids.join("','")}');`);
 } })().catch((error) => { console.error(error); process.exitCode = 1; });

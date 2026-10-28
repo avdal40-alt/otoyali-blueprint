@@ -36,11 +36,14 @@ function auditCount(listingId) { return count(`SELECT count(*) FROM public.admin
     const [owner, ordinary, admin, moderator] = await Promise.all([
       session(ids.owner, "owner"), session(ids.ordinary, "ordinary"), session(ids.admin, "admin"), session(ids.moderator, "moderator")
     ]);
-    sql(`UPDATE public.profiles SET seller_type='private', city='Ankara' WHERE id='${ids.owner}';
-      INSERT INTO identity.seller_phone_verifications(user_id, phone_e164) VALUES ('${ids.owner}','+905550000001');
+    sql(`UPDATE public.profiles SET seller_type='private', city='Almaty' WHERE id='${ids.owner}';
+      INSERT INTO identity.verified_seller_contact_phones(user_id, phone_e164, verified_at, verification_source, is_current_account_phone, is_active)
+      VALUES ('${ids.owner}','+77770000001', NOW(), 'seller_otp', TRUE, TRUE);
       INSERT INTO public.admin_users(user_id,role,is_active) VALUES ('${ids.admin}','admin',true),('${ids.moderator}','moderator',true);`);
     const [makeId, modelId] = sql("SELECT m.make_id || '|' || m.id FROM vehicle.models m JOIN vehicle.makes mk ON mk.id=m.make_id WHERE mk.is_active AND m.is_active ORDER BY m.id LIMIT 1").split("|");
-    const payload = (suffix) => ({ p_make_id: makeId, p_model_id: modelId, p_variant_id: null, p_year: 2021, p_mileage_km: 1, p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: "sedan", p_drive_type: "front", p_color: "test", p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: 1, p_description: `${tag}_${suffix}`, p_price_amount_text: "1000000", p_currency: "TRY", p_price_negotiable: false, p_city: "Ankara", p_city_id: null, p_district_id: null });
+    const kzCityId = sql("SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1");
+    assert.match(kzCityId, /^[0-9a-f-]{36}$/i, "a canonical active Kazakhstan city is required for this KZ runtime fixture");
+    const payload = (suffix) => ({ p_make_id: makeId, p_model_id: modelId, p_variant_id: null, p_year: 2021, p_mileage_km: 1, p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: "sedan", p_drive_type: "front", p_color: "test", p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: 1, p_description: `${tag}_${suffix}`, p_price_amount_text: "1000000", p_currency: "KZT", p_price_negotiable: false, p_city: "Almaty", p_city_id: kzCityId, p_district_id: null });
     async function draft(suffix) {
       const result = await owner.rpc("create_own_private_listing_draft", payload(suffix));
       assert.ifError(result.error);
@@ -136,7 +139,7 @@ function auditCount(listingId) { return count(`SELECT count(*) FROM public.admin
       DELETE FROM public.admin_users WHERE user_id IN ('${Object.values(ids).join("','")}');
       DELETE FROM vehicle.profile_ownership WHERE owner_id IN ('${Object.values(ids).join("','")}');
       DELETE FROM vehicle.vehicle_profiles WHERE created_by IN ('${Object.values(ids).join("','")}');
-      DELETE FROM identity.seller_phone_verifications WHERE user_id IN ('${Object.values(ids).join("','")}');
+      DELETE FROM identity.verified_seller_contact_phones WHERE user_id IN ('${Object.values(ids).join("','")}');
       DELETE FROM public.profiles WHERE id IN ('${Object.values(ids).join("','")}');
       DELETE FROM auth.users WHERE id IN ('${Object.values(ids).join("','")}');`);
   }
