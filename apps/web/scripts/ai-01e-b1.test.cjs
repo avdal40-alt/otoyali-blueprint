@@ -7,8 +7,8 @@ const route = read("src", "app", "api", "listings", "[id]", "media", "route.ts")
 const pipeline = read("src", "lib", "media", "sanitized-photo-pipeline.ts");
 const trusted = read("src", "lib", "supabase", "trusted-storage.ts");
 for (const source of [pipeline, trusted]) assert.match(source, /import "server-only"/);
-assert.match(route, /seller_id.*download[\s\S]*sanitizePrivatePhoto[\s\S]*trustedSanitizedStorage[\s\S]*finalize_own_listing_sanitized_photo/s);
-assert.match(pipeline, /sharp/); assert.match(pipeline, /\.rotate\(\)/); assert.match(pipeline, /\.blur\(30\)/); assert.match(pipeline, /master.*large.*card.*thumb/s);
+assert.match(route, /seller_id.*download[\s\S]*sanitizePrivatePhoto[\s\S]*trustedSanitizedStorage[\s\S]*finalize_own_listing_sanitized_photo_v2/s);
+assert.match(pipeline, /sharp/); assert.match(pipeline, /\.rotate\(\)/); assert.match(pipeline, /\.composite\(/); assert.match(pipeline, /PLATE_REDACTION_MASK_COLOR/); assert.match(pipeline, /vision\.verify/); assert.match(pipeline, /master.*large.*card.*thumb/s);
 assert.match(pipeline, /SANITIZED_PHOTO_PLATE_CONFIDENCE_THRESHOLD = 0/); assert.match(pipeline, /invalid_plate_region/);
 assert.doesNotMatch(route + pipeline, /attach_own_listing_media|signedUrl|\.insert\(|\.update\(/);
 assert.match(trusted, /SUPABASE_SERVICE_ROLE_KEY/); assert.doesNotMatch(trusted, /NEXT_PUBLIC.*SERVICE_ROLE|console\./);

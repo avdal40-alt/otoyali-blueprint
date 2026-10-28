@@ -7,6 +7,7 @@ const projectRoot = path.resolve(__dirname, "..");
 const repoRoot = path.resolve(projectRoot, "..", "..");
 const mediaMigration = fs.readFileSync(path.join(repoRoot, "supabase", "migrations", "20260923202053_media_sec_01_sanitized_public_photo_contract.sql"), "utf8");
 const finalizationMigration = fs.readFileSync(path.join(repoRoot, "supabase", "migrations", "20260924195959_media_sec_01d_fix_sanitized_finalize_blur_status.sql"), "utf8");
+const v2FinalizationMigration = fs.readFileSync(path.join(repoRoot, "supabase", "migrations", "20261020062103_jlc_0517_optional_listing_photos_cap.sql"), "utf8");
 const mediaRoute = fs.readFileSync(path.join(projectRoot, "src", "app", "api", "listings", "[id]", "media", "route.ts"), "utf8");
 const trustedStorage = fs.readFileSync(path.join(projectRoot, "src", "lib", "supabase", "trusted-storage.ts"), "utf8");
 
@@ -14,8 +15,9 @@ for (const required of ["CREATE POLICY listing_media_insert_temp_own", "(storage
   assert.ok(mediaMigration.includes(required), `MEDIA-SEC-01 contract must include: ${required}`);
 }
 assert.match(finalizationMigration, /'processed','blurred',1,now\(\)/);
+assert.match(v2FinalizationMigration, /CREATE OR REPLACE FUNCTION public\.finalize_own_listing_sanitized_photo_v2/);
 assert.match(mediaRoute, /trustedSanitizedStorage\.upload/);
-assert.match(mediaRoute, /finalize_own_listing_sanitized_photo/);
+assert.match(mediaRoute, /finalize_own_listing_sanitized_photo_v2/);
 assert.match(mediaRoute, /storage\.from\("listing-media"\)\.remove\(\[payload\.tempPath\]\)/);
 assert.match(trustedStorage, /import "server-only"/);
 
@@ -48,24 +50,24 @@ DELETE FROM public.profiles WHERE id IN ('${ids.userA}','${ids.userB}');
 DELETE FROM auth.users WHERE id IN ('${ids.userA}','${ids.userB}');
 `;
 
-const runtimeSql = `
+const runtimeSql = (kzCityId) => `
 CREATE TEMP TABLE prod04c_results(test TEXT PRIMARY KEY, passed BOOLEAN, detail TEXT) ON COMMIT DROP;
 GRANT INSERT, SELECT ON prod04c_results TO anon, authenticated, service_role;
 ${cleanupSql}
 INSERT INTO auth.users (id,phone,raw_app_meta_data,raw_user_meta_data,aud,role) VALUES
- ('${ids.userA}','+905550000021','{"provider":"phone","providers":["phone"]}','{}','authenticated','authenticated'),
- ('${ids.userB}','+905550000022','{"provider":"phone","providers":["phone"]}','{}','authenticated','authenticated');
+ ('${ids.userA}','+77010000021','{"provider":"phone","providers":["phone"]}','{}','authenticated','authenticated'),
+ ('${ids.userB}','+77010000022','{"provider":"phone","providers":["phone"]}','{}','authenticated','authenticated');
 INSERT INTO public.profiles (id,phone,full_name,display_name,city,seller_type) VALUES
- ('${ids.userA}','+905550000021','PROD-04C User A','PROD-04C User A','Adana','private'),
- ('${ids.userB}','+905550000022','PROD-04C User B','PROD-04C User B','Adana','private')
+ ('${ids.userA}','+77010000021','PROD-04C User A','PROD-04C User A','Almaty','private'),
+ ('${ids.userB}','+77010000022','PROD-04C User B','PROD-04C User B','Almaty','private')
 ON CONFLICT (id) DO UPDATE SET phone=EXCLUDED.phone, full_name=EXCLUDED.full_name, display_name=EXCLUDED.display_name, city=EXCLUDED.city, seller_type=EXCLUDED.seller_type;
 INSERT INTO vehicle.vehicle_profiles (id,make_id,model_id,year,mileage_km,fuel_type,transmission,created_by) VALUES
  ('${ids.profileA}',(SELECT make_id FROM vehicle.models ORDER BY id LIMIT 1),(SELECT id FROM vehicle.models ORDER BY id LIMIT 1),2024,100,'gasoline','automatic','${ids.userA}'),
  ('${ids.profileB}',(SELECT make_id FROM vehicle.models ORDER BY id LIMIT 1),(SELECT id FROM vehicle.models ORDER BY id LIMIT 1),2024,100,'gasoline','automatic','${ids.userB}');
 INSERT INTO vehicle.profile_ownership (vehicle_profile_id,owner_id,ownership_type,is_current) VALUES ('${ids.profileA}','${ids.userA}','owner',true), ('${ids.profileB}','${ids.userB}','owner',true);
-INSERT INTO marketplace.listings (id,vehicle_profile_id,seller_id,status,title,price_amount,city,moderation_status,seller_type) VALUES
- ('${ids.listingA}','${ids.profileA}','${ids.userA}','draft','Sanitized fixture A',100000,'Adana','pending_review','private'),
- ('${ids.listingB}','${ids.profileB}','${ids.userB}','draft','Sanitized fixture B',100000,'Adana','pending_review','private');
+INSERT INTO marketplace.listings (id,vehicle_profile_id,seller_id,status,title,price_amount,currency,city,city_id,moderation_status,seller_type) VALUES
+ ('${ids.listingA}','${ids.profileA}','${ids.userA}','draft','Sanitized fixture A',100000,'KZT','Almaty','${kzCityId}','pending_review','private'),
+ ('${ids.listingB}','${ids.profileB}','${ids.userB}','draft','Sanitized fixture B',100000,'KZT','Almaty','${kzCityId}','pending_review','private');
 
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims','{"sub":"${ids.userA}","role":"authenticated"}',true);
@@ -97,14 +99,14 @@ DO $do$ BEGIN
   INSERT INTO prod04c_results VALUES ('cross-owner temp removal denied',NOT FOUND,CASE WHEN FOUND THEN 'unexpectedly deleted' ELSE 'zero rows deleted' END);
 END $do$;
 DO $do$ BEGIN BEGIN
-  PERFORM public.finalize_own_listing_sanitized_photo('${ids.listingA}'::uuid,'${ids.mediaA}'::uuid,'${tempA}'::text,'${variants.master}'::text,'${variants.large}'::text,'${variants.card}'::text,'${variants.thumb}'::text,0::smallint,true,100,50,2::numeric,'image/webp'::text,1::bigint);
+  PERFORM public.finalize_own_listing_sanitized_photo_v2('${ids.listingA}'::uuid,'${ids.mediaA}'::uuid,'${tempA}'::text,'${variants.master}'::text,'${variants.large}'::text,'${variants.card}'::text,'${variants.thumb}'::text,0::smallint,true,100,50,2::numeric,'image/webp'::text,1::bigint,'blurred'::text);
   INSERT INTO prod04c_results VALUES ('cross-owner finalization denied',false,'unexpectedly allowed');
 EXCEPTION WHEN OTHERS THEN INSERT INTO prod04c_results VALUES ('cross-owner finalization denied',true,SQLERRM); END; END $do$;
 RESET ROLE;
 
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims','{"sub":"${ids.userA}","role":"authenticated"}',true);
-SELECT * FROM public.finalize_own_listing_sanitized_photo('${ids.listingA}'::uuid,'${ids.mediaA}'::uuid,'${tempA}'::text,'${variants.master}'::text,'${variants.large}'::text,'${variants.card}'::text,'${variants.thumb}'::text,0::smallint,true,100,50,2::numeric,'image/webp'::text,1::bigint);
+SELECT * FROM public.finalize_own_listing_sanitized_photo_v2('${ids.listingA}'::uuid,'${ids.mediaA}'::uuid,'${tempA}'::text,'${variants.master}'::text,'${variants.large}'::text,'${variants.card}'::text,'${variants.thumb}'::text,0::smallint,true,100,50,2::numeric,'image/webp'::text,1::bigint,'blurred'::text);
 INSERT INTO prod04c_results SELECT 'owner authenticated finalization',count(*)=1,'finalized='||count(*) FROM vehicle.profile_media WHERE id='${ids.mediaA}' AND vehicle_profile_id='${ids.profileA}' AND processed_status='processed' AND blur_status='blurred' AND privacy_version=1 AND original_path='${variants.master}' AND storage_path='${variants.large}' AND large_path='${variants.large}' AND card_path='${variants.card}' AND thumb_path='${variants.thumb}';
 DELETE FROM storage.objects WHERE bucket_id='listing-media' AND name='${tempA}';
 INSERT INTO prod04c_results SELECT 'owner temp cleanup allowed',count(*)=0,'remaining='||count(*) FROM storage.objects WHERE bucket_id='listing-media' AND name='${tempA}';
@@ -127,7 +129,9 @@ SELECT test,passed,detail FROM prod04c_results ORDER BY test;
 (async () => {
   await query(cleanupSql);
   try {
-    const results = await query(runtimeSql);
+    const cities = await query("SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1");
+    assert.match(cities[0]?.id ?? "", /^[0-9a-f-]{36}$/i, "a canonical active Kazakhstan city is required for the PROD-04C fixture");
+    const results = await query(runtimeSql(cities[0].id));
     assert.ok(results.length >= 10, `expected PROD-04C runtime matrix, got ${results.length} rows`);
     assert.deepEqual(results.filter((result) => !result.passed), [], `PROD-04C runtime failures: ${JSON.stringify(results, null, 2)}`);
     console.log(`PROD-04C sanitized media release matrix passed (${results.length} checks).`);
