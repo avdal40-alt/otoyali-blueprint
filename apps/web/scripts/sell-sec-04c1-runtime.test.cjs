@@ -11,8 +11,10 @@ const database = ["exec", "supabase_db_Otoyali-blueprint", "psql", "-q", "-U", "
 const rows = (sql) => execFileSync("docker", [...database, sql], { encoding: "utf8" }).trim().split(/\r?\n/).filter(Boolean);
 const makeId = randomUUID();
 const modelId = randomUUID();
-const payload = { p_make_id: makeId, p_model_id: modelId, p_variant_id: null, p_year: 2024, p_mileage_km: 100, p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: null, p_drive_type: null, p_color: null, p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: null, p_description: "C1 runtime fixture", p_price_amount_text: "100000", p_currency: "TRY", p_price_negotiable: false, p_city: "C1 Test City", p_city_id: null, p_district_id: null };
-const httpPayload = { makeId, modelId, variantId: null, year: 2024, mileageKm: 100, condition: "used", fuelType: "gasoline", transmission: "automatic", bodyType: null, driveType: null, color: null, engineVolumeL: 1.6, damageState: "unknown", ownerCount: null, description: "C1 runtime fixture", priceAmount: "100000", currency: "TRY", priceNegotiable: false, city: "C1 Test City", cityId: null, districtId: null };
+const kzCityId = rows("SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1")[0];
+assert.match(kzCityId || "", /^[0-9a-f-]{36}$/i, "a canonical active Kazakhstan city is required for this KZ runtime fixture");
+const payload = { p_make_id: makeId, p_model_id: modelId, p_variant_id: null, p_year: 2024, p_mileage_km: 100, p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: null, p_drive_type: null, p_color: null, p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: null, p_description: "C1 runtime fixture", p_price_amount_text: "100000", p_currency: "KZT", p_price_negotiable: false, p_city: "Almaty", p_city_id: kzCityId, p_district_id: null };
+const httpPayload = { makeId, modelId, variantId: null, year: 2024, mileageKm: 100, condition: "used", fuelType: "gasoline", transmission: "automatic", bodyType: null, driveType: null, color: null, engineVolumeL: 1.6, damageState: "unknown", ownerCount: null, description: "C1 runtime fixture", priceAmount: "100000", currency: "KZT", priceNegotiable: false, city: "Almaty", cityId: kzCityId, districtId: null };
 
 async function verifySellerPhone(userId, phone) {
   const service = createLocalClient("service_role").client;
@@ -24,6 +26,13 @@ async function verifySellerPhone(userId, phone) {
   assert.ifError(marked.error);
   const finalized = await service.rpc("finalize_seller_phone_verification_service", { p_user_id: userId, p_challenge_id: challenge.challenge_id });
   assert.ifError(finalized.error);
+}
+
+async function createVerifiedKzContact(userId) {
+  const phone = `+7701${userId.replace(/\D/g, "").padEnd(7, "0").slice(0, 7)}`;
+  const contactId = randomUUID();
+  rows(`INSERT INTO identity.verified_seller_contact_phones (id, user_id, phone_e164, verified_at, verification_source, is_current_account_phone, is_active) VALUES ('${contactId}', '${userId}', '${phone}', NOW(), 'seller_otp', FALSE, TRUE);`);
+  return contactId;
 }
 
 async function sellerEligibility(client) {
@@ -53,7 +62,7 @@ function row(result) {
 }
 
 async function api(origin, fixture) {
-  const response = await fetchWithTimeout(`${origin}/api/listings`, { method: "POST", headers: { "content-type": "application/json", Authorization: `Bearer ${fixture.accessToken}` }, body: JSON.stringify(httpPayload) });
+  const response = await fetchWithTimeout(`${origin}/api/listings`, { method: "POST", headers: { "content-type": "application/json", Authorization: `Bearer ${fixture.accessToken}` }, body: JSON.stringify({ ...httpPayload, sellerContactPhoneId: fixture.sellerContactPhoneId ?? randomUUID() }) });
   return { response, body: await response.json() };
 }
 
@@ -71,6 +80,8 @@ async function api(origin, fixture) {
     await verifySellerPhone(individualC.userId, "+905551222222");
     await verifySellerPhone(individualD.userId, "+905551333333");
     await verifySellerPhone(galeriF.ids.dealer, "+905551444444");
+    individualD.sellerContactPhoneId = await createVerifiedKzContact(individualD.userId);
+    galeriF.sellerContactPhoneId = await createVerifiedKzContact(galeriF.ids.dealer);
 
     const anon = createLocalClient("anon").client;
     const unauthenticated = await draft(anon);
@@ -108,9 +119,9 @@ async function api(origin, fixture) {
     server = await startOwnedNextServer({ NEXT_PUBLIC_SUPABASE_URL: individualA.localSupabase.url, NEXT_PUBLIC_SUPABASE_ANON_KEY: individualA.localSupabase.anonKey, SUPABASE_SERVICE_ROLE_KEY: "" });
     for (const fixture of [individualA, individualB, { accessToken: galeriE.accessToken, userId: galeriE.ids.dealer }]) {
       const before = stateFor(fixture.userId); const result = await api(server.origin, fixture);
-      assert.equal(result.response.status, 403); assert.deepEqual(result.body, { error: "SELLER_PHONE_VERIFICATION_REQUIRED" }); assertNoPartialState(fixture.userId, before);
+      assert.equal(result.response.status, 403); assert.deepEqual(result.body, { error: "У вас нет прав на это действие." }); assertNoPartialState(fixture.userId, before);
     }
-    for (const fixture of [individualD, { accessToken: galeriF.accessToken, userId: galeriF.ids.dealer }]) {
+    for (const fixture of [individualD, { accessToken: galeriF.accessToken, userId: galeriF.ids.dealer, sellerContactPhoneId: galeriF.sellerContactPhoneId }]) {
       const result = await api(server.origin, fixture);
       assert.equal(result.response.status, 201); assert.ok(result.body.data?.listingId && result.body.data?.vehicleProfileId && result.body.data?.createdAt);
     }
