@@ -541,6 +541,10 @@ export function SellWizard({
 
     return catalogCities.length > 0 ? catalogCities : fallbackCityOptions;
   }, [cities]);
+  // The database derives Jolmod market identity from the canonical city row.
+  // Keep the human-readable selector for the UI, but submit its catalog UUID
+  // through the protected draft boundary so the KZ city/KZT trigger can verify it.
+  const selectedCityId = (cities ?? []).find((city) => city.city_name?.trim() === state.city)?.city_id ?? null;
   const generatedTitle = generateVehicleListingTitle({
     makeName: selectedMake?.make_name,
     modelName: selectedModel?.make_id === state.makeId ? selectedModel.model_name : null,
@@ -973,7 +977,7 @@ export function SellWizard({
         driveType: state.driveType || null, color: state.color || null,
         engineVolumeL: state.fuelType === "electric" ? null : Number(state.engineVolumeL), damageState: state.damageState || null,
         ownerCount: state.ownerCount ? Number(state.ownerCount) : null, description: state.description, priceAmount: state.priceAmount,
-        currency: state.currency, priceNegotiable: state.priceNegotiable, city: state.city, cityId: null, districtId: null, sellerContactPhoneId: sellerContactId
+        currency: state.currency, priceNegotiable: state.priceNegotiable, city: state.city, cityId: selectedCityId, districtId: null, sellerContactPhoneId: sellerContactId
       });
       if (!isCurrentPublication()) return;
       if (createResult.error || !createResult.data) {

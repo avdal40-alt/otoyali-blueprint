@@ -39,6 +39,8 @@ assert.match(sellWizardSource, /timezone: profile\?\.timezone \?\? CURRENT_MARKE
 assert.doesNotMatch(sellWizardSource, /country: profile\?\.country \?\? "TR"|timezone: profile\?\.timezone \?\? "Europe\/Istanbul"/);
 assert.match(sellWizardSource, /const fallbackCityOptions = \[\.\.\.getPreferredCityNames\(\)\];/);
 assert.match(sellWizardSource, /const defaultCity = fallbackCityOptions\[0\] \?\? "";/);
+assert.match(sellWizardSource, /const selectedCityId = \(cities \?\? \[\]\)\.find\(\(city\) => city\.city_name\?\.trim\(\) === state\.city\)\?\.city_id \?\? null;/, "seller create requests must resolve the selected canonical city UUID");
+assert.match(sellWizardSource, /city: state\.city, cityId: selectedCityId, districtId: null, sellerContactPhoneId: sellerContactId/, "seller create requests must forward the selected canonical city UUID");
 assert.doesNotMatch(sellWizardSource, /İstanbul|Ankara|İzmir|Antalya/);
 assert.match(profileClientSource, /const fallbackCities = \[\.\.\.getPreferredCityNames\(\)\];/);
 assert.match(profileClientSource, /country: CURRENT_MARKET\.countryCode/);
