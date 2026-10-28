@@ -16,6 +16,12 @@
   contact. The fixtures clean their own local records. No production behavior,
   RLS, market trigger, or seller authorization was weakened.
 - `35d4388` aligns a seller-contact test with the active launch copy module.
+- `590b0a1` aligns the listing-contact edit-flow test with the active
+  four-language sell-wizard dictionary.
+- `6392397` repairs two older seller-media runtime fixtures to use KZ/KZT,
+  canonical Almaty city data, the v2 verified-contact create contract, and the
+  non-enumerating HTTP authorization response. Their direct RPC/API and
+  no-partial-state media matrix passes.
 - `371f035` excludes local autonomous diagnostic logs from Preview uploads;
   it does not alter application source or Vercel production settings.
 
