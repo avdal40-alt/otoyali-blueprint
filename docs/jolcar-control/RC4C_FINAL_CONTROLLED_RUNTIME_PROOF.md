@@ -133,4 +133,7 @@ Canonical Supabase project: `dmjifqbvbjewyigdsuco`
   production.
 - The current rerun again passed country config, JLC-0521, JLC-0522, media
   security (22 checks), typecheck, and lint; the SafeImage warning remains
-  pre-existing. The exact reviewed Preview deployment build remains `Ready`.
+  pre-existing. A subsequent local `npm run build` completed successfully:
+  compilation, type/lint validation, all 47 static pages, optimization, and
+  trace collection passed. The exact reviewed Preview deployment build remains
+  `Ready`.
