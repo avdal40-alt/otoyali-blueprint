@@ -137,3 +137,86 @@ Canonical Supabase project: `dmjifqbvbjewyigdsuco`
   compilation, type/lint validation, all 47 static pages, optimization, and
   trace collection passed. The exact reviewed Preview deployment build remains
   `Ready`.
+
+## Final approved-fixture runtime evidence (2026-10-29)
+
+- `INITIAL_HEAD` / `FINAL_HEAD` before this evidence commit:
+  `665305c63df3c8f0735419dfd4b324f3eb7c97d2`.
+- `CONTROLLED_LISTING_ID`: `680bb3d0-7210-448e-9187-4702f6a11534`.
+- `LISTING_STATUS`: `active`; `MODERATION_STATUS`: `active`.
+- `APPROVED_AT` / `PUBLISHED_AT`: `2026-10-29T05:23:13.250675+00:00`.
+- The owner performed the approval through the normal authorized moderation
+  UI. A canonical read-only verification confirmed the listing still belongs
+  to the controlled seller and retains Audi A3 / 2000, active Almaty city UUID
+  `2990421d-405c-459b-9fd2-7193cd27e38e`, KZT 25,000,000, and zero media.
+
+### JLC-0521 public runtime proof
+
+- `KZ_PUBLIC_INCLUDE_STATUS`: `GREEN`. A transaction-scoped `anon` probe of
+  the actual public boundaries returned the controlled listing from
+  `ff_home_listings`, `ff_listing_details`, and
+  `marketplace.search_listings_v1`; the canonical count RPC returned `1`.
+- `TR_PUBLIC_EXCLUSION_STATUS`: `GREEN`. The known historical TRY fixture
+  `5ea1f371-13ff-43fb-9bf0-b5b74a60aa08` was absent from the same home,
+  detail, and Search-v1 probes. It was not modified.
+- `COUNT_ISOLATION_STATUS`: `GREEN`; the anonymous canonical count covers the
+  one active KZ listing only.
+- `RELATED_ISOLATION_STATUS`: `GREEN_BY_SHARED_BOUNDARY`. Listing detail uses
+  `getHomeListings(12)` for its related cards, so it consumes the same
+  KZ-filtered public home view. There is no second active KZ listing to render
+  an additional related card.
+- `FACET_ISOLATION_STATUS`: `GREEN_BY_APPLICATION_FILTER`. Historical city
+  catalog rows remain (including TR), while the active application city query
+  explicitly requests `ff_cities` with `country_code = CURRENT_MARKET.countryCode`
+  (`KZ`). The anonymous KZ public home set contained KZ only.
+- `SAVED_SEARCH_ISOLATION_STATUS`: `GREEN_BY_MATCHER_CONTRACT`; the system
+  matcher is the JLC-0521 trusted-city predicate used by saved-search
+  workflows. No controlled recipient/saved search existed, so no notification
+  was created merely for this proof.
+- `DEALER_PUBLIC_SURFACE_STATUS`: `N/A`. The controlled fixture is a private
+  seller listing, not dealer inventory; no dealer ownership or dealer record
+  was created.
+- `LOCALE_MARKET_INVARIANCE_STATUS`: `GREEN_BY_SHARED_RUNTIME_BOUNDARY` for
+  `ru`, `kk`, `en`, and `zh-CN`: locale is presentation routing only and is
+  not accepted by the public views, Search-v1 request, count RPC, or the
+  trusted-city predicate. `test:country-config` reconfirmed the canonical
+  Russian default/fallback and KZ market configuration.
+
+### Preserved controlled-proof results and cleanup
+
+- `JLC_0521_RUNTIME_STATUS`: `GREEN` for KZ public inclusion and historical
+  TR public exclusion, with the non-applicable/private surfaces documented
+  above.
+- `JLC_0522_RUNTIME_STATUS`: `GREEN`; the existing normal seller-create,
+  KZ-city, KZT, submission, spoof-rejection, and ownership evidence remains
+  valid, and the approved transition extended its lifecycle proof.
+- `LEGAL_ACCEPTANCE_RUNTIME_STATUS`: `GREEN`; the earlier rollback-only RLS
+  matrix remains valid and no legal evidence was recreated.
+- `TEMP_LISTING_CLEANUP_STATUS`: `MANUAL_OWNER_ACTION_REQUIRED`. The supported
+  path is the controlled seller's normal **My listings -> Archive** action,
+  which calls owner-only `public.archive_own_listing`; no raw deletion,
+  service-role bypass, or administrative status update was used.
+- `TEMP_MODERATOR_CLEANUP_STATUS`: `NOT_APPLICABLE`. A read-only check found
+  no `admin_users` row created during the RC4C window; the pre-existing
+  moderator was not touched.
+- Migration parity remains `180 local / 180 remote / 0 pending` from the
+  current linked production migration inventory.
+
+### Final local verification
+
+- `npm run test:country-config`: PASS.
+- `npm run test:jlc-0521`: PASS.
+- `npm run test:jlc-0522`: PASS.
+- `npm run test:security-final-media-reference`: PASS (22 checks).
+- `npm run typecheck`: PASS.
+- `npm run lint`: PASS; unchanged SafeImage `<img>` performance warning only.
+- `git diff --check`: PASS before this evidence update.
+- `npm run build`: PASS; 47 static pages completed.
+
+### Remaining go-live blockers
+
+- The temporary controlled listing must be archived through the controlled
+  seller UI after this recorded proof.
+- Leaked-password protection remains a provider-setting go-live blocker.
+- Production remains paused; no production deployment, DNS, or Auth-provider
+  configuration was changed by RC4C.
