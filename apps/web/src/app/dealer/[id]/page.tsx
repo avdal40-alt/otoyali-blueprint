@@ -8,6 +8,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { DealerFollowButton } from "@/components/dealer/DealerFollowButton";
 import { localizePath } from "@/i18n/config";
+import { cityLabel } from "@/lib/format";
 import { t } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
 import type { Locale } from "@/i18n/types";
@@ -63,7 +64,7 @@ export default async function PublicDealerPage({ params, searchParams }: Props) 
         <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-white bg-oto-surface shadow-soft md:h-32 md:w-32">
           {profile.avatar_url ? <Image src={profile.avatar_url} alt="" fill className="object-cover" sizes="128px" /> : <span className="flex h-full w-full items-center justify-center text-xl font-black text-oto-text">J</span>}
         </div>
-        <div><h1 className="text-2xl font-black text-oto-text md:text-3xl">{profile.display_name}</h1><p className="mt-1 text-sm text-oto-muted">{profile.city || t(locale, "profile.dealerPage.locationUnavailable")}</p></div>
+        <div><h1 className="text-2xl font-black text-oto-text md:text-3xl">{profile.display_name}</h1><p className="mt-1 text-sm text-oto-muted">{profile.city ? cityLabel(profile.city, locale) : t(locale, "profile.dealerPage.locationUnavailable")}</p></div>
         <div className="flex flex-wrap items-center gap-3">{profile.is_verified ? <span className="rounded-full bg-green-50 px-3 py-1 text-sm font-bold text-oto-success">✓ {t(locale, "profile.verifiedDealer")}</span> : null}<DealerFollowButton dealerId={id} initialFollowing={profile.is_following} initialCount={profile.follower_count} /></div>
       </div>
     </section>
@@ -84,5 +85,5 @@ function LiveCard({ stream, locale, live }: { stream: DealerLive | DealerLiveHis
 
 function DealerListings({ listings, locale, emptyTitle, emptyBody }: { listings: DealerListing[]; locale: Locale; emptyTitle: string; emptyBody: string }) {
   if (!listings.length) return <EmptyTab title={emptyTitle} body={emptyBody} />;
-  return <div className="grid gap-3 sm:grid-cols-2">{listings.map((item) => <Link key={item.listing_id} href={localizePath(`/listing/${item.listing_id}`, locale)} className="overflow-hidden rounded-oto border border-oto-border bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-oto-blue"><div className="aspect-[4/3] bg-oto-surface">{item.cover_image_url ? <SafeImage src={item.cover_image_url} alt="" /> : null}</div><div className="p-4"><h3 className="font-bold text-oto-text">{item.title || t(locale, "profile.dealerPage.vehicle")}</h3><p className="mt-2 text-sm text-oto-muted">{item.city}</p><p className="mt-2 font-black text-oto-text">{item.price_amount} {item.currency}</p>{(item.video_count ?? 0) > 0 ? <span className="mt-2 inline-block rounded-full bg-oto-blue px-2 py-1 text-xs font-bold text-white">{t(locale, "profile.dealerPage.video")}</span> : null}</div></Link>)}</div>;
+  return <div className="grid gap-3 sm:grid-cols-2">{listings.map((item) => <Link key={item.listing_id} href={localizePath(`/listing/${item.listing_id}`, locale)} className="overflow-hidden rounded-oto border border-oto-border bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-oto-blue"><div className="aspect-[4/3] bg-oto-surface">{item.cover_image_url ? <SafeImage src={item.cover_image_url} alt="" /> : null}</div><div className="p-4"><h3 className="font-bold text-oto-text">{item.title || t(locale, "profile.dealerPage.vehicle")}</h3><p className="mt-2 text-sm text-oto-muted">{cityLabel(item.city, locale)}</p><p className="mt-2 font-black text-oto-text">{item.price_amount} {item.currency}</p>{(item.video_count ?? 0) > 0 ? <span className="mt-2 inline-block rounded-full bg-oto-blue px-2 py-1 text-xs font-bold text-white">{t(locale, "profile.dealerPage.video")}</span> : null}</div></Link>)}</div>;
 }
