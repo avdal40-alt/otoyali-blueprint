@@ -38,32 +38,15 @@ const bodyTypeOptions = [
   { value: "other", label: bodyTypeLabel("other") }
 ];
 
-const driveTypeOptions = [
-  { value: "", label: "Tüm çekiş tipleri" },
-  { value: "front", label: driveTypeLabel("front") },
-  { value: "rear", label: driveTypeLabel("rear") },
-  { value: "4x4", label: driveTypeLabel("4x4") },
-  { value: "awd", label: driveTypeLabel("awd") }
-];
-
-const colorOptions = [
-  { value: "", label: "Tüm renkler" },
-  { value: "white", label: "Beyaz" },
-  { value: "black", label: "Siyah" },
-  { value: "gray", label: "Gri" },
-  { value: "blue", label: "Mavi" },
-  { value: "red", label: "Kırmızı" }
-];
-
 const damageOptions = [
-  { value: "", label: "Tüm hasar durumları" },
-  { value: "unknown", label: "Belirtilmemiş" },
-  { value: "none", label: damageStateLabel("none") },
-  { value: "painted", label: damageStateLabel("painted") },
-  { value: "replaced", label: damageStateLabel("replaced") },
-  { value: "heavy_damage", label: damageStateLabel("heavy_damage") },
-  { value: "minor", label: damageStateLabel("minor") },
-  { value: "major", label: damageStateLabel("major") }
+  { value: "" },
+  { value: "unknown" },
+  { value: "none" },
+  { value: "painted" },
+  { value: "replaced" },
+  { value: "heavy_damage" },
+  { value: "minor" },
+  { value: "major" }
 ];
 
 type FilterSupport = {

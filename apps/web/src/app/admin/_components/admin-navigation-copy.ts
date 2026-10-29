@@ -43,6 +43,9 @@ const zhCN: AdminNavigationCopy = {
   settings: "设置"
 };
 
+// Compatibility-only: Turkish is not released and cannot be selected through
+// Jolmod's locale registry. Keeping this explicit mapping preserves historical
+// Yolmod navigation records without making it the fallback.
 const tr: AdminNavigationCopy = {
   dashboard: "Yönetim paneli",
   listings: "İlanlar",

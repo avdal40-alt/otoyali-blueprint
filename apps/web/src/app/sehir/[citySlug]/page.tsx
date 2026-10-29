@@ -5,6 +5,7 @@ import { citySeoSlug } from "@/lib/seo/slugs";
 import { buildSeoMetadata } from "@/lib/seo/metadata";
 import { getRequestLocale } from "@/i18n/server";
 import { getDynamicSeoCopy } from "@/i18n/dynamic-seo-copy";
+import { cityLabel } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -14,7 +15,8 @@ type PageProps = {
 };
 
 export async function generateMetadata({ params }: PageProps) {
-  const copy=getDynamicSeoCopy(await getRequestLocale());
+  const locale = await getRequestLocale();
+  const copy=getDynamicSeoCopy(locale);
   const resolvedParams = await params;
   const { cities } = await getSeoCatalog();
   const city = findCityBySlug(cities, resolvedParams.citySlug);
@@ -27,13 +29,14 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   return buildSeoMetadata({
-    title: copy.listings(city.city_name), description: copy.description(city.city_name),
+    title: copy.listings(cityLabel(city.city_name, locale)), description: copy.description(cityLabel(city.city_name, locale)),
     path: `/sehir/${citySeoSlug(city.city_name, city.city_slug)}`
   });
 }
 
 export default async function CitySeoPage({ params }: PageProps) {
-  const copy=getDynamicSeoCopy(await getRequestLocale());
+  const locale = await getRequestLocale();
+  const copy=getDynamicSeoCopy(locale);
   const resolvedParams = await params;
   const { cities } = await getSeoCatalog();
   const city = findCityBySlug(cities, resolvedParams.citySlug);
@@ -43,18 +46,19 @@ export default async function CitySeoPage({ params }: PageProps) {
   }
 
   const path = `/sehir/${citySeoSlug(city.city_name, city.city_slug)}`;
+  const localizedCity = cityLabel(city.city_name, locale);
   const config: MarketplaceSeoConfig = {
     path,
-    h1: copy.listings(city.city_name), description: copy.description(city.city_name), ctaLabel: copy.cta(city.city_name),
+    h1: copy.listings(localizedCity), description: copy.description(localizedCity), ctaLabel: copy.cta(localizedCity),
     filters: { city: city.city_name },
     breadcrumbs: [
       { label: copy.home, href: "/" }, { label: copy.city, href: "/search" },
-      { label: city.city_name }
+      { label: localizedCity }
     ],
     summary: [
-      { label: copy.city, value: city.city_name }
+      { label: copy.city, value: localizedCity }
     ],
-    seoText: copy.seoText(city.city_name)
+    seoText: copy.seoText(localizedCity)
   };
 
   return <MarketplaceSeoPage config={config} />;

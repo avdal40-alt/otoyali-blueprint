@@ -2,6 +2,17 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { useI18n } from "@/i18n/client";
+
+function getCopy(locale: string) {
+  const copies = {
+    ru: { copied: "Скопировано", share: "Поделиться" },
+    kk: { copied: "Көшірілді", share: "Бөлісу" },
+    en: { copied: "Copied", share: "Share" },
+    "zh-CN": { copied: "已复制", share: "分享" }
+  } as const;
+  return locale === "kk" || locale === "en" || locale === "zh-CN" ? copies[locale] : copies.ru;
+}
 
 export function VideoShareButton({
   title,
@@ -10,6 +21,8 @@ export function VideoShareButton({
   title: string;
   listingId?: string | null;
 }) {
+  const { locale } = useI18n();
+  const copy = getCopy(locale);
   const [copied, setCopied] = useState(false);
 
   async function share() {
@@ -28,7 +41,7 @@ export function VideoShareButton({
 
   return (
     <Button type="button" variant="secondary" onClick={share} className="h-10">
-      {copied ? "Kopyalandı" : "Paylaş"}
+      {copied ? copy.copied : copy.share}
     </Button>
   );
 }

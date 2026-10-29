@@ -12,6 +12,7 @@ import { t } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
 import type { Locale } from "@/i18n/types";
 import { getServiceProviderBySlug } from "@/lib/queries/services";
+import { cityLabel } from "@/lib/format";
 import { buildSeoMetadata } from "@/lib/seo/metadata";
 import { getServiceCategory } from "@/features/services/domain/categories";
 import {
@@ -118,7 +119,7 @@ export default async function ServiceProviderPage({ params }: PageProps) {
                   <div>
                     <h2 className="text-xl font-black text-oto-text">{branch.branch_name}</h2>
                     <p className="mt-2 text-sm font-semibold text-oto-muted">
-                      {[branch.city, branch.district].filter(Boolean).join(" / ")}
+                      {[branch.city ? cityLabel(branch.city, locale) : null, branch.district].filter(Boolean).join(" / ")}
                     </p>
                     {branch.public_address ? <p className="mt-1 text-sm font-semibold text-oto-muted">{branch.public_address}</p> : null}
                   </div>
