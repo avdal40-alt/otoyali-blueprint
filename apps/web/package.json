@@ -39,6 +39,7 @@
     "test:ai-response-language": "node scripts/ai-response-language.test.cjs",
     "test:ai-client-localization": "node scripts/ai-client-localization.test.cjs",
     "test:settings-localization": "node scripts/settings-localization.test.cjs",
+    "test:password-change": "node scripts/password-change.test.cjs",
     "test:auth-signup-metadata": "node scripts/auth-signup-metadata.test.cjs",
     "test:jlc-0302": "node scripts/jlc-0302-registration-password-enrollment.test.cjs",
     "test:jlc-0302:runtime": "node scripts/jlc-0302-password-enrollment-runtime.test.cjs",
