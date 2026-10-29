@@ -281,6 +281,7 @@ function Dashboard({ userId }: { userId: string }) {
 }
 
 function ListingsModeration({ userId, locale }: { userId: string; locale: Locale }) {
+  const copy = getListingModerationCopy(locale);
   const [rows, setRows] = useState<ListingRow[]>([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -325,7 +326,7 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
     const { data: sessionData } = await supabase.auth.getSession();
     const accessToken = sessionData.session?.access_token;
     if (!accessToken) {
-      setError("Admin oturumu bulunamadı.");
+      setError(copy.sessionMissing);
       setReviewingListingId(null);
       return;
     }
@@ -345,7 +346,7 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
     const payload = await response.json().catch(() => null) as { error?: string } | null;
 
     if (!response.ok) {
-      setError(payload?.error ?? "İlan moderasyonu tamamlanamadı.");
+      setError(payload?.error ?? copy.reviewFailed);
       setReviewingListingId(null);
       return;
     }
@@ -356,14 +357,14 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
 
   return (
     <AdminTableShell
-      title="İlan moderasyonu"
+      title={copy.title}
       filter={
         <select value={filter} onChange={(event) => setFilter(event.target.value)} className="h-10 rounded-md border border-oto-border bg-white px-3 text-sm font-bold">
-          <option value="all">Tümü</option>
-          <option value="pending_review">Onay bekleyen</option>
-          <option value="active">Onaylandı</option>
-          <option value="rejected">Reddedildi</option>
-          <option value="archived">Arşivlendi</option>
+          <option value="all">{copy.all}</option>
+          <option value="pending_review">{copy.pending}</option>
+          <option value="active">{copy.approved}</option>
+          <option value="rejected">{copy.rejected}</option>
+          <option value="archived">{copy.archived}</option>
         </select>
       }
       loading={loading}
@@ -375,37 +376,37 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
         return (
           <div key={row.listing_id} className="grid gap-3 border-b border-oto-border py-4 last:border-b-0 lg:grid-cols-[88px_1.3fr_1fr_0.9fr_1.4fr] lg:items-center">
             <div className="aspect-[4/3] overflow-hidden rounded-md bg-oto-surface">
-              <SafeImage src={row.preview_url} alt={row.title || "İlan"} />
+              <SafeImage src={row.preview_url} alt={row.title || copy.listing} />
             </div>
             <div>
-              <p className="font-black text-oto-text">{row.title || "İlan"}</p>
+              <p className="font-black text-oto-text">{row.title || copy.listing}</p>
               <div className="mt-1">
                 <Badge variant="primary">{t(locale, "verticals.cars.shortLabel")}</Badge>
               </div>
-              <p className="mt-1 text-xs font-bold text-oto-muted">{makeModel || "Araç bilgisi yok"}</p>
+              <p className="mt-1 text-xs font-bold text-oto-muted">{makeModel || copy.vehicleMissing}</p>
             </div>
             <div className="text-sm font-bold text-oto-muted">
-              <p>{row.city || "Şehir yok"} · {row.seller_type || "seller"}</p>
-              <p>{formatPrice(row.price_amount, row.currency, locale)} · Kalite {row.quality_score ?? 0}</p>
+              <p>{row.city || copy.cityMissing} · {row.seller_type || copy.seller}</p>
+              <p>{formatPrice(row.price_amount, row.currency, locale)} · {copy.quality} {row.quality_score ?? 0}</p>
             </div>
             <div className="text-xs font-black text-oto-muted">
-              <p>Status: {row.status}</p>
-              <p>Moderasyon: {moderationLabel(row.moderation_status)}</p>
+              <p>{copy.status}: {row.status}</p>
+              <p>{copy.moderation}: {moderationLabel(row.moderation_status, locale)}</p>
             </div>
             <div className="flex flex-wrap gap-2 lg:justify-end">
               {row.moderation_status === "pending_review" ? (
                 <>
                   <SmallButton onClick={() => moderate(row, "approve")} disabled={Boolean(reviewingListingId)}>
-                    {reviewingListingId === row.listing_id ? "İşleniyor" : "Onayla"}
+                    {reviewingListingId === row.listing_id ? copy.processing : copy.approve}
                   </SmallButton>
                   <SmallButton onClick={() => moderate(row, "reject")} variant="secondary" disabled={Boolean(reviewingListingId)}>
-                    Reddet
+                    {copy.reject}
                   </SmallButton>
                 </>
               ) : (
-                <span className="rounded-md bg-oto-surface px-3 py-2 text-xs font-black text-oto-muted">Karar kapalı</span>
+                <span className="rounded-md bg-oto-surface px-3 py-2 text-xs font-black text-oto-muted">{copy.decisionClosed}</span>
               )}
-              <Link href={localizePath(`/listing/${row.listing_id}`, locale)} className="rounded-md border border-oto-border px-3 py-2 text-xs font-black text-oto-text">Aç</Link>
+              <Link href={localizePath(`/listing/${row.listing_id}`, locale)} className="rounded-md border border-oto-border px-3 py-2 text-xs font-black text-oto-text">{copy.open}</Link>
             </div>
           </div>
         );
@@ -865,12 +866,23 @@ async function logAdminAction(userId: string, action: string, entityType: string
   });
 }
 
-function moderationLabel(status?: string | null) {
-  if (status === "active") return "Onaylandı";
-  if (status === "pending_review") return "Onay bekliyor";
-  if (status === "rejected") return "Reddedildi";
-  if (status === "archived") return "Arşivlendi";
-  return status || "Yok";
+function moderationLabel(status: string | null | undefined, locale: Locale) {
+  const copy = getListingModerationCopy(locale);
+  if (status === "active") return copy.approved;
+  if (status === "pending_review") return copy.pending;
+  if (status === "rejected") return copy.rejected;
+  if (status === "archived") return copy.archived;
+  return status || copy.none;
+}
+
+function getListingModerationCopy(locale: Locale) {
+  const copies = {
+    ru: { title: "Модерация объявлений", all: "Все", pending: "Ожидают проверки", approved: "Одобрено", rejected: "Отклонено", archived: "В архиве", listing: "Объявление", vehicleMissing: "Нет данных автомобиля", cityMissing: "Город не указан", seller: "продавец", quality: "Качество", status: "Статус", moderation: "Модерация", processing: "Обработка", approve: "Одобрить", reject: "Отклонить", decisionClosed: "Решение принято", open: "Открыть", none: "Нет", sessionMissing: "Сессия администратора не найдена.", reviewFailed: "Не удалось завершить модерацию объявления." },
+    kk: { title: "Хабарландыруларды модерациялау", all: "Барлығы", pending: "Тексеруді күтуде", approved: "Мақұлданды", rejected: "Қабылданбады", archived: "Мұрағатта", listing: "Хабарландыру", vehicleMissing: "Көлік деректері жоқ", cityMissing: "Қала көрсетілмеген", seller: "сатушы", quality: "Сапа", status: "Күйі", moderation: "Модерация", processing: "Өңделуде", approve: "Мақұлдау", reject: "Қабылдамау", decisionClosed: "Шешім қабылданды", open: "Ашу", none: "Жоқ", sessionMissing: "Әкімші сессиясы табылмады.", reviewFailed: "Хабарландыру модерациясын аяқтау мүмкін болмады." },
+    en: { title: "Listing moderation", all: "All", pending: "Pending review", approved: "Approved", rejected: "Rejected", archived: "Archived", listing: "Listing", vehicleMissing: "Vehicle information unavailable", cityMissing: "City not provided", seller: "seller", quality: "Quality", status: "Status", moderation: "Moderation", processing: "Processing", approve: "Approve", reject: "Reject", decisionClosed: "Decision closed", open: "Open", none: "None", sessionMissing: "Admin session was not found.", reviewFailed: "Listing moderation could not be completed." },
+    "zh-CN": { title: "房源审核", all: "全部", pending: "等待审核", approved: "已批准", rejected: "已拒绝", archived: "已归档", listing: "房源", vehicleMissing: "暂无车辆信息", cityMissing: "未填写城市", seller: "卖家", quality: "质量", status: "状态", moderation: "审核", processing: "处理中", approve: "批准", reject: "拒绝", decisionClosed: "决定已完成", open: "打开", none: "无", sessionMissing: "未找到管理员会话。", reviewFailed: "无法完成房源审核。" }
+  } as const;
+  return locale === "kk" || locale === "en" || locale === "zh-CN" ? copies[locale] : copies.ru;
 }
 
 function reportReasonLabel(reason?: string | null) {
