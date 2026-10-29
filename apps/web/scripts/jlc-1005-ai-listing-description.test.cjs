@@ -8,6 +8,7 @@ const runtime = read("src", "features", "ai", "sell", "sell-runtime.ts");
 const route = read("src", "app", "api", "ai", "sell", "route.ts");
 const assistant = read("src", "app", "sell", "_components", "ListingDescriptionAssistant.tsx");
 const wizard = read("src", "app", "sell", "_components", "SellWizard.tsx");
+const templates = read("src", "i18n", "dictionaries", "ai-sell-description.ts");
 
 assert.match(route, /requireAuthenticatedRequestSupabase/, "description generation requires an authenticated server request");
 assert.match(runtime, /actionSchema = z\.enum\([\s\S]*generate_description[\s\S]*apply_description/, "runtime has explicit generation and apply actions");
@@ -16,9 +17,14 @@ assert.match(runtime, /canGenerateDescription\(draft\)/, "generation requires a 
 assert.match(runtime, /if \(!isSafeDescription\(preview\)\)/, "generated output is safety-validated server-side");
 assert.match(runtime, /isSafeDescription\(request\.descriptionPreview\)/, "applied output is safety-validated server-side");
 assert.match(runtime, /phone|whatsapp|telegram/, "contact-sharing output is rejected");
+assert.match(runtime, /descriptionLanguage: z\.unknown\(\)\.optional\(\)\.transform\(normalizeDescriptionLanguage\)/, "server normalizes the description language independently");
+assert.match(runtime, /return value === "kk" \? "kk" : "ru"/, "only explicit Kazakh is retained; every other description language becomes Russian");
+assert.match(runtime, /generateDescription\(draft, request\.descriptionLanguage/, "generation consumes the normalized description language, not the UI locale");
+assert.doesNotMatch(templates, /\btr:\s*\{|\ben:\s*\{|"zh-CN":\s*\{/, "seller description templates are limited to Russian and Kazakh");
 assert.match(assistant, /action: "generate_description"/, "wizard invokes only the explicit generate action");
-assert.match(assistant, /useI18n\(\)/, "description assistant uses the canonical client dictionary");
-assert.match(assistant, /dictionary\.ai\.sellDescription/, "description assistant reads its AI copy domain");
+assert.match(assistant, /descriptionLanguage/, "description assistant sends a separate normalized description language");
+assert.match(assistant, /locale === "kk" \? "kk" : "ru"/, "UI defaults are kk only for Kazakh and Russian otherwise");
+assert.match(assistant, /<option value="ru">[\s\S]*<option value="kk">/, "seller UI offers only Russian and Kazakh description choices");
 assert.doesNotMatch(assistant, /const copy = \{[\s\S]*\btr:/, "description assistant must not retain a local tr/en copy map");
 assert.match(assistant, /<Textarea[^>]*value=\{preview\}/, "generated draft is editable before apply");
 assert.match(assistant, /onApply\(preview\)/, "applying the draft is an explicit owner action");

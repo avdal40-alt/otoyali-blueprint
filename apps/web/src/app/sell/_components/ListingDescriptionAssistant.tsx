@@ -9,10 +9,12 @@ import { getListingDescriptionAssistantCopy } from "./listing-description-assist
 
 type DescriptionDraft = Record<string, string | number | boolean | null | undefined>;
 type DescriptionMode = "concise" | "standard" | "detailed";
+type DescriptionLanguage = "ru" | "kk";
 
 export function ListingDescriptionAssistant({ locale, draft, onApply }: { locale: Locale; draft: DescriptionDraft; onApply: (description: string) => void }) {
   const t = getListingDescriptionAssistantCopy(locale);
   const [mode, setMode] = useState<DescriptionMode>("standard");
+  const [descriptionLanguage, setDescriptionLanguage] = useState<DescriptionLanguage>(locale === "kk" ? "kk" : "ru");
   const [preview, setPreview] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +27,7 @@ export function ListingDescriptionAssistant({ locale, draft, onApply }: { locale
     try {
       const session = (await getSupabaseBrowserClient().auth.getSession()).data.session;
       if (!session) throw new Error("auth_required");
-      const response = await fetch("/api/ai/sell", { method: "POST", headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" }, body: JSON.stringify({ locale, draft, action: "generate_description", descriptionMode: mode }) });
+      const response = await fetch("/api/ai/sell", { method: "POST", headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" }, body: JSON.stringify({ locale, draft, action: "generate_description", descriptionMode: mode, descriptionLanguage }) });
       const body: unknown = await response.json();
       const description = body && typeof body === "object" && "data" in body && body.data && typeof body.data === "object" && "state" in body.data && body.data.state && typeof body.data.state === "object" && "descriptionPreview" in body.data.state && typeof body.data.state.descriptionPreview === "string" ? body.data.state.descriptionPreview : null;
       if (!response.ok || !description) throw new Error("generation_failed");
@@ -44,6 +46,12 @@ export function ListingDescriptionAssistant({ locale, draft, onApply }: { locale
         <option value="concise">{t.concise}</option><option value="standard">{t.standard}</option><option value="detailed">{t.detailed}</option>
       </select>
     </div>
+    <label className="mt-3 grid gap-1 text-xs font-bold text-oto-muted" htmlFor="listing-description-language">
+      {t.language}
+      <select id="listing-description-language" className="rounded border border-oto-border bg-white p-1 text-sm text-oto-text" value={descriptionLanguage} onChange={(event) => setDescriptionLanguage(event.target.value as DescriptionLanguage)} disabled={busy}>
+        <option value="ru">{t.russian}</option><option value="kk">{t.kazakh}</option>
+      </select>
+    </label>
     <p className="mt-2 text-xs leading-5 text-oto-muted">{ready ? t.help : t.unavailable}</p>
     <Button className="mt-3" type="button" variant="secondary" onClick={() => void generate()} disabled={busy || !ready} isLoading={busy}>{busy ? t.generating : t.generate}</Button>
     {error ? <p role="alert" className="mt-2 text-xs font-bold text-oto-danger">{error}</p> : null}

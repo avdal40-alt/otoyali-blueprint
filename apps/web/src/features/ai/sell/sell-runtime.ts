@@ -1,7 +1,7 @@
 import "server-only";
 
 import { z } from "zod";
-import { getAiSellDescriptionTemplates } from "@/i18n/dictionaries/ai-sell-description";
+import { getAiSellDescriptionTemplates, type SellDescriptionLocale } from "@/i18n/dictionaries/ai-sell-description";
 import type { AuthenticatedRequestSupabase } from "@/lib/supabase/request";
 import { createListingSchema, createOwnListingDraft, editListingSchema, listingIdSchema, saveOwnRejectedListing, submitOwnListing } from "@/lib/listings/server-write";
 import { applySellDraftPatch, extractSellerDeclarations, getMissingRequiredFields, getNextSellQuestion, getSellAmbiguity, normalizeSellNumber, processSellDraftTurn, sellDraftPatchSchema, sellDraftSchema, type SellDraft, type SellDraftPatch } from "./sell-draft";
@@ -12,7 +12,7 @@ const maxDescriptionLength = 4000;
 // expose them in the client registry before the staged locale release.
 const sellAssistantLocaleSchema = z.enum(["tr", "en", "ru", "kk", "zh-CN"]);
 type SellAssistantLocale = z.infer<typeof sellAssistantLocaleSchema>;
-export const sellAssistantRequestSchema = z.object({ locale: sellAssistantLocaleSchema, message: z.string().trim().max(2000).optional(), draft: sellDraftSchema, listingId: listingIdSchema.optional(), action: actionSchema.default("turn"), descriptionMode: z.enum(["concise", "standard", "detailed"]).default("standard"), descriptionPreview: z.string().trim().max(maxDescriptionLength).optional() }).strict();
+export const sellAssistantRequestSchema = z.object({ locale: sellAssistantLocaleSchema, message: z.string().trim().max(2000).optional(), draft: sellDraftSchema, listingId: listingIdSchema.optional(), action: actionSchema.default("turn"), descriptionMode: z.enum(["concise", "standard", "detailed"]).default("standard"), descriptionLanguage: z.unknown().optional().transform(normalizeDescriptionLanguage), descriptionPreview: z.string().trim().max(maxDescriptionLength).optional() }).strict();
 type SellAssistantRequest = z.infer<typeof sellAssistantRequestSchema>;
 type PendingAction = "create" | "update" | "submit" | null;
 
@@ -39,7 +39,7 @@ export async function runSellAssistant(authenticated: AuthenticatedRequestSupaba
   if (request.action === "cancel") return { ok: true, state: state() };
   if (["generate_description", "regenerate_description"].includes(request.action)) {
     if (!canGenerateDescription(draft)) return { ok: false, code: "not_ready", status: 422 };
-    const preview = generateDescription(draft, request.locale, request.descriptionMode, request.message ?? "");
+    const preview = generateDescription(draft, request.descriptionLanguage, request.descriptionMode, request.message ?? "");
     if (!isSafeDescription(preview)) return { ok: false, code: "invalid_output", status: 422 };
     return { ok: true, state: state({ phase: "description_preview", descriptionPreview: preview }) };
   }
@@ -89,7 +89,11 @@ function extractDeterministicPatch(message: string, current: SellDraft): SellDra
   return sellDraftPatchSchema.parse({ changes: changes.length ? changes : [{ field: "city", operation: "keep" }] });
 }
 
-function generateDescription(draft: SellDraft, locale: SellAssistantLocale, mode: "concise" | "standard" | "detailed", sellerText: string) {
+export function normalizeDescriptionLanguage(value: unknown): SellDescriptionLocale {
+  return value === "kk" ? "kk" : "ru";
+}
+
+function generateDescription(draft: SellDraft, locale: SellDescriptionLocale, mode: "concise" | "standard" | "detailed", sellerText: string) {
   const copy = getAiSellDescriptionTemplates(locale);
   const facts = [draft.year, draft.color, draft.fuelType, draft.transmission, draft.mileageKm !== undefined ? `${draft.mileageKm} km` : undefined].filter(Boolean).join(" · ");
   const declarations = extractSellerDeclarations(sellerText).filter((item) => isSafeDescription(item.text)).map((item) => copy.declaration(item.text));
