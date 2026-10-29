@@ -1,4 +1,4 @@
-# V9 final release candidate — in progress
+# V9 final release candidate
 
 Date: 2026-10-29  
 Initial HEAD: `cabb66967b3a6cfc440b29508215e2766ae49439`
@@ -58,7 +58,7 @@ Initial HEAD: `cabb66967b3a6cfc440b29508215e2766ae49439`
   RPCs, or moderation semantics.
 - `test:admin-client-localization` and typecheck passed.
 
-## Current verification
+## Final V9 verification
 
 - `test:country-config`: PASS.
 - `test:jlc-0521`: PASS.
@@ -67,24 +67,67 @@ Initial HEAD: `cabb66967b3a6cfc440b29508215e2766ae49439`
 - `npm run lint`: PASS with the existing `SafeImage` `<img>` performance
   warning only.
 - `git diff --check`: PASS.
-- A fresh `npm run build` compiled successfully and completed lint/type
-  validation, then the local command did not return after `Collecting page
-  data`. This is **not** recorded as a build pass; the previously recorded
-  immutable Preview build remains the last successful deployment build.
+- `test:jlc-0518`, `test:jlc-1005`, `test:password-change`,
+  `test:dealer-page-localization`, `test:video-localization`, and
+  `test:admin-client-localization`: PASS.
+- A fresh local production build is GREEN: compilation, type validation, all
+  47 static pages, page optimisation, and trace collection completed. The
+  earlier apparent page-data stall was a command-output boundary issue: the
+  Next trace records a complete build, and the bounded rerun completed.
+- Final bundle evidence remains within the established baseline: 103 kB shared
+  first-load JS, `/search` 272 kB, listing detail 271 kB, and `/sell` 254 kB.
+- Lint is acceptable with the existing deliberate `SafeImage` `<img>` warning
+  only. The component supports arbitrary sanitized seller URLs and media
+  variants; changing it to `next/image` without an approved remote-loader
+  policy would be riskier than the warning.
 
-## Remaining V9 work
+## Final localisation audit
 
-- Complete the active-client city-label surface audit (including seller review,
-  account/dealer/admin detail paths, metadata, and structured data).
-- Complete the systematic Turkish user-facing leakage audit beyond the active
-  listing-moderation queue.
-- Complete buyer/seller/account/admin release audit and associated targeted
-  suites.
-- Complete preview-only deployment/smoke after the full local gates are green.
-- Recheck Auth provider/SMS/Site URL/redirect settings read-only; leaked
-  password protection remains an owner/provider go-live blocker.
-- Complete SEO, legal/support, SafeImage/performance, security, and rollback
-  evidence. Final domain and legal operator facts remain owner input.
+- Commit `f4f762e` localises the remaining active admin dashboard, video
+  moderation, reports, users, settings, dealer-follow, video-share and vehicle
+  gallery controls for RU/KK/EN/zh-CN. It also localises city presentation in
+  city SEO pages, service-provider branches, and admin rows.
+- Filter values remain canonical machine values; active display labels are
+  generated through locale-aware formatters. Removed Turkish-only unused option
+  labels from the active search-filter module.
+- Historical Turkish compatibility dictionaries and Turkey records remain
+  intact, but unreleased Turkish cannot become a Jolmod fallback. Russian is
+  the fallback for unsupported launch display paths.
+- Deferred Dealer Live is not activated or included in launch smoke scope.
 
-`V9_RELEASE_DECISION`: `NOT_READY` until the remaining release audit, full
-verification, and Preview evidence are complete. Production is still paused.
+## Preview / RC5
+
+- Preview-only deployment: `dpl_FSqjvtcjeHffK9WoHiSnfYFPaepW`.
+- Immutable URL: `https://jolcar-staging-ed2r0wi0r-otoyali.vercel.app`.
+- Target: `otoyali/jolcar-staging` (root `apps/web`), never the production
+  `jolcar` project. Vercel status: READY; build duration 1m18s.
+- Unauthenticated route probes returned redirects as expected for the Preview
+  protection/runtime boundary. One first DNS lookup transiently failed; no
+  application 4xx/5xx evidence was observed. Authenticated Preview smoke must
+  be performed normally by the owner; no session or credential bypass was used.
+
+## Provider, legal, domain, and release plan
+
+- Production database parity remains `180 local / 180 remote / 0 pending`.
+  V9 made no migration or production data mutation. Production remains paused.
+- Phone registration and normal phone/password login were proven in RC4C. The
+  provider-side leaked-password protection remains disabled and is a required
+  owner setting before public launch.
+- Owner must supply legal entity/operator facts, Kazakhstan counsel review,
+  final domain/DNS choice, Supabase Site URL and redirect/callback allowlist.
+  No facts have been invented in code or copy.
+- Cutover sequence: enable leaked-password protection; enter approved operator
+  facts; configure final domain/DNS and matching Supabase Site URL/redirects;
+  deploy the reviewed commit to paused production; verify environment values;
+  run protected owner smoke (registration, password login, sell, moderation,
+  public search, legal pages); approve GO/NO-GO; unpause. Roll back by restoring
+  the prior Vercel deployment/alias and provider URL settings; do not use a
+  destructive database rollback.
+
+## Release decision
+
+`V9_RELEASE_DECISION`: `READY_FOR_OWNER_CUTOVER`.
+
+No V9 code, build, KZ/KZT isolation, or media-security blocker is known.
+Remaining go-live blockers are owner/provider/legal/domain actions above plus a
+normal authenticated Preview smoke. Production is still paused.
