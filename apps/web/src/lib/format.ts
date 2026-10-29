@@ -4,7 +4,7 @@ import { getFormatFallbackMessages } from "@/i18n/dictionaries/format-fallbacks"
 import type { Locale, LocaleId } from "@/i18n/types";
 import { CURRENT_MARKET } from "@/lib/market";
 import type { CurrencyPlacement, MarketProfile } from "@/lib/market";
-import { getCityLabel } from "@/lib/location";
+import { getLocalizedCityLabel } from "@/lib/location";
 
 export function formatCurrency(amount?: number | null, currency: string | null | undefined = CURRENT_MARKET.currencyCode, locale?: string | null, market: MarketProfile = CURRENT_MARKET) {
   const normalizedLocale = resolveFormatLocale(locale);
@@ -117,7 +117,7 @@ export function colorLabel(value?: string | null, locale?: string | null) {
 
 export function cityLabel(value?: string | null, locale?: string | null) {
   const normalizedLocale = resolveFormatLocale(locale);
-  return value ? getCityLabel(value) : getFormatFallbackMessages(normalizedLocale).locationUnknown;
+  return value ? getLocalizedCityLabel(value, normalizedLocale) : getFormatFallbackMessages(normalizedLocale).locationUnknown;
 }
 
 export function titleCase(value: string) {

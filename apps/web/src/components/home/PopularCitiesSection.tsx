@@ -6,6 +6,7 @@ import { getJolmodGlobalDictionary, interpolate } from "@/i18n/get-dictionary";
 import { getIntlLocale, localizePath } from "@/i18n/config";
 import type { Locale } from "@/i18n/types";
 import { getPreferredCityNames } from "@/lib/location";
+import { cityLabel } from "@/lib/format";
 
 export function PopularCitiesSection({ cities, locale = "tr" }: { cities: City[]; locale?: Locale }) {
   const priority = getPreferredCityNames();
@@ -19,7 +20,7 @@ export function PopularCitiesSection({ cities, locale = "tr" }: { cities: City[]
     })
     .slice(0, 8)
     .map((city) => ({
-      label: city.city_name || "Şehir",
+      label: city.city_name ? cityLabel(city.city_name, locale) : String(dictionary.search.city),
       href: `/sehir/${citySeoSlug(city.city_name, city.city_slug)}`
     }));
 

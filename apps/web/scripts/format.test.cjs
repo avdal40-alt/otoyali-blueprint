@@ -71,5 +71,10 @@ assert.equal(format.fuelLabel("diesel", "ru"), "Дизель");
 assert.equal(format.transmissionLabel("automatic", "kk"), "Автоматты");
 assert.equal(format.bodyTypeLabel("suv", "zh-CN"), "SUV");
 assert.equal(format.damageStateLabel("heavy_damage", "ru"), "Тяжёлые повреждения");
+assert.equal(format.cityLabel("Almaty", "ru"), "Алматы");
+assert.equal(format.cityLabel("Astana", "kk"), "Астана");
+assert.equal(format.cityLabel("Shymkent", "en"), "Shymkent");
+assert.equal(format.cityLabel("Almaty", "zh-CN"), "阿拉木图");
+assert.equal(format.cityLabel("Almaty", "tr"), "Алматы", "Turkish cannot be a Jolmod city fallback");
 
 console.log("Country-aware formatter tests passed.");

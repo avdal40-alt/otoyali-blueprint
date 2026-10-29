@@ -19,6 +19,7 @@ import { defaultSearchFilters, buildSearchUrl, type ListingSearchFilters } from 
 import { filterListings } from "@/lib/search/filter-listings";
 import { getRequestLocale } from "@/i18n/server";
 import { getMarketplaceSeoCopy, type MarketplaceSeoCopy } from "@/i18n/marketplace-seo-copy";
+import { cityLabel } from "@/lib/format";
 
 export type BreadcrumbItem = {
   label: string;
@@ -37,7 +38,8 @@ export type MarketplaceSeoConfig = {
 };
 
 export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoConfig }) {
-  const copy = getMarketplaceSeoCopy(await getRequestLocale());
+  const locale = await getRequestLocale();
+  const copy = getMarketplaceSeoCopy(locale);
   const [listingsResult, makesResult, modelsResult, citiesResult] = await Promise.all([
     getHomeListings(80),
     getMakes(),
@@ -109,7 +111,7 @@ export async function MarketplaceSeoPage({ config }: { config: MarketplaceSeoCon
           )}
         </section>
 
-        <InternalLinks makes={makesResult.data} models={modelsResult.data} cities={citiesResult.data} currentPath={config.path} copy={copy} />
+        <InternalLinks makes={makesResult.data} models={modelsResult.data} cities={citiesResult.data} currentPath={config.path} copy={copy} locale={locale} />
 
         <section className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-oto border border-oto-border bg-white p-5 shadow-soft">
@@ -147,13 +149,16 @@ function InternalLinks({
   makes,
   models,
   cities,
-  currentPath, copy
+  currentPath,
+  copy,
+  locale
 }: {
   makes: Make[];
   models: Model[];
   cities: City[];
   currentPath: string;
   copy: MarketplaceSeoCopy;
+  locale: string;
 }) {
   const categoryLinks = [
     { label: copy.used, href: "/ikinci-el-araba" },{ label: copy.newCars, href: "/sifir-km-araba" },{ label: copy.electric, href: "/elektrikli-araclar" },{ label: copy.automatic, href: "/otomatik-vites-araclar" },{ label: copy.suv, href: "/suv-araclar" },{ label: copy.allListings, href: "/search" }
@@ -164,7 +169,7 @@ function InternalLinks({
     href: `/marka/${makeSeoSlug(make.make_name, make.make_slug)}`
   }));
   const cityLinks = prioritizedCities(cities).slice(0, 8).map((city) => ({
-    label: city.city_name || copy.cityFallback,
+    label: city.city_name ? cityLabel(city.city_name, locale) : copy.cityFallback,
     href: `/sehir/${citySeoSlug(city.city_name, city.city_slug)}`
   }));
   const modelLinks = models.slice(0, 8).map((model) => ({

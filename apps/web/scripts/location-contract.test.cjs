@@ -29,6 +29,12 @@ const citiesQuerySource = read("src", "lib", "queries", "cities.ts");
 assert.equal(location.getLocationDataset("jolcarKazakhstan").dataset.source, "kazakhstan-mvp-regional-centers-2026-01-01");
 assert.ok(location.getPreferredCityNames("jolcarKazakhstan").includes("Astana"));
 assert.equal(location.getCityLabel("Almaty", "jolcarKazakhstan"), "Almaty");
+assert.equal(location.getLocalizedCityLabel("Almaty", "ru", "jolcarKazakhstan"), "Алматы");
+assert.equal(location.getLocalizedCityLabel("Astana", "kk", "jolcarKazakhstan"), "Астана");
+assert.equal(location.getLocalizedCityLabel("Shymkent", "en", "jolcarKazakhstan"), "Shymkent");
+assert.equal(location.getLocalizedCityLabel("Almaty", "zh-CN", "jolcarKazakhstan"), "阿拉木图");
+assert.equal(location.getLocalizedCityLabel("Almaty", "tr", "jolcarKazakhstan"), "Алматы", "Russian is the Jolmod city fallback");
+assert.equal(location.getLocalizedCityLabel("Unknown KZ city", "zh-CN", "jolcarKazakhstan"), "Unknown KZ city", "missing translations never use a Turkish fallback");
 assert.deepEqual(location.getLocationDataset("futureMarket"), {
   status: "unavailable",
   error: "LOCATION_DATASET_UNAVAILABLE",
@@ -36,7 +42,7 @@ assert.deepEqual(location.getLocationDataset("futureMarket"), {
 });
 assert.deepEqual(location.getPreferredCityNames("futureMarket"), []);
 assert.equal(location.getCityLabel("Istanbul", "yolmodTurkey"), "İstanbul");
-assert.match(formatSource, /getCityLabel/);
+assert.match(formatSource, /getLocalizedCityLabel/);
 assert.match(drawerSource, /getLocationDataset/);
 assert.doesNotMatch(drawerSource, /Istanbul|Ankara|Izmir|Antalya/);
 assert.match(searchParamsSource, /LocationIdentifier/);
