@@ -70,7 +70,7 @@ export function AdminLoginClient() {
     }
 
     void checkExistingSession();
-  }, [copy.authConfiguration, locale, next, router]);
+  }, [adminCopy.verifyFailed, copy.authConfiguration, locale, next, router]);
 
   async function verifyAdminAndRedirect() {
     const supabase = getSupabaseBrowserClient();
