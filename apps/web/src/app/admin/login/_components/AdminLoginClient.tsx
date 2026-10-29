@@ -17,6 +17,7 @@ type AccessState = "checking" | "ready" | "denied" | "error";
 export function AdminLoginClient() {
   const { locale } = useI18n();
   const copy = getAuthCopy(locale);
+  const adminCopy = getAdminLoginCopy(locale);
   const router = useRouter();
   const searchParams = useSearchParams();
   const [phone, setPhone] = useState("");
@@ -58,7 +59,7 @@ export function AdminLoginClient() {
       const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin", { uid: data.user.id });
       if (adminError) {
         setAccess("error");
-        setError("Yönetim erişimi doğrulanamadı. Lütfen tekrar deneyin.");
+        setError(adminCopy.verifyFailed);
         return;
       }
       if (isAdmin) {
@@ -80,7 +81,7 @@ export function AdminLoginClient() {
     }
     const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin", { uid: userData.user.id });
     if (adminError) {
-      setError("Yönetim erişimi doğrulanamadı. Lütfen tekrar deneyin.");
+      setError(adminCopy.verifyFailed);
       return;
     }
     if (!isAdmin) {
@@ -134,17 +135,17 @@ export function AdminLoginClient() {
       <section className="w-full max-w-md rounded-oto border border-oto-border bg-white p-6 shadow-soft" aria-labelledby="admin-login-title">
         <p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolmod Admin</p>
         <h1 id="admin-login-title" className="mt-2 text-2xl font-black text-oto-text">Jolmod Admin</h1>
-        <p className="mt-2 text-sm leading-6 text-oto-muted">Yönetim paneline giriş</p>
+        <p className="mt-2 text-sm leading-6 text-oto-muted">{adminCopy.subtitle}</p>
 
         {access === "denied" ? (
           <div className="mt-5 grid gap-4">
-            <ErrorState message="Bu hesabın yönetim paneline erişim yetkisi yok." />
-            <Button type="button" onClick={() => void switchAccount()} disabled={loading}>Farklı hesapla giriş yap</Button>
+            <ErrorState message={adminCopy.accessDenied} />
+            <Button type="button" onClick={() => void switchAccount()} disabled={loading}>{adminCopy.switchAccount}</Button>
           </div>
         ) : (
           <div className="mt-5 grid gap-4">
             <PhoneInput value={phone} onChange={setPhone} selectedCountry={country} onCountryChange={setCountry} locale={locale} label={copy.phoneLabel} countryLabel={copy.countryLabel} searchLabel={copy.countrySearchLabel} searchPlaceholder={copy.countrySearchPlaceholder} placeholder={copy.phonePlaceholder} noResults={copy.countryNoResults} helperText={copy.phoneInputHelper} />
-            <label className="grid gap-1 text-sm font-bold text-oto-text">Şifre<input className="h-11 rounded-button border border-oto-border px-3" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
+            <label className="grid gap-1 text-sm font-bold text-oto-text">{copy.passwordLabel}<input className="h-11 rounded-button border border-oto-border px-3" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
             {error ? <ErrorState message={error} /> : null}
             <Button type="button" onClick={() => void submit()} disabled={loading || !parsed.ok || !password}>{loading ? copy.signingIn : copy.signIn}</Button>
           </div>
@@ -152,4 +153,14 @@ export function AdminLoginClient() {
       </section>
     </main>
   );
+}
+
+function getAdminLoginCopy(locale: string) {
+  const copy = {
+    ru: { subtitle: "Вход в панель управления", verifyFailed: "Не удалось проверить доступ администратора. Повторите попытку.", accessDenied: "У этого аккаунта нет доступа к панели управления.", switchAccount: "Войти с другим аккаунтом" },
+    kk: { subtitle: "Басқару панеліне кіру", verifyFailed: "Әкімші рұқсатын тексеру мүмкін болмады. Қайталап көріңіз.", accessDenied: "Бұл тіркелгінің басқару панеліне кіру рұқсаты жоқ.", switchAccount: "Басқа тіркелгімен кіру" },
+    en: { subtitle: "Sign in to the administration panel", verifyFailed: "Administrator access could not be verified. Try again.", accessDenied: "This account does not have access to the administration panel.", switchAccount: "Sign in with another account" },
+    "zh-CN": { subtitle: "登录管理面板", verifyFailed: "无法验证管理员权限，请重试。", accessDenied: "此账户无权访问管理面板。", switchAccount: "使用其他账户登录" }
+  } as const;
+  return locale === "kk" || locale === "en" || locale === "zh-CN" ? copy[locale] : copy.ru;
 }
