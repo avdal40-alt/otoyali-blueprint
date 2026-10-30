@@ -8,6 +8,7 @@ const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
 const source = read("src", "app", "admin", "_components", "admin-navigation-copy.ts");
 const adminClient = read("src", "app", "admin", "_components", "AdminClient.tsx");
 const loginClient = read("src", "app", "admin", "login", "_components", "AdminLoginClient.tsx");
+const vehicleReviewClient = read("src", "app", "admin", "_components", "VehicleReviewModerationClient.tsx");
 const loaded = { exports: {} };
 const output = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }
@@ -36,6 +37,12 @@ assert.doesNotMatch(adminClient, /dictionary\.admin/);
 assert.match(loginClient, /getAuthCopy/);
 assert.doesNotMatch(loginClient, /dictionary\.(auth|errors)/);
 assert.match(loginClient, /supabase\.rpc\("is_admin"/);
+assert.match(vehicleReviewClient, /useI18n/);
+assert.match(vehicleReviewClient, /getVehicleReviewModerationCopy/);
+assert.match(vehicleReviewClient, /locale === "kk" \|\| locale === "en" \|\| locale === "zh-CN"/);
+assert.match(vehicleReviewClient, /return locale === "kk" \|\| locale === "en" \|\| locale === "zh-CN" \? copy\[locale\] : copy\.ru/);
+assert.match(vehicleReviewClient, /<LoadingState/);
+assert.match(vehicleReviewClient, /<EmptyState/);
 assert.match(adminClient, /supabase\.rpc\("is_admin"/);
 
 console.log("Admin client global-dictionary localization tests passed.");
