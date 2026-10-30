@@ -49,30 +49,30 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-oto-border bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6 lg:px-8">
-        <Link href={localizePath("/", locale)} className="flex items-center" aria-label="Jolmod home">
+        <Link href={localizePath("/", locale)} className="flex rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue" aria-label="Jolmod home">
           <span className="text-2xl font-black tracking-tight text-oto-text sm:text-3xl">Jolmod</span>
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-semibold text-oto-muted md:flex">
-          <Link href={localizePath("/search", locale)} className="hover:text-oto-text">
+          <Link href={localizePath("/search", locale)} className="rounded-sm transition hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue">
             {String(dictionary.navigation.buyVehicle)}
           </Link>
-          <Link href={localizePath("/video", locale)} className="hover:text-oto-text">
+          <Link href={localizePath("/video", locale)} className="rounded-sm transition hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue">
             {String(dictionary.navigation.video)}
           </Link>
-          <Link href={localizePath("/#kategoriler", locale)} className="hover:text-oto-text">
+          <Link href={localizePath("/#kategoriler", locale)} className="rounded-sm transition hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue">
             {String(dictionary.navigation.categories)}
           </Link>
-          <Link href={localizePath("/favorites", locale)} className="hover:text-oto-text">
+          <Link href={localizePath("/favorites", locale)} className="rounded-sm transition hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue">
             {String(dictionary.navigation.favorites)}
           </Link>
         </nav>
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
-          <Link href={isAuthed ? localizePath("/notifications", locale) : `${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/notifications", locale))}`} className="relative flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={unreadCount > 0 ? `${String(dictionary.navigation.notifications)} (${unreadCount})` : String(dictionary.navigation.notifications)}>
+          <Link href={isAuthed ? localizePath("/notifications", locale) : `${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/notifications", locale))}`} className="relative flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-oto-muted transition hover:bg-oto-surface hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-oto-blue" aria-label={unreadCount > 0 ? `${String(dictionary.navigation.notifications)} (${unreadCount})` : String(dictionary.navigation.notifications)}>
             <BellIcon />
             {isAuthed && unreadCount > 0 ? <span className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-oto-orange px-1 text-center text-[10px] font-black leading-4 text-white" aria-hidden="true">{unreadCount > 99 ? "99+" : unreadCount}</span> : null}
           </Link>
-          <Link href={isAuthed ? profilePath : loginProfilePath} className="flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-oto-muted hover:bg-oto-surface" aria-label={String(dictionary.navigation.profile)}>
+          <Link href={isAuthed ? profilePath : loginProfilePath} className="flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-oto-muted transition hover:bg-oto-surface hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-oto-blue" aria-label={String(dictionary.navigation.profile)}>
             <UserIcon />
           </Link>
           {marketplaceAction ? (

@@ -8,7 +8,7 @@ import type { Locale } from "@/i18n/types";
 import { getPreferredCityNames } from "@/lib/location";
 import { cityLabel } from "@/lib/format";
 
-export function PopularCitiesSection({ cities, locale = "tr" }: { cities: City[]; locale?: Locale }) {
+export function PopularCitiesSection({ cities, locale = "ru" }: { cities: City[]; locale?: Locale }) {
   const priority = getPreferredCityNames();
   const dictionary = getJolmodGlobalDictionary(locale);
   const cityLinks = [...cities]

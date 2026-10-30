@@ -17,7 +17,7 @@ assert.match(globals, /body\s*\{[\s\S]*?overflow-x:\s*hidden;/);
 assert.match(globals, /button,[\s\S]*?max-width:\s*100%;/);
 assert.match(pageContainer, /min-w-0 w-full max-w-\[1180px\] pb-24/);
 
-assert.match(header, /h-7 w-auto sm:h-8/);
+assert.match(header, /text-2xl font-black tracking-tight text-oto-text sm:text-3xl">Jolmod/);
 assert.match(header, /<LanguageSwitcher \/>/);
 assert.match(header, /min-h-11 min-w-11/);
 assert.match(read("src\/components\/layout\/LanguageSwitcher.tsx"), /hidden rounded-full[\s\S]*?sm:inline-flex/);

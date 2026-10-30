@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import {
@@ -10,6 +11,7 @@ import {
 
 export function MobileBottomNav() {
   const { locale, dictionary } = useI18n();
+  const pathname = usePathname();
   const marketplaceAction = platformStaffNavigationAction(usePlatformStaffNavigation());
   const tabs = [
     { href: "/search", label: String(dictionary.common.search), icon: SearchIcon },
@@ -34,8 +36,15 @@ export function MobileBottomNav() {
             return <span aria-hidden="true" key={`marketplace-action-${index}`} />;
           }
           const Icon = tab.icon;
+          const href = localizePath(tab.href, locale);
+          const isCurrent = pathname === href;
           return (
-            <Link key={tab.href} href={localizePath(tab.href, locale)} className="flex min-w-0 min-h-16 flex-col items-center justify-center gap-1 px-1 text-center text-[11px] font-bold leading-tight text-oto-muted">
+            <Link
+              key={tab.href}
+              href={href}
+              aria-current={isCurrent ? "page" : undefined}
+              className={`flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 px-1 text-center text-[11px] font-bold leading-tight transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-oto-blue ${isCurrent ? "bg-oto-surface text-oto-text" : "text-oto-muted hover:bg-oto-surface/70 hover:text-oto-text"}`}
+            >
               <span className={tab.cta ? "text-oto-orange" : "text-oto-blue"}>
                 <Icon />
               </span>

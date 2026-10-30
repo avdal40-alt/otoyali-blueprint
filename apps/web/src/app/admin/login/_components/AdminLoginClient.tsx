@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PhoneInput } from "@/components/auth/PhoneInput";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { authErrorMessage, isMissingAuthSessionError, mapAuthError } from "@/lib/auth/auth-ui";
 import { safeAdminNextPath } from "@/lib/auth/admin-return-path";
@@ -145,7 +146,7 @@ export function AdminLoginClient() {
         ) : (
           <div className="mt-5 grid gap-4">
             <PhoneInput value={phone} onChange={setPhone} selectedCountry={country} onCountryChange={setCountry} locale={locale} label={copy.phoneLabel} countryLabel={copy.countryLabel} searchLabel={copy.countrySearchLabel} searchPlaceholder={copy.countrySearchPlaceholder} placeholder={copy.phonePlaceholder} noResults={copy.countryNoResults} helperText={copy.phoneInputHelper} />
-            <label className="grid gap-1 text-sm font-bold text-oto-text">{copy.passwordLabel}<input className="h-11 rounded-button border border-oto-border px-3" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
+            <Input label={copy.passwordLabel} type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} />
             {error ? <ErrorState message={error} /> : null}
             <Button type="button" onClick={() => void submit()} disabled={loading || !parsed.ok || !password}>{loading ? copy.signingIn : copy.signIn}</Button>
           </div>

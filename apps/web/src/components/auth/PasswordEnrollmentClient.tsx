@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { ErrorState, LoadingState } from "@/components/ui/States";
 import { authErrorMessage, mapAuthError, safeNextPath } from "@/lib/auth/auth-ui";
 import { completePasswordEnrollment, getPasswordEnrollmentStatus, type PasswordEnrollmentMethod } from "@/lib/auth/password-enrollment";
@@ -24,5 +25,5 @@ export function PasswordEnrollmentClient({ reset = false }: { reset?: boolean })
   }
   if (!ready) return <LoadingState />;
   const title = reset ? copy.resetPasswordTitle : copy.createPasswordTitle; const action = reset ? copy.resetPassword : copy.createPassword;
-  return <div className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft"><p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolmod</p><h1 className="mt-2 text-2xl font-black text-oto-text">{title}</h1><p className="mt-2 text-sm leading-6 text-oto-muted">{copy.passwordRequirements}</p><div className="mt-5 grid gap-4"><label className="grid gap-1 text-sm font-bold text-oto-text">{copy.passwordLabel}<input className="h-11 rounded-button border border-oto-border px-3" type="password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} /></label><label className="grid gap-1 text-sm font-bold text-oto-text">{copy.confirmPasswordLabel}<input className="h-11 rounded-button border border-oto-border px-3" type="password" autoComplete="new-password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} /></label>{error ? <ErrorState message={error} /> : null}<Button onClick={submit} disabled={loading || !password || !confirmation}>{loading ? copy.savingPassword : action}</Button></div></div>;
+  return <div className="mx-auto max-w-md rounded-oto border border-oto-border bg-white p-5 shadow-soft"><p className="text-xs font-black uppercase tracking-wide text-oto-blue">Jolmod</p><h1 className="mt-2 text-2xl font-black text-oto-text">{title}</h1><p className="mt-2 text-sm leading-6 text-oto-muted">{copy.passwordRequirements}</p><div className="mt-5 grid gap-4"><Input label={copy.passwordLabel} type="password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} /><Input label={copy.confirmPasswordLabel} type="password" autoComplete="new-password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} />{error ? <ErrorState message={error} /> : null}<Button onClick={submit} disabled={loading || !password || !confirmation}>{loading ? copy.savingPassword : action}</Button></div></div>;
 }
