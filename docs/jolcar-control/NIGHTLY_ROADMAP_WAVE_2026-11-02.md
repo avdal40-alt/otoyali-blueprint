@@ -1,8 +1,8 @@
 # Nightly roadmap implementation-wave audit
 
-**Date:** 2026-11-02 (Asia/Qyzylorda)  
-**Baseline:** `1cdffa3f2aa9e5c24de33a6d87d62d10b15eaced` on `jolcar/autonomous`  
-**Canonical Supabase:** `dmjifqbvbjewyigdsuco`  
+**Date:** 2026-11-02 (Asia/Qyzylorda)
+**Baseline:** `1cdffa3f2aa9e5c24de33a6d87d62d10b15eaced` on `jolcar/autonomous`
+**Canonical Supabase:** `dmjifqbvbjewyigdsuco`
 **Production:** paused and unchanged.
 
 ## Decision boundary
