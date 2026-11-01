@@ -5,6 +5,7 @@ import type { AuthenticatedRequestSupabase } from "@/lib/supabase/request";
 import type { LocationIdentifier } from "@/lib/location";
 import { safeLog } from "@/lib/observability/safe-logger";
 import { createCorrelationId, observeOperation } from "@/lib/observability/telemetry";
+import { busTypes, listingPurposes, vehicleCategories, vehicleMarketplaceV2Schema } from "@/lib/marketplace/v2-contract";
 
 export const listingIdSchema = z.string().uuid();
 
@@ -71,6 +72,62 @@ export const createListingSchema = z.object({
   if (value.districtId && !value.cityId) context.addIssue({ code: z.ZodIssueCode.custom, path: ["districtId"], message: "District requires a city." });
 });
 
+// This is deliberately a separate contract from the existing passenger-car
+// writer. It allows the V2 seller UI to opt in only after the local schema
+// migrations have been reviewed and applied, without changing legacy payloads.
+export const createVehicleMarketplaceV2ListingSchema = z.object({
+  vehicleCategory: z.enum(vehicleCategories),
+  listingPurpose: z.enum(listingPurposes),
+  makeId: listingIdSchema.nullable(),
+  modelId: listingIdSchema.nullable(),
+  variantId: listingIdSchema.nullable(),
+  year: z.number().int().min(1900).max(new Date().getFullYear() + 1),
+  mileageKm: z.number().int().min(0).nullable(),
+  condition: z.enum(["used", "new"]),
+  fuelType: z.enum(fuelTypes).nullable(),
+  transmission: z.enum(transmissionTypes).nullable(),
+  bodyType: nullableOptionalText(120),
+  driveType: z.enum(driveTypes).nullable(),
+  color: nullableOptionalText(80),
+  engineVolumeL: z.number().positive().max(999.9).nullable(),
+  description: z.string().trim().max(8000).nullable(),
+  priceAmount: z.string().regex(/^[1-9][0-9]{0,18}$/).nullable(),
+  currency: z.literal("KZT"),
+  priceNegotiable: z.boolean(),
+  city: locationNameSchema,
+  cityId: listingIdSchema,
+  districtId: listingIdSchema.nullable(),
+  sellerContactPhoneId: listingIdSchema,
+  rentalPricePerDay: z.string().regex(/^[1-9][0-9]{0,18}$/).nullable(),
+  rentalPricePerMonth: z.string().regex(/^[1-9][0-9]{0,18}$/).nullable(),
+  minimumRentalDays: z.number().int().positive().nullable(),
+  securityDepositAmount: z.string().regex(/^(0|[1-9][0-9]{0,18})$/).nullable(),
+  withDriverOrOperator: z.boolean().nullable(),
+  truckBodyType: nullableOptionalText(80),
+  busType: z.enum(busTypes).nullable(),
+  trailerType: nullableOptionalText(80),
+  machineryType: nullableOptionalText(80),
+  payloadCapacityKg: z.number().int().positive().nullable(),
+  grossWeightKg: z.number().int().positive().nullable(),
+  axleCount: z.number().int().min(1).max(16).nullable(),
+  seatCount: z.number().int().min(1).max(200).nullable(),
+  operatingHours: z.number().int().min(0).nullable()
+}).strict().superRefine((value, context) => {
+  const v2 = vehicleMarketplaceV2Schema.safeParse(value);
+  if (!v2.success) for (const issue of v2.error.issues) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: issue.path, message: issue.message });
+  }
+  if (value.districtId && !value.cityId) context.addIssue({ code: z.ZodIssueCode.custom, path: ["districtId"], message: "District requires a city." });
+  if (value.vehicleCategory === "passenger_car" && (!value.makeId || !value.modelId || value.mileageKm === null || !value.fuelType || !value.transmission)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["vehicleCategory"], message: "Passenger cars require catalog, mileage, fuel, and transmission." });
+  }
+  if (value.vehicleCategory === "trailer" && (value.mileageKm !== null || value.fuelType || value.transmission || value.engineVolumeL !== null)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["vehicleCategory"], message: "Trailers cannot include engine or mileage fields." });
+  }
+  if (value.mileageKm !== null) validConditionMileage({ condition: value.condition, mileageKm: value.mileageKm }, context);
+  if (value.fuelType) validEngineVolume({ fuelType: value.fuelType, engineVolumeL: value.engineVolumeL }, context);
+});
+
 export const editListingSchema = z.object({
   ...listingFields,
   expectedListingUpdatedAt: z.string().datetime({ offset: true }),
@@ -128,6 +185,28 @@ export function logListingWriteFailure(action: string, error: ListingWriteRpcErr
 export async function createOwnListingDraft(authenticated: AuthenticatedRequestSupabase, payload: z.infer<typeof createListingSchema>) {
   const { data, error } = await observeOperation({ path: "db", operation: "listing.create_draft", correlationId: createCorrelationId("db") }, () => authenticated.supabase.rpc("create_own_listing_draft_v2", {
     p_make_id: payload.makeId, p_model_id: payload.modelId, p_variant_id: payload.variantId, p_year: payload.year, p_mileage_km: payload.mileageKm, p_condition: payload.condition, p_fuel_type: payload.fuelType, p_transmission: payload.transmission, p_body_type: payload.bodyType, p_drive_type: payload.driveType, p_color: payload.color, p_engine_volume_l: payload.engineVolumeL, p_damage_state: payload.damageState, p_owner_count: payload.ownerCount, p_description: payload.description, p_price_amount_text: payload.priceAmount, p_currency: payload.currency, p_price_negotiable: payload.priceNegotiable, p_city: payload.city, p_seller_contact_phone_id: payload.sellerContactPhoneId, p_city_id: payload.cityId, p_district_id: payload.districtId
+  }), (result) => Boolean(result.error));
+  if (error) return { error: listingWriteError(error), rawError: error } as const;
+  const row = Array.isArray(data) ? data[0] : data;
+  const result = row && typeof row === "object" ? row as { listing_id?: string; vehicle_profile_id?: string; created_at?: string } : null;
+  return result?.listing_id && result.vehicle_profile_id && result.created_at ? { data: { listingId: result.listing_id, vehicleProfileId: result.vehicle_profile_id, createdAt: result.created_at } } as const : { error: { status: 500, message: "Не удалось выполнить операцию с объявлением." } } as const;
+}
+
+/** V2 category/purpose draft boundary. The database remains the final authority. */
+export async function createOwnVehicleMarketplaceV2Draft(authenticated: AuthenticatedRequestSupabase, payload: z.infer<typeof createVehicleMarketplaceV2ListingSchema>) {
+  const { data, error } = await observeOperation({ path: "db", operation: "listing.create_v2_draft", correlationId: createCorrelationId("db") }, () => authenticated.supabase.rpc("create_own_listing_draft_v3", {
+    p_vehicle_category: payload.vehicleCategory, p_listing_purpose: payload.listingPurpose,
+    p_make_id: payload.makeId, p_model_id: payload.modelId, p_variant_id: payload.variantId, p_year: payload.year, p_mileage_km: payload.mileageKm,
+    p_condition: payload.condition, p_fuel_type: payload.fuelType, p_transmission: payload.transmission,
+    p_body_type: payload.bodyType, p_drive_type: payload.driveType, p_color: payload.color, p_engine_volume_l: payload.engineVolumeL,
+    p_description: payload.description, p_sale_price_amount_text: payload.priceAmount, p_currency: payload.currency, p_price_negotiable: payload.priceNegotiable,
+    p_city: payload.city, p_seller_contact_phone_id: payload.sellerContactPhoneId, p_city_id: payload.cityId, p_district_id: payload.districtId,
+    p_rental_price_per_day_text: payload.rentalPricePerDay, p_rental_price_per_month_text: payload.rentalPricePerMonth,
+    p_minimum_rental_days: payload.minimumRentalDays, p_security_deposit_amount_text: payload.securityDepositAmount,
+    p_with_driver_or_operator: payload.withDriverOrOperator, p_truck_body_type: payload.truckBodyType,
+    p_bus_type: payload.busType, p_trailer_type: payload.trailerType, p_machinery_type: payload.machineryType,
+    p_payload_capacity_kg: payload.payloadCapacityKg, p_gross_weight_kg: payload.grossWeightKg, p_axle_count: payload.axleCount,
+    p_seat_count: payload.seatCount, p_operating_hours: payload.operatingHours
   }), (result) => Boolean(result.error));
   if (error) return { error: listingWriteError(error), rawError: error } as const;
   const row = Array.isArray(data) ? data[0] : data;

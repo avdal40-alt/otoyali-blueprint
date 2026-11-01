@@ -16,7 +16,7 @@ export type AuthenticatedRequestSupabase = {
 // These RPCs are seller/dealer operational writes.  The database is the final
 // authority, but API routes must fail before dispatching them for staff too.
 const staffDeniedSellerRpcNames = new Set([
-  "create_own_listing_draft", "create_own_listing_draft_v2", "create_own_private_listing_draft", "save_own_listing_edit", "save_own_rejected_listing",
+  "create_own_listing_draft", "create_own_listing_draft_v2", "create_own_listing_draft_v3", "create_own_private_listing_draft", "save_own_listing_edit", "save_own_rejected_listing",
   "save_own_listing_vehicle_trust_contract", "set_own_listing_seller_contact_phone", "submit_own_listing_for_review", "resubmit_own_listing_for_review",
   "pause_own_listing", "archive_own_listing", "raise_own_listing", "attach_own_active_listing_response", "sync_own_verified_account_phone",
   "initialize_own_vehicle_profile_ownership", "finalize_own_listing_sanitized_photo", "finalize_own_listing_sanitized_photo_v2", "set_own_listing_cover_media",
