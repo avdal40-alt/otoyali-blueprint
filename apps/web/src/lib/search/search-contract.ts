@@ -30,6 +30,13 @@ export type PublicSearchItem = {
   published_at: string | null;
   views_count: number | null;
   price_amount: number | null;
+  vehicle_category?: string | null;
+  listing_purpose?: string | null;
+  rental_price_per_day?: number | null;
+  rental_price_per_month?: number | null;
+  minimum_rental_days?: number | null;
+  security_deposit_amount?: number | null;
+  with_driver_or_operator?: boolean | null;
   currency: string | null;
   year: number | null;
   mileage_km: number | null;

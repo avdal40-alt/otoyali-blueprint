@@ -3,6 +3,13 @@ export type HomeListing = {
   vehicle_profile_id?: string | null;
   title?: string | null;
   price_amount?: number | null;
+  vehicle_category?: string | null;
+  listing_purpose?: string | null;
+  rental_price_per_day?: number | null;
+  rental_price_per_month?: number | null;
+  minimum_rental_days?: number | null;
+  security_deposit_amount?: number | null;
+  with_driver_or_operator?: boolean | null;
   currency?: string | null;
   price_negotiable?: boolean | null;
   city?: string | null;
@@ -35,6 +42,13 @@ export type ListingDetails = {
   title?: string | null;
   description: string | null;
   price_amount?: number | null;
+  vehicle_category?: string | null;
+  listing_purpose?: string | null;
+  rental_price_per_day?: number | null;
+  rental_price_per_month?: number | null;
+  minimum_rental_days?: number | null;
+  security_deposit_amount?: number | null;
+  with_driver_or_operator?: boolean | null;
   currency?: string | null;
   price_negotiable?: boolean | null;
   city?: string | null;

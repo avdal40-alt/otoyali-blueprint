@@ -6,6 +6,7 @@ const root = path.resolve(__dirname, "..", "..", "..");
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
 const foundation = read("supabase", "migrations", "20261102120000_vehicle_marketplace_v2_foundation.sql");
 const drafts = read("supabase", "migrations", "20261102121000_vehicle_marketplace_v2_protected_drafts.sql");
+const projection = read("supabase", "migrations", "20261102122000_vehicle_marketplace_v2_public_projection.sql");
 const contract = read("apps", "web", "src", "lib", "marketplace", "v2-contract.ts");
 const serverWrite = read("apps", "web", "src", "lib", "listings", "server-write.ts");
 const route = read("apps", "web", "src", "app", "api", "listings", "v2", "route.ts");
@@ -43,5 +44,13 @@ assert.match(serverWrite, /createVehicleMarketplaceV2ListingSchema/);
 assert.match(serverWrite, /create_own_listing_draft_v3/);
 assert.match(route, /createVehicleMarketplaceV2ListingSchema/);
 assert.match(route, /createOwnVehicleMarketplaceV2Draft/);
+
+// Public discovery reuses the KZ-scoped search projection and accepts rental
+// daily-price semantics without exposing seller contact or private data.
+assert.match(projection, /marketplace\.is_jolmod_kazakhstan_city/);
+assert.match(projection, /vehicle_category,listing_purpose,rental_price_per_day/);
+assert.match(projection, /COALESCE\(p_document\.price_amount,p_document\.rental_price_per_day\)/);
+assert.match(projection, /vehicle_marketplace_v2_request_matches/);
+assert.doesNotMatch(projection, /GRANT\s+ALL\s+ON\s+TABLE\s+marketplace\.listing_search_documents\s+TO\s+(?:anon|authenticated)/i);
 
 console.log("vehicle-marketplace-v2: PASS");

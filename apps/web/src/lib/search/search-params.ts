@@ -8,6 +8,12 @@ export type ListingSearchFilters = {
   make: string;
   model: string;
   city: LocationIdentifier;
+  vehicleCategory: string;
+  listingPurpose: string;
+  rentalPriceDayMin: string;
+  rentalPriceDayMax: string;
+  minimumRentalDays: string;
+  withDriverOrOperator: boolean;
   priceMin: string;
   priceMax: string;
   yearMin: string;
@@ -38,6 +44,12 @@ export const defaultSearchFilters: ListingSearchFilters = {
   make: "",
   model: "",
   city: "",
+  vehicleCategory: "",
+  listingPurpose: "",
+  rentalPriceDayMin: "",
+  rentalPriceDayMax: "",
+  minimumRentalDays: "",
+  withDriverOrOperator: false,
   priceMin: "",
   priceMax: "",
   yearMin: "",
@@ -76,6 +88,12 @@ export function parseSearchParams(searchParams: RawSearchParams): ListingSearchF
     make: listValue("make"),
     model: listValue("model"),
     city: listValue("city"),
+    vehicleCategory: listValue("vehicle_category", "vehicleCategory"),
+    listingPurpose: listValue("listing_purpose", "listingPurpose"),
+    rentalPriceDayMin: normalizeInteger(value("rental_price_day_min", "rentalPriceDayMin")),
+    rentalPriceDayMax: normalizeInteger(value("rental_price_day_max", "rentalPriceDayMax")),
+    minimumRentalDays: normalizeInteger(value("minimum_rental_days", "minimumRentalDays"), 2147483647),
+    withDriverOrOperator: isTruthy(value("with_driver_or_operator", "withDriverOrOperator")),
     priceMin: normalizeInteger(value("price_min", "priceMin", "min_price")),
     priceMax: normalizeInteger(value("price_max", "priceMax", "max_price")),
     yearMin: normalizeInteger(value("year_min", "yearMin", "min_year"), 32767),
@@ -109,6 +127,12 @@ export function buildSearchUrl(filters: Partial<ListingSearchFilters>, path = "/
   addList(params, "make", filters.make);
   addList(params, "model", filters.model);
   addList(params, "city", filters.city);
+  addList(params, "vehicle_category", filters.vehicleCategory);
+  addList(params, "listing_purpose", filters.listingPurpose);
+  add(params, "rental_price_day_min", normalizeInteger(filters.rentalPriceDayMin ?? ""));
+  add(params, "rental_price_day_max", normalizeInteger(filters.rentalPriceDayMax ?? ""));
+  add(params, "minimum_rental_days", normalizeInteger(filters.minimumRentalDays ?? "", 2147483647));
+  add(params, "with_driver_or_operator", filters.withDriverOrOperator ? "1" : "");
   add(params, "price_min", normalizeInteger(filters.priceMin ?? ""));
   add(params, "price_max", normalizeInteger(filters.priceMax ?? ""));
   add(params, "year_min", normalizeInteger(filters.yearMin ?? "", 32767));

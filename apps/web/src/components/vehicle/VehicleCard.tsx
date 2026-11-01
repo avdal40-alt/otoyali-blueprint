@@ -4,7 +4,7 @@ import { MouseEvent, useState } from "react";
 import Link from "next/link";
 import type { HomeListing, ListingMedia } from "@/lib/supabase/types";
 import { cn } from "@/lib/cn";
-import { cityLabel, conditionLabel, formatDate, formatMileage, formatNumber, formatPrice, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
+import { cityLabel, conditionLabel, formatDate, formatMileage, formatNumber, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
 import { getBestImageUrl, type ImageSource } from "@/lib/media/image-variants";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { localizePath } from "@/i18n/config";
@@ -14,6 +14,7 @@ import { SpecChip } from "./SpecChip";
 import { FavoriteButton } from "./FavoriteButton";
 import { getListingActionsCopy } from "@/app/listing/[id]/_components/listing-actions-copy";
 import { getStatusCopy } from "@/i18n/status-copy";
+import { formatListingPurposePrice, vehicleCategoryLabel } from "@/lib/marketplace/v2-contract";
 
 export function VehicleCard({
   listing,
@@ -116,13 +117,21 @@ export function VehicleCard({
         <Link href={localizePath(`/listing/${listing.listing_id}`, activeLocale)} className="min-w-0">
           <h3 className="line-clamp-2 text-base font-bold leading-snug text-oto-text">{title}</h3>
         </Link>
-        <p className="mt-2 text-xl font-black text-oto-text">{formatPrice(listing.price_amount, listing.currency, activeLocale)}</p>
+        <p className="mt-2 text-xl font-black text-oto-text">{formatListingPurposePrice(listing, activeLocale)}</p>
 
         <div className="mt-2 flex flex-wrap gap-2">
           {listing.seller_type ? (
             <span className="rounded-full border border-oto-border bg-oto-surface px-2.5 py-1 text-[11px] font-black text-oto-muted">
               {sellerTypeLabel(listing.seller_type, activeLocale)}
             </span>
+          ) : null}
+          {listing.vehicle_category && listing.vehicle_category !== "passenger_car" ? (
+            <span className="rounded-full border border-oto-border bg-oto-surface px-2.5 py-1 text-[11px] font-black text-oto-muted">
+              {vehicleCategoryLabel(listing.vehicle_category, activeLocale)}
+            </span>
+          ) : null}
+          {listing.listing_purpose === "rent" ? (
+            <span className="rounded-full bg-oto-blue px-2.5 py-1 text-[11px] font-black text-white">{({ ru: "Аренда", kk: "Жалға беру", en: "Rent", "zh-CN": "租赁" } as const)[activeLocale === "kk" || activeLocale === "en" || activeLocale === "zh-CN" ? activeLocale : "ru"]}</span>
           ) : null}
         </div>
 

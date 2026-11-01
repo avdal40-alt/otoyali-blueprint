@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { formatPrice } from "@/lib/format";
+import type { Locale } from "@/i18n/types";
 
 export const vehicleCategories = ["passenger_car", "truck", "bus", "trailer", "special_machinery"] as const;
 export const listingPurposes = ["sale", "rent"] as const;
@@ -54,4 +56,28 @@ export function isTrailerCategory(category: VehicleCategory) {
 
 export function usesRentalTerms(purpose: ListingPurpose) {
   return purpose === "rent";
+}
+
+/** Presentation-only V2 price label. It never reuses a sale price for rent. */
+export function formatListingPurposePrice(
+  listing: { listing_purpose?: string | null; price_amount?: number | null; rental_price_per_day?: number | null; currency?: string | null },
+  locale: Locale
+) {
+  if (listing.listing_purpose !== "rent") return formatPrice(listing.price_amount, listing.currency, locale);
+  const launchLocale = locale === "kk" || locale === "en" || locale === "zh-CN" ? locale : "ru";
+  const unit = ({ ru: " / день", kk: " / күн", en: " / day", "zh-CN": " / 天" } as const)[launchLocale];
+  return `${formatPrice(listing.rental_price_per_day, listing.currency, locale)}${unit}`;
+}
+
+export function vehicleCategoryLabel(category: string | null | undefined, locale: Locale) {
+  const labels = {
+    passenger_car: { ru: "Легковой автомобиль", kk: "Жеңіл автомобиль", en: "Passenger car", "zh-CN": "乘用车" },
+    truck: { ru: "Грузовик", kk: "Жүк көлігі", en: "Truck", "zh-CN": "卡车" },
+    bus: { ru: "Автобус", kk: "Автобус", en: "Bus", "zh-CN": "公交车" },
+    trailer: { ru: "Прицеп", kk: "Тіркеме", en: "Trailer", "zh-CN": "拖车" },
+    special_machinery: { ru: "Спецтехника", kk: "Арнайы техника", en: "Special machinery", "zh-CN": "特种机械" }
+  } as const;
+  const resolved = labels[category as keyof typeof labels] ?? labels.passenger_car;
+  const launchLocale = locale === "kk" || locale === "en" || locale === "zh-CN" ? locale : "ru";
+  return resolved[launchLocale];
 }
