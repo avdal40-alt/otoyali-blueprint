@@ -211,3 +211,24 @@ launch authorization:
   and controlled production smoke.
 
 This corrects first-MVP scope only. Existing feature code remains preserved.
+
+<!-- JOLCAR_VEHICLE_MARKETPLACE_V2_2026-11-02 -->
+## Vehicle Marketplace V2 — 2026-11-02
+
+The owner explicitly approves local implementation of the Jolmod Kazakhstan
+Vehicle Marketplace V2. This supersedes the prior JLC-A005 deferral only for:
+
+- listing purposes `sale` and `rent`;
+- passenger cars plus commercial `truck`, `bus`, `trailer`, and
+  `special_machinery` categories; and
+- rental classified-lead terms: mandatory KZT daily price and optional monthly
+  price, minimum term, informational seller deposit, and driver/operator flag.
+
+This is a classifieds/lead-generation scope. Payments, card charging, escrow,
+deposit holding, booking calendars, and marketplace reservations remain out of
+scope. Account registration remains international; publishing remains guarded
+by JLC-0524’s owner-owned active verified Kazakhstan seller contact contract.
+
+Any new migration is local-only until a separately controlled canonical
+application. This decision authorizes neither a production deployment nor an
+unpause, provider activation, DNS change, or historical data rewrite.

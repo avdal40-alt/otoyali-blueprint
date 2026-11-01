@@ -3860,21 +3860,21 @@
     {
       "id": "JLC-A005",
       "order": 141,
-      "phase": "P99-POST-LAUNCH",
-      "title": "Additional vehicle verticals / parts / services / insurance / RENT planning",
-      "priority": "P2",
+      "phase": "V2-VEHICLE-MARKETPLACE",
+      "title": "Vehicle rental and commercial transport",
+      "priority": "P0",
       "type": "implementation",
-      "status": "backlog_post_launch",
+      "status": "in_progress",
       "release_gate": false,
       "dependencies": [
         "JLC-9005"
       ],
       "requires_user_authorization": false,
       "requires_user_decision": false,
-      "decision_ref": null,
-      "description": "Previously discussed future expansion. Requires separate scope approval per vertical.",
+      "decision_ref": "JOLCAR_VEHICLE_MARKETPLACE_V2_2026-11-02",
+      "description": "Owner-approved V2 scope: rental purpose and truck, bus, trailer, and special-machinery categories. Parts, services, insurance, marine, motorcycles, and mobility remain deferred.",
       "acceptance_criteria": [
-        "Separate user-approved scope exists before implementation"
+        "V2 category/purpose contracts are validated through protected listing, discovery, moderation, dealer, and localization paths"
       ],
       "verification": [],
       "evidence": null,
