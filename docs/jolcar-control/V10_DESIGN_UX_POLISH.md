@@ -3,7 +3,7 @@
 **Date:** 2026-10-30  
 **Initial head:** `93d315de1a7cf1baa89a9120b88916cd30bfb215`  
 **Final application head reviewed/deployed:** `23491ec` (`fix(ui): polish review moderation states`)  
-**Final runtime head:** `c8e25dea4e879eff5bd1787e57d04daf35cbe9e8`  
+**Final runtime head:** `c8e25dea4e879eff5bd1787e57d04daf35cbe9e8`
 **Branch:** `jolcar/autonomous`  
 **Production:** **PAUSED** — no production deployment, migration, database mutation, DNS, alias, or provider setting was changed.
 
