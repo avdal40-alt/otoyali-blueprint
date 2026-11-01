@@ -32,11 +32,15 @@ assert.match(runtime, /challenge\.outcome === "already_verified"/);
 assert.match(runtime, /p_purpose: policy\.verificationPurpose/);
 assert.match(runtime, /p_provider: policy\.verificationProvider/);
 
-// The durable boundary requires an owned, active +7 contact for create,
-// contact selection, submit, and resubmit. It also prevents direct use of the
-// legacy private-draft wrapper by authenticated callers.
+// The durable boundary requires an owned, active Kazakhstan-numbering contact
+// (not merely any shared-zone +7 number) for create, contact selection,
+// submit, and resubmit. It also prevents direct use of the legacy
+// private-draft wrapper by authenticated callers.
 assert.match(migration, /CREATE FUNCTION identity\.require_kazakhstan_seller_contact_phone/);
-assert.match(migration, /contact\.phone_e164 ~ '\^\[\+\]7\[0-9\]\{10\}\$'/);
+assert.match(migration, /CREATE FUNCTION identity\.is_kazakhstan_e164_phone/);
+assert.match(migration, /\^\[\+\]7\(\?:0\|6\|7\)\[0-9\]\{9\}\$/);
+assert.equal((migration.match(/identity\.is_kazakhstan_e164_phone\(contact\.phone_e164\)/g) ?? []).length, 3, "all protected KZ seller-contact surfaces must share the country helper");
+assert.doesNotMatch(migration, /contact\.phone_e164 ~ '\^\[\+\]7\[0-9\]\{10\}\$'/);
 assert.match(migration, /CREATE OR REPLACE FUNCTION public\.create_own_listing_draft_v2[\s\S]*?require_kazakhstan_seller_contact_phone/s);
 assert.match(migration, /CREATE OR REPLACE FUNCTION public\.set_own_listing_seller_contact_phone[\s\S]*?require_kazakhstan_seller_contact_phone/s);
 assert.match(migration, /CREATE OR REPLACE FUNCTION public\.submit_own_listing_for_review[\s\S]*?require_kazakhstan_seller_contact_phone/s);

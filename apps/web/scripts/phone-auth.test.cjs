@@ -68,7 +68,10 @@ function expectInvalid(rawInput, selectedCountry, expectedError) {
 expectValid("0555 123 45 67", "TR", { e164: "+905551234567", country: "TR" });
 expectValid("+90 555 123 45 67", "US", { e164: "+905551234567", country: "TR" });
 expectValid("+7 701 123 45 67", "TR", { e164: "+77011234567", country: "KZ" });
+expectValid("+7 760 123 45 67", "TR", { e164: "+77601234567", country: "KZ" });
+expectValid("+7 777 123 45 67", "TR", { e164: "+77771234567", country: "KZ" });
 expectValid("+7 916 123 45 67", "TR", { e164: "+79161234567", country: "RU" });
+expectValid("+7 901 123 45 67", "TR", { e164: "+79011234567", country: "RU" });
 expectValid("+1 415 555 2671", "TR", { e164: "+14155552671", country: "US" });
 expectValid("+33 1 23 45 67 89", "TR", { e164: "+33123456789", country: "FR" });
 expectValid("+49 1511 2345678", "TR", { e164: "+4915112345678", country: "DE" });

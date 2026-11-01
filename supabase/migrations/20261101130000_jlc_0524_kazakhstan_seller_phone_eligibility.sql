@@ -164,6 +164,17 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = '' AS $$
     );
 $$;
 
+-- Kazakhstan and Russia share calling code +7.  A calling-code-only check
+-- would incorrectly allow Russian +79 numbers to publish in Jolmod KZ.
+-- Keep the Kazakhstan numbering boundary in one private database helper so
+-- every protected seller-write and seller-contact read uses the same rule.
+-- Current Kazakhstan allocations within the shared zone are +70, +76, +77.
+CREATE FUNCTION identity.is_kazakhstan_e164_phone(p_phone_e164 TEXT)
+RETURNS BOOLEAN
+LANGUAGE sql IMMUTABLE PARALLEL SAFE SET search_path = '' AS $$
+  SELECT p_phone_e164 ~ '^[+]7(?:0|6|7)[0-9]{9}$';
+$$;
+
 CREATE FUNCTION identity.require_kazakhstan_seller_contact_phone(
   p_user_id UUID,
   p_contact_id UUID
@@ -178,7 +189,7 @@ BEGIN
       AND contact.user_id = p_user_id
       AND contact.is_active
       AND contact.revoked_at IS NULL
-      AND contact.phone_e164 ~ '^[+]7[0-9]{10}$'
+      AND identity.is_kazakhstan_e164_phone(contact.phone_e164)
   ) THEN
     RAISE EXCEPTION 'Kazakhstan seller phone verification required' USING ERRCODE = 'OT403';
   END IF;
@@ -213,7 +224,7 @@ BEGIN
   WHERE contact.user_id = v_user_id
     AND contact.is_active
     AND contact.revoked_at IS NULL
-    AND contact.phone_e164 ~ '^[+]7[0-9]{10}$'
+    AND identity.is_kazakhstan_e164_phone(contact.phone_e164)
   ORDER BY contact.is_current_account_phone DESC, contact.verified_at DESC, contact.id;
 END;
 $$;
@@ -228,7 +239,7 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = '' AS $$
       WHERE contact.user_id = auth.uid()
         AND contact.is_active
         AND contact.revoked_at IS NULL
-        AND contact.phone_e164 ~ '^[+]7[0-9]{10}$'
+        AND identity.is_kazakhstan_e164_phone(contact.phone_e164)
     );
 $$;
 
@@ -357,8 +368,8 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION identity.reserve_seller_phone_verification_challenge(UUID, TEXT, TEXT, TEXT), identity.finalize_seller_phone_verification(UUID, UUID, TEXT), identity.require_kazakhstan_seller_contact_phone(UUID, UUID) FROM PUBLIC, anon, authenticated, service_role;
-GRANT EXECUTE ON FUNCTION identity.reserve_seller_phone_verification_challenge(UUID, TEXT, TEXT, TEXT), identity.finalize_seller_phone_verification(UUID, UUID, TEXT), identity.require_kazakhstan_seller_contact_phone(UUID, UUID) TO service_role;
+REVOKE ALL ON FUNCTION identity.reserve_seller_phone_verification_challenge(UUID, TEXT, TEXT, TEXT), identity.finalize_seller_phone_verification(UUID, UUID, TEXT), identity.is_kazakhstan_e164_phone(TEXT), identity.require_kazakhstan_seller_contact_phone(UUID, UUID) FROM PUBLIC, anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION identity.reserve_seller_phone_verification_challenge(UUID, TEXT, TEXT, TEXT), identity.finalize_seller_phone_verification(UUID, UUID, TEXT), identity.is_kazakhstan_e164_phone(TEXT), identity.require_kazakhstan_seller_contact_phone(UUID, UUID) TO service_role;
 REVOKE ALL ON FUNCTION public.reserve_seller_phone_verification_challenge_service(UUID, TEXT, TEXT, TEXT), public.finalize_seller_phone_verification_service(UUID, UUID, TEXT), public.has_active_seller_contact_phone_service(UUID, TEXT) FROM PUBLIC, anon, authenticated, service_role;
 GRANT EXECUTE ON FUNCTION public.reserve_seller_phone_verification_challenge_service(UUID, TEXT, TEXT, TEXT), public.finalize_seller_phone_verification_service(UUID, UUID, TEXT), public.has_active_seller_contact_phone_service(UUID, TEXT) TO service_role;
 REVOKE ALL ON FUNCTION public.list_own_kazakhstan_seller_contact_phones(), public.is_kazakhstan_seller_phone_verified() FROM PUBLIC, anon, service_role, authenticated;
@@ -367,7 +378,10 @@ REVOKE ALL ON FUNCTION public.create_own_listing_draft_v2(UUID, UUID, UUID, SMAL
 GRANT EXECUTE ON FUNCTION public.create_own_listing_draft_v2(UUID, UUID, UUID, SMALLINT, INTEGER, TEXT, vehicle.fuel_type, vehicle.transmission_type, TEXT, TEXT, TEXT, NUMERIC, TEXT, SMALLINT, TEXT, TEXT, TEXT, BOOLEAN, TEXT, UUID, UUID, UUID), public.set_own_listing_seller_contact_phone(UUID, UUID), public.submit_own_listing_for_review(UUID), public.resubmit_own_listing_for_review(UUID) TO authenticated;
 
 COMMENT ON FUNCTION identity.require_kazakhstan_seller_contact_phone(UUID, UUID) IS
-  'JLC-0524: a Jolmod Kazakhstan listing requires its owner''s active verified +7 seller contact. Account login phones remain country-neutral.';
+  'JLC-0524: a Jolmod Kazakhstan listing requires its owner''s active verified Kazakhstan-numbering seller contact. Account login phones remain country-neutral.';
+
+COMMENT ON FUNCTION identity.is_kazakhstan_e164_phone(TEXT) IS
+  'JLC-0524: recognizes currently allocated Kazakhstan numbering within the shared +7 zone (+70, +76, +77), not Russian +79 numbers.';
 
 NOTIFY pgrst, 'reload schema';
 COMMIT;
