@@ -87,6 +87,7 @@ Passed after the test repair:
 - `test:security-final-media-reference` (22 authorization checks)
 - `typecheck`
 - `lint` (only the already-known `SafeImage` raw-`img` advisory)
+- `build` (47 static pages generated and build traces collected)
 - `git diff --check`
 
 ## Required decision before the next implementation wave
