@@ -155,10 +155,17 @@ export const MARKET_PROFILES = {
     defaultTimeZone: "Asia/Almaty",
     phonePolicy: {
       login: { allowedCountries: "any" },
-      // SMS provider activation remains separately gated. Keeping contacts
-      // disabled here prevents a UI/config cutover from claiming SMS support
-      // before the trusted write-side policy is migrated and verified.
-      sellerContacts: { enabled: false }
+      // Account identity is international. Kazakhstan seller eligibility is a
+      // separate, verified contact boundary: only a KZ (+7) contact may be
+      // selected for a Jolmod listing. The database repeats that requirement.
+      sellerContacts: {
+        enabled: true,
+        allowedCountries: ["KZ"],
+        verificationPurpose: "kazakhstan_seller_contact",
+        verificationProvider: "twilio_verify",
+        callingCode: "+7",
+        nationalPlaceholder: "777 123 45 67"
+      }
     },
     status: "active"
   }

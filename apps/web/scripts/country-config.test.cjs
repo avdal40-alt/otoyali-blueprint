@@ -117,7 +117,14 @@ assert.deepEqual(market.MARKET_PROFILES.jolcarKazakhstan, {
   defaultTimeZone: "Asia/Almaty",
   phonePolicy: {
     login: { allowedCountries: "any" },
-    sellerContacts: { enabled: false }
+    sellerContacts: {
+      enabled: true,
+      allowedCountries: ["KZ"],
+      verificationPurpose: "kazakhstan_seller_contact",
+      verificationProvider: "twilio_verify",
+      callingCode: "+7",
+      nationalPlaceholder: "777 123 45 67"
+    }
   },
   status: "active"
 });

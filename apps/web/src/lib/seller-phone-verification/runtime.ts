@@ -8,7 +8,9 @@ import { getSellerPhoneVerificationProvider, type SellerPhoneVerificationProvide
 type RpcResult<T> = PromiseLike<{ data: T | null; error: { code?: string; message?: string } | null }>;
 export type SellerPhoneVerificationService = { rpc<T>(name: string, args: Record<string, unknown>): RpcResult<T> };
 export type SellerPhoneVerificationFailure = { ok: false; status: number; code: string; retryAfterSeconds?: number };
-type StartSuccess = { ok: true; challengeId: string; expiresAt: string; maskedPhone: string; status: "sent" };
+type StartSuccess =
+  | { ok: true; challengeId: string; expiresAt: string; maskedPhone: string; status: "sent" }
+  | { ok: true; status: "already_verified" };
 type VerifySuccess = { ok: true; status: "verified" };
 
 export function normalizeSellerContactPhone(value: unknown): string | null {
@@ -32,11 +34,18 @@ export async function startSellerPhoneVerification(input: { userId: string; phon
   const phone = normalizeSellerContactPhone(input.phone);
   if (!phone) return { ok: false, status: 422, code: "invalid_phone" };
   const service = input.service ?? serviceClient();
+  if (!service) return unavailable();
+  const existing = await service.rpc<boolean>("has_active_seller_contact_phone_service", { p_user_id: input.userId, p_phone_e164: phone });
+  if (existing.error) return unavailable();
+  if (existing.data === true) return { ok: true, status: "already_verified" };
   const provider = input.provider ?? getSellerPhoneVerificationProvider();
-  if (!service || !provider) return unavailable();
-  const reserved = await service.rpc<{ challenge_id: string; outcome: string; retry_after_seconds: number | null }>("reserve_seller_phone_verification_challenge_service", { p_user_id: input.userId, p_phone_e164: phone });
+  if (!provider) return unavailable();
+  const policy = CURRENT_MARKET.phonePolicy.sellerContacts;
+  if (!policy.enabled) return unavailable();
+  const reserved = await service.rpc<{ challenge_id: string; outcome: string; retry_after_seconds: number | null }>("reserve_seller_phone_verification_challenge_service", { p_user_id: input.userId, p_phone_e164: phone, p_provider: policy.verificationProvider, p_purpose: policy.verificationPurpose });
   const challenge = row(reserved.data);
   if (reserved.error || !challenge) return unavailable();
+  if (challenge.outcome === "already_verified") return { ok: true, status: "already_verified" };
   if (challenge.outcome === "active_contact_limit") return { ok: false, status: 429, code: "active_contact_limit" };
   if (challenge.outcome === "rate_limited") return { ok: false, status: 429, code: "rate_limited", retryAfterSeconds: challenge.retry_after_seconds ?? undefined };
   if (challenge.outcome !== "reserved" || !challenge.challenge_id) return unavailable();
@@ -60,7 +69,7 @@ export async function verifySellerPhoneVerification(input: { userId: string; cha
   const checked = await provider.check(challenge.phone_e164, input.code);
   if (checked === "unavailable" || checked === "not_configured") return unavailable();
   if (checked !== "approved") return { ok: false, status: 422, code: "invalid_code" };
-  const finalized = await service.rpc<{ phone_e164: string }>("finalize_seller_phone_verification_service", { p_user_id: input.userId, p_challenge_id: input.challengeId });
+  const finalized = await service.rpc<{ phone_e164: string }>("finalize_seller_phone_verification_service", { p_user_id: input.userId, p_challenge_id: input.challengeId, p_purpose: policy.verificationPurpose });
   if (finalized.error) return { ok: false, status: finalized.error.code === "23505" ? 409 : 503, code: finalized.error.code === "23505" ? "phone_already_verified" : "verification_unavailable" };
   if (!row(finalized.data)?.phone_e164) return { ok: false, status: 409, code: "challenge_unavailable" };
   return { ok: true, status: "verified" };

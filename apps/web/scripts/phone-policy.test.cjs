@@ -9,7 +9,8 @@ const clientPolicy = fs.readFileSync(path.join(root, "src", "lib", "seller-phone
 
 assert.match(market, /phonePolicy:/);
 assert.match(market, /login: \{ allowedCountries: "any" \}/);
-assert.match(market, /sellerContacts: \{ enabled: false \}/, "planned KZ profile must not inherit Turkey seller-contact support");
+assert.match(market, /sellerContacts:\s*\{\s*enabled: true,\s*allowedCountries: \["KZ"\]/s, "KZ seller contacts must require a Kazakhstan +7 number without narrowing global login");
+assert.match(market, /verificationPurpose: "kazakhstan_seller_contact"/);
 assert.match(runtime, /allowedCountries as readonly string\[\]/);
 assert.match(runtime, /policy\.verificationPurpose/);
 assert.match(runtime, /policy\.verificationProvider/);

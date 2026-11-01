@@ -363,7 +363,7 @@ export function SellWizard({
 
       setUserId(data.user.id);
       await supabase.rpc("sync_own_verified_account_phone");
-      const { data: contacts } = await supabase.rpc("list_own_verified_seller_contact_phones");
+      const { data: contacts } = await supabase.rpc("list_own_kazakhstan_seller_contact_phones");
       if (!isCurrentRequest()) return;
       const activeContacts = (Array.isArray(contacts) ? contacts : []).filter((contact): contact is SellerContact => Boolean(contact && typeof contact === "object" && "contact_id" in contact && (contact as SellerContact).is_active));
       setSellerContacts(activeContacts);

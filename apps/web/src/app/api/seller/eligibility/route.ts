@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: { code: "auth_required" } }, { status: 401, headers: privateApiHeaders });
   }
 
-  const { data, error } = await authenticated.supabase.rpc("is_turkey_seller_phone_verified");
+  const { data, error } = await authenticated.supabase.rpc("is_kazakhstan_seller_phone_verified");
   if (error) {
     return NextResponse.json({ error: { code: "eligibility_unavailable" } }, { status: 503, headers: privateApiHeaders });
   }

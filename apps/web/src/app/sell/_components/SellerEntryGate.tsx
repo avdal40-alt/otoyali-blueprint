@@ -72,7 +72,7 @@ export function SellerEntryGate({ children }: { children: ReactNode }) {
     // The database derives the phone and confirmation fact from auth.users; the
     // browser supplies no phone value and cannot create a contact directly.
     await supabase.rpc("sync_own_verified_account_phone");
-    const { data: contactRows } = await supabase.rpc("list_own_verified_seller_contact_phones");
+    const { data: contactRows } = await supabase.rpc("list_own_kazakhstan_seller_contact_phones");
     const verifiedContacts = Array.isArray(contactRows) ? contactRows as SellerContact[] : [];
     if (verifiedContacts.some((contact) => contact.is_active)) { setState("eligible"); return true; }
     let response: Response;

@@ -269,6 +269,8 @@
     "test:launch-b01b1": "node scripts/launch-b01b1-auth-contract.test.cjs",
     "test:launch-b01b2": "node scripts/launch-b01b2-seller-contact.test.cjs",
     "test:seller-contact-flow": "node scripts/seller-contact-verification-flow.test.cjs",
+    "test:seller-country-phone-eligibility": "node scripts/seller-country-phone-eligibility.test.cjs",
+    "test:seller-country-phone-eligibility:runtime": "node scripts/seller-country-phone-eligibility-runtime.test.cjs",
     "test:seller-analytics-events": "node scripts/seller-analytics-event-contract.test.cjs",
     "test:jlc-0511": "node scripts/jlc-0511-seller-analytics-ui.test.cjs",
     "test:jlc-0703": "node scripts/jlc-0703-anti-fraud.test.cjs",

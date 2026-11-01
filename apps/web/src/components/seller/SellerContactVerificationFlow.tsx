@@ -91,9 +91,13 @@ export function SellerContactVerificationFlow({
     }
 
     const body = await response.json().catch(() => null) as {
-      data?: { challengeId?: unknown; maskedPhone?: unknown };
+      data?: { challengeId?: unknown; maskedPhone?: unknown; status?: unknown };
       error?: { code?: unknown };
     } | null;
+    if (response.ok && body?.data?.status === "already_verified") {
+      await onVerified();
+      return;
+    }
     if (!response.ok || typeof body?.data?.challengeId !== "string") {
       const failure = typeof body?.error?.code === "string" ? body.error.code as ApiFailure : "verification_unavailable";
       setErrorCode(failure);

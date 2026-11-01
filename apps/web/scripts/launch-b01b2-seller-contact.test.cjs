@@ -8,7 +8,7 @@ const wizard = read("apps", "web", "src", "app", "sell", "_components", "SellWiz
 const copy = read("apps", "web", "src", "i18n", "dictionaries", "sell-wizard.ts");
 const writes = read("apps", "web", "src", "lib", "listings", "server-write.ts");
 assert.match(gate, /sync_own_verified_account_phone/);
-assert.match(gate, /list_own_verified_seller_contact_phones/);
+assert.match(gate, /list_own_kazakhstan_seller_contact_phones/);
 assert.match(gate, /import\("@\/components\/seller\/SellerContactVerificationFlow"\)\.then\(\(module\) => module\.SellerContactVerificationFlow\)/);
 assert.match(gate, /<SellerContactVerificationFlow onVerified=\{async \(\) => \{ await checkEligibility\(\); \}\} onAuthRequired=\{redirectToLogin\}/);
 assert.doesNotMatch(gate, /phone-verification\/start|phone-verification\/verify/);
@@ -17,7 +17,7 @@ assert.doesNotMatch(gate, /nationalPhone|challengeId|maskedPhone|setCode\(/);
 assert.match(gate, /verifiedContacts\.some\(\(contact\) => contact\.is_active\)/);
 assert.ok(gate.indexOf("sync_own_verified_account_phone") < gate.indexOf("let response: Response"));
 assert.ok(gate.indexOf("list_own_verified_seller_contact_phones") < gate.indexOf("let response: Response"));
-assert.match(wizard, /list_own_verified_seller_contact_phones/);
+assert.match(wizard, /list_own_kazakhstan_seller_contact_phones/);
 assert.match(copy, /sellerContactManage: "Управление номерами"/);
 assert.match(copy, /sellerContactManage: "Manage phone numbers"/);
 assert.match(copy, /sellerContactManage: "Нөмірлерді басқару"/);
