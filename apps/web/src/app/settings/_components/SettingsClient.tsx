@@ -68,10 +68,14 @@ export function SettingsClient() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       const phone = userData.user?.phone;
       if (userError || !phone) throw new Error("missing_phone");
-      const { error: verifyError } = await supabase.auth.signInWithPassword({ phone, password: currentPassword });
-      if (verifyError) throw new Error("invalid_current_password");
-      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
-      if (updateError) throw updateError;
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+        current_password: currentPassword
+      });
+      if (updateError) {
+        if (/current password|invalid.*password/i.test(updateError.message)) throw new Error("invalid_current_password");
+        throw updateError;
+      }
       setCurrentPassword("");
       setNewPassword("");
       setPasswordConfirmation("");
