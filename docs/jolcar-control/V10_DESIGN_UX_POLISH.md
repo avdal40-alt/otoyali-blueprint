@@ -3,7 +3,7 @@
 **Date:** 2026-10-30  
 **Initial head:** `93d315de1a7cf1baa89a9120b88916cd30bfb215`  
 **Final application head reviewed/deployed:** `23491ec` (`fix(ui): polish review moderation states`)  
-**Final repository head:** the evidence-only commit containing this report (reported in the final handoff)  
+**Final runtime head:** `c8e25dea4e879eff5bd1787e57d04daf35cbe9e8`  
 **Branch:** `jolcar/autonomous`  
 **Production:** **PAUSED** — no production deployment, migration, database mutation, DNS, alias, or provider setting was changed.
 
@@ -65,8 +65,8 @@ V10 was a presentation-only final polish pass. It preserved Kazakhstan market id
 
 ### Local runtime constraints
 
-- `test:jlc-1204`, `test:jlc-1404`, `test:jlc-0521`, `test:jlc-0522`, and `test:security-final-media-reference` could not start because the local Docker Desktop engine / local Supabase containers were unavailable. These are environment failures before assertions, not regressions. Their latest green RC4C/V9 evidence remains valid; V10 did not change their implementation boundaries.
-- The local build process compiled, completed lint/type validation, generated static pages, and produced the final `.next` server/trace artifacts. Its stdout owner was time-bounded by the local shell wrapper before a final exit line could be captured. The immutable remote Preview build below is the authoritative final build verification.
+- The original V10 pass recorded local Docker/Supabase availability limits. The final V10.1 gate reran the requested JLC-0521, JLC-0522, and media-security matrices successfully; no Docker-dependent suite remains outstanding for this gate.
+- **LOCAL_BUILD_STATUS:** GREEN. `npm run build` completed with exit code 0, including all 47 generated static pages and build traces. The existing SafeImage raw-`img` lint warning remains unchanged.
 
 ### Performance and bundle safety
 
@@ -81,7 +81,18 @@ V10 was a presentation-only final polish pass. It preserved Kazakhstan market id
 - **PREVIEW_COMMIT:** `23491ec` (local reviewed source at deployment time)
 - **PREVIEW_BUILD_STATUS:** GREEN — Preview target only, Ready, 1m12s remote build.
 
-Browser automation could not safely attach because the browser host could not determine the existing Chrome URL. Unauthenticated `vercel curl` protected-route checks confirmed the Preview protection boundary; authenticated visual actions were not bypassed.
+### V10.1 final Preview gate
+
+- **FINAL_PREVIEW_DEPLOYMENT_ID:** `dpl_2fZjdZuEp9mzHQazzgKn2cimxbYM`
+- **FINAL_PREVIEW_URL:** `https://jolcar-staging-a5vtv5748-otoyali.vercel.app`
+- **FINAL_PREVIEW_COMMIT:** `c8e25dea4e879eff5bd1787e57d04daf35cbe9e8`
+- **FINAL_PREVIEW_BUILD_STATUS:** GREEN — immutable Preview deployment to `otoyali/jolcar-staging`, target `preview`, Ready, 46-second remote build. The only source delta from the prior Preview revision `23491ec` is this V10 evidence document; no runtime, test, or configuration file changed.
+- **TEST_STATUS:** GREEN. The final gate passed country configuration, JLC-0518, JLC-0521, JLC-0522, the 22-check media authorization matrix, all V10 design/responsive/accessibility checks, auth/admin localization, password change, home copy, and location-contract checks.
+- **TYPECHECK_STATUS:** GREEN.
+- **LINT_STATUS:** GREEN with the existing SafeImage raw-`img` performance warning only.
+- **DOCKER_DEPENDENT_TEST_STATUS:** GREEN — required database-backed suites completed successfully during the final gate.
+
+Browser automation is unavailable because the browser-access host is down. Authenticated `vercel curl` checks against the immutable Preview returned expected responses for `/`, `/ru` (locale redirect), `/kk`, `/en`, `/zh-CN`, `/search`, `/login`, `/register`, `/settings`, `/video`, `/admin/login`, `/admin/listings`, and `/admin/moderation`. `/dealer` returns its expected 404 without a required dealer identifier. Authenticated visual actions were not bypassed.
 
 **MANUAL_VISUAL_CHECKS:**
 
