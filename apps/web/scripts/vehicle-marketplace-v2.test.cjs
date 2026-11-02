@@ -7,12 +7,17 @@ const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
 const foundation = read("supabase", "migrations", "20261102120000_vehicle_marketplace_v2_foundation.sql");
 const drafts = read("supabase", "migrations", "20261102121000_vehicle_marketplace_v2_protected_drafts.sql");
 const projection = read("supabase", "migrations", "20261102122000_vehicle_marketplace_v2_public_projection.sql");
+const editAdmin = read("supabase", "migrations", "20261102123000_vehicle_marketplace_v2_edit_admin.sql");
+const adminProjection = read("supabase", "migrations", "20261102124000_vehicle_marketplace_v2_admin_projection.sql");
 const contract = read("apps", "web", "src", "lib", "marketplace", "v2-contract.ts");
 const serverWrite = read("apps", "web", "src", "lib", "listings", "server-write.ts");
 const route = read("apps", "web", "src", "app", "api", "listings", "v2", "route.ts");
 const wizard = read("apps", "web", "src", "app", "sell", "_components", "SellWizard.tsx");
 const searchFilters = read("apps", "web", "src", "components", "search", "SearchFilters.tsx");
 const savedSearchContract = read("apps", "web", "src", "lib", "saved-search", "contract.ts");
+const listingDetails = read("apps", "web", "src", "app", "listing", "[id]", "page.tsx");
+const dealerPage = read("apps", "web", "src", "app", "dealer", "[id]", "page.tsx");
+const adminClient = read("apps", "web", "src", "app", "admin", "_components", "AdminClient.tsx");
 
 // The ten approved category/purpose combinations share one listing identity;
 // rental is a distinct KZT daily-price contract, never a sale-price overload.
@@ -47,6 +52,23 @@ assert.match(serverWrite, /createVehicleMarketplaceV2ListingSchema/);
 assert.match(serverWrite, /create_own_listing_draft_v3/);
 assert.match(route, /createVehicleMarketplaceV2ListingSchema/);
 assert.match(route, /createOwnVehicleMarketplaceV2Draft/);
+assert.match(route, /saveOwnVehicleMarketplaceV2Listing/);
+assert.match(serverWrite, /editVehicleMarketplaceV2ListingSchema/);
+assert.match(serverWrite, /save_own_listing_v2_edit/);
+
+// Editing stays owner-only and category/purpose are immutable after creation.
+// The database, not the UI, repeats the rental and trailer constraints.
+assert.match(editAdmin, /SECURITY DEFINER\s+SET search_path = public, marketplace, vehicle, identity, pg_catalog/s);
+assert.match(editAdmin, /public\.is_admin\(v_user\)/);
+assert.match(editAdmin, /identity\.require_kazakhstan_seller_contact_phone/);
+assert.match(editAdmin, /v_listing\.status NOT IN \('draft','rejected'\)/);
+assert.match(editAdmin, /v_listing\.updated_at IS DISTINCT FROM p_expected_listing_updated_at/);
+assert.match(editAdmin, /v_listing\.vehicle_category='trailer'[\s\S]*trailer cannot include engine or mileage fields/s);
+assert.match(editAdmin, /v_listing\.listing_purpose='sale'[\s\S]*invalid sale price contract/s);
+assert.match(editAdmin, /invalid rental price contract/);
+assert.match(editAdmin, /REVOKE ALL ON FUNCTION public\.save_own_listing_v2_edit[\s\S]*FROM PUBLIC, anon, authenticated, service_role/s);
+assert.match(editAdmin, /GRANT EXECUTE ON FUNCTION public\.save_own_listing_v2_edit[\s\S]*TO authenticated/s);
+assert.doesNotMatch(editAdmin, /\bDROP TABLE\b|\bTRUNCATE\b|\bDELETE FROM\b/i);
 
 // The seller UI uses the protected V2 application route for every non-legacy
 // category/purpose combination; trailers deliberately omit engine/mileage.
@@ -72,6 +94,20 @@ assert.match(projection, /marketplace\.is_jolmod_kazakhstan_city/);
 assert.match(projection, /vehicle_category,listing_purpose,rental_price_per_day/);
 assert.match(projection, /COALESCE\(p_document\.price_amount,p_document\.rental_price_per_day\)/);
 assert.match(projection, /vehicle_marketplace_v2_request_matches/);
+assert.match(projection, /details\.truck_body_type/);
+
+// All public and staff presentation layers consume the same category/purpose
+// price contract rather than treating rental daily prices as sale prices.
+for (const surface of [listingDetails, dealerPage, adminClient]) {
+  assert.match(surface, /formatListingPurposePrice/);
+  assert.match(surface, /vehicleCategoryLabel/);
+}
+assert.match(listingDetails, /listing\.vehicle_category === "trailer"/);
+assert.match(listingDetails, /truckBodyType/);
+assert.match(listingDetails, /operatingHours/);
+assert.match(adminProjection, /DROP FUNCTION public\.admin_list_listing_moderation/);
+assert.match(adminProjection, /public\.is_admin\(v_user_id\)/);
+assert.match(adminProjection, /REVOKE ALL ON FUNCTION public\.admin_list_listing_moderation[\s\S]*FROM PUBLIC, anon, authenticated, service_role/s);
 assert.doesNotMatch(projection, /GRANT\s+ALL\s+ON\s+TABLE\s+marketplace\.listing_search_documents\s+TO\s+(?:anon|authenticated)/i);
 
 console.log("vehicle-marketplace-v2: PASS");

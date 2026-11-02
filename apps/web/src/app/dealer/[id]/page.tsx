@@ -9,6 +9,7 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import { DealerFollowButton } from "@/components/dealer/DealerFollowButton";
 import { localizePath } from "@/i18n/config";
 import { cityLabel } from "@/lib/format";
+import { formatListingPurposePrice, listingPurposeLabel, vehicleCategoryLabel } from "@/lib/marketplace/v2-contract";
 import { t } from "@/i18n/get-dictionary";
 import { getRequestLocale } from "@/i18n/server";
 import type { Locale } from "@/i18n/types";
@@ -16,7 +17,7 @@ import { getSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string }> };
 type PublicDealer = { display_name: string; avatar_url: string | null; city: string | null; description: string | null; is_verified: boolean; stock_count: number; follower_count: number; is_following: boolean };
-type DealerListing = { listing_id: string; title: string | null; price_amount: number | null; currency: string | null; city: string | null; cover_image_url: string | null; video_count: number | null };
+type DealerListing = { listing_id: string; title: string | null; price_amount: number | null; currency: string | null; city: string | null; cover_image_url: string | null; video_count: number | null; vehicle_category: string | null; listing_purpose: string | null; rental_price_per_day: number | null; rental_price_per_month: number | null };
 type DealerPost = { post_id: string; body: string | null; created_at: string; attachments: Array<{ listing_id: string; title: string | null; price_amount: number | null; currency: string | null; image_url: string | null; has_video: boolean }> };
 type DealerLive = { stream_id: string; title: string; started_at: string };
 type DealerLiveHistory = { stream_id: string; title: string; started_at: string; ended_at: string };
@@ -46,7 +47,7 @@ export default async function PublicDealerPage({ params, searchParams }: Props) 
   const profile = rawProfile as PublicDealer | null;
   if (!profile) notFound();
 
-  const { data: rawStock } = await supabase.from("ff_home_listings").select("listing_id,title,price_amount,currency,city,cover_image_url,video_count").eq("seller_type", "dealer").eq("seller_display_name", profile.display_name).limit(24);
+  const { data: rawStock } = await supabase.from("ff_home_listings").select("listing_id,title,price_amount,currency,city,cover_image_url,video_count,vehicle_category,listing_purpose,rental_price_per_day,rental_price_per_month").eq("seller_type", "dealer").eq("seller_display_name", profile.display_name).limit(24);
   const stock = (rawStock ?? []) as DealerListing[];
   const { data: rawPosts } = tab === "posts" ? await supabase.rpc("get_public_dealer_posts", { p_dealer_id: id, p_limit: 20 }) : { data: [] };
   const { data: rawLiveStreams } = tab === "live" ? await supabase.rpc("list_public_dealer_live_streams", { p_dealer_id: id, p_limit: 12 }) : { data: [] };
@@ -85,5 +86,5 @@ function LiveCard({ stream, locale, live }: { stream: DealerLive | DealerLiveHis
 
 function DealerListings({ listings, locale, emptyTitle, emptyBody }: { listings: DealerListing[]; locale: Locale; emptyTitle: string; emptyBody: string }) {
   if (!listings.length) return <EmptyTab title={emptyTitle} body={emptyBody} />;
-  return <div className="grid gap-3 sm:grid-cols-2">{listings.map((item) => <Link key={item.listing_id} href={localizePath(`/listing/${item.listing_id}`, locale)} className="overflow-hidden rounded-oto border border-oto-border bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-oto-blue"><div className="aspect-[4/3] bg-oto-surface">{item.cover_image_url ? <SafeImage src={item.cover_image_url} alt="" /> : null}</div><div className="p-4"><h3 className="font-bold text-oto-text">{item.title || t(locale, "profile.dealerPage.vehicle")}</h3><p className="mt-2 text-sm text-oto-muted">{cityLabel(item.city, locale)}</p><p className="mt-2 font-black text-oto-text">{item.price_amount} {item.currency}</p>{(item.video_count ?? 0) > 0 ? <span className="mt-2 inline-block rounded-full bg-oto-blue px-2 py-1 text-xs font-bold text-white">{t(locale, "profile.dealerPage.video")}</span> : null}</div></Link>)}</div>;
+  return <div className="grid gap-3 sm:grid-cols-2">{listings.map((item) => <Link key={item.listing_id} href={localizePath(`/listing/${item.listing_id}`, locale)} className="overflow-hidden rounded-oto border border-oto-border bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-oto-blue"><div className="aspect-[4/3] bg-oto-surface">{item.cover_image_url ? <SafeImage src={item.cover_image_url} alt="" /> : null}</div><div className="p-4"><div className="flex flex-wrap gap-2"><span className="rounded-full bg-oto-surface px-2 py-1 text-xs font-bold text-oto-muted">{vehicleCategoryLabel(item.vehicle_category, locale)}</span>{item.listing_purpose === "rent" ? <span className="rounded-full bg-oto-blue px-2 py-1 text-xs font-bold text-white">{listingPurposeLabel(item.listing_purpose, locale)}</span> : null}</div><h3 className="mt-2 font-bold text-oto-text">{item.title || t(locale, "profile.dealerPage.vehicle")}</h3><p className="mt-2 text-sm text-oto-muted">{cityLabel(item.city, locale)}</p><p className="mt-2 font-black text-oto-text">{formatListingPurposePrice(item, locale)}</p>{(item.video_count ?? 0) > 0 ? <span className="mt-2 inline-block rounded-full bg-oto-blue px-2 py-1 text-xs font-bold text-white">{t(locale, "profile.dealerPage.video")}</span> : null}</div></Link>)}</div>;
 }

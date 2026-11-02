@@ -137,6 +137,12 @@ export const editListingSchema = z.object({
   validConditionMileage(value, context);
 });
 
+/** V2 edits retain the protected listing category and purpose selected on create. */
+export const editVehicleMarketplaceV2ListingSchema = createVehicleMarketplaceV2ListingSchema.extend({
+  expectedListingUpdatedAt: z.string().datetime({ offset: true }),
+  expectedVehicleUpdatedAt: z.string().datetime({ offset: true })
+});
+
 export const mediaAttachmentSchema = z.object({
   mediaId: listingIdSchema,
   storagePath: z.string().trim().min(1).max(1024),
@@ -219,6 +225,48 @@ export async function saveOwnRejectedListing(authenticated: AuthenticatedRequest
   if (error) return { error: listingWriteError(error), rawError: error } as const;
   const row = Array.isArray(data) ? data[0] : data; const result = row && typeof row === "object" ? row as Record<string, unknown> : null;
   return result ? { data: { listingId: result.saved_listing_id, listingUpdatedAt: result.saved_listing_updated_at, vehicleUpdatedAt: result.saved_vehicle_updated_at, status: result.saved_status, moderationStatus: result.saved_moderation_status, title: result.saved_title, titleGenerated: result.saved_title_generated } } as const : { error: { status: 500, message: "Не удалось выполнить операцию с объявлением." } } as const;
+}
+
+export async function saveOwnVehicleMarketplaceV2Listing(authenticated: AuthenticatedRequestSupabase, listingId: string, payload: z.infer<typeof editVehicleMarketplaceV2ListingSchema>) {
+  const { data, error } = await authenticated.supabase.rpc("save_own_listing_v2_edit", {
+    p_listing_id: listingId,
+    p_expected_listing_updated_at: payload.expectedListingUpdatedAt,
+    p_expected_vehicle_updated_at: payload.expectedVehicleUpdatedAt,
+    p_year: payload.year,
+    p_mileage_km: payload.mileageKm,
+    p_condition: payload.condition,
+    p_fuel_type: payload.fuelType,
+    p_transmission: payload.transmission,
+    p_body_type: payload.bodyType,
+    p_drive_type: payload.driveType,
+    p_color: payload.color,
+    p_engine_volume_l: payload.engineVolumeL,
+    p_description: payload.description,
+    p_sale_price_amount_text: payload.priceAmount,
+    p_currency: payload.currency,
+    p_price_negotiable: payload.priceNegotiable,
+    p_city: payload.city,
+    p_city_id: payload.cityId,
+    p_district_id: payload.districtId,
+    p_rental_price_per_day_text: payload.rentalPricePerDay,
+    p_rental_price_per_month_text: payload.rentalPricePerMonth,
+    p_minimum_rental_days: payload.minimumRentalDays,
+    p_security_deposit_amount_text: payload.securityDepositAmount,
+    p_with_driver_or_operator: payload.withDriverOrOperator,
+    p_truck_body_type: payload.truckBodyType,
+    p_bus_type: payload.busType,
+    p_trailer_type: payload.trailerType,
+    p_machinery_type: payload.machineryType,
+    p_payload_capacity_kg: payload.payloadCapacityKg,
+    p_gross_weight_kg: payload.grossWeightKg,
+    p_axle_count: payload.axleCount,
+    p_seat_count: payload.seatCount,
+    p_operating_hours: payload.operatingHours
+  });
+  if (error) return { error: listingWriteError(error), rawError: error } as const;
+  const row = Array.isArray(data) ? data[0] : data;
+  const result = row && typeof row === "object" ? row as Record<string, unknown> : null;
+  return result?.saved_listing_id ? { data: { listingId: result.saved_listing_id, listingUpdatedAt: result.saved_listing_updated_at, vehicleUpdatedAt: result.saved_vehicle_updated_at, status: result.saved_status, moderationStatus: result.saved_moderation_status } } as const : { error: { status: 500, message: "Не удалось выполнить операцию с объявлением." } } as const;
 }
 
 export const listingContactSwitchSchema = z.object({ sellerContactPhoneId: listingIdSchema }).strict();

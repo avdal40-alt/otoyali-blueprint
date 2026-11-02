@@ -44,7 +44,16 @@ const HOME_LISTING_COLUMNS = [
   "owner_count",
   "quality_score",
   "seller_display_name",
-  "video_count"
+  "video_count",
+  "truck_body_type",
+  "bus_type",
+  "trailer_type",
+  "machinery_type",
+  "payload_capacity_kg",
+  "gross_weight_kg",
+  "axle_count",
+  "seat_count",
+  "operating_hours"
   ,"ranking_freshness_at"
 ].join(",");
 
@@ -83,7 +92,16 @@ const LISTING_DETAILS_COLUMNS = [
   "owner_count",
   "quality_score",
   "seller_display_name",
-  "video_count"
+  "video_count",
+  "truck_body_type",
+  "bus_type",
+  "trailer_type",
+  "machinery_type",
+  "payload_capacity_kg",
+  "gross_weight_kg",
+  "axle_count",
+  "seat_count",
+  "operating_hours"
 ].join(",");
 
 export async function getHomeListings(limit?: number): Promise<QueryResult<HomeListing[]>> {

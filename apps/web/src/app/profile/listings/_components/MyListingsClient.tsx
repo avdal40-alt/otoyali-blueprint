@@ -5,7 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
-import { cityLabel, formatPrice } from "@/lib/format";
+import { cityLabel } from "@/lib/format";
+import { formatListingPurposePrice, listingPurposeLabel, vehicleCategoryLabel } from "@/lib/marketplace/v2-contract";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
@@ -24,7 +25,11 @@ type MyListing = {
   moderation_status?: string | null;
   rejection_reason?: string | null;
   moderation_note?: string | null;
-  price_amount: number;
+  price_amount: number | null;
+  vehicle_category?: string | null;
+  listing_purpose?: string | null;
+  rental_price_per_day?: number | null;
+  rental_price_per_month?: number | null;
   currency: string;
   city: string;
   quality_score?: number | null;
@@ -102,7 +107,7 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
       const { data, error: listingError } = await supabase
         .schema("marketplace")
         .from("listings")
-        .select("id,vehicle_profile_id,title,status,moderation_status,rejection_reason,moderation_note,price_amount,currency,city,quality_score,raised_at")
+        .select("id,vehicle_profile_id,title,status,moderation_status,rejection_reason,moderation_note,price_amount,currency,city,quality_score,raised_at,vehicle_category,listing_purpose,rental_price_per_day,rental_price_per_month")
         .eq("seller_id", userData.user.id)
         .limit(50)
         .order("created_at", { ascending: false });
@@ -384,7 +389,11 @@ export function MyListingsClient({ locale }: { locale: Locale }) {
                     {[item.make_name, item.model_name, item.year].filter(Boolean).join(" ") || copy.vehicleInformation}
                   </p>
                 </div>
-                <p className="text-lg font-black text-oto-text">{formatPrice(item.price_amount, item.currency, locale)}</p>
+                <p className="text-lg font-black text-oto-text">{formatListingPurposePrice(item, locale)}</p>
+                <div className="mt-2 flex flex-wrap gap-2 text-xs font-bold text-oto-muted">
+                  {item.vehicle_category && item.vehicle_category !== "passenger_car" ? <span className="rounded-full bg-oto-surface px-2 py-1">{vehicleCategoryLabel(item.vehicle_category, locale)}</span> : null}
+                  {item.listing_purpose === "rent" ? <span className="rounded-full bg-oto-blue px-2 py-1 text-white">{listingPurposeLabel(item.listing_purpose, locale)}</span> : null}
+                </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold text-oto-muted">
                 <span className="rounded-full bg-oto-surface px-3 py-1">{cityLabel(item.city, locale)}</span>

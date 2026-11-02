@@ -25,9 +25,16 @@ Supabase project `dmjifqbvbjewyigdsuco`, and no Vercel deployment was made.
    - existing KZ-only public search projection extended for V2;
    - category/purpose and rental price terms projected without contacts or
      other private data; search/count retain one matcher and KZ city boundary.
+4. `20261102123000_vehicle_marketplace_v2_edit_admin.sql`
+   - protected owner-only V2 draft/rejected edit boundary with optimistic
+     locks, seller-phone enforcement, and category/purpose-preserving pricing
+     validation.
+5. `20261102124000_vehicle_marketplace_v2_admin_projection.sql`
+   - staff-only moderation projection extended with V2 category, purpose,
+     rental terms, and category-detail fields; seller contact remains private.
 
-Verified next controlled baseline before application: **185 local / 182 remote
-/ 3 pending**. The database must be reviewed and applied as one ordered V2
+Verified local isolated baseline after application: **187 local / 182 canonical
+remote / 5 pending for canonical**. The database must be reviewed and applied as one ordered V2
 chain in a separate authorized operation. Do not deploy the current runtime to
 staging until that schema gate is complete.
 
@@ -66,16 +73,14 @@ staging until that schema gate is complete.
 
 ## Remaining V2 implementation before controlled schema application
 
-- **V2 edit/resubmit:** `save_own_listing_edit` is the existing passenger-car
-  rejected-listing writer. A separate versioned protected V2 edit RPC, its
-  optimistic-lock contract, and a V2-aware rejected-listing loader/UI are still
-  required. Reusing the passenger writer would drop rental/category fields, so
-  it is intentionally not used.
-- **Moderation:** `admin_list_listing_moderation` currently returns the legacy
-  passenger summary. It needs a narrowly reviewed local migration to project
-  category, purpose, rental terms, and category attributes before admin UI can
-  claim V2 moderation support.
-- **Dealer inventory/import:** the current bounded Excel importer has a
+- **V2 edit UI:** the protected V2 save RPC and API route now exist, but the
+  seller’s existing rejected-listing editor still needs a V2-specific loader
+  and form hydration path. It must not fall back to the passenger-only edit
+  writer because that would omit category/rental terms.
+- **Moderation actions:** the staff-only moderation reader and list UI now
+  project V2 category/purpose and correct rental price semantics. A manual
+  local role-backed review of every category remains required before release.
+- **Dealer import:** the current bounded Excel importer has a
   passenger-only required-header contract. Commercial/rental mappings must be
   added together with a protected dealer apply boundary; no inference from
   missing import fields is allowed.
@@ -112,8 +117,9 @@ be used as evidence of V2 runtime behavior.
 
 ## Current local decision
 
-`V2_LOCAL_APPLICATION_STATUS = PARTIAL — CREATE/DISCOVERY/DETAIL/SAVED-SEARCH
-WIRED; V2 EDIT/RESUBMIT/MODERATION/DEALER IMPORT REMAIN`.
+`V2_LOCAL_APPLICATION_STATUS = PARTIAL — CREATE/DISCOVERY/DETAIL/PROTECTED
+EDIT/MODERATION PROJECTION/SAVED-SEARCH WIRED; V2 EDIT UI, DEALER IMPORT, AND
+THE AUTHENTICATED TEN-COMBINATION RUNTIME MATRIX REMAIN`.
 
 No V2 migration has been applied, no canonical data has changed, and the
 canonical project remains at **182** remote migrations.

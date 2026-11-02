@@ -35,6 +35,17 @@ const v2Copy = {
   dailyPriceTo: { ru: "Цена в день, до", kk: "Күндік баға, дейін", en: "Daily price, to", "zh-CN": "每日价格，至" },
   minimumRentalDays: { ru: "Минимум дней аренды", kk: "Ең аз жалға алу күні", en: "Minimum rental days", "zh-CN": "最短租期（天）" },
   withDriver: { ru: "С водителем / оператором", kk: "Жүргізушімен / оператормен", en: "With driver / operator", "zh-CN": "含司机/操作员" },
+  truckBodyType: { ru: "Тип кузова", kk: "Шанақ түрі", en: "Body type", "zh-CN": "车身类型" },
+  busType: { ru: "Тип автобуса", kk: "Автобус түрі", en: "Bus type", "zh-CN": "巴士类型" },
+  trailerType: { ru: "Тип прицепа", kk: "Тіркеме түрі", en: "Trailer type", "zh-CN": "拖车类型" },
+  machineryType: { ru: "Тип спецтехники", kk: "Арнайы техника түрі", en: "Machinery type", "zh-CN": "机械类型" },
+  payloadCapacity: { ru: "Грузоподъёмность", kk: "Жүк көтергіштігі", en: "Payload capacity", "zh-CN": "载重量" },
+  grossWeight: { ru: "Полная масса", kk: "Толық массасы", en: "Gross weight", "zh-CN": "总重量" },
+  axleCount: { ru: "Количество осей", kk: "Ось саны", en: "Axle count", "zh-CN": "轴数" },
+  seatCount: { ru: "Количество мест", kk: "Орын саны", en: "Seat count", "zh-CN": "座位数" },
+  operatingHours: { ru: "Моточасы", kk: "Мото-сағат", en: "Operating hours", "zh-CN": "工作小时数" },
+  kilograms: { ru: "кг", kk: "кг", en: "kg", "zh-CN": "千克" },
+  hours: { ru: "ч", kk: "сағ", en: "h", "zh-CN": "小时" },
   allCategories: { ru: "Все категории", kk: "Барлық санаттар", en: "All categories", "zh-CN": "所有类别" },
   allPurposes: { ru: "Продажа и аренда", kk: "Сату және жалға беру", en: "Sale and rent", "zh-CN": "出售和租赁" }
 } as const;

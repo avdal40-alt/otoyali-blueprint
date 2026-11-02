@@ -19,6 +19,7 @@ import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client"
 import { isMissingAuthSessionError } from "@/lib/auth/auth-ui";
 import { safeAdminNextPath } from "@/lib/auth/admin-return-path";
 import { cityLabel, formatPrice } from "@/lib/format";
+import { formatListingPurposePrice, listingPurposeLabel, vehicleCategoryLabel } from "@/lib/marketplace/v2-contract";
 import { signStorageUrlMap } from "@/lib/media/storage-urls";
 import type { ServiceProviderApplicationAdminRow } from "@/lib/supabase/types";
 import { getAdminNavigationCopy, type AdminNavigationCopy } from "./admin-navigation-copy";
@@ -48,6 +49,22 @@ type ListingRow = {
   year: number | null;
   preview_path: string | null;
   preview_url?: string | null;
+  vehicle_category?: string | null;
+  listing_purpose?: string | null;
+  rental_price_per_day?: number | null;
+  rental_price_per_month?: number | null;
+  minimum_rental_days?: number | null;
+  security_deposit_amount?: number | null;
+  with_driver_or_operator?: boolean | null;
+  truck_body_type?: string | null;
+  bus_type?: string | null;
+  trailer_type?: string | null;
+  machinery_type?: string | null;
+  payload_capacity_kg?: number | null;
+  gross_weight_kg?: number | null;
+  axle_count?: number | null;
+  seat_count?: number | null;
+  operating_hours?: number | null;
 };
 
 type VideoRow = {
@@ -384,13 +401,15 @@ function ListingsModeration({ userId, locale }: { userId: string; locale: Locale
             <div>
               <p className="font-black text-oto-text">{row.title || copy.listing}</p>
               <div className="mt-1">
-                <Badge variant="primary">{t(locale, "verticals.cars.shortLabel")}</Badge>
+                <Badge variant="primary">{vehicleCategoryLabel(row.vehicle_category, locale)}</Badge>
+                {row.listing_purpose === "rent" ? <Badge>{listingPurposeLabel(row.listing_purpose, locale)}</Badge> : null}
               </div>
               <p className="mt-1 text-xs font-bold text-oto-muted">{makeModel || copy.vehicleMissing}</p>
             </div>
             <div className="text-sm font-bold text-oto-muted">
               <p>{row.city ? cityLabel(row.city, locale) : copy.cityMissing} · {row.seller_type || copy.seller}</p>
-              <p>{formatPrice(row.price_amount, row.currency, locale)} · {copy.quality} {row.quality_score ?? 0}</p>
+              <p>{formatListingPurposePrice(row, locale)} · {copy.quality} {row.quality_score ?? 0}</p>
+              {row.listing_purpose === "rent" && row.rental_price_per_month ? <p>{formatPrice(row.rental_price_per_month, row.currency, locale)} / {locale === "kk" ? "ай" : locale === "zh-CN" ? "月" : locale === "en" ? "month" : "месяц"}</p> : null}
             </div>
             <div className="text-xs font-black text-oto-muted">
               <p>{copy.status}: {row.status}</p>

@@ -31,7 +31,7 @@ import {
   sellerTypeLabel,
   transmissionLabel
 } from "@/lib/format";
-import { formatListingPurposePrice, listingPurposeLabel, vehicleCategoryLabel } from "@/lib/marketplace/v2-contract";
+import { formatListingPurposePrice, listingPurposeLabel, vehicleCategoryLabel, vehicleMarketplaceV2Copy } from "@/lib/marketplace/v2-contract";
 import { isAiFeatureEnabled } from "@/features/ai/feature-registry";
 import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import { getRequestLocale } from "@/i18n/server";
@@ -125,6 +125,26 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
                         [copy.mileage, formatMileage(listing.mileage_km, locale)],
                         [copy.fuel, fuelLabel(listing.fuel_type, locale)],
                         [copy.transmission, transmissionLabel(listing.transmission, locale)]
+                      ] : []),
+                      ...(listing.vehicle_category === "truck" ? [
+                        [vehicleMarketplaceV2Copy("truckBodyType", locale), listing.truck_body_type || copy.noInfo],
+                        [vehicleMarketplaceV2Copy("payloadCapacity", locale), listing.payload_capacity_kg ? `${listing.payload_capacity_kg} ${vehicleMarketplaceV2Copy("kilograms", locale)}` : copy.noInfo],
+                        [vehicleMarketplaceV2Copy("grossWeight", locale), listing.gross_weight_kg ? `${listing.gross_weight_kg} ${vehicleMarketplaceV2Copy("kilograms", locale)}` : copy.noInfo],
+                        [vehicleMarketplaceV2Copy("axleCount", locale), listing.axle_count ?? copy.noInfo]
+                      ] : []),
+                      ...(listing.vehicle_category === "bus" ? [
+                        [vehicleMarketplaceV2Copy("busType", locale), listing.bus_type || copy.noInfo],
+                        [vehicleMarketplaceV2Copy("seatCount", locale), listing.seat_count ?? copy.noInfo]
+                      ] : []),
+                      ...(listing.vehicle_category === "trailer" ? [
+                        [vehicleMarketplaceV2Copy("trailerType", locale), listing.trailer_type || copy.noInfo],
+                        [vehicleMarketplaceV2Copy("payloadCapacity", locale), listing.payload_capacity_kg ? `${listing.payload_capacity_kg} ${vehicleMarketplaceV2Copy("kilograms", locale)}` : copy.noInfo],
+                        [vehicleMarketplaceV2Copy("grossWeight", locale), listing.gross_weight_kg ? `${listing.gross_weight_kg} ${vehicleMarketplaceV2Copy("kilograms", locale)}` : copy.noInfo],
+                        [vehicleMarketplaceV2Copy("axleCount", locale), listing.axle_count ?? copy.noInfo]
+                      ] : []),
+                      ...(listing.vehicle_category === "special_machinery" ? [
+                        [vehicleMarketplaceV2Copy("machineryType", locale), listing.machinery_type || copy.noInfo],
+                        [vehicleMarketplaceV2Copy("operatingHours", locale), listing.operating_hours !== null && listing.operating_hours !== undefined ? `${listing.operating_hours} ${vehicleMarketplaceV2Copy("hours", locale)}` : copy.noInfo]
                       ] : []),
                       [copy.bodyType, listing.body_type ? bodyTypeLabel(listing.body_type, locale) : copy.noInfo],
                       [copy.driveType, listing.drive_type ? driveTypeLabel(listing.drive_type, locale) : copy.noInfo],
