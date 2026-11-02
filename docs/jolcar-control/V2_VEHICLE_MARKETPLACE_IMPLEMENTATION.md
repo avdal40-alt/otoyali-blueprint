@@ -38,6 +38,10 @@ remote / 5 pending for canonical**. The database must be reviewed and applied as
 chain in a separate authorized operation. Do not deploy the current runtime to
 staging until that schema gate is complete.
 
+The isolated local Supabase service applied the five pending repository
+migrations in order on 2026-11-02. This is local schema validation only; it did
+not contact or alter canonical Supabase.
+
 ## Implemented local foundation
 
 - Backward-compatible passenger-car sale defaults.
@@ -106,6 +110,8 @@ staging until that schema gate is complete.
 - `npm run typecheck` — PASS
 - `npm run lint` — PASS with the unchanged SafeImage `<img>` advisory
 - `npm run build` — PASS
+- isolated `supabase migration up --local` for JLC-0524 plus the V2 chain —
+  PASS; all V2 DDL/functions loaded without SQL errors.
 
 ## Release state
 
