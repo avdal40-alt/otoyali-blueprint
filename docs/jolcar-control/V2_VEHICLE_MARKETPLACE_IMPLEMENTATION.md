@@ -45,19 +45,44 @@ staging until that schema gate is complete.
   contact requirement, with no change to international account registration or
   password login.
 
-## Remaining V2 implementation before release
+## Application layer completed in this local wave
 
-- Complete category/purpose selection and conditional field rendering in the
-  seller wizard, including safe edit/resubmit contract support.
-- Add launch-localized UI controls for commercial/rental search, seller,
-  detail, account, dealer inventory, and moderation fields.
-- Extend saved-search persistence/matching and dealer import mappings only
-  where category/purpose data is supplied; preserve historical passenger
-  imports.
-- Add the full runtime matrix after the local schema chain is applied in a
-  controlled non-production environment: all ten category/purpose combinations,
-  owner isolation, moderation, favorites, saved searches, dealer flows, and
-  responsive UI.
+- The seller wizard now selects vehicle category and listing purpose before
+  creating a listing. Non-legacy combinations use the explicit `/api/listings/v2`
+  boundary and the protected V3 database RPC; the legacy passenger-car sale
+  endpoint remains unchanged.
+- The wizard renders category-aware fields for truck, bus, trailer, and special
+  machinery. Trailer creation deliberately omits engine, fuel, transmission,
+  and mileage. Rental creation uses a mandatory KZT daily price and optional
+  monthly price, minimum duration, seller-provided deposit information, and
+  driver/operator availability.
+- The home and full search surfaces expose category and purpose. Rental filters
+  survive URL serialization, count requests, pagination, and saved-search
+  requests. The saved-search API now accepts only the same V2 filter keys
+  recognized by the database matcher.
+- Listing cards and public details distinguish sale from rent, show a daily
+  rental price without overloading sale price, omit trailer-inapplicable engine
+  chips, and show rental terms with the correct classifieds disclaimer.
+
+## Remaining V2 implementation before controlled schema application
+
+- **V2 edit/resubmit:** `save_own_listing_edit` is the existing passenger-car
+  rejected-listing writer. A separate versioned protected V2 edit RPC, its
+  optimistic-lock contract, and a V2-aware rejected-listing loader/UI are still
+  required. Reusing the passenger writer would drop rental/category fields, so
+  it is intentionally not used.
+- **Moderation:** `admin_list_listing_moderation` currently returns the legacy
+  passenger summary. It needs a narrowly reviewed local migration to project
+  category, purpose, rental terms, and category attributes before admin UI can
+  claim V2 moderation support.
+- **Dealer inventory/import:** the current bounded Excel importer has a
+  passenger-only required-header contract. Commercial/rental mappings must be
+  added together with a protected dealer apply boundary; no inference from
+  missing import fields is allowed.
+- **Runtime matrix:** the ten-combination create/edit/submit/resubmit/search/
+  count/favorite/saved-search/moderation/dealer evidence requires a controlled
+  non-production database with the three pending migrations applied. Canonical
+  production remains untouched.
 
 ## Verification completed locally
 
@@ -69,6 +94,10 @@ staging until that schema gate is complete.
 - `npm run test:seller-country-phone-eligibility` — PASS
 - `npm run test:country-config` — PASS
 - `npm run test:security-final-media-reference` — PASS
+- `npm run test:jlc-0514` — PASS
+- `npm run test:jlc-0907` — PASS
+- `npm run test:listing-edit-payload` — PASS
+- `npm run test:listing-contact-edit-flow` — PASS
 - `npm run typecheck` — PASS
 - `npm run lint` — PASS with the unchanged SafeImage `<img>` advisory
 - `npm run build` — PASS
@@ -80,3 +109,11 @@ staging until that schema gate is complete.
 This is deliberate. A Preview against the canonical 182-migration schema would
 not contain the V2 RPC, public projection fields, or constraints and must not
 be used as evidence of V2 runtime behavior.
+
+## Current local decision
+
+`V2_LOCAL_APPLICATION_STATUS = PARTIAL — CREATE/DISCOVERY/DETAIL/SAVED-SEARCH
+WIRED; V2 EDIT/RESUBMIT/MODERATION/DEALER IMPORT REMAIN`.
+
+No V2 migration has been applied, no canonical data has changed, and the
+canonical project remains at **182** remote migrations.
