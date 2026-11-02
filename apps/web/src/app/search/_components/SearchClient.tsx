@@ -114,6 +114,12 @@ export function SearchClient({
     filters.advanced ||
     Boolean(
       filters.q ||
+        filters.vehicleCategory ||
+        filters.listingPurpose ||
+        filters.rentalPriceDayMin ||
+        filters.rentalPriceDayMax ||
+        filters.minimumRentalDays ||
+        filters.withDriverOrOperator ||
         filters.city ||
         filters.yearMin ||
         filters.yearMax ||

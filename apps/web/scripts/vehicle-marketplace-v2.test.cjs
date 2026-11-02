@@ -10,6 +10,9 @@ const projection = read("supabase", "migrations", "20261102122000_vehicle_market
 const contract = read("apps", "web", "src", "lib", "marketplace", "v2-contract.ts");
 const serverWrite = read("apps", "web", "src", "lib", "listings", "server-write.ts");
 const route = read("apps", "web", "src", "app", "api", "listings", "v2", "route.ts");
+const wizard = read("apps", "web", "src", "app", "sell", "_components", "SellWizard.tsx");
+const searchFilters = read("apps", "web", "src", "components", "search", "SearchFilters.tsx");
+const savedSearchContract = read("apps", "web", "src", "lib", "saved-search", "contract.ts");
 
 // The ten approved category/purpose combinations share one listing identity;
 // rental is a distinct KZT daily-price contract, never a sale-price overload.
@@ -44,6 +47,24 @@ assert.match(serverWrite, /createVehicleMarketplaceV2ListingSchema/);
 assert.match(serverWrite, /create_own_listing_draft_v3/);
 assert.match(route, /createVehicleMarketplaceV2ListingSchema/);
 assert.match(route, /createOwnVehicleMarketplaceV2Draft/);
+
+// The seller UI uses the protected V2 application route for every non-legacy
+// category/purpose combination; trailers deliberately omit engine/mileage.
+assert.match(wizard, /usesV2Create \? "\/api\/listings\/v2" : "\/api\/listings"/);
+assert.match(wizard, /vehicleCategories\.map/);
+assert.match(wizard, /listingPurposes\.map/);
+assert.match(wizard, /isTrailer \? null : state\.mileageKm/);
+assert.match(wizard, /rentalPricePerDay/);
+assert.match(wizard, /CommercialCapacityFields/);
+
+// The same filters are serialised into the query request and may be saved;
+// saved-search matching stays on the canonical database matcher.
+for (const token of ["vehicleCategory", "listingPurpose", "rentalPriceDayMin", "minimumRentalDays", "withDriverOrOperator"]) {
+  assert.match(searchFilters, new RegExp(token));
+}
+for (const token of ["vehicle_categories", "listing_purposes", "rental_price_day_min", "minimum_rental_days", "with_driver_or_operator"]) {
+  assert.match(savedSearchContract, new RegExp(`"${token}"`));
+}
 
 // Public discovery reuses the KZ-scoped search projection and accepts rental
 // daily-price semantics without exposing seller contact or private data.

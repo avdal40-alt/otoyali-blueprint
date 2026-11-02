@@ -9,7 +9,8 @@ const filterKeys = new Set([
   "mileage_min", "mileage_max", "city_ids", "district_ids", "fuel_types", "transmissions", "body_types", "drive_types",
   "colors", "seller_types", "engine_volume_min", "engine_volume_max", "power_kw_min", "power_kw_max",
   "battery_capacity_kwh_min", "battery_capacity_kwh_max", "electric_range_km_min", "electric_range_km_max",
-  "seller_service_declarations", "seller_damage_declarations", "trade_in_accepted", "price_negotiable", "has_photos", "has_video"
+  "seller_service_declarations", "seller_damage_declarations", "trade_in_accepted", "price_negotiable", "has_photos", "has_video",
+  "vehicle_categories", "listing_purposes", "rental_price_day_min", "rental_price_day_max", "minimum_rental_days", "with_driver_or_operator"
 ]);
 
 export type SavedSearchRequest = Record<string, unknown>;

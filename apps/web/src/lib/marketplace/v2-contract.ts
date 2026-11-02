@@ -9,6 +9,44 @@ export const busTypes = ["minibus", "city", "intercity", "tourist", "other"] as 
 export type VehicleCategory = (typeof vehicleCategories)[number];
 export type ListingPurpose = (typeof listingPurposes)[number];
 
+type LaunchLocale = "ru" | "kk" | "en" | "zh-CN";
+
+function launchLocale(locale: Locale): LaunchLocale {
+  return locale === "kk" || locale === "en" || locale === "zh-CN" ? locale : "ru";
+}
+
+const v2Copy = {
+  category: {
+    passenger_car: { ru: "Легковой автомобиль", kk: "Жеңіл автомобиль", en: "Passenger car", "zh-CN": "乘用车" },
+    truck: { ru: "Грузовик", kk: "Жүк көлігі", en: "Truck", "zh-CN": "卡车" },
+    bus: { ru: "Автобус", kk: "Автобус", en: "Bus", "zh-CN": "公交车" },
+    trailer: { ru: "Прицеп", kk: "Тіркеме", en: "Trailer", "zh-CN": "拖车" },
+    special_machinery: { ru: "Спецтехника", kk: "Арнайы техника", en: "Special machinery", "zh-CN": "特种机械" }
+  },
+  purpose: {
+    sale: { ru: "Продажа", kk: "Сату", en: "Sale", "zh-CN": "出售" },
+    rent: { ru: "Аренда", kk: "Жалға беру", en: "Rent", "zh-CN": "租赁" }
+  },
+  day: { ru: "день", kk: "күн", en: "day", "zh-CN": "天" },
+  month: { ru: "месяц", kk: "ай", en: "month", "zh-CN": "月" },
+  vehicleCategory: { ru: "Категория транспорта", kk: "Көлік санаты", en: "Vehicle category", "zh-CN": "车辆类别" },
+  listingPurpose: { ru: "Цель объявления", kk: "Хабарландыру мақсаты", en: "Listing purpose", "zh-CN": "刊登目的" },
+  dailyPriceFrom: { ru: "Цена в день, от", kk: "Күндік баға, бастап", en: "Daily price, from", "zh-CN": "每日价格，起" },
+  dailyPriceTo: { ru: "Цена в день, до", kk: "Күндік баға, дейін", en: "Daily price, to", "zh-CN": "每日价格，至" },
+  minimumRentalDays: { ru: "Минимум дней аренды", kk: "Ең аз жалға алу күні", en: "Minimum rental days", "zh-CN": "最短租期（天）" },
+  withDriver: { ru: "С водителем / оператором", kk: "Жүргізушімен / оператормен", en: "With driver / operator", "zh-CN": "含司机/操作员" },
+  allCategories: { ru: "Все категории", kk: "Барлық санаттар", en: "All categories", "zh-CN": "所有类别" },
+  allPurposes: { ru: "Продажа и аренда", kk: "Сату және жалға беру", en: "Sale and rent", "zh-CN": "出售和租赁" }
+} as const;
+
+export function vehicleMarketplaceV2Copy(key: keyof Omit<typeof v2Copy, "category" | "purpose" | "day" | "month">, locale: Locale) {
+  return v2Copy[key][launchLocale(locale)];
+}
+
+export function listingPurposeLabel(purpose: string | null | undefined, locale: Locale) {
+  return (v2Copy.purpose[purpose as ListingPurpose] ?? v2Copy.purpose.sale)[launchLocale(locale)];
+}
+
 const money = z.string().regex(/^(0|[1-9][0-9]{0,18})$/);
 const positiveMoney = z.string().regex(/^[1-9][0-9]{0,18}$/);
 const nullableMoney = money.nullable().optional();
@@ -64,20 +102,9 @@ export function formatListingPurposePrice(
   locale: Locale
 ) {
   if (listing.listing_purpose !== "rent") return formatPrice(listing.price_amount, listing.currency, locale);
-  const launchLocale = locale === "kk" || locale === "en" || locale === "zh-CN" ? locale : "ru";
-  const unit = ({ ru: " / день", kk: " / күн", en: " / day", "zh-CN": " / 天" } as const)[launchLocale];
-  return `${formatPrice(listing.rental_price_per_day, listing.currency, locale)}${unit}`;
+  return `${formatPrice(listing.rental_price_per_day, listing.currency, locale)} / ${v2Copy.day[launchLocale(locale)]}`;
 }
 
 export function vehicleCategoryLabel(category: string | null | undefined, locale: Locale) {
-  const labels = {
-    passenger_car: { ru: "Легковой автомобиль", kk: "Жеңіл автомобиль", en: "Passenger car", "zh-CN": "乘用车" },
-    truck: { ru: "Грузовик", kk: "Жүк көлігі", en: "Truck", "zh-CN": "卡车" },
-    bus: { ru: "Автобус", kk: "Автобус", en: "Bus", "zh-CN": "公交车" },
-    trailer: { ru: "Прицеп", kk: "Тіркеме", en: "Trailer", "zh-CN": "拖车" },
-    special_machinery: { ru: "Спецтехника", kk: "Арнайы техника", en: "Special machinery", "zh-CN": "特种机械" }
-  } as const;
-  const resolved = labels[category as keyof typeof labels] ?? labels.passenger_car;
-  const launchLocale = locale === "kk" || locale === "en" || locale === "zh-CN" ? locale : "ru";
-  return resolved[launchLocale];
+  return (v2Copy.category[category as VehicleCategory] ?? v2Copy.category.passenger_car)[launchLocale(locale)];
 }

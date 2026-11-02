@@ -12,6 +12,7 @@ import { ConditionTabs } from "@/components/search/ConditionTabs";
 import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { getStatusCopy } from "@/i18n/status-copy";
+import { listingPurposes, listingPurposeLabel, vehicleCategories, vehicleCategoryLabel, vehicleMarketplaceV2Copy } from "@/lib/marketplace/v2-contract";
 
 export function HomeVehicleSearchPanel({
   makes,
@@ -38,6 +39,8 @@ export function HomeVehicleSearchPanel({
   }, [cities, listings, locale]);
   const filteredModels = filters.make ? models.filter((model) => (model.make_name ?? "") === filters.make) : models;
   const hasAdvancedSelection = Boolean(
+      filters.vehicleCategory ||
+      filters.listingPurpose ||
       filters.city ||
       filters.mileageMax ||
       filters.fuelType ||
@@ -69,6 +72,20 @@ export function HomeVehicleSearchPanel({
       </div>
 
       <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <label className="grid gap-1">
+          <span className="text-xs font-bold text-oto-muted">{vehicleMarketplaceV2Copy("vehicleCategory", locale)}</span>
+          <Select value={filters.vehicleCategory} onChange={(event) => setValue("vehicleCategory", event.target.value)}>
+            <option value="">{vehicleMarketplaceV2Copy("allCategories", locale)}</option>
+            {vehicleCategories.map((category) => <option key={category} value={category}>{vehicleCategoryLabel(category, locale)}</option>)}
+          </Select>
+        </label>
+        <label className="grid gap-1">
+          <span className="text-xs font-bold text-oto-muted">{vehicleMarketplaceV2Copy("listingPurpose", locale)}</span>
+          <Select value={filters.listingPurpose} onChange={(event) => setValue("listingPurpose", event.target.value)}>
+            <option value="">{vehicleMarketplaceV2Copy("allPurposes", locale)}</option>
+            {listingPurposes.map((purpose) => <option key={purpose} value={purpose}>{listingPurposeLabel(purpose, locale)}</option>)}
+          </Select>
+        </label>
         <label className="grid gap-1">
           <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.brand)}</span>
           <Select value={filters.make} onChange={(event) => setValue("make", event.target.value)}>

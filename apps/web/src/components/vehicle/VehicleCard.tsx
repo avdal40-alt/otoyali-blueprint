@@ -14,7 +14,7 @@ import { SpecChip } from "./SpecChip";
 import { FavoriteButton } from "./FavoriteButton";
 import { getListingActionsCopy } from "@/app/listing/[id]/_components/listing-actions-copy";
 import { getStatusCopy } from "@/i18n/status-copy";
-import { formatListingPurposePrice, vehicleCategoryLabel } from "@/lib/marketplace/v2-contract";
+import { formatListingPurposePrice, listingPurposeLabel, vehicleCategoryLabel } from "@/lib/marketplace/v2-contract";
 
 export function VehicleCard({
   listing,
@@ -131,15 +131,15 @@ export function VehicleCard({
             </span>
           ) : null}
           {listing.listing_purpose === "rent" ? (
-            <span className="rounded-full bg-oto-blue px-2.5 py-1 text-[11px] font-black text-white">{({ ru: "Аренда", kk: "Жалға беру", en: "Rent", "zh-CN": "租赁" } as const)[activeLocale === "kk" || activeLocale === "en" || activeLocale === "zh-CN" ? activeLocale : "ru"]}</span>
+            <span className="rounded-full bg-oto-blue px-2.5 py-1 text-[11px] font-black text-white">{listingPurposeLabel(listing.listing_purpose, activeLocale)}</span>
           ) : null}
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">
           <SpecChip>{listing.year ?? String(dictionary.common.noInfo)}</SpecChip>
-          <SpecChip>{formatMileage(listing.mileage_km, activeLocale)}</SpecChip>
-          <SpecChip>{transmissionLabel(listing.transmission, activeLocale)}</SpecChip>
-          <SpecChip>{fuelLabel(listing.fuel_type, activeLocale)}</SpecChip>
+          {listing.vehicle_category !== "trailer" ? <SpecChip>{formatMileage(listing.mileage_km, activeLocale)}</SpecChip> : null}
+          {listing.vehicle_category !== "trailer" ? <SpecChip>{transmissionLabel(listing.transmission, activeLocale)}</SpecChip> : null}
+          {listing.vehicle_category !== "trailer" ? <SpecChip>{fuelLabel(listing.fuel_type, activeLocale)}</SpecChip> : null}
         </div>
         <div className="mt-auto flex items-center justify-between gap-3 pt-3 text-sm font-semibold text-oto-muted">
           <span className="truncate">{city}</span>

@@ -31,6 +31,7 @@ import {
   sellerTypeLabel,
   transmissionLabel
 } from "@/lib/format";
+import { formatListingPurposePrice, listingPurposeLabel, vehicleCategoryLabel } from "@/lib/marketplace/v2-contract";
 import { isAiFeatureEnabled } from "@/features/ai/feature-registry";
 import { DevQueryDebug } from "@/components/debug/DevQueryDebug";
 import { getRequestLocale } from "@/i18n/server";
@@ -97,18 +98,20 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
                     <div className="flex flex-wrap gap-2">
                       <Badge>{city}</Badge>
                       {listing.condition ? <Badge>{conditionLabel(listing.condition, locale)}</Badge> : null}
+                      {listing.vehicle_category && listing.vehicle_category !== "passenger_car" ? <Badge>{vehicleCategoryLabel(listing.vehicle_category, locale)}</Badge> : null}
+                      {listing.listing_purpose === "rent" ? <Badge>{listingPurposeLabel(listing.listing_purpose, locale)}</Badge> : null}
                       {listing.seller_type ? <Badge>{sellerTypeLabel(listing.seller_type, locale)}</Badge> : null}
                     </div>
                     <h1 className="mt-3 text-3xl font-black tracking-tight text-oto-text">{title}</h1>
-                    <p className="mt-3 text-3xl font-black text-oto-text">{formatPrice(listing.price_amount, listing.currency, locale)}</p>
+                    <p className="mt-3 text-3xl font-black text-oto-text">{formatListingPurposePrice(listing, locale)}</p>
                   </div>
                   <FavoriteButton listingId={listing.listing_id} />
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
                   <SpecChip>{listing.year ?? copy.noInfo}</SpecChip>
-                  <SpecChip>{formatMileage(listing.mileage_km, locale)}</SpecChip>
-                  <SpecChip>{fuelLabel(listing.fuel_type, locale)}</SpecChip>
-                  <SpecChip>{transmissionLabel(listing.transmission, locale)}</SpecChip>
+                  {listing.vehicle_category !== "trailer" ? <SpecChip>{formatMileage(listing.mileage_km, locale)}</SpecChip> : null}
+                  {listing.vehicle_category !== "trailer" ? <SpecChip>{fuelLabel(listing.fuel_type, locale)}</SpecChip> : null}
+                  {listing.vehicle_category !== "trailer" ? <SpecChip>{transmissionLabel(listing.transmission, locale)}</SpecChip> : null}
                   {listing.price_negotiable ? <SpecChip>{copy.negotiable}</SpecChip> : null}
                 </div>
                 <section className="mt-6 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
@@ -118,9 +121,11 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
                       [copy.make, listing.make_name || copy.noInfo],
                       [copy.model, listing.model_name || copy.noInfo],
                       [copy.year, listing.year ?? copy.noInfo],
-                      [copy.mileage, formatMileage(listing.mileage_km, locale)],
-                      [copy.fuel, fuelLabel(listing.fuel_type, locale)],
-                      [copy.transmission, transmissionLabel(listing.transmission, locale)],
+                      ...(listing.vehicle_category !== "trailer" ? [
+                        [copy.mileage, formatMileage(listing.mileage_km, locale)],
+                        [copy.fuel, fuelLabel(listing.fuel_type, locale)],
+                        [copy.transmission, transmissionLabel(listing.transmission, locale)]
+                      ] : []),
                       [copy.bodyType, listing.body_type ? bodyTypeLabel(listing.body_type, locale) : copy.noInfo],
                       [copy.driveType, listing.drive_type ? driveTypeLabel(listing.drive_type, locale) : copy.noInfo],
                       [copy.color, listing.color ? colorLabel(listing.color, locale) : copy.noInfo],
@@ -137,6 +142,19 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
                     ))}
                   </div>
                 </section>
+                {listing.listing_purpose === "rent" ? (
+                  <section className="mt-6 rounded-oto border border-oto-border bg-white p-5 shadow-soft">
+                    <h2 className="text-lg font-bold text-oto-text">{listingPurposeLabel(listing.listing_purpose, locale)}</h2>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <RentalTerm label={locale === "kk" ? "Күндік баға" : locale === "en" ? "Daily price" : locale === "zh-CN" ? "每日价格" : "Цена в день"} value={formatListingPurposePrice(listing, locale)} />
+                      {listing.rental_price_per_month ? <RentalTerm label={locale === "kk" ? "Айлық баға" : locale === "en" ? "Monthly price" : locale === "zh-CN" ? "每月价格" : "Цена в месяц"} value={formatPrice(listing.rental_price_per_month, listing.currency, locale)} /> : null}
+                      {listing.minimum_rental_days ? <RentalTerm label={locale === "kk" ? "Ең аз мерзім" : locale === "en" ? "Minimum term" : locale === "zh-CN" ? "最短租期" : "Минимальный срок"} value={`${listing.minimum_rental_days} ${locale === "kk" ? "күн" : locale === "en" ? "days" : locale === "zh-CN" ? "天" : "дн."}`} /> : null}
+                      {listing.security_deposit_amount !== null && listing.security_deposit_amount !== undefined ? <RentalTerm label={locale === "kk" ? "Депозит (сатушы ақпараты)" : locale === "en" ? "Deposit (seller information)" : locale === "zh-CN" ? "押金（卖家信息）" : "Залог (информация продавца)"} value={formatPrice(listing.security_deposit_amount, listing.currency, locale)} /> : null}
+                      {listing.with_driver_or_operator !== null && listing.with_driver_or_operator !== undefined ? <RentalTerm label={locale === "kk" ? "Жүргізуші / оператор" : locale === "en" ? "Driver / operator" : locale === "zh-CN" ? "司机/操作员" : "Водитель / оператор"} value={listing.with_driver_or_operator ? (locale === "en" ? "Included" : locale === "kk" ? "Бар" : locale === "zh-CN" ? "提供" : "Предоставляется") : (locale === "en" ? "Not included" : locale === "kk" ? "Жоқ" : locale === "zh-CN" ? "不提供" : "Не предоставляется")} /> : null}
+                    </div>
+                    <p className="mt-4 text-xs leading-5 text-oto-muted">{locale === "en" ? "Jolmod does not collect or hold rental payments or deposits." : locale === "kk" ? "Jolmod жалдау төлемін немесе депозитті жинамайды және сақтамайды." : locale === "zh-CN" ? "Jolmod 不收取或保管租金和押金。" : "Jolmod не принимает и не хранит арендные платежи или залог."}</p>
+                  </section>
+                ) : null}
                 {priceIntelligenceEnabled || vinTrustEnabled ? (
                   <div className="mt-6 grid items-stretch gap-6 xl:grid-cols-2">
                     {priceIntelligenceEnabled ? <PriceIntelligenceCard listingId={listing.listing_id} /> : null}
@@ -234,4 +252,8 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
       <MobileBottomNav />
     </>
   );
+}
+
+function RentalTerm({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-md bg-oto-surface p-3"><p className="text-xs font-bold uppercase tracking-wide text-oto-muted">{label}</p><p className="mt-1 text-sm font-black text-oto-text">{value}</p></div>;
 }

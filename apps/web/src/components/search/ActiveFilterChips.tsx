@@ -5,6 +5,7 @@ import { selectedValues } from "@/lib/search/search-params";
 import { bodyTypeLabel, cityLabel, colorLabel, conditionLabel, damageStateLabel, driveTypeLabel, fuelLabel, sellerTypeLabel, transmissionLabel } from "@/lib/format";
 import { useI18n } from "@/i18n/client";
 import type { Locale } from "@/i18n/types";
+import { listingPurposeLabel, vehicleCategoryLabel, vehicleMarketplaceV2Copy } from "@/lib/marketplace/v2-contract";
 
 export function ActiveFilterChips({
   filters,
@@ -22,6 +23,12 @@ export function ActiveFilterChips({
     make: String(dictionary.search.brand),
     model: String(dictionary.search.model),
     city: String(dictionary.search.city),
+    vehicleCategory: vehicleMarketplaceV2Copy("vehicleCategory", locale),
+    listingPurpose: vehicleMarketplaceV2Copy("listingPurpose", locale),
+    rentalPriceDayMin: vehicleMarketplaceV2Copy("dailyPriceFrom", locale),
+    rentalPriceDayMax: vehicleMarketplaceV2Copy("dailyPriceTo", locale),
+    minimumRentalDays: vehicleMarketplaceV2Copy("minimumRentalDays", locale),
+    withDriverOrOperator: vehicleMarketplaceV2Copy("withDriver", locale),
     priceMin: String(dictionary.search.priceMin),
     priceMax: String(dictionary.search.priceMax),
     yearMin: String(dictionary.search.yearMin),
@@ -83,6 +90,8 @@ function formatChipValue(key: keyof ListingSearchFilters, value: string, locale:
 
 function formatSingleValue(key: keyof ListingSearchFilters, value: string, locale: Locale) {
   if (key === "city") return cityLabel(value, locale);
+  if (key === "vehicleCategory") return vehicleCategoryLabel(value, locale);
+  if (key === "listingPurpose") return listingPurposeLabel(value, locale);
   if (key === "fuelType") return fuelLabel(value, locale);
   if (key === "transmission") return transmissionLabel(value, locale);
   if (key === "bodyType") return bodyTypeLabel(value, locale);

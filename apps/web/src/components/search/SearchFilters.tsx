@@ -10,6 +10,7 @@ import { bodyTypeLabel, cityLabel, colorLabel, conditionLabel, damageStateLabel,
 import { getIntlLocale } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import type { Locale } from "@/i18n/types";
+import { listingPurposes, vehicleCategories, vehicleCategoryLabel, vehicleMarketplaceV2Copy, listingPurposeLabel } from "@/lib/marketplace/v2-contract";
 
 export const fuelOptions = [
   { value: "gasoline", label: fuelLabel("gasoline") },
@@ -102,7 +103,7 @@ export function SearchFilters({
     });
   }
 
-  function toggleValue(key: "make" | "model" | "city" | "fuelType" | "transmission" | "bodyType", value: string) {
+  function toggleValue(key: "make" | "model" | "city" | "fuelType" | "transmission" | "bodyType" | "vehicleCategory" | "listingPurpose", value: string) {
     setValue(key, toggleSelectedValue(filters[key], value));
   }
   const localizedFuelOptions = fuelOptions.map((option) => ({ ...option, label: fuelLabel(option.value, locale) }));
@@ -131,6 +132,21 @@ export function SearchFilters({
   return (
     <div className="rounded-oto border border-oto-border bg-white p-4 shadow-soft">
       <div className="grid gap-4">
+        <MultiSelectGroup
+          label={vehicleMarketplaceV2Copy("vehicleCategory", locale)}
+          values={selectedValues(filters.vehicleCategory)}
+          options={vehicleCategories.map((value) => ({ value, label: vehicleCategoryLabel(value, locale) }))}
+          onToggle={(value) => toggleValue("vehicleCategory", value)}
+          emptyLabel={vehicleMarketplaceV2Copy("allCategories", locale)}
+        />
+
+        <MultiSelectGroup
+          label={vehicleMarketplaceV2Copy("listingPurpose", locale)}
+          values={selectedValues(filters.listingPurpose)}
+          options={listingPurposes.map((value) => ({ value, label: listingPurposeLabel(value, locale) }))}
+          onToggle={(value) => toggleValue("listingPurpose", value)}
+          emptyLabel={vehicleMarketplaceV2Copy("allPurposes", locale)}
+        />
         <MultiSelectGroup
           label={String(dictionary.search.brand)}
           values={selectedValues(filters.make)}
@@ -171,6 +187,17 @@ export function SearchFilters({
               <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder={String(dictionary.search.yearMin)} inputMode="numeric" />
               <Input value={filters.yearMax} onChange={(event) => setValue("yearMax", event.target.value)} placeholder={String(dictionary.search.yearMax)} inputMode="numeric" />
             </div>
+            {selectedValues(filters.listingPurpose).includes("rent") ? <>
+              <div className="grid grid-cols-2 gap-2">
+                <Input value={filters.rentalPriceDayMin} onChange={(event) => setValue("rentalPriceDayMin", event.target.value)} placeholder={vehicleMarketplaceV2Copy("dailyPriceFrom", locale)} inputMode="numeric" />
+                <Input value={filters.rentalPriceDayMax} onChange={(event) => setValue("rentalPriceDayMax", event.target.value)} placeholder={vehicleMarketplaceV2Copy("dailyPriceTo", locale)} inputMode="numeric" />
+              </div>
+              <Input value={filters.minimumRentalDays} onChange={(event) => setValue("minimumRentalDays", event.target.value)} placeholder={vehicleMarketplaceV2Copy("minimumRentalDays", locale)} inputMode="numeric" />
+              <label className="flex items-center gap-2 text-sm font-semibold text-oto-muted">
+                <input type="checkbox" checked={filters.withDriverOrOperator} onChange={(event) => setValue("withDriverOrOperator", event.target.checked)} />
+                {vehicleMarketplaceV2Copy("withDriver", locale)}
+              </label>
+            </> : null}
             <div className="grid grid-cols-2 gap-2">
               <Input value={filters.mileageMin} onChange={(event) => setValue("mileageMin", event.target.value)} placeholder={String(dictionary.search.mileageMin)} inputMode="numeric" />
               <Input value={filters.mileageMax} onChange={(event) => setValue("mileageMax", event.target.value)} placeholder={String(dictionary.search.mileageMax)} inputMode="numeric" />
