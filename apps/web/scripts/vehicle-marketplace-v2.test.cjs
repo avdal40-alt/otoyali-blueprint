@@ -9,6 +9,7 @@ const drafts = read("supabase", "migrations", "20261102121000_vehicle_marketplac
 const projection = read("supabase", "migrations", "20261102122000_vehicle_marketplace_v2_public_projection.sql");
 const editAdmin = read("supabase", "migrations", "20261102123000_vehicle_marketplace_v2_edit_admin.sql");
 const adminProjection = read("supabase", "migrations", "20261102124000_vehicle_marketplace_v2_admin_projection.sql");
+const publicDetailsBoundary = read("supabase", "migrations", "20261102125000_vehicle_marketplace_v2_public_details_boundary.sql");
 const contract = read("apps", "web", "src", "lib", "marketplace", "v2-contract.ts");
 const serverWrite = read("apps", "web", "src", "lib", "listings", "server-write.ts");
 const route = read("apps", "web", "src", "app", "api", "listings", "v2", "route.ts");
@@ -95,6 +96,10 @@ assert.match(projection, /vehicle_category,listing_purpose,rental_price_per_day/
 assert.match(projection, /COALESCE\(p_document\.price_amount,p_document\.rental_price_per_day\)/);
 assert.match(projection, /vehicle_marketplace_v2_request_matches/);
 assert.match(projection, /details\.truck_body_type/);
+assert.match(publicDetailsBoundary, /public_listing_category_details/);
+assert.match(publicDetailsBoundary, /c\.country_code='KZ'/);
+assert.match(publicDetailsBoundary, /GRANT EXECUTE ON FUNCTION marketplace\.public_listing_category_details\(UUID\) TO anon, authenticated/);
+assert.doesNotMatch(publicDetailsBoundary, /GRANT\s+(?:SELECT|ALL)\s+ON TABLE marketplace\.listing_vehicle_category_details\s+TO\s+(?:anon|authenticated)/i);
 
 // All public and staff presentation layers consume the same category/purpose
 // price contract rather than treating rental daily prices as sale prices.

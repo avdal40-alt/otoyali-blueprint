@@ -32,9 +32,12 @@ Supabase project `dmjifqbvbjewyigdsuco`, and no Vercel deployment was made.
 5. `20261102124000_vehicle_marketplace_v2_admin_projection.sql`
    - staff-only moderation projection extended with V2 category, purpose,
      rental terms, and category-detail fields; seller contact remains private.
+6. `20261102125000_vehicle_marketplace_v2_public_details_boundary.sql`
+   - fixes the V2 public-view/RLS boundary without granting direct access to
+     category details; a KZ-active-only helper supplies public attributes.
 
-Verified local isolated baseline after application: **187 local / 182 canonical
-remote / 5 pending for canonical**. The database must be reviewed and applied as one ordered V2
+Verified local isolated baseline after application: **188 local / 182 canonical
+remote / 6 pending for canonical**. The database must be reviewed and applied as one ordered V2
 chain in a separate authorized operation. Do not deploy the current runtime to
 staging until that schema gate is complete.
 
@@ -112,6 +115,9 @@ not contact or alter canonical Supabase.
 - `npm run build` — PASS
 - isolated `supabase migration up --local` for JLC-0524 plus the V2 chain —
   PASS; all V2 DDL/functions loaded without SQL errors.
+- `npm run test:jlc-0521` after the local V2 schema chain — PASS. The initial
+  V2 view join correctly failed under `security_invoker`; migration 125000
+  fixes it without broadening direct table privileges.
 
 ## Release state
 
