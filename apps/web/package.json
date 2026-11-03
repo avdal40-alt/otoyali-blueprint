@@ -280,6 +280,7 @@
     "test:listing-edit-payload": "node scripts/listing-edit-payload.test.cjs",
     "test:vehicle-marketplace-v2-foundation": "node scripts/vehicle-marketplace-v2-foundation.test.cjs",
     "test:vehicle-marketplace-v2": "node scripts/vehicle-marketplace-v2.test.cjs",
+    "test:vehicle-marketplace-v2-dealer-import": "node scripts/vehicle-marketplace-v2-dealer-import.test.cjs",
     "test:vehicle-marketplace-v2-edit": "node scripts/vehicle-marketplace-v2-edit.test.cjs"
   },
   "dependencies": {

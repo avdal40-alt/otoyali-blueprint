@@ -11,14 +11,22 @@ export const EXCEL_IMPORT_LIMITS = {
   maxCompressionRatio: 100,
   maxWorksheets: 10,
   maxRows: 500,
-  maxColumns: 16,
+  maxColumns: 32,
   maxCellCharacters: 8_000
 } as const;
 
 export type ExcelImportRow = Record<string, string> & { operation: "upsert" | "archive"; external_listing_id: string };
 
-const allowedHeaders = new Set(["operation", "external_listing_id", "make_slug", "model_slug", "year", "mileage_km", "fuel_type", "transmission", "title", "description", "price_amount", "city"]);
-const requiredUpsertHeaders = ["external_listing_id", "make_slug", "model_slug", "year", "mileage_km", "fuel_type", "transmission", "title", "price_amount", "city"];
+// Keep the historical passenger-sale columns optional at the workbook level.
+// The database-owned importer applies the category/purpose contract per row so
+// a mixed V2 workbook remains deterministic and legacy workbooks stay valid.
+const allowedHeaders = new Set([
+  "operation", "external_listing_id", "make_slug", "model_slug", "year", "mileage_km", "fuel_type", "transmission", "engine_volume_l", "title", "description", "price_amount", "city",
+  "vehicle_category", "listing_purpose", "rental_price_per_day", "rental_price_per_month", "minimum_rental_days", "security_deposit_amount", "with_driver_or_operator",
+  "truck_body_type", "bus_type", "trailer_type", "machinery_type", "payload_capacity_kg", "gross_weight_kg", "axle_count", "seat_count", "operating_hours"
+]);
+const requiredUpsertHeaders = ["external_listing_id", "year", "title", "city"];
+const requiredPassengerCarHeaders = ["make_slug", "model_slug", "mileage_km", "fuel_type", "transmission"];
 
 export async function parseBoundedXlsx(bytes: Buffer, filename: string): Promise<{ sourceSha256: string; rows: ExcelImportRow[] }> {
   if (!/\.xlsx$/i.test(filename) || /\.(?:xls|xlsm)$/i.test(filename) || bytes.byteLength === 0 || bytes.byteLength > EXCEL_IMPORT_LIMITS.maxUploadBytes) throw new ExcelImportError("unsupported_file");
@@ -65,7 +73,12 @@ function normalizeRow(values: unknown[], headers: string[]): ExcelImportRow {
   });
   const operation = (row.operation || "upsert").toLowerCase();
   if (operation !== "upsert" && operation !== "archive") throw new ExcelImportError("invalid_operation");
-  if (!row.external_listing_id || row.external_listing_id.length > 128 || (operation === "upsert" && requiredUpsertHeaders.some((header) => !row[header]))) throw new ExcelImportError("missing_required_field");
+  const isLegacyOrPassengerCar = !row.vehicle_category || row.vehicle_category === "passenger_car";
+  const isLegacyOrSale = !row.listing_purpose || row.listing_purpose === "sale";
+  const requiredHeaders = operation === "upsert"
+    ? [...requiredUpsertHeaders, ...(isLegacyOrPassengerCar ? requiredPassengerCarHeaders : []), ...(isLegacyOrSale ? ["price_amount"] : [])]
+    : ["external_listing_id"];
+  if (!row.external_listing_id || row.external_listing_id.length > 128 || requiredHeaders.some((header) => !row[header])) throw new ExcelImportError("missing_required_field");
   return { ...row, operation, external_listing_id: row.external_listing_id } as ExcelImportRow;
 }
 
