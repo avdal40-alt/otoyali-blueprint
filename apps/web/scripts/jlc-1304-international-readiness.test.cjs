@@ -28,12 +28,26 @@ const metadata = loadTypeScriptModule(read("src", "lib", "seo", "metadata.ts"), 
 const turkey = market.MARKET_PROFILES.yolmodTurkey;
 const kazakhstan = market.MARKET_PROFILES.jolcarKazakhstan;
 
-assert.deepEqual(kazakhstan.launchLocales, ["kk-KZ", "ru-KZ", "en"]);
+assert.deepEqual(
+  kazakhstan.launchLocales,
+  ["ru", "kk", "en", "zh-CN"],
+  "Jolcar must launch with Russian fallback plus Kazakh, English, and Simplified Chinese."
+);
 assert.equal(kazakhstan.currencyCode, "KZT");
 assert.equal(kazakhstan.defaultPhoneCountry, "KZ");
-assert.equal(kazakhstan.metadata.defaultLocale, "kk_KZ");
-assert.equal(kazakhstan.siteUrl, null, "The deferred Jolcar host must not be fabricated.");
+assert.equal(kazakhstan.metadata.defaultLocale, "ru_KZ");
+assert.equal(kazakhstan.siteUrl, "https://jolcar.vercel.app", "The approved KZ validation host must not borrow the Turkey host.");
 assert.deepEqual(turkey.launchLocales, ["tr", "en"]);
+
+const kzSeoRoutes = market.MARKET_SEO_ROUTE_CONFIG.KZ.locales;
+assert.deepEqual(kzSeoRoutes.map((route) => route.locale), kazakhstan.launchLocales);
+for (const route of kzSeoRoutes) {
+  assert.doesNotMatch(
+    JSON.stringify(route),
+    /ikinci-el-araba|sifir-km-araba|elektrikli-araclar|otomatik-vites-araclar|servisler|\btr\b/i,
+    `KZ ${route.locale} SEO routes must not fall back to Turkey paths.`
+  );
+}
 
 for (const profile of [turkey, kazakhstan]) {
   assert.equal(location.getLocationDataset(profile === turkey ? "yolmodTurkey" : "jolcarKazakhstan").status, "available");

@@ -4011,7 +4011,7 @@
       "title": "Activate Jolmod Kazakhstan market with trusted Turkey/Kazakhstan isolation",
       "priority": "P0",
       "type": "implementation",
-      "status": "in_progress",
+      "status": "completed_local",
       "release_gate": true,
       "dependencies": ["JLC-0101", "JLC-0102", "JLC-0103", "JLC-0107"],
       "requires_user_authorization": false,
@@ -4027,7 +4027,7 @@
         "Russian, Kazakh, English, and Simplified Chinese launch surfaces contain no Turkish fallback/copy"
       ],
       "verification": ["market profile tests", "KZ/TR read isolation matrix", "seller payload spoofing matrix", "RU/KK/EN/zh-CN UI and SEO review", "typecheck", "lint"],
-      "evidence": "2026-10-21 source audit after the owner product decision established Jolmod Kazakhstan with Russian default/fallback, Kazakh, English, and Simplified Chinese launch support. marketplace.cities.country_code and listings.city_id provide a canonical market signal; trusted KZ read/write isolation work is tracked separately. Historical Turkey/Yolmod data remains preserved. No production data was modified.",
+      "evidence": "2026-11-03: completed local reconciliation. The active Jolmod profile is Kazakhstan/KZT with Russian default/fallback and ru, kk, en, zh-CN launch locales; Turkey remains an independently addressable planned Yolmod/TRY profile. `test:jlc-0107`, `test:jlc-1304`, `test:i18n-foundation`, and `test:jlc-1201` verify market-profile, locale, and KZ SEO routing behavior. Local Docker matrices `test:jlc-0521` and `test:jlc-0522` verify KZ-only public projections/search/detail plus KZ/KZT seller-write enforcement while preserving historical TR rows. `typecheck`, `lint`, `build`, and `git diff --check` passed; the unchanged SafeImage advisory remains. No production data was modified.",
       "notes": "Do not deploy or unpause until every criterion has objective Preview/runtime evidence. Preserve all historical TR rows. The market must not be activated through a frontend-only filter; language selection changes presentation only, never KZ market identity."
     },
     {
