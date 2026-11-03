@@ -73,7 +73,7 @@ assert.doesNotMatch(editAdmin, /\bDROP TABLE\b|\bTRUNCATE\b|\bDELETE FROM\b/i);
 
 // The seller UI uses the protected V2 application route for every non-legacy
 // category/purpose combination; trailers deliberately omit engine/mileage.
-assert.match(wizard, /usesV2Create \? "\/api\/listings\/v2" : "\/api\/listings"/);
+assert.match(wizard, /usesV2Contract \? "\/api\/listings\/v2" : "\/api\/listings"/);
 assert.match(wizard, /vehicleCategories\.map/);
 assert.match(wizard, /listingPurposes\.map/);
 assert.match(wizard, /isTrailer \? null : state\.mileageKm/);

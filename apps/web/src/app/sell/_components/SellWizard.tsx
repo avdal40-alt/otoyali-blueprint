@@ -228,6 +228,8 @@ export function SellWizard({
   const [vehicleCategory, setVehicleCategory] = useState<VehicleCategory>("passenger_car");
   const [listingPurpose, setListingPurpose] = useState<ListingPurpose>("sale");
   const [v2Fields, setV2Fields] = useState<VehicleMarketplaceV2Fields>(initialV2Fields);
+  const [isV2Edit, setIsV2Edit] = useState(false);
+  const [persistedCityId, setPersistedCityId] = useState<string | null>(null);
   const [profile, setProfile] = useState<SellerProfileState | null>(null);
   const [sellerContacts, setSellerContacts] = useState<SellerContact[]>([]);
   const [sellerContactId, setSellerContactId] = useState("");
@@ -278,7 +280,7 @@ export function SellWizard({
     modelRequestGuard.current.setTarget(modelRequestContextKey);
   }
   const sell03 = copy;
-  const usesV2Create = vehicleCategory !== "passenger_car" || listingPurpose !== "sale";
+  const usesV2Contract = isV2Edit || vehicleCategory !== "passenger_car" || listingPurpose !== "sale";
   const isTrailer = vehicleCategory === "trailer";
   const requiresCatalog = vehicleCategory === "passenger_car";
   const updateV2 = <K extends keyof VehicleMarketplaceV2Fields>(key: K, value: VehicleMarketplaceV2Fields[K]) => setV2Fields((current) => ({ ...current, [key]: value }));
@@ -363,6 +365,9 @@ export function SellWizard({
     setExistingQualityScore(null);
     setRejectionReason("");
     setCreateDraftBaseline(null);
+    setIsV2Edit(false);
+    setPersistedCityId(null);
+    setV2Fields(initialV2Fields);
 
     async function checkAuth() {
       if (!hasSupabaseEnv()) {
@@ -423,10 +428,37 @@ export function SellWizard({
         const edit = editData as {
           listing: Record<string, unknown>;
           vehicle: Record<string, unknown>;
+          details?: Record<string, unknown>;
           media: ExistingMedia[];
         };
         const listing = edit.listing;
         const vehicle = edit.vehicle;
+        const details = (edit.details && typeof edit.details === "object" ? edit.details : {}) as Record<string, unknown>;
+        const loadedCategory = vehicleCategories.includes(listing.vehicle_category as VehicleCategory)
+          ? listing.vehicle_category as VehicleCategory : "passenger_car";
+        const loadedPurpose = listingPurposes.includes(listing.listing_purpose as ListingPurpose)
+          ? listing.listing_purpose as ListingPurpose : "sale";
+        const isV2 = listing.v2_edit === true;
+        setIsV2Edit(isV2);
+        setVehicleCategory(loadedCategory);
+        setListingPurpose(loadedPurpose);
+        setPersistedCityId(typeof listing.city_id === "string" ? listing.city_id : null);
+        setV2Fields({
+          rentalPricePerDay: String(listing.rental_price_per_day ?? ""),
+          rentalPricePerMonth: String(listing.rental_price_per_month ?? ""),
+          minimumRentalDays: String(listing.minimum_rental_days ?? ""),
+          securityDepositAmount: String(listing.security_deposit_amount ?? ""),
+          withDriverOrOperator: Boolean(listing.with_driver_or_operator),
+          truckBodyType: String(details.truck_body_type ?? ""),
+          busType: String(details.bus_type ?? ""),
+          trailerType: String(details.trailer_type ?? ""),
+          machineryType: String(details.machinery_type ?? ""),
+          payloadCapacityKg: String(details.payload_capacity_kg ?? ""),
+          grossWeightKg: String(details.gross_weight_kg ?? ""),
+          axleCount: String(details.axle_count ?? ""),
+          seatCount: String(details.seat_count ?? ""),
+          operatingHours: String(details.operating_hours ?? "")
+        });
         const selectedContact = typeof listing.seller_contact_phone_id === "string" ? listing.seller_contact_phone_id : null;
         setPersistedSellerContactPhoneId(selectedContact);
         setSelectedSellerContactPhoneId(selectedContact ?? "");
@@ -574,7 +606,7 @@ export function SellWizard({
   // The database derives Jolmod market identity from the canonical city row.
   // Keep the human-readable selector for the UI, but submit its catalog UUID
   // through the protected draft boundary so the KZ city/KZT trigger can verify it.
-  const selectedCityId = (cities ?? []).find((city) => city.city_name?.trim() === state.city)?.city_id ?? null;
+  const selectedCityId = (cities ?? []).find((city) => city.city_name?.trim() === state.city)?.city_id ?? persistedCityId;
   const generatedTitle = generateVehicleListingTitle({
     makeName: selectedMake?.make_name,
     modelName: selectedModel?.make_id === state.makeId ? selectedModel.model_name : null,
@@ -809,7 +841,7 @@ export function SellWizard({
       return;
     }
 
-    const validation = usesV2Create
+    const validation = usesV2Contract
       ? validateVehicleMarketplaceV2Step(step, state, vehicleCategory, listingPurpose, v2Fields, sell03)
       : validateStep(step, state, sell03);
     if (validation) {
@@ -835,7 +867,9 @@ export function SellWizard({
       setError(sell03.listingUnavailable);
       return;
     }
-    const validation = validateForPublish(state, sell03);
+    const validation = usesV2Contract
+      ? validateVehicleMarketplaceV2ForPublish(state, vehicleCategory, listingPurpose, v2Fields, sell03)
+      : validateForPublish(state, sell03);
     if (validation) {
       setError(validation);
       return;
@@ -876,7 +910,34 @@ export function SellWizard({
       priceNegotiable: raw("priceNegotiable", state.priceNegotiable),
       city: raw("city", state.city)
     };
-    const saveResult = await listingWriteRequest<Record<string, unknown>>(supabase, `/api/listings/${editListingId}`, "PATCH", {
+    const v2EditPayload = {
+      vehicleCategory, listingPurpose,
+      expectedListingUpdatedAt: expectedUpdatedAt, expectedVehicleUpdatedAt: expectedVehicleUpdatedAt,
+      makeId: state.makeId || null, modelId: state.modelId || null, variantId: null,
+      year: Number(state.year), mileageKm: isTrailer ? null : state.mileageKm ? Number(state.mileageKm) : null,
+      condition: state.condition, fuelType: isTrailer ? null : state.fuelType || null,
+      transmission: isTrailer ? null : state.transmission || null,
+      bodyType: state.bodyType || null, driveType: state.driveType || null, color: state.color || null,
+      engineVolumeL: isTrailer || !state.engineVolumeL || state.fuelType === "electric" ? null : Number(state.engineVolumeL),
+      description: state.description || null, priceAmount: listingPurpose === "sale" ? state.priceAmount : null,
+      currency: "KZT", priceNegotiable: state.priceNegotiable, city: state.city, cityId: selectedCityId, districtId: null,
+      sellerContactPhoneId: sellerContactId,
+      rentalPricePerDay: listingPurpose === "rent" ? v2Fields.rentalPricePerDay : null,
+      rentalPricePerMonth: listingPurpose === "rent" ? v2Fields.rentalPricePerMonth || null : null,
+      minimumRentalDays: listingPurpose === "rent" && v2Fields.minimumRentalDays ? Number(v2Fields.minimumRentalDays) : null,
+      securityDepositAmount: listingPurpose === "rent" ? v2Fields.securityDepositAmount || null : null,
+      withDriverOrOperator: listingPurpose === "rent" ? v2Fields.withDriverOrOperator : null,
+      truckBodyType: vehicleCategory === "truck" ? v2Fields.truckBodyType || null : null,
+      busType: vehicleCategory === "bus" ? v2Fields.busType || null : null,
+      trailerType: vehicleCategory === "trailer" ? v2Fields.trailerType || null : null,
+      machineryType: vehicleCategory === "special_machinery" ? v2Fields.machineryType || null : null,
+      payloadCapacityKg: ["truck", "trailer"].includes(vehicleCategory) && v2Fields.payloadCapacityKg ? Number(v2Fields.payloadCapacityKg) : null,
+      grossWeightKg: ["truck", "trailer"].includes(vehicleCategory) && v2Fields.grossWeightKg ? Number(v2Fields.grossWeightKg) : null,
+      axleCount: ["truck", "trailer"].includes(vehicleCategory) && v2Fields.axleCount ? Number(v2Fields.axleCount) : null,
+      seatCount: vehicleCategory === "bus" && v2Fields.seatCount ? Number(v2Fields.seatCount) : null,
+      operatingHours: vehicleCategory === "special_machinery" && v2Fields.operatingHours ? Number(v2Fields.operatingHours) : null
+    };
+    const legacyEditPayload = {
       expectedListingUpdatedAt: expectedUpdatedAt,
       expectedVehicleUpdatedAt: expectedVehicleUpdatedAt,
       makeId: raw("makeId", state.makeId), modelId: raw("modelId", state.modelId),
@@ -888,7 +949,8 @@ export function SellWizard({
       ownerCount: (() => { const value = raw("ownerCount", state.ownerCount || null); return value == null ? null : Number(value); })(),
       description: raw("description", state.description), priceAmount: raw("priceAmount", state.priceAmount),
       currency: raw("currency", state.currency), priceNegotiable: raw("priceNegotiable", state.priceNegotiable), city: raw("city", state.city)
-    });
+    };
+    const saveResult = await listingWriteRequest<Record<string, unknown>>(supabase, usesV2Contract ? `/api/listings/v2?listingId=${editListingId}` : `/api/listings/${editListingId}`, "PATCH", usesV2Contract ? v2EditPayload : legacyEditPayload);
     if (!isCurrentSubmission()) return;
     if (saveResult.error || !saveResult.data) {
       logClientError("sell.saveRejected", saveResult.error);
@@ -976,7 +1038,7 @@ export function SellWizard({
       return;
     }
 
-    const validation = usesV2Create
+    const validation = usesV2Contract
       ? validateVehicleMarketplaceV2ForPublish(state, vehicleCategory, listingPurpose, v2Fields, sell03)
       : validateForPublish(state, sell03);
     if (validation) {
@@ -1005,7 +1067,7 @@ export function SellWizard({
     let draft = activeCreateDraft.current;
     if (!draft) {
       setPublishStatus(copy.creatingVehicleProfile);
-      const createPayload = usesV2Create ? {
+      const createPayload = usesV2Contract ? {
         vehicleCategory, listingPurpose,
         makeId: state.makeId || null, modelId: state.modelId || null, variantId: null,
         year: Number(state.year), mileageKm: isTrailer ? null : state.mileageKm ? Number(state.mileageKm) : null,
@@ -1037,7 +1099,7 @@ export function SellWizard({
         ownerCount: state.ownerCount ? Number(state.ownerCount) : null, description: state.description, priceAmount: state.priceAmount,
         currency: state.currency, priceNegotiable: state.priceNegotiable, city: state.city, cityId: selectedCityId, districtId: null, sellerContactPhoneId: sellerContactId
       };
-      const createResult = await listingWriteRequest<ActiveCreateDraft>(getSupabaseBrowserClient(), usesV2Create ? "/api/listings/v2" : "/api/listings", "POST", createPayload);
+      const createResult = await listingWriteRequest<ActiveCreateDraft>(getSupabaseBrowserClient(), usesV2Contract ? "/api/listings/v2" : "/api/listings", "POST", createPayload);
       if (!isCurrentPublication()) return;
       if (createResult.error || !createResult.data) {
         logClientError("sell.createDraft", createResult.error);
@@ -1280,6 +1342,13 @@ export function SellWizard({
                   {listingPurposes.map((purpose) => <option key={purpose} value={purpose}>{listingPurposeLabel(purpose, locale)}</option>)}
                 </Select>
               </Field>
+            </> : isV2Edit ? <>
+              <Field label={vehicleMarketplaceV2Copy("vehicleCategory", locale)}>
+                <p className="rounded-md bg-oto-surface px-3 py-2 text-sm font-bold text-oto-text">{vehicleCategoryLabel(vehicleCategory, locale)}</p>
+              </Field>
+              <Field label={vehicleMarketplaceV2Copy("listingPurpose", locale)}>
+                <p className="rounded-md bg-oto-surface px-3 py-2 text-sm font-bold text-oto-text">{listingPurposeLabel(listingPurpose, locale)}</p>
+              </Field>
             </> : null}
             <Field label={copy.make}>
               <Select value={state.makeId} onChange={(event) => updateMake(event.target.value)}>
@@ -1513,7 +1582,7 @@ export function SellWizard({
             </div>
             <div className="grid gap-3 p-4">
               <h2 className="text-xl font-black text-oto-text" data-title-generated={mode === "editRejected" ? existingTitleGenerated : true}>{displayTitle || copy.listingTitleFallback}</h2>
-              <p className="text-2xl font-black text-oto-text">{usesV2Create ? formatListingPurposePrice({ listing_purpose: listingPurpose, price_amount: state.priceAmount ? Number(state.priceAmount) : null, rental_price_per_day: v2Fields.rentalPricePerDay ? Number(v2Fields.rentalPricePerDay) : null, currency: "KZT" }, locale) : formatPrice(Number(state.priceAmount || 0), state.currency, locale)}</p>
+              <p className="text-2xl font-black text-oto-text">{usesV2Contract ? formatListingPurposePrice({ listing_purpose: listingPurpose, price_amount: state.priceAmount ? Number(state.priceAmount) : null, rental_price_per_day: v2Fields.rentalPricePerDay ? Number(v2Fields.rentalPricePerDay) : null, currency: "KZT" }, locale) : formatPrice(Number(state.priceAmount || 0), state.currency, locale)}</p>
               <p className="text-sm font-semibold text-oto-muted">
                 {cityLabel(state.city, locale)} · {formatMileage(Number(state.mileageKm || 0), locale)} · {fuelLabel(state.fuelType, locale)} · {transmissionLabel(state.transmission, locale)} · {sellerTypeLabel(profile?.sellerType ?? state.sellerType, locale)}
               </p>
