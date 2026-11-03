@@ -103,9 +103,20 @@ export default async function ServiceProviderPage({ params }: PageProps) {
             <ButtonLink href={localizePath("/ai-asistan", locale)} variant="secondary">
               {t(locale, "services.rif.cta")}
             </ButtonLink>
-            <span className="inline-flex h-11 items-center rounded-button border border-oto-border bg-oto-surface px-4 text-sm font-black text-oto-muted">
-              {t(locale, "services.contact.requestSoon")}
-            </span>
+            {provider.website_url ? (
+              <a
+                href={provider.website_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-11 items-center rounded-button border border-oto-border bg-oto-surface px-4 text-sm font-black text-oto-text transition hover:border-oto-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oto-blue/20"
+              >
+                {t(locale, "services.contact.visitWebsite")}
+              </a>
+            ) : (
+              <span className="inline-flex h-11 items-center rounded-button border border-oto-border bg-oto-surface px-4 text-sm font-black text-oto-muted">
+                {t(locale, "services.contact.unavailable")}
+              </span>
+            )}
           </div>
           <p className="mt-4 text-xs font-semibold leading-5 text-oto-muted">{t(locale, "services.provider.trustDisclaimer")}</p>
         </section>

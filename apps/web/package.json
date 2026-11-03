@@ -283,7 +283,8 @@
     "test:vehicle-marketplace-v2-dealer-import": "node scripts/vehicle-marketplace-v2-dealer-import.test.cjs",
     "test:vehicle-marketplace-v2-edit": "node scripts/vehicle-marketplace-v2-edit.test.cjs",
     "test:vehicle-marketplace-v2-runtime": "node scripts/vehicle-marketplace-v2-runtime.test.cjs",
-    "test:jlc-1602-parts-marketplace": "node scripts/jlc-1602-parts-marketplace.test.cjs"
+    "test:jlc-1602-parts-marketplace": "node scripts/jlc-1602-parts-marketplace.test.cjs",
+    "test:jlc-1603-services-marketplace": "node scripts/jlc-1603-services-marketplace.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
