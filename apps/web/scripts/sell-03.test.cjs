@@ -7,12 +7,14 @@ const repoRoot = path.resolve(projectRoot, "..", "..");
 const read = (...parts) => fs.readFileSync(path.join(...parts), "utf8");
 const migration = read(repoRoot, "supabase", "migrations", "20260724120000_sell03_rejected_listing_editing.sql");
 const wizard = read(projectRoot, "src", "app", "sell", "_components", "SellWizard.tsx");
+const wizardLoader = read(projectRoot, "src", "app", "sell", "_components", "SellWizardLoader.tsx");
 const page = read(projectRoot, "src", "app", "sell", "page.tsx");
 const listings = read(projectRoot, "src", "app", "profile", "listings", "_components", "MyListingsClient.tsx");
 const security = read(repoRoot, "supabase", "migrations", "20260721140000_security01_listing_lifecycle_hardening.sql");
 const tr = read(projectRoot, "src", "i18n", "dictionaries", "tr.ts");
 const en = read(projectRoot, "src", "i18n", "dictionaries", "en.ts");
 const sellCopy = read(projectRoot, "src", "app", "sell", "sell-copy.ts");
+const sellWizardDictionary = read(projectRoot, "src", "i18n", "dictionaries", "sell-wizard.ts");
 const editRoute = read(projectRoot, "src", "app", "api", "listings", "[id]", "route.ts");
 const resubmitRoute = read(projectRoot, "src", "app", "api", "listings", "[id]", "resubmit", "route.ts");
 
@@ -28,8 +30,13 @@ includesAll(page, [
   "getSellEditTarget(resolvedSearchParams)",
   'editTarget.kind === "invalid"',
   'editTarget.kind === "edit" ? (',
-  '<SellWizard mode="editRejected" editListingId={editTarget.listingId}',
+  '<SellWizardLoader mode="editRejected" editListingId={editTarget.listingId}',
   "editTarget.listingId"
+]);
+includesAll(wizardLoader, [
+  'lazy(() => import("./SellWizard")',
+  "<Suspense",
+  "<SellWizard {...props} />"
 ]);
 includesAll(listings, ["`/sell?edit=${item.id}`", "copy.editRejected"]);
 excludesAll(listings, ["Tekrar düzenle", "Tekrar düzenle · Yakında"]);
@@ -86,7 +93,6 @@ const resubmitEnd = migration.indexOf("$$;", resubmitStart) + 3;
 const resubmit = migration.slice(resubmitStart, resubmitEnd);
 assert.ok(resubmitStart >= 0, "Hardened resubmit replacement must exist");
 includesAll(resubmit, [
-  "RETURNS TABLE (\n  listing_id UUID,\n  status TEXT,\n  moderation_status TEXT",
   "v_user_id UUID := auth.uid()",
   "FROM marketplace.listings AS l",
   "v_listing.archived_at IS NOT NULL",
@@ -104,6 +110,8 @@ includesAll(resubmit, [
   "moderated_by = NULL",
   "moderated_at = NULL"
 ]);
+assert.match(resubmit, /RETURNS TABLE \(\s+listing_id UUID,\s+status TEXT,\s+moderation_status TEXT\s+\)/,
+  "Resubmit must return the canonical listing lifecycle result shape");
 assert.equal((migration.match(/CREATE OR REPLACE FUNCTION public\.resubmit_own_listing_for_review\(/g) ?? []).length, 1, "No resubmit overload");
 assert.equal((resubmit.match(/FOR UPDATE/g) ?? []).length, 3, "Resubmit locks listing, vehicle, and ownership");
 assert.ok(resubmit.indexOf("FROM marketplace.listings AS l") < resubmit.indexOf("FROM vehicle.vehicle_profiles AS vp"));
@@ -154,7 +162,7 @@ includesAll(security, [
 includesAll(wizard, [
   'export type SellWizardMode = "create" | "editRejected"',
   'supabase.rpc("get_own_listing_for_edit"',
-  'listingWriteRequest<Record<string, unknown>>(supabase, `/api/listings/${editListingId}`, "PATCH"',
+  'listingWriteRequest<Record<string, unknown>>(supabase, usesV2Contract ? `/api/listings/v2?listingId=${editListingId}` : `/api/listings/${editListingId}`, "PATCH", usesV2Contract ? v2EditPayload : legacyEditPayload)',
   'listingWriteRequest(supabase, `/api/listings/${editListingId}/resubmit`, "POST", {})',
   "if (saveResult.error || !saveResult.data)",
   "if (sendForReview)",
@@ -162,7 +170,7 @@ includesAll(wizard, [
   'setEditSaved("pending_review")',
   'key === "fuelType" && value === "electric" ? { engineVolumeL: "" }',
   'state.fuelType !== "electric"',
-  'engineVolumeL: submittedSnapshot.engineVolumeL',
+  'engineVolumeL: normalizeEditEngineVolume(state.fuelType, submittedSnapshot.engineVolumeL)',
   "originalEditSnapshot",
   "dirtyEditFields",
   "expectedVehicleUpdatedAt: expectedVehicleUpdatedAt",
@@ -208,7 +216,7 @@ assert.ok(
   "A failed save must stop before resubmit"
 );
 assert.ok(
-  wizard.indexOf('listingWriteRequest<Record<string, unknown>>(supabase, `/api/listings/${editListingId}`, "PATCH"') < wizard.indexOf('listingWriteRequest(supabase, `/api/listings/${editListingId}/resubmit`, "POST", {})'),
+  wizard.indexOf('const saveResult = await listingWriteRequest<Record<string, unknown>>') < wizard.indexOf('const resubmitResult = await listingWriteRequest(supabase, `/api/listings/${editListingId}/resubmit`, "POST", {})'),
   "Save must precede resubmit"
 );
 includesAll(editRoute, ['save_own_rejected_listing', 'requireAuthenticatedRequestSupabase']);
@@ -282,10 +290,11 @@ for (const key of [
   "rejectionReasonHeading", "mediaPreserved", "electricDisplacement",
   "existingPhotoAlt", "existingCoverPhoto", "existingPhoto"
 ]) {
-  assert.ok(sellCopy.includes(`${key}:`), `SELL-03 localized copy key missing: ${key}`);
+  assert.ok(sellWizardDictionary.includes(`${key}:`), `SELL-03 localized copy key missing: ${key}`);
 }
-assert.ok(sellCopy.includes("Photo editing is not currently available in this edit flow."));
-assert.ok(sellCopy.includes("fotoğraf düzenleme şu anda kullanılamıyor."));
+assert.ok(sellCopy.includes('from "@/i18n/dictionaries/sell-wizard"'), "Sell copy compatibility facade must use the canonical dictionary boundary");
+assert.ok(sellWizardDictionary.includes("Photo editing is not currently available in this edit flow."));
+assert.ok(sellWizardDictionary.includes("fotoğraf düzenleme şu anda kullanılamıyor."));
 assert.ok(en.includes("editRejected:"), "English rejected edit link key missing");
 assert.ok(tr.includes("editRejected:"), "Turkish rejected edit link key missing");
 

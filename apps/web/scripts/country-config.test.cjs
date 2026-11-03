@@ -39,7 +39,9 @@ assert.match(sellWizardSource, /timezone: profile\?\.timezone \?\? CURRENT_MARKE
 assert.doesNotMatch(sellWizardSource, /country: profile\?\.country \?\? "TR"|timezone: profile\?\.timezone \?\? "Europe\/Istanbul"/);
 assert.match(sellWizardSource, /const fallbackCityOptions = \[\.\.\.getPreferredCityNames\(\)\];/);
 assert.match(sellWizardSource, /const defaultCity = fallbackCityOptions\[0\] \?\? "";/);
-assert.match(sellWizardSource, /const selectedCityId = \(cities \?\? \[\]\)\.find\(\(city\) => city\.city_name\?\.trim\(\) === state\.city\)\?\.city_id \?\? null;/, "seller create requests must resolve the selected canonical city UUID");
+assert.match(sellWizardSource, /const \[persistedCityId, setPersistedCityId\] = useState<string \| null>\(null\);/, "listing edit hydration must retain its canonical city UUID");
+assert.match(sellWizardSource, /setPersistedCityId\(typeof listing\.city_id === "string" \? listing\.city_id : null\);/, "listing edit hydration must capture its canonical city UUID");
+assert.match(sellWizardSource, /const selectedCityId = \(cities \?\? \[\]\)\.find\(\(city\) => city\.city_name\?\.trim\(\) === state\.city\)\?\.city_id \?\? persistedCityId;/, "seller writes must resolve the selected catalog city UUID and preserve a hydrated edit UUID when the catalog row is unavailable");
 assert.match(sellWizardSource, /city: state\.city, cityId: selectedCityId, districtId: null, sellerContactPhoneId: sellerContactId/, "seller create requests must forward the selected canonical city UUID");
 assert.doesNotMatch(sellWizardSource, /İstanbul|Ankara|İzmir|Antalya/);
 assert.match(profileClientSource, /const fallbackCities = \[\.\.\.getPreferredCityNames\(\)\];/);

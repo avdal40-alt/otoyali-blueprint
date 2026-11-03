@@ -4031,11 +4031,11 @@
       "notes": "Do not deploy or unpause until every criterion has objective Preview/runtime evidence. Preserve all historical TR rows. The market must not be activated through a frontend-only filter; language selection changes presentation only, never KZ market identity."
     },
     {
-      "id": "JLC-1601", "order": 148, "phase": "P16-FULL-WEB-PRELAUNCH", "title": "Reconcile baseline stale regression assertions", "priority": "P0", "type": "testing", "status": "in_progress", "release_gate": true,
+      "id": "JLC-1601", "order": 148, "phase": "P16-FULL-WEB-PRELAUNCH", "title": "Reconcile baseline stale regression assertions", "priority": "P0", "type": "testing", "status": "completed_local", "release_gate": true,
       "dependencies": ["JLC-A005"], "requires_user_authorization": false, "requires_user_decision": false, "decision_ref": "JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03",
       "description": "Reconcile the known stale test:sell-03 lazy-loader source-pattern assertion and test:country-config SellWizard source-pattern assertion against the intended product contract. Do not suppress a real regression.",
       "acceptance_criteria": ["Each stale assertion is replaced by an executable current-contract assertion or a real implementation failure is fixed", "No test is weakened merely to pass"], "verification": ["test:sell-03", "test:country-config", "targeted typecheck"],
-      "evidence": "Owner decision 2026-11-03 identifies these two assertions as known pre-existing stale baseline regressions.", "notes": "Priority 2 after remaining Vehicle Marketplace V2 work."
+      "evidence": "2026-11-03: verified both known failures were stale source-shape assertions, not product regressions. `test:sell-03` now asserts the lazy `SellWizardLoader` boundary, supported legacy/V2 rejected-edit write route, normalized edit displacement, and canonical dictionary boundary. `test:country-config` now asserts selected canonical-city resolution plus the V2 edit-hydration fallback that preserves `listing.city_id` when its catalog row is unavailable. `npm run test:sell-03`, `npm run test:country-config`, typecheck, lint, build, and `git diff --check` passed locally.", "notes": "Completed after Vehicle Marketplace V2."
     },
     {
       "id": "JLC-1602", "order": 149, "phase": "P16-FULL-WEB-PRELAUNCH", "title": "Complete evidenced parts marketplace web vertical", "priority": "P1", "type": "implementation", "status": "in_progress", "release_gate": true,
