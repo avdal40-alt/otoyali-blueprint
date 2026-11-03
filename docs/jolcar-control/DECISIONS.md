@@ -64,6 +64,7 @@ Status values:
 | D-049 | CONFIRMED | Pre-launch engineering hardening | Before final local launch readiness, Jolcar must complete distinct Performance Hardening and Production Engineering Hardening phases with measurable gates. | PostgreSQL remains the current source of truth and the Next.js/TypeScript web stack remains valid. Do not add microservices, NestJS, Redis, OpenSearch, Kafka, Kubernetes, or a full AWS migration solely for appearance; add infrastructure only when architecture or measured load justifies it. Optimization is baseline → change → re-measure and may not weaken security, RLS, accessibility, SEO, or correctness. Production remains untouched without explicit authorization. |
 | D-050 | CONFIRMED | AI provider/model/cost | OpenAI is the initial production AI provider, behind the existing server-side provider-neutral AI adapter. The default model is `gpt-6-luna`; `gpt-6.1-sol` requires an explicit feature flag or task-level routing policy and measured quality justification. | Credentials remain server-only; no browser-to-provider call. Standard service tier is default. Target limits are 8,000 input and 1,000 output tokens, 15-second timeout, and at most one transient-only retry within an approximately 25-second attempt window. Server-side cost controls warn at USD 25 and USD 40 and hard-stop provider calls at USD 50/month. Policy only: activation, billing, secrets, paid calls, and deployment remain separately authorized. |
 | D-051 | CONFIRMED | Voice/speech launch approach | MVP uses browser/native speech-to-text only as progressive enhancement; text input is mandatory and is the universal fallback. Jolcar does not add a separate paid/external speech provider or persist/upload raw voice audio for this launch flow. | Unsupported devices, denied permission, recognition errors, and platform unavailability fall back to text without failing a core workflow. The AI orchestration boundary receives text, and future native speech remains provider-neutral. No external speech vendor, secret, billing, or paid call is authorized. |
+| D-052 | CONFIRMED | Full web pre-launch scope | `JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03` supersedes older post-launch classifications for existing approved/evidenced website scope. Complete that web scope before first public launch; preserve only native iOS, native Android, and native mobile live broadcasting as deferred. | Existing completed work stays completed; manual/external provider activation stays manual and is not authorized. Insurance remains informational/lead generation only; payments, escrow, insurer activity, customer funds, seller/dealer ratings/reviews, dealer ERP/accounting/payroll, and a telephony platform remain excluded. |
 
 ## Revoked / removed directions
 
@@ -232,3 +233,27 @@ by JLC-0524’s owner-owned active verified Kazakhstan seller contact contract.
 Any new migration is local-only until a separately controlled canonical
 application. This decision authorizes neither a production deployment nor an
 unpause, provider activation, DNS change, or historical data rewrite.
+
+<!-- JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03 -->
+## Full existing web roadmap required before first public launch — 2026-11-03
+
+The owner decision `JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03` supersedes earlier
+post-launch classification for existing, approved, repository-evidenced web
+scope. The applicable scope is now a pre-launch release gate: Vehicle
+Marketplace V2; parts; services discovery/lead generation; insurance
+information/lead generation; motorcycles, marine, mobility, and any other
+already evidenced web vertical; approved personalization; dark mode; and the
+previously approved marketplace, auth, dealer, AI, trust, SEO, accessibility,
+security, operations, and local final-E2E scope.
+
+This changes no completed task and does not authorize new products. In
+particular it does not authorize payments, escrow, marketplace contracts,
+insurance binding or payment, customer funds, seller/dealer reviews or ratings,
+dealer accounting/payroll/full ERP, full telephony, native iOS/Android, or
+native mobile live broadcasting.
+
+Production remains paused. The canonical Supabase project
+`dmjifqbvbjewyigdsuco` is unchanged. Provider activation, paid resources,
+production secrets, DNS, deployment, production unpause, and canonical
+migration application remain separate manual actions and are not authorized by
+this decision.

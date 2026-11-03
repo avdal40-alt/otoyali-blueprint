@@ -2604,11 +2604,11 @@
     {
       "id": "JLC-0917",
       "order": 91,
-      "phase": "P9-DEALER-LIVE",
+      "phase": "P90-MANUAL",
       "title": "Real streaming provider integration handoff",
       "priority": "P2",
       "type": "manual_authorization",
-      "status": "backlog_post_launch",
+      "status": "blocked",
       "release_gate": false,
       "dependencies": [
         "JLC-0912",
@@ -2617,15 +2617,15 @@
       "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
-      "description": "Dealer Live / Amazon IVS is explicitly deferred from the first public Jolcar Kazakhstan MVP. Preserve the implementation and provider abstraction; revisit after launch.",
+      "description": "Manual external-provider activation boundary for the already-required Dealer Live web surface. Local adapter, fake-provider, UI, validation, and moderation work is pre-launch; production IVS activation is not authorized by this queue.",
       "acceptance_criteria": [
         "Provider approved",
         "No secret committed",
         "Production activation waits for explicit authorization"
       ],
       "verification": [],
-      "evidence": "2026-10-21 owner product decision: Dealer Live / Amazon IVS is optional post-launch work and does not gate the first public Jolcar Kazakhstan MVP. No IVS resources or secrets are required for first launch. Existing implementation and abstractions are preserved.",
-      "notes": "Deferred by product decision; no AWS action is needed for MVP."
+      "evidence": "2026-11-03 owner decision JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03 promotes existing Dealer Live web scope. No IVS resource, secret, paid usage, or production activation is authorized; the local provider-neutral implementation remains the required pre-launch boundary.",
+      "notes": "Manual/external task preserved. Production activation requires separate explicit authorization and remains blocked."
     },
     {
       "id": "JLC-0918",
@@ -2861,11 +2861,11 @@
     {
       "id": "JLC-1007",
       "order": 100,
-      "phase": "P10-AI",
+      "phase": "P90-MANUAL",
       "title": "External AI/voice provider activation handoff",
       "priority": "P2",
       "type": "manual_authorization",
-      "status": "backlog_post_launch",
+      "status": "blocked",
       "release_gate": false,
       "dependencies": [
         "JLC-D007",
@@ -2877,13 +2877,14 @@
       "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": null,
-      "description": "External AI/voice remains optional post-launch. The first marketplace MVP must operate correctly with paid external AI/voice disabled.",
+      "description": "Manual external-provider activation boundary. Provider-neutral AI and progressive browser/native speech web capabilities are pre-launch; paid provider activation, secrets, billing, and production calls are not authorized.",
       "acceptance_criteria": [
-        "Revisit only if a post-launch requirement explicitly needs paid external AI/voice"
+        "Explicit provider authorization received",
+        "No production secret or paid activation occurs without that authorization"
       ],
       "verification": [],
-      "evidence": "2026-10-21 owner product decision: JLC-1007 is optional post-launch work and does not gate the first public Jolcar Kazakhstan MVP. Paid OpenAI/voice remains disabled; no paid action is needed for the marketplace launch.",
-      "notes": "Deferred by product decision; preserve existing feature flags and graceful disabled behavior."
+      "evidence": "2026-11-03 owner decision JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03 promotes existing AI web scope while preserving this manual activation boundary. No provider activation occurred.",
+      "notes": "Manual/external task preserved. Local deterministic/provider-neutral behavior and text fallback remain launch requirements."
     },
     {
       "id": "JLC-D011",
@@ -3865,14 +3866,12 @@
       "priority": "P0",
       "type": "implementation",
       "status": "in_progress",
-      "release_gate": false,
-      "dependencies": [
-        "JLC-9005"
-      ],
+      "release_gate": true,
+      "dependencies": [],
       "requires_user_authorization": false,
       "requires_user_decision": false,
       "decision_ref": "JOLCAR_VEHICLE_MARKETPLACE_V2_2026-11-02",
-      "description": "Owner-approved V2 scope: rental purpose and truck, bus, trailer, and special-machinery categories. Parts, services, insurance, marine, motorcycles, and mobility remain deferred.",
+      "description": "Owner-approved V2 scope: rental purpose and truck, bus, trailer, and special-machinery categories. This is the first remaining pre-launch web implementation priority; related verticals are tracked by dedicated promoted tasks.",
       "acceptance_criteria": [
         "V2 category/purpose contracts are validated through protected listing, discovery, moderation, dealer, and localization paths"
       ],
@@ -3883,12 +3882,12 @@
     {
       "id": "JLC-A006",
       "order": 142,
-      "phase": "P99-POST-LAUNCH",
+      "phase": "P16-FULL-WEB-PRELAUNCH",
       "title": "Platform-staff public navigation and seller-entry UX polish",
-      "priority": "P2",
+      "priority": "P1",
       "type": "implementation",
-      "status": "backlog_post_launch",
-      "release_gate": false,
+      "status": "in_progress",
+      "release_gate": true,
       "dependencies": [
         "JLC-0519"
       ],
@@ -3906,8 +3905,8 @@
         "desktop/mobile navigation review",
         "JLC-0519 security regression"
       ],
-      "evidence": "Deferred 2026-10-21 by product direction after post-smoke observation: an authenticated platform admin may see the public seller CTA, but /sell correctly redirects to /admin. This is UX-only and does not reopen JLC-0519.",
-      "notes": "Do not implement as an isolated cosmetic fix; address during a dedicated public/admin interface phase."
+      "evidence": "Promoted by owner decision JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03. The prior observation remains valid: /sell redirects active staff to /admin and the server/database authorization boundary is authoritative.",
+      "notes": "Address as a deliberate responsive public/admin interface phase; do not weaken JLC-0519."
     },
     {
       "id": "JLC-0520",
@@ -4030,6 +4029,48 @@
       "verification": ["market profile tests", "KZ/TR read isolation matrix", "seller payload spoofing matrix", "RU/KK/EN/zh-CN UI and SEO review", "typecheck", "lint"],
       "evidence": "2026-10-21 source audit after the owner product decision established Jolmod Kazakhstan with Russian default/fallback, Kazakh, English, and Simplified Chinese launch support. marketplace.cities.country_code and listings.city_id provide a canonical market signal; trusted KZ read/write isolation work is tracked separately. Historical Turkey/Yolmod data remains preserved. No production data was modified.",
       "notes": "Do not deploy or unpause until every criterion has objective Preview/runtime evidence. Preserve all historical TR rows. The market must not be activated through a frontend-only filter; language selection changes presentation only, never KZ market identity."
+    },
+    {
+      "id": "JLC-1601", "order": 148, "phase": "P16-FULL-WEB-PRELAUNCH", "title": "Reconcile baseline stale regression assertions", "priority": "P0", "type": "testing", "status": "in_progress", "release_gate": true,
+      "dependencies": ["JLC-A005"], "requires_user_authorization": false, "requires_user_decision": false, "decision_ref": "JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03",
+      "description": "Reconcile the known stale test:sell-03 lazy-loader source-pattern assertion and test:country-config SellWizard source-pattern assertion against the intended product contract. Do not suppress a real regression.",
+      "acceptance_criteria": ["Each stale assertion is replaced by an executable current-contract assertion or a real implementation failure is fixed", "No test is weakened merely to pass"], "verification": ["test:sell-03", "test:country-config", "targeted typecheck"],
+      "evidence": "Owner decision 2026-11-03 identifies these two assertions as known pre-existing stale baseline regressions.", "notes": "Priority 2 after remaining Vehicle Marketplace V2 work."
+    },
+    {
+      "id": "JLC-1602", "order": 149, "phase": "P16-FULL-WEB-PRELAUNCH", "title": "Complete evidenced parts marketplace web vertical", "priority": "P1", "type": "implementation", "status": "in_progress", "release_gate": true,
+      "dependencies": ["JLC-1601"], "requires_user_authorization": false, "requires_user_decision": false, "decision_ref": "JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03",
+      "description": "Promote the existing parts route, marketplace vertical/domain model, search/filter contracts, and localization into a complete secure web marketplace experience.",
+      "acceptance_criteria": ["Parts browse/search/detail and seller lifecycle use canonical authorization and moderation boundaries", "Responsive four-locale UX and relevant SEO are complete", "No payment, escrow, or unsupported commerce flow is introduced"], "verification": ["vertical contract tests", "authorization/RLS matrix where data changes", "localization and responsive QA", "typecheck"],
+      "evidence": "Existing /yedek-parca route, parts marketplace vertical, attributes, search contracts, and launch dictionaries establish approved repository evidence.", "notes": "Extend only necessary vertical-specific contracts; do not duplicate generic listing lifecycle work."
+    },
+    {
+      "id": "JLC-1603", "order": 150, "phase": "P16-FULL-WEB-PRELAUNCH", "title": "Complete evidenced automotive-services discovery web vertical", "priority": "P1", "type": "implementation", "status": "in_progress", "release_gate": true,
+      "dependencies": ["JLC-1602"], "requires_user_authorization": false, "requires_user_decision": false, "decision_ref": "JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03",
+      "description": "Promote the existing services marketplace, provider application, discovery, and moderation foundation into completed automotive-services discovery/lead generation.",
+      "acceptance_criteria": ["Provider discovery and lead/contact flow are usable and authorized", "Provider application and moderation remain owner/admin-safe", "No service booking payment, held funds, or unsupported reservation contract is introduced"], "verification": ["services contract and moderation tests", "responsive/localization QA", "typecheck"],
+      "evidence": "Existing services routes, provider domain, application workflow, admin moderation, search query, and four-locale copy establish repository evidence.", "notes": "Scope is discovery/lead generation only."
+    },
+    {
+      "id": "JLC-1604", "order": 151, "phase": "P16-FULL-WEB-PRELAUNCH", "title": "Complete evidenced insurance information and lead-generation web vertical", "priority": "P1", "type": "implementation", "status": "in_progress", "release_gate": true,
+      "dependencies": ["JLC-1603"], "requires_user_authorization": false, "requires_user_decision": false, "decision_ref": "JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03",
+      "description": "Promote the existing insurance vertical/domain model into informational and lead-generation web scope only.",
+      "acceptance_criteria": ["Insurance information and lead capture are clear, privacy-safe, localized, and responsive", "No policy binding, insurer representation, payment processing, or customer-fund handling exists"], "verification": ["vertical contract tests", "privacy and authorization review", "localization QA", "typecheck"],
+      "evidence": "Existing insurance vertical type, attributes, routes, SEO metadata, and launch dictionaries establish repository evidence.", "notes": "Provider activation or insurer integration requires separate authorization."
+    },
+    {
+      "id": "JLC-1605", "order": 152, "phase": "P16-FULL-WEB-PRELAUNCH", "title": "Complete evidenced motorcycles, marine, mobility, personalization, and dark-mode web scope", "priority": "P1", "type": "implementation", "status": "in_progress", "release_gate": true,
+      "dependencies": ["JLC-1604"], "requires_user_authorization": false, "requires_user_decision": false, "decision_ref": "JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03",
+      "description": "Complete the existing dormant motorcycles, marine, and mobility verticals plus existing roadmap-evidenced web personalization and dark-mode scope without inventing new product domains.",
+      "acceptance_criteria": ["Each evidenced vertical has its appropriate browse/search/detail/seller and moderation contract", "Existing approved personalization is complete and privacy-safe", "Dark mode is complete across supported responsive launch surfaces and locales"], "verification": ["vertical and personalization tests", "dark-mode accessibility review", "responsive four-locale QA", "typecheck"],
+      "evidence": "Existing marketplace vertical types, dormant motorcycle/marine/mobility routes and dictionary entries, service vertical applicability, home personalization copy, and JLC-0206 dark-mode readiness establish repository evidence.", "notes": "No native clients and no unsupported vehicle vertical are introduced."
+    },
+    {
+      "id": "JLC-1606", "order": 153, "phase": "P16-FULL-WEB-PRELAUNCH", "title": "Full-web local E2E and pre-launch readiness reconciliation", "priority": "P0", "type": "testing", "status": "in_progress", "release_gate": true,
+      "dependencies": ["JLC-A006", "JLC-1605", "JLC-1509"], "requires_user_authorization": false, "requires_user_decision": false, "decision_ref": "JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03",
+      "description": "Run and record the final local full-web E2E, security, performance, accessibility, and release-readiness matrix after all promoted scope is complete.",
+      "acceptance_criteria": ["Full pre-launch web scope has objective local evidence", "No unresolved release-gate task is represented as complete", "Production remains paused and canonical Supabase remains unchanged"], "verification": ["final local E2E matrix", "security/RLS regression", "performance/accessibility checks", "roadmap preflight"],
+      "evidence": "Required by owner decision 2026-11-03; no completion evidence yet.", "notes": "Separate manual provider/production activation tasks remain outside this local verification task."
     }
   ]
 }

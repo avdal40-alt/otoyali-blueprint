@@ -1,7 +1,7 @@
 # Jolcar documentation reconciliation
 
 **Status:** active governance record
-**Reviewed:** 2026-10-11
+**Reviewed:** 2026-11-03
 **Scope:** repository documentation and JLC-0001 baseline evidence, including
 the subsequent local search, raise-to-top, and seller-analytics commits
 
@@ -19,6 +19,11 @@ dependency-ordered work, and the decisions log records confirmed, revoked,
 proposal, and open decisions. Current Git and verified tests determine actual
 implementation state. No older repository prose can approve work, override a
 confirmed decision, or close an open decision.
+
+`JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03` is the current owner decision for
+launch scope. It promotes existing approved/evidenced web scope previously
+labelled post-launch into the pre-launch queue. It does not reclassify native
+clients or authorize any provider/production action.
 
 ## Documentation inventory and disposition
 

@@ -510,6 +510,11 @@ Jolcar is not public-launch ready until applicable mandatory modules pass:
 24. **Production Engineering Hardening:** domain/API boundaries, mobile API readiness, security, resilience, observability/SLOs, backup/restore, staging/release pipeline, and post-hardening E2E/security/performance regression.
 25. Final local launch-readiness package, after both hardening-phase reports/gates pass.
 26. Separately authorized production/provider/domain/deploy steps.
+27. Full existing web-roadmap reconciliation: Vehicle Marketplace V2; parts;
+    services; insurance information/lead generation; evidenced motorcycles,
+    marine, and mobility verticals; personalization; dark mode; and the
+    responsive public/admin UX phase. Provider activation remains manual and
+    is not implied by this gate.
 
 ### Hardening principles
 
@@ -534,16 +539,25 @@ Do not build without a new user decision:
 - full ERP;
 - full telephony platform.
 
-## 21. Approved future scope not required to block first public web launch unless reclassified
+## 21. Deferred scope
+
+The owner decision `JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03` promotes all
+existing, roadmap-evidenced **web** scope to pre-launch. This includes RENT;
+parts, services, and insurance lead-generation/informational scope; approved
+personalization; dark mode; and existing dormant vehicle verticals represented
+by the repository, including motorcycles, marine, and mobility. It does not
+authorize an unsupported vertical or a payment/contracting product.
+
+Only these remain outside the first public web launch:
 
 - native iOS app;
-- native Android app;
-- native mobile live broadcasting;
-- additional vehicle verticals;
-- parts/services/insurance;
-- RENT;
-- deeper personalization beyond approved matching;
-- dark mode if not completed pre-launch.
+- native Android app; and
+- native mobile live broadcasting.
+
+Provider activation is a separate manual boundary. Local adapters, feature
+flags, safe mocks, and validation may be completed before launch readiness,
+but no paid provider, secret, DNS, deployment, or production activation is
+implied by this plan.
 
 Future mobile clients must reuse the same backend/domain contracts.
 
