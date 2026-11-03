@@ -3865,7 +3865,7 @@
       "title": "Vehicle rental and commercial transport",
       "priority": "P0",
       "type": "implementation",
-      "status": "in_progress",
+      "status": "completed_local_pending_production",
       "release_gate": true,
       "dependencies": [],
       "requires_user_authorization": false,
@@ -3876,8 +3876,8 @@
         "V2 category/purpose contracts are validated through protected listing, discovery, moderation, dealer, and localization paths"
       ],
       "verification": [],
-      "evidence": null,
-      "notes": null
+      "evidence": "2026-11-03: protected V2 create/edit/UI/import contracts and a rollback-backed local Docker runtime matrix passed for all ten category/purpose combinations. The runtime matrix validates owner creation, sale/rent price separation, trailer exclusions, category-detail persistence, moderation submission, and non-owner denial. Additive migration 20261103140000 fixes the V2 draft-RPC created_at output-variable ambiguity. Canonical Supabase remains unchanged.",
+      "notes": "Controlled schema application, preview, and production runtime validation remain separately gated while production is paused."
     },
     {
       "id": "JLC-A006",

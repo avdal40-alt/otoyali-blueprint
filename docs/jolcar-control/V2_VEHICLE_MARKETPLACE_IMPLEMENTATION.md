@@ -78,23 +78,21 @@ not contact or alter canonical Supabase.
   rental price without overloading sale price, omit trailer-inapplicable engine
   chips, and show rental terms with the correct classifieds disclaimer.
 
-## Remaining V2 implementation before controlled schema application
+## Local completion evidence
 
-- **V2 edit UI:** the protected V2 save RPC and API route now exist, but the
-  seller’s existing rejected-listing editor still needs a V2-specific loader
-  and form hydration path. It must not fall back to the passenger-only edit
-  writer because that would omit category/rental terms.
-- **Moderation actions:** the staff-only moderation reader and list UI now
-  project V2 category/purpose and correct rental price semantics. A manual
-  local role-backed review of every category remains required before release.
-- **Dealer import:** the current bounded Excel importer has a
-  passenger-only required-header contract. Commercial/rental mappings must be
-  added together with a protected dealer apply boundary; no inference from
-  missing import fields is allowed.
-- **Runtime matrix:** the ten-combination create/edit/submit/resubmit/search/
-  count/favorite/saved-search/moderation/dealer evidence requires a controlled
-  non-production database with the three pending migrations applied. Canonical
-  production remains untouched.
+- V2 edit hydration and the dealer Excel-import contract are implemented by
+  the subsequent additive migrations. The protected V2 save route remains the
+  only V2 editor write boundary.
+- `20261103140000_vehicle_marketplace_v2_draft_rpc_variable_conflict.sql`
+  fixes a real protected-draft RPC failure: its output `created_at` variable
+  made the unqualified `RETURNING created_at` ambiguous. The forward-only
+  migration rebuilds only that function body with a qualified table column and
+  preserves its owner and grants.
+- `npm run test:vehicle-marketplace-v2-runtime` now executes a rollback-backed
+  local Docker matrix for all ten category/purpose combinations. It verifies
+  protected owner creation, sale/rent price separation, trailer field
+  exclusion, category-detail persistence, submission for moderation, and
+  non-owner submission denial. No local fixture survives the test.
 
 ## Verification completed locally
 
@@ -129,9 +127,11 @@ be used as evidence of V2 runtime behavior.
 
 ## Current local decision
 
-`V2_LOCAL_APPLICATION_STATUS = PARTIAL — CREATE/DISCOVERY/DETAIL/PROTECTED
-EDIT/MODERATION PROJECTION/SAVED-SEARCH WIRED; V2 EDIT UI, DEALER IMPORT, AND
-THE AUTHENTICATED TEN-COMBINATION RUNTIME MATRIX REMAIN`.
+`V2_LOCAL_APPLICATION_STATUS = COMPLETE_PENDING_CONTROLLED_SCHEMA_APPLICATION`.
+
+The V2 migration chain remains local-only. Canonical application, preview,
+and production runtime validation remain blocked by the paused production
+release process, not by local implementation.
 
 No V2 migration has been applied, no canonical data has changed, and the
 canonical project remains at **182** remote migrations.
