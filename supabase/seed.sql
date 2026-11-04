@@ -270,6 +270,7 @@ INSERT INTO marketplace.listings (
   currency,
   price_negotiable,
   city,
+  city_id,
   published_at
 )
 VALUES
@@ -279,11 +280,12 @@ VALUES
     '00000000-0000-0000-0000-000000000101',
     'active',
     '2021 BMW 320i M Sport',
-    'Bakimli, otomatik vites, dusuk kilometreli Istanbul araci.',
-    2350000,
-    'TRY',
+    'Bakimli, otomatik vites, dusuk kilometreli Almaty araci.',
+    23500000,
+    'KZT',
     TRUE,
-    'Istanbul',
+    'Almaty',
+    (SELECT id FROM marketplace.cities WHERE slug = 'kz-almaty'),
     NOW() - INTERVAL '6 days'
   ),
   (
@@ -293,10 +295,11 @@ VALUES
     'active',
     '2020 Mercedes-Benz C 200d AMG',
     'Yetkili servis bakimli, dizel otomatik, temiz aile araci.',
-    2650000,
-    'TRY',
+    26500000,
+    'KZT',
     TRUE,
-    'Ankara',
+    'Astana',
+    (SELECT id FROM marketplace.cities WHERE slug = 'kz-astana'),
     NOW() - INTERVAL '5 days'
   ),
   (
@@ -306,10 +309,11 @@ VALUES
     'active',
     '2019 Audi A3 Sportback',
     'Sehir ici kullanim icin ideal, otomatik, benzinli hatchback.',
-    1450000,
-    'TRY',
+    14500000,
+    'KZT',
     TRUE,
-    'Izmir',
+    'Shymkent',
+    (SELECT id FROM marketplace.cities WHERE slug = 'kz-shymkent'),
     NOW() - INTERVAL '4 days'
   ),
   (
@@ -319,10 +323,11 @@ VALUES
     'active',
     '2022 Toyota Corolla Hybrid Flame X-Pack',
     'Ekonomik hybrid, hatasiz, servis kayitli.',
-    1585000,
-    'TRY',
+    15850000,
+    'KZT',
     FALSE,
-    'Antalya',
+    'Aktobe',
+    (SELECT id FROM marketplace.cities WHERE slug = 'kz-aktobe'),
     NOW() - INTERVAL '3 days'
   ),
   (
@@ -332,10 +337,11 @@ VALUES
     'active',
     '2021 Hyundai Tucson Elite Plus',
     'Genis aile SUV, dizel otomatik, zengin donanim.',
-    1925000,
-    'TRY',
+    19250000,
+    'KZT',
     TRUE,
-    'Istanbul',
+    'Semey',
+    (SELECT id FROM marketplace.cities WHERE slug = 'kz-semey'),
     NOW() - INTERVAL '2 days'
   ),
   (
@@ -345,10 +351,11 @@ VALUES
     'active',
     '2023 Tesla Model 3 Long Range',
     'Elektrikli, dusuk kilometreli, cam tavanli Long Range.',
-    2890000,
-    'TRY',
+    28900000,
+    'KZT',
     TRUE,
-    'Ankara',
+    'Qonaev',
+    (SELECT id FROM marketplace.cities WHERE slug = 'kz-qonaev'),
     NOW() - INTERVAL '1 day'
   )
 ON CONFLICT (id) DO UPDATE
@@ -362,6 +369,7 @@ SET
   currency = EXCLUDED.currency,
   price_negotiable = EXCLUDED.price_negotiable,
   city = EXCLUDED.city,
+  city_id = EXCLUDED.city_id,
   published_at = EXCLUDED.published_at;
 
 COMMIT;
