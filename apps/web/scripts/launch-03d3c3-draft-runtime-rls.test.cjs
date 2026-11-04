@@ -6,6 +6,7 @@ const container = "supabase_db_Otoyali-blueprint";
 const run = randomUUID();
 const userA = randomUUID();
 const userB = randomUUID();
+const contactA = randomUUID();
 let listingId;
 
 function sql(statement, allowFailure = false) {
@@ -37,9 +38,10 @@ try {
     ('${userB}', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'launch03d3c3-b-${run}@local.test', '', now(), '{"provider":"email","providers":["email"]}', '{}', false, false, now(), now());
     UPDATE public.profiles SET full_name='LOCAL RLS USER A', display_name='LOCAL RLS USER A', seller_type='private', city='Almaty' WHERE id='${userA}';
     UPDATE public.profiles SET full_name='LOCAL RLS USER B', display_name='LOCAL RLS USER B', seller_type='private', city='Almaty' WHERE id='${userB}';
-    INSERT INTO identity.seller_phone_verifications (user_id, phone_e164) VALUES ('${userA}', '+905550000001');`);
+    INSERT INTO identity.verified_seller_contact_phones (id, user_id, phone_e164, verified_at, verification_source, is_current_account_phone, is_active)
+    VALUES ('${contactA}', '${userA}', '+77700000001', now(), 'seller_otp', TRUE, TRUE);`);
 
-  listingId = value(asUser(userA, `SELECT listing_id FROM public.create_own_private_listing_draft('${makeId}'::uuid, '${modelId}'::uuid, NULL::uuid, 2021::smallint, 1000::integer, 'used'::text, 'gasoline'::vehicle.fuel_type, 'automatic'::vehicle.transmission_type, 'sedan'::text, 'front'::text, 'LOCAL TEST'::text, 1.6::numeric, 'unknown'::text, 1::smallint, 'LOCAL_RLS_RUNTIME_${run}'::text, '1000000'::text, 'KZT'::text, false, 'Almaty'::text, '${kzCityId}'::uuid, NULL::uuid)`));
+  listingId = value(asUser(userA, `SELECT listing_id FROM public.create_own_listing_draft_v2('${makeId}'::uuid, '${modelId}'::uuid, NULL::uuid, 2021::smallint, 1000::integer, 'used'::text, 'gasoline'::vehicle.fuel_type, 'automatic'::vehicle.transmission_type, 'sedan'::text, 'front'::text, 'LOCAL TEST'::text, 1.6::numeric, 'unknown'::text, 1::smallint, 'LOCAL_RLS_RUNTIME_${run}'::text, '1000000'::text, 'KZT'::text, false, 'Almaty'::text, '${contactA}'::uuid, '${kzCityId}'::uuid, NULL::uuid)`));
   assert.match(listingId, /^[0-9a-f-]{36}$/i, "owner draft creation must return an id");
 
   let state = sql(`SELECT seller_id || '|' || status || '|' || moderation_status || '|' || coalesce(published_at::text,'') FROM marketplace.listings WHERE id='${listingId}'`).split("|");
@@ -74,5 +76,5 @@ try {
 
   console.log("LAUNCH-03D3C3 local draft runtime/RLS: PASS");
 } finally {
-  sql(`DELETE FROM marketplace.listings WHERE seller_id IN ('${userA}','${userB}'); DELETE FROM vehicle.profile_ownership WHERE owner_id IN ('${userA}','${userB}'); DELETE FROM vehicle.vehicle_profiles WHERE created_by IN ('${userA}','${userB}'); DELETE FROM identity.seller_phone_verifications WHERE user_id IN ('${userA}','${userB}'); DELETE FROM public.profiles WHERE id IN ('${userA}','${userB}'); DELETE FROM auth.users WHERE id IN ('${userA}','${userB}')`, true);
+  sql(`DELETE FROM marketplace.listings WHERE seller_id IN ('${userA}','${userB}'); DELETE FROM vehicle.profile_ownership WHERE owner_id IN ('${userA}','${userB}'); DELETE FROM vehicle.vehicle_profiles WHERE created_by IN ('${userA}','${userB}'); DELETE FROM identity.verified_seller_contact_phones WHERE user_id IN ('${userA}','${userB}'); DELETE FROM public.profiles WHERE id IN ('${userA}','${userB}'); DELETE FROM auth.users WHERE id IN ('${userA}','${userB}')`, true);
 }

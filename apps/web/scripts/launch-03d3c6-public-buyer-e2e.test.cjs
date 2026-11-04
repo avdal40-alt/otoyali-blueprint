@@ -11,7 +11,7 @@ const service = createClient(env.API_URL, env.SERVICE_ROLE_KEY, { auth: { autoRe
 const anon = createClient(env.API_URL, env.ANON_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
 const ids = Object.fromEntries(["seller", "buyer", "admin", "contact"].map((name) => [name, randomUUID()]));
 const tag = `LOCAL_C6_PUBLIC_${randomUUID()}`;
-const sellerPhone = `+90555${randomInt(1_000_000, 10_000_000)}`;
+const sellerPhone = `+777${randomInt(10_000_000, 100_000_000)}`;
 let listingId = null;
 const sql = (statement) => execFileSync("docker", ["exec", "supabase_db_Otoyali-blueprint", "psql", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", "postgres", "-At", "-c", statement], { encoding: "utf8" }).trim();
 const count = (statement) => Number(sql(statement));
@@ -60,20 +60,15 @@ async function session(id, name) {
     const [makeId, modelId] = sql("SELECT m.make_id || '|' || m.id FROM vehicle.models m JOIN vehicle.makes mk ON mk.id=m.make_id WHERE mk.is_active AND m.is_active ORDER BY m.id LIMIT 1").split("|");
     const kzCityId = sql("SELECT id FROM marketplace.cities WHERE country_code='KZ' AND name='Almaty' AND is_active ORDER BY sort_order LIMIT 1");
     assert.match(kzCityId, /^[0-9a-f-]{36}$/i, "Kazakhstan city fixture must be available");
-    const create = await seller.rpc("create_own_private_listing_draft", {
+    const create = await seller.rpc("create_own_listing_draft_v2", {
       p_make_id: makeId, p_model_id: modelId, p_variant_id: null, p_year: 2021, p_mileage_km: 1,
       p_condition: "used", p_fuel_type: "gasoline", p_transmission: "automatic", p_body_type: "sedan",
       p_drive_type: "front", p_color: "test", p_engine_volume_l: 1.6, p_damage_state: "unknown", p_owner_count: 1,
-      p_description: tag, p_price_amount_text: "1000000", p_currency: "KZT", p_price_negotiable: false, p_city: "Almaty", p_city_id: kzCityId, p_district_id: null
+      p_description: tag, p_price_amount_text: "1000000", p_currency: "KZT", p_price_negotiable: false, p_city: "Almaty", p_seller_contact_phone_id: ids.contact, p_city_id: kzCityId, p_district_id: null
     });
     assert.ifError(create.error);
     listingId = create.data?.[0]?.listing_id;
     assert.match(listingId || "", /^[0-9a-f-]{36}$/i);
-    const setContact = await seller.rpc("set_own_listing_seller_contact_phone", {
-      p_listing_id: listingId,
-      p_seller_contact_phone_id: ids.contact
-    });
-    assert.ifError(setContact.error);
     const submit = await seller.rpc("submit_own_listing_for_review", { p_listing_id: listingId });
     assert.ifError(submit.error);
     const approve = await admin.rpc("review_listing_moderation", { p_listing_id: listingId, p_decision: "approve", p_rejection_reason: null });

@@ -6,6 +6,7 @@ const path = require("node:path");
 
 const root = path.resolve(__dirname, "..", "..", "..");
 const migration = fs.readFileSync(path.join(root, "supabase", "migrations", "20261012200000_jlc0804_buyer_request_match_notifications.sql"), "utf8");
+const lifecycleRepair = fs.readFileSync(path.join(root, "supabase", "migrations", "20261104124638_jlc_1606_restore_buyer_request_notifications.sql"), "utf8");
 for (const token of [
   "notifications_buyer_request_match_refs_chk",
   "notifications_buyer_request_match_dedup_idx",
@@ -16,6 +17,11 @@ for (const token of [
 ]) assert.ok(migration.includes(token), token);
 assert.match(migration, /generate_price_drop_alerts_for_listing/u, "latest lifecycle owner preserves price-drop alerts");
 assert.match(migration, /raised_at/u, "latest lifecycle owner preserves raised-at projection refresh");
+assert.match(lifecycleRepair, /CREATE OR REPLACE FUNCTION marketplace\.sync_listing_search_document_lifecycle\(\)/u);
+assert.match(lifecycleRepair, /PERFORM marketplace\.generate_listing_match_notifications\(NEW\.id\)/u, "the V2 lifecycle replacement must retain Buyer Request notifications");
+for (const v2Field of ["vehicle_category", "listing_purpose", "rental_price_per_day", "rental_price_per_month", "minimum_rental_days", "security_deposit_amount", "with_driver_or_operator"]) {
+  assert.match(lifecycleRepair, new RegExp(`OLD\\.${v2Field} IS DISTINCT FROM NEW\\.${v2Field}`), `the lifecycle repair must preserve V2 projection field ${v2Field}`);
+}
 
 const db = ["exec", "supabase_db_Otoyali-blueprint", "psql", "-q", "-U", "postgres", "-d", "postgres", "-v", "ON_ERROR_STOP=1", "-Atc"];
 const query = (sql) => execFileSync("docker", [...db, sql], { encoding: "utf8" }).trim();

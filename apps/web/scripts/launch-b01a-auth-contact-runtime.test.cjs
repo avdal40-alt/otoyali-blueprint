@@ -126,13 +126,12 @@ async function rpcOk(client, name, args) {
     assert.deepEqual(await rpcOk(owner, "get_listing_seller_contact", { p_listing_id: selectedListing }), [], "seller self-contact must remain blocked");
     assert.ok((await anon.rpc("get_listing_seller_contact", { p_listing_id: selectedListing })).error, "anon contact must remain blocked");
 
-    const legacyDraft = await owner.rpc("create_own_private_listing_draft", payload);
-    assert.ifError(legacyDraft.error);
-    const legacyListing = legacyDraft.data?.[0]?.listing_id;
-    createdListingIds.push(legacyListing);
-    assert.equal(sql(`SELECT seller_contact_phone_id IS NULL FROM marketplace.listings WHERE id='${legacyListing}'`), "t");
-    sql(`UPDATE marketplace.listings SET status='active', moderation_status='active', published_at=NOW() WHERE id='${legacyListing}';`);
-    assert.deepEqual(await rpcOk(other, "get_listing_seller_contact", { p_listing_id: legacyListing }), [], "a listing without an explicit selected contact must not disclose a legacy contact");
+    // This internal helper is deliberately no longer executable by browser
+    // roles: every current seller draft must select a verified KZ contact via
+    // the V2 boundary above. Restoring its grant merely for a legacy fixture
+    // would bypass that invariant.
+    const privateDraft = await owner.rpc("create_own_private_listing_draft", payload);
+    assert.ok(privateDraft.error, "the internal contact-less draft helper must remain inaccessible to authenticated callers");
     console.log("B01A local Auth/JWT/PostgREST foundation: PASS");
   } finally {
     if (createdListingIds.length) sql(`DELETE FROM marketplace.listings WHERE id IN ('${createdListingIds.join("','")}');`);
