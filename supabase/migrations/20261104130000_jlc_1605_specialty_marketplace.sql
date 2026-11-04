@@ -7,7 +7,7 @@ CREATE TABLE marketplace.specialty_listings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vertical TEXT NOT NULL CHECK (vertical IN ('motorcycles', 'marine', 'mobility')),
   seller_id UUID NOT NULL REFERENCES public.profiles(id),
-  seller_contact_phone_id UUID NOT NULL REFERENCES identity.seller_contact_phones(id),
+  seller_contact_phone_id UUID NOT NULL REFERENCES identity.verified_seller_contact_phones(id),
   seller_type TEXT NOT NULL CHECK (seller_type IN ('private', 'dealer')),
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'pending_review', 'active', 'rejected', 'archived', 'sold')),
   moderation_status TEXT NOT NULL DEFAULT 'draft' CHECK (moderation_status IN ('draft', 'pending_review', 'active', 'rejected', 'archived')),
@@ -114,7 +114,7 @@ $$;
 
 CREATE FUNCTION marketplace.get_specialty_listing_seller_contact(p_listing_id UUID) RETURNS TABLE(phone TEXT)
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = marketplace, identity, pg_catalog AS $$
-  SELECT phone.phone_e164 FROM marketplace.specialty_listings s JOIN identity.seller_contact_phones phone ON phone.id=s.seller_contact_phone_id JOIN marketplace.specialty_contact_disclosures disclosure ON disclosure.listing_id=s.id AND disclosure.viewer_id=auth.uid() WHERE s.id=p_listing_id AND s.status='active' AND s.moderation_status='active' AND phone.user_id=auth.uid() IS NOT TRUE AND disclosure.disclosed_at > now() - interval '5 minutes';
+  SELECT phone.phone_e164 FROM marketplace.specialty_listings s JOIN identity.verified_seller_contact_phones phone ON phone.id=s.seller_contact_phone_id JOIN marketplace.specialty_contact_disclosures disclosure ON disclosure.listing_id=s.id AND disclosure.viewer_id=auth.uid() WHERE s.id=p_listing_id AND s.status='active' AND s.moderation_status='active' AND phone.user_id=auth.uid() IS NOT TRUE AND disclosure.disclosed_at > now() - interval '5 minutes';
 $$;
 
 CREATE FUNCTION marketplace.reserve_specialty_listing_seller_contact_disclosure(p_listing_id UUID) RETURNS TABLE(allowed BOOLEAN)
