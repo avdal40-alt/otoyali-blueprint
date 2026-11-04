@@ -3886,7 +3886,7 @@
       "title": "Platform-staff public navigation and seller-entry UX polish",
       "priority": "P1",
       "type": "implementation",
-      "status": "in_progress",
+      "status": "completed",
       "release_gate": true,
       "dependencies": [
         "JLC-0519"
@@ -3905,7 +3905,7 @@
         "desktop/mobile navigation review",
         "JLC-0519 security regression"
       ],
-      "evidence": "Promoted by owner decision JOLMOD_FULL_WEB_PRELAUNCH_2026-11-03. The prior observation remains valid: /sell redirects active staff to /admin and the server/database authorization boundary is authoritative.",
+      "evidence": "2026-11-04: completed public/staff navigation reconciliation. Desktop header and marketplace footer expose the completed parts and services verticals with four-launch-locale copy; the desktop header reports its active page accessibly. Staff receive a localized admin entry, never a seller entry, in the header, mobile navigation, homepage CTA, footer, and shared vehicle-grid empty state; unresolved staff state suppresses the entry action. `test:jlc-a006` covers staff, ordinary authenticated, guest, and unresolved states across all surfaces and locales. `test:jlc-0519`, `test:jlc-0519-navigation`, `test:jlc-1203`, `test:jlc-1303`, country-config and localization checks, typecheck, lint, build, and `git diff --check` passed. No authorization, RLS, RPC, migration, or production behavior was changed.",
       "notes": "Address as a deliberate responsive public/admin interface phase; do not weaken JLC-0519."
     },
     {

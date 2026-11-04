@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient, hasSupabaseEnv } from "@/lib/supabase/client";
 import { ButtonLink } from "@/components/ui/Button";
@@ -14,6 +15,7 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function AppHeader() {
   const { locale, dictionary } = useI18n();
+  const pathname = usePathname();
   const [isAuthed, setIsAuthed] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const marketplaceAction = platformStaffNavigationAction(usePlatformStaffNavigation());
@@ -52,19 +54,15 @@ export function AppHeader() {
         <Link href={localizePath("/", locale)} className="flex rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue" aria-label="Jolmod home">
           <span className="text-2xl font-black tracking-tight text-oto-text sm:text-3xl">Jolmod</span>
         </Link>
-        <nav className="hidden items-center gap-6 text-sm font-semibold text-oto-muted md:flex">
-          <Link href={localizePath("/search", locale)} className="rounded-sm transition hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue">
-            {String(dictionary.navigation.buyVehicle)}
-          </Link>
-          <Link href={localizePath("/video", locale)} className="rounded-sm transition hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue">
-            {String(dictionary.navigation.video)}
-          </Link>
-          <Link href={localizePath("/#kategoriler", locale)} className="rounded-sm transition hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue">
-            {String(dictionary.navigation.categories)}
-          </Link>
-          <Link href={localizePath("/favorites", locale)} className="rounded-sm transition hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue">
-            {String(dictionary.navigation.favorites)}
-          </Link>
+        <nav aria-label={String(dictionary.navigation.categories)} className="hidden items-center gap-5 text-sm font-semibold text-oto-muted md:flex">
+          <HeaderNavigationLink href="/search" locale={locale} pathname={pathname}>{String(dictionary.navigation.buyVehicle)}</HeaderNavigationLink>
+          <HeaderNavigationLink href="/video" locale={locale} pathname={pathname}>{String(dictionary.navigation.video)}</HeaderNavigationLink>
+          <HeaderNavigationLink href="/#kategoriler" locale={locale} pathname={pathname}>{String(dictionary.navigation.categories)}</HeaderNavigationLink>
+          <HeaderNavigationLink href="/favorites" locale={locale} pathname={pathname}>{String(dictionary.navigation.favorites)}</HeaderNavigationLink>
+          <span className="hidden items-center gap-5 lg:contents">
+            <HeaderNavigationLink href="/yedek-parca" locale={locale} pathname={pathname}>{String(dictionary.navigation.parts)}</HeaderNavigationLink>
+            <HeaderNavigationLink href="/servisler" locale={locale} pathname={pathname}>{String(dictionary.navigation.services)}</HeaderNavigationLink>
+          </span>
         </nav>
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
@@ -91,6 +89,32 @@ export function AppHeader() {
         </div>
       </div>
     </header>
+  );
+}
+
+function HeaderNavigationLink({
+  href,
+  locale,
+  pathname,
+  children
+}: {
+  href: string;
+  locale: Parameters<typeof localizePath>[1];
+  pathname: string;
+  children: React.ReactNode;
+}) {
+  const localizedHref = localizePath(href, locale);
+  const targetPath = localizedHref.split(/[?#]/, 1)[0];
+  const isCurrent = href !== "/#kategoriler" && pathname === targetPath;
+
+  return (
+    <Link
+      href={localizedHref}
+      aria-current={isCurrent ? "page" : undefined}
+      className={`rounded-sm transition hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue ${isCurrent ? "text-oto-text" : ""}`}
+    >
+      {children}
+    </Link>
   );
 }
 

@@ -1,9 +1,8 @@
 import type { HomeListing, ListingMedia } from "@/lib/supabase/types";
-import { EmptyState } from "@/components/ui/States";
-import { localizePath } from "@/i18n/config";
 import { getJolmodGlobalDictionary } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 import { VehicleCard } from "./VehicleCard";
+import { MarketplaceListingEmptyState } from "./MarketplaceListingEmptyState";
 
 export function VehicleGrid({
   listings,
@@ -24,7 +23,13 @@ export function VehicleGrid({
   const dictionary = getJolmodGlobalDictionary(locale);
 
   if (listings.length === 0) {
-    return <EmptyState title={title ?? String(dictionary.search.noResultsTitle)} body={body ?? String(dictionary.search.noResultsBody)} href={localizePath("/sell", locale)} action={String(dictionary.common.publishListing)} />;
+    return (
+      <MarketplaceListingEmptyState
+        title={title ?? String(dictionary.search.noResultsTitle)}
+        body={body ?? String(dictionary.search.noResultsBody)}
+        locale={locale}
+      />
+    );
   }
 
   return (

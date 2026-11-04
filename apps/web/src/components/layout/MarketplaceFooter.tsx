@@ -28,6 +28,8 @@ export function MarketplaceFooter() {
       title: String(dictionary.footer.marketplace),
       links: [
         { href: "/search", label: String(dictionary.footer.buyVehicle) },
+        { href: "/yedek-parca", label: String(dictionary.navigation.parts) },
+        { href: "/servisler", label: String(dictionary.navigation.services) },
         ...(marketplaceAction ? [{
           href: marketplaceAction === "admin" ? "/admin" : "/sell",
           label: marketplaceAction === "admin"
