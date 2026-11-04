@@ -1,0 +1,33 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const root = path.resolve(__dirname, "..", "..", "..");
+const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
+
+const migration = read("supabase", "migrations", "20261104120000_jlc_1604_insurance_interest_leads.sql");
+const page = read("apps", "web", "src", "app", "sigorta", "page.tsx");
+const form = read("apps", "web", "src", "features", "insurance", "components", "InsuranceInterestForm.tsx");
+const copy = read("apps", "web", "src", "i18n", "insurance-page-copy.ts");
+const verticals = read("apps", "web", "src", "lib", "marketplace", "verticals.ts");
+
+assert.match(migration, /CREATE TABLE insurance_marketplace\.interest_requests/);
+assert.match(migration, /requester_id UUID NOT NULL REFERENCES public\.profiles/);
+assert.match(migration, /ENABLE ROW LEVEL SECURITY/);
+assert.match(migration, /REVOKE ALL ON TABLE insurance_marketplace\.interest_requests FROM PUBLIC, anon, authenticated/);
+assert.match(migration, /CREATE OR REPLACE FUNCTION public\.submit_own_insurance_interest/);
+assert.match(migration, /v_user UUID := auth\.uid\(\)/);
+assert.match(migration, /IF p_consent IS DISTINCT FROM TRUE/);
+assert.match(migration, /ON CONFLICT \(requester_id, interest_type\) DO NOTHING/);
+assert.match(migration, /GRANT EXECUTE ON FUNCTION public\.submit_own_insurance_interest\(TEXT, BOOLEAN\) TO authenticated/);
+assert.doesNotMatch(migration, /\bDROP TABLE\b|\bTRUNCATE\b/i);
+assert.match(form, /rpc\("submit_own_insurance_interest"/);
+assert.match(form, /p_consent: true/);
+assert.match(page, /InsuranceInterestForm/);
+assert.match(page, /insurance\.safety/);
+assert.match(copy, /ru: \{/);
+assert.match(copy, /kk: \{/);
+assert.match(copy, /en: \{/);
+assert.match(copy, /"zh-CN": \{/);
+assert.match(verticals, /id: "insurance"[\s\S]*?status: "active"[\s\S]*?seoIndexable: true/);
+assert.doesNotMatch(form, /phone.*Input|Textarea|bank/i);
+console.log("JLC-1604 insurance information and private interest-request contract passed.");

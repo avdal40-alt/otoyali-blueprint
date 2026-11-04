@@ -8,6 +8,7 @@ import { getDealerPageValue } from "./dealer-page-copy";
 import { getServicePageValue } from "./service-page-copy";
 import { getVerticalPageValue } from "./vertical-page-copy";
 import { getModerationRuntimeValue } from "./moderation-runtime-copy";
+import { getInsurancePageValue } from "./insurance-page-copy";
 import type { ClientDictionary, Dictionary, DictionarySection, Locale, TranslationParams } from "./types";
 
 const dictionaries: Record<"tr" | "en", Dictionary> = {
@@ -67,6 +68,8 @@ export function getClientDictionary(locale?: string | null): ClientDictionary {
 }
 
 export function t(locale: Locale | string | null | undefined, key: string, params?: TranslationParams) {
+  const insuranceValue = getInsurancePageValue(locale, key);
+  if (insuranceValue !== undefined) return interpolate(insuranceValue, params);
   const directValue = getDealerPageValue(locale, key);
   if (directValue !== undefined) return interpolate(directValue, params);
   const serviceValue = getServicePageValue(locale, key);
