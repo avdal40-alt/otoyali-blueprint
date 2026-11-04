@@ -18,14 +18,16 @@ assert.match(publicReadGrant, /GRANT SELECT ON TABLE vehicle\.owner_reviews TO a
 assert.match(failClosed, /COALESCE\(public\.admin_role\(v_actor\), ''\) NOT IN/);
 assert.match(reportRoute, /requireAuthenticatedRequestSupabase/); assert.match(reportRoute, /z\.enum/); assert.match(moderationRoute, /requireModerator/); assert.match(reportControl, /aria-expanded/); assert.match(reportControl, /htmlFor=/);
 const query = (sql) => execFileSync("docker", ["exec", "supabase_db_Otoyali-blueprint", "psql", "-X", "-q", "-U", "postgres", "-d", "postgres", "-v", "ON_ERROR_STOP=1", "-Atc", sql], { encoding: "utf8" }).trim();
-const ids = { author: "00000000-0000-4000-8000-000000000706", reporter: "00000000-0000-4000-8000-000000000707", moderator: "00000000-0000-4000-8000-000000000708", review: "00000000-0000-4000-8000-000000000709" };
+const ids = { author: "00000000-0000-4000-8000-000000000706", reporter: "00000000-0000-4000-8000-000000000707", moderator: "00000000-0000-4000-8000-000000000708", review: "00000000-0000-4000-8000-000000000709", generation: "00000000-0000-4000-8000-000000000710" };
 const auth = (id) => `RESET ROLE; SET LOCAL ROLE authenticated; SELECT set_config('request.jwt.claim.sub','${id}',true);`;
 const setup = `BEGIN;
 INSERT INTO auth.users(instance_id,id,aud,role,email,raw_app_meta_data,raw_user_meta_data,created_at,updated_at) VALUES ('00000000-0000-0000-0000-000000000000','${ids.author}','authenticated','authenticated','jlc0706-author@test.invalid','{}','{}',now(),now()),('00000000-0000-0000-0000-000000000000','${ids.reporter}','authenticated','authenticated','jlc0706-reporter@test.invalid','{}','{}',now(),now()),('00000000-0000-0000-0000-000000000000','${ids.moderator}','authenticated','authenticated','jlc0706-moderator@test.invalid','{}','{}',now(),now());
 INSERT INTO public.admin_users(user_id,role,is_active) VALUES ('${ids.moderator}','moderator',true);
 SET LOCAL ROLE service_role;
+INSERT INTO vehicle.generations(id,model_id,name,slug)
+SELECT '${ids.generation}',m.id,'JLC 0706 Fixture Generation','jlc-0706-fixture-generation' FROM vehicle.models m JOIN vehicle.makes ma ON ma.id=m.make_id WHERE m.is_active AND ma.is_active LIMIT 1;
 INSERT INTO vehicle.owner_reviews(id,author_id,make_id,model_id,generation_id,ownership_status,rating,moderation_status)
-SELECT '${ids.review}', '${ids.author}', m.make_id,m.id,g.id,'current_owner',5,'approved' FROM vehicle.generations g JOIN vehicle.models m ON m.id=g.model_id JOIN vehicle.makes ma ON ma.id=m.make_id WHERE g.is_active AND m.is_active AND ma.is_active LIMIT 1;
+SELECT '${ids.review}', '${ids.author}', m.make_id,m.id,g.id,'current_owner',5,'approved' FROM vehicle.generations g JOIN vehicle.models m ON m.id=g.model_id JOIN vehicle.makes ma ON ma.id=m.make_id WHERE g.id='${ids.generation}' AND g.is_active AND m.is_active AND ma.is_active;
 ${auth(ids.reporter)} SELECT public.report_vehicle_owner_review('${ids.review}','spam',NULL); SELECT public.report_vehicle_owner_review('${ids.review}','spam',NULL); SELECT count(*) FROM vehicle.owner_review_reports WHERE review_id='${ids.review}';
 ${auth(ids.reporter)} SELECT count(*) FROM vehicle.owner_reviews WHERE id='${ids.review}';
 ${auth(ids.moderator)} SELECT * FROM public.moderate_vehicle_owner_review('${ids.review}','hide','policy breach');
