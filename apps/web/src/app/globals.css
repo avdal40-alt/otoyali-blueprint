@@ -48,6 +48,24 @@
   --oto-focus-color: #93c5fd;
 }
 
+/* The V10 surfaces use semantic tokens, but older launch pages still contain
+ * white utility classes. Keep them readable in dark mode while those pages
+ * progressively adopt semantic classes. */
+:root[data-theme="dark"] .bg-white,
+:root[data-theme="dark"] .bg-white\/95 {
+  background-color: var(--oto-surface-raised) !important;
+}
+
+:root[data-theme="dark"] .from-white,
+:root[data-theme="dark"] .via-white {
+  --tw-gradient-from: var(--oto-surface-raised) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(23 32 51 / 0) var(--tw-gradient-to-position) !important;
+}
+
+:root[data-theme="dark"] .to-blue-50 {
+  --tw-gradient-to: #172033 var(--tw-gradient-to-position) !important;
+}
+
 * {
   box-sizing: border-box;
 }

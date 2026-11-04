@@ -14,6 +14,7 @@ import { localizePath } from "@/i18n/config";
 import { getJolmodGlobalDictionary } from "@/i18n/get-dictionary";
 import type { Locale } from "@/i18n/types";
 import { HomeVehicleSearchPanel } from "./HomeVehicleSearchPanel";
+import { PersonalizedListings } from "./PersonalizedListings";
 
 export function HomePageContent({
   listings,
@@ -47,6 +48,8 @@ export function HomePageContent({
           />
           <BrandCarousel makes={makes} locale={locale} />
         </section>
+
+        <PersonalizedListings locale={locale} listings={listings} />
 
         <section className="mt-10">
           <SectionHeader

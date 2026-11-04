@@ -47,6 +47,21 @@ const activeCarCapabilities: Record<MarketplaceCapability, boolean> = {
   supportsInventory: true
 };
 
+// Specialty inventory deliberately does not reuse the passenger-car profile.
+// It shares the listing lifecycle, KZ seller-contact boundary and moderation,
+// while keeping vehicle-only attributes out of categories where they do not
+// make sense. Favorites and saved searches still target marketplace.listings,
+// so they remain unavailable until that contract is expanded deliberately.
+const activeSpecialtyCapabilities: Record<MarketplaceCapability, boolean> = {
+  ...activeCarCapabilities,
+  canFavorite: false,
+  canSaveSearch: false,
+  canUploadImages: false,
+  canUploadVideo: false,
+  supportsDigitalTwin: false,
+  supportsInventory: true
+};
+
 const plannedMarketplaceCapabilities: Record<MarketplaceCapability, boolean> = {
   ...disabledCapabilities,
   supportsSEO: true,
@@ -104,12 +119,13 @@ export const MARKETPLACE_VERTICALS = [
     trPath: "/deniz-araclari",
     enPath: "/en/marine-vehicles",
     icon: "ship",
-    status: "coming_soon",
+    status: "active",
     featuredOnHome: true,
-    seoIndexable: false,
+    seoIndexable: true,
     supportedSellerTypes: ["private", "dealer"],
-    supportedMediaTypes: ["image", "video"],
-    featureFlags: ["marine.preview"],
+    supportedMediaTypes: [],
+    capabilityDefaults: activeSpecialtyCapabilities,
+    featureFlags: ["marine.marketplace.active"],
     highlightKeys: [
       "verticals.marine.highlights.boats",
       "verticals.marine.highlights.yachts",
@@ -181,13 +197,14 @@ export const MARKETPLACE_VERTICALS = [
     trPath: "/motosikletler",
     enPath: "/en/motorcycles",
     icon: "motorcycle",
-    status: "disabled",
-    featuredOnHome: false,
-    seoIndexable: false,
+    status: "active",
+    featuredOnHome: true,
+    seoIndexable: true,
     supportedSellerTypes: ["private", "dealer"],
-    supportedMediaTypes: ["image", "video"],
-    featureFlags: ["motorcycles.future"],
-    highlightKeys: [],
+    supportedMediaTypes: [],
+    capabilityDefaults: activeSpecialtyCapabilities,
+    featureFlags: ["motorcycles.marketplace.active"],
+    highlightKeys: ["verticals.motorcycles.highlights.search", "verticals.motorcycles.highlights.publish"],
     relatedVerticalIds: ["cars", "mobility"]
   }),
   vertical({
@@ -211,13 +228,14 @@ export const MARKETPLACE_VERTICALS = [
     trPath: "/mobilite-urunleri",
     enPath: "/en/mobility-products",
     icon: "mobility",
-    status: "disabled",
-    featuredOnHome: false,
-    seoIndexable: false,
+    status: "active",
+    featuredOnHome: true,
+    seoIndexable: true,
     supportedSellerTypes: ["private", "dealer"],
-    supportedMediaTypes: ["image"],
-    featureFlags: ["mobility.future"],
-    highlightKeys: [],
+    supportedMediaTypes: [],
+    capabilityDefaults: activeSpecialtyCapabilities,
+    featureFlags: ["mobility.marketplace.active"],
+    highlightKeys: ["verticals.mobility.highlights.search", "verticals.mobility.highlights.publish"],
     relatedVerticalIds: ["cars", "motorcycles"]
   })
 ] as const satisfies readonly MarketplaceVerticalConfig[];

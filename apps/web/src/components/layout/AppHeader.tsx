@@ -12,6 +12,7 @@ import {
   usePlatformStaffNavigation
 } from "./PlatformStaffNavigation";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function AppHeader() {
   const { locale, dictionary } = useI18n();
@@ -66,6 +67,7 @@ export function AppHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
+          <ThemeToggle />
           <Link href={isAuthed ? localizePath("/notifications", locale) : `${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/notifications", locale))}`} className="relative flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-oto-muted transition hover:bg-oto-surface hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-oto-blue" aria-label={unreadCount > 0 ? `${String(dictionary.navigation.notifications)} (${unreadCount})` : String(dictionary.navigation.notifications)}>
             <BellIcon />
             {isAuthed && unreadCount > 0 ? <span className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-oto-orange px-1 text-center text-[10px] font-black leading-4 text-white" aria-hidden="true">{unreadCount > 99 ? "99+" : unreadCount}</span> : null}

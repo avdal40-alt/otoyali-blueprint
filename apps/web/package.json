@@ -286,7 +286,8 @@
     "test:vehicle-marketplace-v2-runtime": "node scripts/vehicle-marketplace-v2-runtime.test.cjs",
     "test:jlc-1602-parts-marketplace": "node scripts/jlc-1602-parts-marketplace.test.cjs",
     "test:jlc-1603-services-marketplace": "node scripts/jlc-1603-services-marketplace.test.cjs",
-    "test:jlc-1604-insurance-marketplace": "node scripts/jlc-1604-insurance-marketplace.test.cjs"
+    "test:jlc-1604-insurance-marketplace": "node scripts/jlc-1604-insurance-marketplace.test.cjs",
+    "test:jlc-1605-final-web-scope": "node scripts/jlc-1605-final-web-scope.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

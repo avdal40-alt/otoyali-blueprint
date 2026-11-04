@@ -21,11 +21,14 @@ assert.doesNotMatch(cities, /model_name|model_slug/);
 assert.match(verticals, /id: "cars"[\s\S]*?seoIndexable: true/);
 assert.match(verticals, /id: "parts"[\s\S]*?status: "active"[\s\S]*?seoIndexable: true/);
 assert.match(verticals, /id: "insurance"[\s\S]*?status: "active"[\s\S]*?seoIndexable: true/);
-for (const id of ["commercial", "marine", "services"]) {
+for (const id of ["commercial", "services"]) {
   assert.match(verticals, new RegExp(`id: "${id}"[\\s\\S]*?status: "coming_soon"[\\s\\S]*?seoIndexable: false`));
 }
-for (const id of ["motorcycles", "machinery", "mobility"]) {
+for (const id of ["machinery"]) {
   assert.match(verticals, new RegExp(`id: "${id}"[\\s\\S]*?status: "disabled"[\\s\\S]*?seoIndexable: false`));
+}
+for (const id of ["motorcycles", "marine", "mobility"]) {
+  assert.match(verticals, new RegExp(`id: "${id}"[\\s\\S]*?status: "active"[\\s\\S]*?seoIndexable: true`));
 }
 assert.match(listing, /filter\(\(item\) => item\.listing_id !== listing\?\.listing_id\)/);
 assert.match(listing, /make_name === listing\?\.make_name/);

@@ -36,6 +36,7 @@ const dictionaries = loadModule(read("src", "i18n", "get-dictionary.ts"), "get-d
   if (request === "./service-page-copy") return { getServicePageValue: () => undefined };
   if (request === "./vertical-page-copy") return { getVerticalPageValue: () => undefined };
   if (request === "./moderation-runtime-copy") return { getModerationRuntimeValue: () => undefined };
+  if (request === "./insurance-page-copy") return { getInsurancePageValue: () => undefined };
   throw new Error(`Unexpected dictionary dependency: ${request}`);
 });
 
