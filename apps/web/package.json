@@ -127,6 +127,7 @@
     "test:sell-03h": "node scripts/sell-03h-localization.test.cjs",
     "test:sell-entry-localization": "node scripts/sell-entry-localization.test.cjs",
     "test:listing-detail-localization": "node scripts/listing-detail-localization.test.cjs",
+    "test:dealer-listing-public-identity": "node scripts/dealer-listing-public-identity.test.cjs",
     "test:listing-contact-localization": "node scripts/listing-contact-localization.test.cjs",
     "test:listing-actions-localization": "node scripts/listing-actions-localization.test.cjs",
     "test:sell-03i": "node scripts/sell-03i-browser-blockers.test.cjs",

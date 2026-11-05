@@ -62,4 +62,11 @@
 - Real browser QA observed the Kazakh home, BMW-filtered search (one result, visible active chip and clear action), a seeded listing card, and listing detail. The detail showed price and primary specifications before the labelled Trust Ledger; the ledger truthfully reported seller/Jolmod sources and that external history is not connected. English and Simplified-Chinese listing-detail routes rendered localized interface text, Kazakhstan city labels and KZT pricing.
 - The available seed contains only six individual passenger-sale listings. It does not provide the approved local data/auth setup needed to finish data-backed browser checks for dealer, rent, commercial, specialty, buyer request, authenticated sell flow, saved search/alerts, or related verticals. Those surfaces remain unclaimed rather than inferred from source review.
 - Browser viewport control was not exposed by the available local browser automation session, so fresh 390px and 768px data-backed visual assertions remain outstanding.
+
+## V11.5 dealer public-identity correction
+
+- The local QA graph confirmed the intended integrity chain: `auth.users` → `public.profiles` → active, unrevoked `identity.verified_seller_contact_phones` → `marketplace.dealer_verification_profiles.verified_phone_contact_id`.
+- Public listing projections already expose the listing-safe `seller_display_name` snapshot. Listing detail uses it correctly, but the shared `VehicleCard` did not render it at all.
+- Dealer cards now render that public snapshot only when `seller_type === "dealer"`; private cards retain the privacy-safe seller-type-only presentation. The focused presentation test covers both conditions.
+- No migration, RLS change, remote action, or private dealer/contact field exposure was required. The full seeded visual acceptance matrix is deliberately deferred to staging review.
 - Production remains paused and unchanged.

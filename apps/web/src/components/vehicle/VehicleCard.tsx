@@ -117,6 +117,9 @@ export function VehicleCard({
               {sellerTypeLabel(listing.seller_type, activeLocale)}
             </span>
           ) : null}
+          {listing.seller_type === "dealer" && listing.seller_display_name?.trim() ? (
+            <span className="max-w-full truncate">{listing.seller_display_name.trim()}</span>
+          ) : null}
           {listing.vehicle_category && listing.vehicle_category !== "passenger_car" ? (
             <span>
               {vehicleCategoryLabel(listing.vehicle_category, activeLocale)}
