@@ -133,21 +133,6 @@ export function SearchFilters({
     <div className="rounded-oto border border-oto-border bg-white p-4 shadow-soft">
       <div className="grid gap-4">
         <MultiSelectGroup
-          label={vehicleMarketplaceV2Copy("vehicleCategory", locale)}
-          values={selectedValues(filters.vehicleCategory)}
-          options={vehicleCategories.map((value) => ({ value, label: vehicleCategoryLabel(value, locale) }))}
-          onToggle={(value) => toggleValue("vehicleCategory", value)}
-          emptyLabel={vehicleMarketplaceV2Copy("allCategories", locale)}
-        />
-
-        <MultiSelectGroup
-          label={vehicleMarketplaceV2Copy("listingPurpose", locale)}
-          values={selectedValues(filters.listingPurpose)}
-          options={listingPurposes.map((value) => ({ value, label: listingPurposeLabel(value, locale) }))}
-          onToggle={(value) => toggleValue("listingPurpose", value)}
-          emptyLabel={vehicleMarketplaceV2Copy("allPurposes", locale)}
-        />
-        <MultiSelectGroup
           label={String(dictionary.search.brand)}
           values={selectedValues(filters.make)}
           options={makes.map((make) => ({ value: make.make_name ?? "", label: make.make_name ?? String(dictionary.common.noInfo) }))}
@@ -172,6 +157,21 @@ export function SearchFilters({
 
         {showAdvanced ? (
           <div className="grid gap-4 border-t border-oto-border pt-4">
+            <MultiSelectGroup
+              label={vehicleMarketplaceV2Copy("vehicleCategory", locale)}
+              values={selectedValues(filters.vehicleCategory)}
+              options={vehicleCategories.map((value) => ({ value, label: vehicleCategoryLabel(value, locale) }))}
+              onToggle={(value) => toggleValue("vehicleCategory", value)}
+              emptyLabel={vehicleMarketplaceV2Copy("allCategories", locale)}
+            />
+
+            <MultiSelectGroup
+              label={vehicleMarketplaceV2Copy("listingPurpose", locale)}
+              values={selectedValues(filters.listingPurpose)}
+              options={listingPurposes.map((value) => ({ value, label: listingPurposeLabel(value, locale) }))}
+              onToggle={(value) => toggleValue("listingPurpose", value)}
+              emptyLabel={vehicleMarketplaceV2Copy("allPurposes", locale)}
+            />
             <Input value={filters.q} onChange={(event) => setValue("q", event.target.value)} placeholder={String(dictionary.common.search)} />
 
             <MultiSelectGroup

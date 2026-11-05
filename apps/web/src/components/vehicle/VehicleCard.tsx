@@ -73,14 +73,6 @@ export function VehicleCard({
               {conditionLabel(listing.condition, activeLocale)}
             </span>
           ) : null}
-          {(listing.video_count ?? 0) > 0 ? (
-            <Link
-              href={localizePath(`/video?listing=${listing.listing_id}`, activeLocale)}
-              className="rounded-full bg-oto-blue px-3 py-1 text-xs font-black text-white shadow-soft"
-            >
-              {String(dictionary.navigation.video)}
-            </Link>
-          ) : null}
         </div>
 
         {imageCount > 1 ? (
@@ -115,23 +107,23 @@ export function VehicleCard({
 
       <div className="flex flex-1 flex-col p-3">
         <Link href={localizePath(`/listing/${listing.listing_id}`, activeLocale)} className="min-w-0">
-          <h3 className="line-clamp-2 text-base font-bold leading-snug text-oto-text">{title}</h3>
+          <p className="text-xl font-black text-oto-text">{formatListingPurposePrice(listing, activeLocale)}</p>
+          <h3 className="mt-2 line-clamp-2 text-base font-bold leading-snug text-oto-text">{title}</h3>
         </Link>
-        <p className="mt-2 text-xl font-black text-oto-text">{formatListingPurposePrice(listing, activeLocale)}</p>
 
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-oto-muted">
           {listing.seller_type ? (
-            <span className="rounded-full border border-oto-border bg-oto-surface px-2.5 py-1 text-[11px] font-black text-oto-muted">
+            <span>
               {sellerTypeLabel(listing.seller_type, activeLocale)}
             </span>
           ) : null}
           {listing.vehicle_category && listing.vehicle_category !== "passenger_car" ? (
-            <span className="rounded-full border border-oto-border bg-oto-surface px-2.5 py-1 text-[11px] font-black text-oto-muted">
+            <span>
               {vehicleCategoryLabel(listing.vehicle_category, activeLocale)}
             </span>
           ) : null}
           {listing.listing_purpose === "rent" ? (
-            <span className="rounded-full bg-oto-blue px-2.5 py-1 text-[11px] font-black text-white">{listingPurposeLabel(listing.listing_purpose, activeLocale)}</span>
+            <span>{listingPurposeLabel(listing.listing_purpose, activeLocale)}</span>
           ) : null}
         </div>
 

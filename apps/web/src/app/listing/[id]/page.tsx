@@ -41,6 +41,7 @@ import { StartConversationButton } from "./_components/StartConversationButton";
 import { ShareListingButton } from "./_components/ShareListingButton";
 import { ReportListingButton } from "./_components/ReportListingButton";
 import { ListingViewEvent } from "./_components/ListingViewEvent";
+import { ListingTrustLedger } from "./_components/ListingTrustLedger";
 import { getListingReviewTarget, reviewGenerationPath } from "@/lib/queries/reviews";
 import { getListingDetailCopy } from "./listing-detail-copy";
 
@@ -175,6 +176,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
                     <p className="mt-4 text-xs leading-5 text-oto-muted">{locale === "en" ? "Jolmod does not collect or hold rental payments or deposits." : locale === "kk" ? "Jolmod жалдау төлемін немесе депозитті жинамайды және сақтамайды." : locale === "zh-CN" ? "Jolmod 不收取或保管租金和押金。" : "Jolmod не принимает и не хранит арендные платежи или залог."}</p>
                   </section>
                 ) : null}
+                <ListingTrustLedger copy={copy} locale={locale} publishedAt={listing.published_at ?? null} />
                 {priceIntelligenceEnabled || vinTrustEnabled ? (
                   <div className="mt-6 grid items-stretch gap-6 xl:grid-cols-2">
                     {priceIntelligenceEnabled ? <PriceIntelligenceCard listingId={listing.listing_id} /> : null}

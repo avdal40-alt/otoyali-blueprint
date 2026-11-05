@@ -48,6 +48,10 @@ Current deployment note:
 - DOMAIN-01 is paused because the final brand/domain may change.
 - GitHub may be temporarily flagged; prepare local commits, but do not push until the account is healthy.
 
+## Local Supabase CLI contract
+
+The validated CLI for local migration replay is **Supabase CLI 2.115.0**. Before a local database replay or runtime matrix, run `npm run check:supabase-cli`. The command uses `supabase` on `PATH`, or the portable executable named by `SUPABASE_CLI_BIN`; no machine-specific path is committed.
+
 ## Brand Assets
 
 Production brand assets live in `public/brand`.
