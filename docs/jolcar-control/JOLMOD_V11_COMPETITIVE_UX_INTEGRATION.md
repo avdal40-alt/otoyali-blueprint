@@ -53,4 +53,13 @@
 - The normal local server at `http://localhost:3000` had no Supabase environment variables, so the search route correctly displayed its local missing-environment state rather than listing cards.
 - A separate disposable fixture-backed server was started with a valid local URL, but its server runtime still reported an invalid Supabase URL. No data-backed card/detail/trust/sell/buyer-request/rent/dealer/AI/alert/vertical browser assertions are claimed from that failed fixture launch.
 - Production remains paused and unchanged.
+
+## V11.2 data-backed visual completion attempt
+
+- An unlinked disposable worktree was started with Supabase CLI `2.115.0`. Its app-local, gitignored `apps/web/.env.local` used `http://127.0.0.1:54321`, the local publishable key, and the server-only local service-role key required by the listing-view API. The service-role key was never placed in a `NEXT_PUBLIC_*` variable.
+- The prior invalid URL report was a local launch condition: transient environment injection preserved quoted CLI output and a stale child Next process could continue serving it. A clean process reading `.env.local` resolved the correct local host.
+- The development-only diagnostics route reported URL/key presence, a `127.0.0.1` host, public-key type, and successful public reads of 75 makes, 6 home listings, 6 details, and 6 media rows. The local listing-view API also returned `200` after the server-only variable was supplied. No canonical remote was contacted.
+- Real browser QA observed the Kazakh home, BMW-filtered search (one result, visible active chip and clear action), a seeded listing card, and listing detail. The detail showed price and primary specifications before the labelled Trust Ledger; the ledger truthfully reported seller/Jolmod sources and that external history is not connected. English and Simplified-Chinese listing-detail routes rendered localized interface text, Kazakhstan city labels and KZT pricing.
+- The available seed contains only six individual passenger-sale listings. It does not provide the approved local data/auth setup needed to finish data-backed browser checks for dealer, rent, commercial, specialty, buyer request, authenticated sell flow, saved search/alerts, or related verticals. Those surfaces remain unclaimed rather than inferred from source review.
+- Browser viewport control was not exposed by the available local browser automation session, so fresh 390px and 768px data-backed visual assertions remain outstanding.
 - Production remains paused and unchanged.
