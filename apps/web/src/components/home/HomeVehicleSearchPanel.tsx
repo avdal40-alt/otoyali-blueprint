@@ -73,20 +73,6 @@ export function HomeVehicleSearchPanel({
 
       <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <label className="grid gap-1">
-          <span className="text-xs font-bold text-oto-muted">{vehicleMarketplaceV2Copy("vehicleCategory", locale)}</span>
-          <Select value={filters.vehicleCategory} onChange={(event) => setValue("vehicleCategory", event.target.value)}>
-            <option value="">{vehicleMarketplaceV2Copy("allCategories", locale)}</option>
-            {vehicleCategories.map((category) => <option key={category} value={category}>{vehicleCategoryLabel(category, locale)}</option>)}
-          </Select>
-        </label>
-        <label className="grid gap-1">
-          <span className="text-xs font-bold text-oto-muted">{vehicleMarketplaceV2Copy("listingPurpose", locale)}</span>
-          <Select value={filters.listingPurpose} onChange={(event) => setValue("listingPurpose", event.target.value)}>
-            <option value="">{vehicleMarketplaceV2Copy("allPurposes", locale)}</option>
-            {listingPurposes.map((purpose) => <option key={purpose} value={purpose}>{listingPurposeLabel(purpose, locale)}</option>)}
-          </Select>
-        </label>
-        <label className="grid gap-1">
           <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.brand)}</span>
           <Select value={filters.make} onChange={(event) => setValue("make", event.target.value)}>
             <option value="">{String(dictionary.search.allBrands)}</option>
@@ -143,6 +129,20 @@ export function HomeVehicleSearchPanel({
       >
         <div className="rounded-oto border border-oto-border bg-oto-surface p-4">
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <label className="grid gap-1">
+              <span className="text-xs font-bold text-oto-muted">{vehicleMarketplaceV2Copy("vehicleCategory", locale)}</span>
+              <Select value={filters.vehicleCategory} onChange={(event) => setValue("vehicleCategory", event.target.value)}>
+                <option value="">{vehicleMarketplaceV2Copy("allCategories", locale)}</option>
+                {vehicleCategories.map((category) => <option key={category} value={category}>{vehicleCategoryLabel(category, locale)}</option>)}
+              </Select>
+            </label>
+            <label className="grid gap-1">
+              <span className="text-xs font-bold text-oto-muted">{vehicleMarketplaceV2Copy("listingPurpose", locale)}</span>
+              <Select value={filters.listingPurpose} onChange={(event) => setValue("listingPurpose", event.target.value)}>
+                <option value="">{vehicleMarketplaceV2Copy("allPurposes", locale)}</option>
+                {listingPurposes.map((purpose) => <option key={purpose} value={purpose}>{listingPurposeLabel(purpose, locale)}</option>)}
+              </Select>
+            </label>
             <label className="grid gap-1">
               <span className="text-xs font-bold text-oto-muted">{String(dictionary.search.yearMin)}</span>
               <Input value={filters.yearMin} onChange={(event) => setValue("yearMin", event.target.value)} placeholder={String(dictionary.search.yearMin)} inputMode="numeric" />

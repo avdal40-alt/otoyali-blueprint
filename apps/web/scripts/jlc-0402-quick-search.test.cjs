@@ -16,9 +16,12 @@ assert.match(primary, /filters\.model/, "model must be a primary search control"
 assert.match(primary, /filters\.priceMin/, "minimum price must be a primary search control");
 assert.match(primary, /filters\.priceMax/, "maximum price must be a primary search control");
 assert.doesNotMatch(primary, /filters\.year(?:Min|Max)/, "year filters must not displace quick-search controls");
+assert.doesNotMatch(primary, /filters\.(vehicleCategory|listingPurpose)/, "category and purpose must remain under All filters");
 assert.match(panel, /dictionary\.search\.allFilters/, "quick search must expose the All filters control");
 assert.match(advanced, /filters\.yearMin/, "year minimum must remain reachable in All filters");
 assert.match(advanced, /filters\.yearMax/, "year maximum must remain reachable in All filters");
+assert.match(advanced, /filters\.vehicleCategory/, "category must remain reachable in All filters");
+assert.match(advanced, /filters\.listingPurpose/, "purpose must remain reachable in All filters");
 assert.match(panel, /aria-expanded=\{advancedOpen\}/, "All filters must expose its expanded state");
 assert.match(panel, /className="w-full"/, "quick-search actions must remain usable across compact widths");
 assert.match(panel, /mt-5 w-full min-w-0 max-w-md/, "quick-search controls must fit compact containers");
