@@ -67,3 +67,30 @@ Migrations 01 and 03 alter/search-index listing structures. Their static deploym
 - `TECHNICAL_MIGRATION_REVIEW`: NO_GO pending the durable baseline-fixture integrity check, full JLC-1302 completion, and application compatibility gates.
 - `STAGING_SUPABASE_PROJECT_REF`: NOT_PROVEN.
 - `STAGING_DB_ISOLATION`: NOT_PROVEN.
+
+## V12C closeout
+
+On the same CLI-pinned, unlinked localhost workflow, a fresh 182-migration
+baseline was populated with deterministic synthetic QA rows: Auth users and
+their trigger-created profiles, a verified seller contact, a verified dealer
+profile, an owner-created passenger draft, a Buyer Request, and a saved
+search. The graph was created through the existing owner-draft RPC and normal
+constraints; no constraint or RLS policy was disabled. All sixteen pending
+migrations then applied in order and every recorded relationship remained
+present and valid after the 198-schema upgrade.
+
+- Durable pre-upgrade fixture graph: PASS.
+- Durable fixture upgrade path: PASS.
+- Durable post-upgrade integrity: PASS.
+- JLC-1302 aggregate: PASS.
+- Profile anonymous hardening / SECURITY-04A: PASS.
+- Typecheck: PASS.
+- Lint: PASS with the pre-existing `SafeImage` no-img advisory.
+- Production build: PASS.
+- Diff check: PASS.
+
+The application compatibility checks cover V2 listing/search/edit contracts,
+dealer workflows, Buyer Requests, parts, insurance, and specialty scope.
+Accordingly, `TECHNICAL_MIGRATION_REVIEW` is **GO**. This is local SQL
+approval only: the staging project reference and database isolation remain
+unproven, so staging and production application remain blocked.
