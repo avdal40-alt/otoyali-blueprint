@@ -140,3 +140,12 @@ The committed `scripts/staging/seed-jolmod-staging.mjs` has explicit staging URL
 - Migration invariant: PASS. Local and linked staging migration counts are both 199 with matching history.
 
 No Vercel configuration, canonical project, migration, schema, RLS policy, or Data API exposure was changed in this phase.
+
+## Phase 4 — isolated Vercel Preview
+
+- Vercel project: `jolcar-staging` (`prj_pprF8wVDXI77cPz6H1Lox0nYsMyi`), Preview only.
+- Preview Supabase variables were replaced with the isolated staging URL and matching browser/server credentials for `uxlenqburgxmkaadlyji`. No production Vercel environment or project was changed.
+- Deployment: `dpl_7bjUyUyJFjJd1xLRaBCwfG2HhAe5`, `https://jolcar-staging-f03ks000x-otoyali.vercel.app`, commit `65d21db`, state `READY`.
+- Actual deployed-home proof: `JOLMOD-QA INDIVIDUAL SALE`, `JOLMOD-QA DEALER SALE`, `JOLMOD-QA ZERO KM`, `JOLMOD-QA RENT`, and `Jolmod QA Motors` were rendered; `JOLMOD-QA DRAFT` was absent.
+- Smoke routes returned 200 for home, search, sell, buyer-facing vehicle surfaces, dealer profile, parts, and services (legacy route names remain `/ikinci-el-araba`, `/sifir-km-araba`, `/yedek-parca`, and `/servisler`). Launch locale paths `ru`, `kk`, `en`, and `zh-CN` returned 200.
+- Deployment events showed no critical build/runtime error matches. Phone auth remains intentionally disabled and no OTP acceptance flow was run.
