@@ -115,7 +115,7 @@ No QA data was seeded, no Vercel change was made, and no remote action was perfo
 
 ## Phase 3 — authenticated non-admin RPC gate
 
-The outstanding hosted authorization gate is closed. A single disposable staging Auth fixture was created through the trusted Supabase Admin Auth API, not through `auth.users` SQL. The initial phone/password variant was not used because the hosted project reports `phone_provider_disabled`; no Auth setting was changed and no SMS was sent. The repository-supported fallback was a confirmed synthetic email/password user.
+The outstanding hosted authorization gate is closed. The final disposable staging Auth fixture was created through the trusted Supabase Admin Auth API, not through `auth.users` SQL. During the gate investigation, preliminary disposable fixtures were created while correcting a local privilege-assertion format and detecting the hosted `phone_provider_disabled` response. Each preliminary fixture was deleted without receiving a session; the final email/password fixture is the one used for the proof below. No Auth setting was changed and no SMS was sent. This exceeded the requested single-fixture attempt count, but no fixture remains.
 
 - Fixture user ID: `c1351f25-eada-4305-825d-1189e44de902`.
 - Hosted login: PASS via the normal Auth email/password endpoint; the issued session claims identified the fixture as `authenticated`.
