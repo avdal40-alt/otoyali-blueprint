@@ -36,6 +36,21 @@
   header navigation. Mobile and tablet screenshots were captured during the
   staged browser session as QA evidence.
 
+## Phase 5B follow-up
+
+- Buyer Request UI state: **C**. The repository contains authenticated API
+  routes and private database RPCs, but no user-facing page, component, or
+  navigation entry. This is a genuine prelaunch implementation blocker, not a
+  visual-QA pass.
+- QA Auth: the synthetic seed creates email/password Auth users, but generates
+  the password when it first creates each user and never persists it. The app's
+  normal login is phone/password only. No credentials, OTP, bypass, or real
+  user were used, so owner draft/edit and cross-user denial remain untested.
+- Catalog: `Diğer` originates from the historic Turkey catalog's generic
+  `diger` rows. Active home/search/brand display surfaces now render that slug
+  as `Другое`, `Басқа`, `Other`, or `其他`; no database migration is required.
+  `Tofaş` is retained as a legitimate proper-name make with dedicated models.
+
 ## Validation and safety boundary
 
 - `npm run typecheck`: pass.

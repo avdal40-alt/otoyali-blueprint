@@ -13,6 +13,7 @@ import { localizePath } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import { getStatusCopy } from "@/i18n/status-copy";
 import { listingPurposes, listingPurposeLabel, vehicleCategories, vehicleCategoryLabel, vehicleMarketplaceV2Copy } from "@/lib/marketplace/v2-contract";
+import { catalogDisplayName } from "@/lib/catalog/display-name";
 
 export function HomeVehicleSearchPanel({
   makes,
@@ -78,7 +79,7 @@ export function HomeVehicleSearchPanel({
             <option value="">{String(dictionary.search.allBrands)}</option>
             {makes.map((make) => (
               <option key={make.make_id} value={make.make_name ?? ""}>
-                {make.make_name ?? String(dictionary.common.noInfo)}
+                {catalogDisplayName(make.make_name, make.make_slug, locale) || String(dictionary.common.noInfo)}
               </option>
             ))}
           </Select>
@@ -89,7 +90,7 @@ export function HomeVehicleSearchPanel({
             <option value="">{String(dictionary.search.allModels)}</option>
             {filteredModels.map((model) => (
               <option key={model.model_id} value={model.model_name ?? ""}>
-                {model.model_name ?? String(dictionary.common.noInfo)}
+                {catalogDisplayName(model.model_name, model.model_slug, locale) || String(dictionary.common.noInfo)}
               </option>
             ))}
           </Select>

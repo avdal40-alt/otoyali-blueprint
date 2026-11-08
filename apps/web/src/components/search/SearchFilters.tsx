@@ -11,6 +11,7 @@ import { getIntlLocale } from "@/i18n/config";
 import { useI18n } from "@/i18n/client";
 import type { Locale } from "@/i18n/types";
 import { listingPurposes, vehicleCategories, vehicleCategoryLabel, vehicleMarketplaceV2Copy, listingPurposeLabel } from "@/lib/marketplace/v2-contract";
+import { catalogDisplayName } from "@/lib/catalog/display-name";
 
 export const fuelOptions = [
   { value: "gasoline", label: fuelLabel("gasoline") },
@@ -135,7 +136,7 @@ export function SearchFilters({
         <MultiSelectGroup
           label={String(dictionary.search.brand)}
           values={selectedValues(filters.make)}
-          options={makes.map((make) => ({ value: make.make_name ?? "", label: make.make_name ?? String(dictionary.common.noInfo) }))}
+          options={makes.map((make) => ({ value: make.make_name ?? "", label: catalogDisplayName(make.make_name, make.make_slug, locale) || String(dictionary.common.noInfo) }))}
           onToggle={(value) => toggleValue("make", value)}
           emptyLabel={String(dictionary.search.allBrands)}
           searchable
@@ -144,7 +145,7 @@ export function SearchFilters({
         <MultiSelectGroup
           label={String(dictionary.search.model)}
           values={selectedValues(filters.model)}
-          options={filteredModels.map((model) => ({ value: model.model_name ?? "", label: model.model_name ?? String(dictionary.common.noInfo) }))}
+          options={filteredModels.map((model) => ({ value: model.model_name ?? "", label: catalogDisplayName(model.model_name, model.model_slug, locale) || String(dictionary.common.noInfo) }))}
           onToggle={(value) => toggleValue("model", value)}
           emptyLabel={String(dictionary.search.allModels)}
           searchable
