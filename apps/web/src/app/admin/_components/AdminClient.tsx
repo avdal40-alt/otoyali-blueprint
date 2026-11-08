@@ -549,13 +549,10 @@ function ServiceApplicationsModeration({ locale }: { locale: Locale }) {
   const load = useCallback(async function load() {
     setLoading(true);
     const supabase = getSupabaseBrowserClient();
-    let query = supabase
-      .from("service_admin_provider_applications")
-      .select("application_id,submitter_id,status,business_name,contact_person_name,contact_phone,city,district,category_keys,supported_verticals,website_url,notes,consent_accuracy,moderation_note,reviewed_by,reviewed_at,created_at,updated_at")
-      .order("created_at", { ascending: false })
-      .limit(50);
-    if (filter !== "all") query = query.eq("status", filter);
-    const { data, error: applicationError } = await query;
+    const { data, error: applicationError } = await supabase.rpc(
+      "list_service_admin_provider_applications",
+      { p_status: filter === "all" ? null : filter, p_limit: 50 }
+    );
     setRows((data ?? []) as ServiceProviderApplicationAdminRow[]);
     setError(applicationError?.message ?? null);
     setLoading(false);
