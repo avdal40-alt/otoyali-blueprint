@@ -1,7 +1,7 @@
 # Jolmod Staging Rollout
 
-**Run date:** 2026-11-08 (Asia/Qyzylorda)  
-**Project:** `uxlenqburgxmkaadlyji` (South Asia / Mumbai, `ap-south-1`)  
+**Run date:** 2026-11-08 (Asia/Qyzylorda)
+**Project:** `uxlenqburgxmkaadlyji` (South Asia / Mumbai, `ap-south-1`)
 **Canonical project:** `dmjifqbvbjewyigdsuco` — unchanged
 
 ## Deployment evidence
@@ -39,7 +39,7 @@ Repository configuration requires these exposed API schemas:
 - `vehicle`
 - `marketplace`
 
-`extensions` is configured as an extra request search path, not as an exposed API schema. The cloud Data API dashboard route did not disclose its schema list in this validation session, and database settings do not expose the hosted PostgREST configuration. Because the staging project was created with automatic exposure disabled, its hosted exposure list must be explicitly verified before switching Vercel; ensure it includes the four schemas above, especially `marketplace`. No broad grants or RLS changes were made.
+`extensions` is configured as an extra request search path, not as an exposed API schema. The hosted staging Data API dashboard was subsequently verified and saved with exactly the four schemas above. It does not expose `identity`, `service_marketplace`, `booking`, `messaging`, or `insurance_marketplace`. No broad grants or RLS changes were made.
 
 ## Security smoke
 
@@ -61,7 +61,7 @@ The view is selectable by `anon` and `authenticated` and projects sensitive prov
 
 Security advisor informational findings also identify RLS-enabled/no-policy tables intended as deny-by-default internals. Performance advisor: no ERROR-level findings; warning-level index and multiple-permissive-policy findings were not changed in this rollout. CLI 2.115.0 supports only `security` and `performance` advisor types; no CLI health advisor is available.
 
-## Outcome
+## Initial phase outcome
 
 Migration bootstrap succeeded, but prelaunch validation is blocked on the security-definer view and unverified hosted Data API schema exposure. Do not seed QA data or switch Vercel preview until those issues are resolved and revalidated.
 
@@ -101,4 +101,14 @@ The application intentionally withholds moderation-only columns from generic aut
 - Existing profile, seller-contact, Buyer Request, dealer-lead, and specialty-contact anonymous-denial checks remain intact.
 - The Security Advisor no longer reports the prior `security_definer_view`; ERROR-level security findings are now empty.
 
-The remaining hosted Data API exposed-schema configuration is intentionally deferred to its separate Dashboard-managed configuration task. No QA data was seeded and no Vercel or canonical-project change was made.
+## Phase 2 — hosted Data API configuration and verification
+
+- Security hardening changes were committed in `f5d3ba803f754a490653bd143b62389a1ff30786` (`fix(security): harden provider application admin access`).
+- The staging-only Dashboard Data API configuration now exposes exactly `public`, `graphql_public`, `vehicle`, and `marketplace`.
+- Actual hosted REST probes using a non-secret public client credential returned `200` for a public listing projection, a `marketplace` listing projection, and a `vehicle` makes projection. Response bodies and credentials were not logged.
+- Actual hosted negative probes returned: `public.profiles` `401`; `identity.listing_seller_contact_disclosures` `406` because the schema is not exposed; the legacy admin view `401`; `marketplace.dealer_leads` `401`; `marketplace.buyer_requests` `401`; and the admin RPC with an anonymous credential `401`.
+- No remote QA user was created. Consequently, the hosted ordinary-authenticated/non-admin RPC call was not exercised; the disposable local authorization smoke remains the proof that such a caller is rejected, while the hosted anonymous RPC denial confirms that the endpoint is not publicly callable.
+- CLI `migration list --linked` shows all 199 local migrations matching staging, and the staging dry run is up to date with no pending migration, seed, or role changes.
+- The staging Security Advisor has no ERROR-level findings.
+
+No QA data was seeded, no Vercel change was made, and no remote action was performed against the canonical project.
