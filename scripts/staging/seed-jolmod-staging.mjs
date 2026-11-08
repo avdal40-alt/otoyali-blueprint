@@ -1,4 +1,4 @@
-import { createClient } from "../../apps/web/node_modules/@supabase/supabase-js/dist/module/index.js";
+import { createClient } from "../../apps/web/node_modules/@supabase/supabase-js/dist/index.mjs";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
