@@ -112,3 +112,17 @@ The application intentionally withholds moderation-only columns from generic aut
 - The staging Security Advisor has no ERROR-level findings.
 
 No QA data was seeded, no Vercel change was made, and no remote action was performed against the canonical project.
+
+## Phase 3 — authenticated non-admin RPC gate
+
+The outstanding hosted authorization gate is closed. A single disposable staging Auth fixture was created through the trusted Supabase Admin Auth API, not through `auth.users` SQL. The initial phone/password variant was not used because the hosted project reports `phone_provider_disabled`; no Auth setting was changed and no SMS was sent. The repository-supported fallback was a confirmed synthetic email/password user.
+
+- Fixture user ID: `c1351f25-eada-4305-825d-1189e44de902`.
+- Hosted login: PASS via the normal Auth email/password endpoint; the issued session claims identified the fixture as `authenticated`.
+- Non-admin proof: PASS. The fixture had no active `public.admin_users` membership, no elevated identity role (`admin`, `staff`, `moderator`, or `provider`), no dealer-staff membership, no service-provider ownership, and no provider-application moderation assignment. `public.is_admin` also returned false for the authenticated fixture.
+- Authenticated control request: PASS via `public.get_own_password_enrollment_status`.
+- Hosted `public.list_service_admin_provider_applications` request as that session: denied; zero private rows were returned.
+- Cleanup: PASS. The session was globally revoked before the Admin Auth API deleted the fixture; a remote readback confirms that the user no longer exists. The fixture was not retained.
+- Staging Security Advisor remains free of ERROR-level findings. The migration dry run remains up to date with no pending migration, seed, or role changes.
+
+No credentials, password, token, response body, SMS, Vercel change, canonical-project operation, migration, RLS change, or Data API-schema change was made during this gate.
