@@ -51,9 +51,9 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-oto-border bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-3 sm:px-4 md:px-6 lg:px-8">
         <Link href={localizePath("/", locale)} className="flex rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue" aria-label="Jolmod home">
-          <span className="text-2xl font-black tracking-tight text-oto-text sm:text-3xl">Jolmod</span>
+          <span className="text-xl font-black tracking-tight text-oto-text sm:text-3xl">Jolmod</span>
         </Link>
         <nav aria-label={String(dictionary.navigation.categories)} className="hidden items-center gap-5 text-sm font-semibold text-oto-muted lg:flex">
           <HeaderNavigationLink href="/search" locale={locale} pathname={pathname}>{String(dictionary.navigation.buyVehicle)}</HeaderNavigationLink>
@@ -65,7 +65,7 @@ export function AppHeader() {
             <HeaderNavigationLink href="/servisler" locale={locale} pathname={pathname}>{String(dictionary.navigation.services)}</HeaderNavigationLink>
           </span>
         </nav>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <LanguageSwitcher />
           <ThemeToggle />
           <Link href={isAuthed ? localizePath("/notifications", locale) : `${localizePath("/login", locale)}?next=${encodeURIComponent(localizePath("/notifications", locale))}`} className="relative flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-oto-muted transition hover:bg-oto-surface hover:text-oto-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-oto-blue" aria-label={unreadCount > 0 ? `${String(dictionary.navigation.notifications)} (${unreadCount})` : String(dictionary.navigation.notifications)}>
