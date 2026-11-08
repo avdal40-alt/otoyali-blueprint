@@ -7,6 +7,7 @@ import { buildSearchUrl, defaultSearchFilters, type ListingSearchFilters } from 
 import { getUniqueCities } from "@/lib/search/filter-listings";
 import { bodyTypeLabel, cityLabel, colorLabel, driveTypeLabel, fuelLabel, transmissionLabel } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
+import { ButtonLink } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
 import { ConditionTabs } from "@/components/search/ConditionTabs";
 import { localizePath } from "@/i18n/config";
@@ -119,6 +120,7 @@ export function HomeVehicleSearchPanel({
           {String(dictionary.search.showListings)}
         </Button>
       </div>
+      <ButtonLink href={localizePath("/buyer-requests", locale)} variant="secondary" className="mt-3">{locale === "en" ? "Create buyer request" : locale === "kk" ? "Сатып алушы сұрауын жасау" : locale === "zh-CN" ? "创建买家需求" : "Создать запрос покупателя"}</ButtonLink>
 
       <div
         id="home-advanced-filters"
