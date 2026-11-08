@@ -126,3 +126,17 @@ The outstanding hosted authorization gate is closed. The final disposable stagin
 - Staging Security Advisor remains free of ERROR-level findings. The migration dry run remains up to date with no pending migration, seed, or role changes.
 
 No credentials, password, token, response body, SMS, Vercel change, canonical-project operation, migration, RLS change, or Data API-schema change was made during this gate.
+
+## Phase 3A — staging QA seed execution
+
+The committed `scripts/staging/seed-jolmod-staging.mjs` has explicit staging URL and linked-project guards, requires `JOLMOD_STAGING_SEED_CONFIRM=YES`, and uses deterministic IDs. It creates or reuses three Admin Auth QA users, their profiles and verified seller contacts, vehicle profiles with current ownership records, and the five core fixtures plus one Buyer Request.
+
+- Live hosted constraint validation: PASS. The actual contracts require a current `vehicle.profile_ownership` record for each listing owner; the seeder creates it. The zero-km profile has zero mileage, all listings use a live Kazakhstan city and `KZT`, and the rent fields satisfy `listings_v2_price_contract_chk`.
+- Catalog resolution: PASS (live KZ city, active make, and active model are selected at execution time).
+- Publication contract: PASS. Active listing publication has no database media requirement; active rows require the valid KZ city/currency and are surfaced through the existing public projection. Seller-contact records are attached.
+- Seed execution: PASS. A repeated execution converged to exactly 3 QA Auth users, 5 listing IDs, 5 current ownership records, and 1 Buyer Request ID; no duplicate records were created.
+- Hosted public verification: PASS. Anonymous REST reads of `public.ff_home_listings` returned the individual sale, dealer sale, zero-km sale, and rent fixtures, including `Jolmod QA Motors`; the draft was absent.
+- Hosted privacy verification: PASS. Anonymous `public.profiles` and `marketplace.buyer_requests` probes returned `401`; the non-exposed `identity` schema returned `406`. An authenticated QA buyer attempting to update the seller listing received `permission denied for table listings`; the authenticated non-admin admin RPC call was denied. The Security Advisor reported no ERROR-level findings.
+- Migration invariant: PASS. Local and linked staging migration counts are both 199 with matching history.
+
+No Vercel configuration, canonical project, migration, schema, RLS policy, or Data API exposure was changed in this phase.
