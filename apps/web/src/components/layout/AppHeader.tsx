@@ -55,7 +55,7 @@ export function AppHeader() {
         <Link href={localizePath("/", locale)} className="flex rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-oto-blue" aria-label="Jolmod home">
           <span className="text-2xl font-black tracking-tight text-oto-text sm:text-3xl">Jolmod</span>
         </Link>
-        <nav aria-label={String(dictionary.navigation.categories)} className="hidden items-center gap-5 text-sm font-semibold text-oto-muted md:flex">
+        <nav aria-label={String(dictionary.navigation.categories)} className="hidden items-center gap-5 text-sm font-semibold text-oto-muted lg:flex">
           <HeaderNavigationLink href="/search" locale={locale} pathname={pathname}>{String(dictionary.navigation.buyVehicle)}</HeaderNavigationLink>
           <HeaderNavigationLink href="/video" locale={locale} pathname={pathname}>{String(dictionary.navigation.video)}</HeaderNavigationLink>
           <HeaderNavigationLink href="/#kategoriler" locale={locale} pathname={pathname}>{String(dictionary.navigation.categories)}</HeaderNavigationLink>
@@ -79,14 +79,14 @@ export function AppHeader() {
             <ButtonLink
               href={localizePath(marketplaceAction === "admin" ? "/admin" : "/sell", locale)}
               variant="orange"
-              className="hidden md:inline-flex"
+              className="hidden lg:inline-flex"
             >
               {marketplaceAction === "admin"
                 ? String(dictionary.common.adminPanel)
                 : String(dictionary.common.publishListing)}
             </ButtonLink>
           ) : (
-            <span aria-hidden="true" className="invisible hidden h-11 w-32 md:inline-flex" />
+            <span aria-hidden="true" className="invisible hidden h-11 w-32 lg:inline-flex" />
           )}
         </div>
       </div>

@@ -29,7 +29,7 @@ export function MobileBottomNav() {
   ];
 
   return (
-    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-50 border-t border-oto-border bg-white md:hidden">
+    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-50 border-t border-oto-border bg-white lg:hidden">
       <div className="grid h-16 grid-cols-5">
         {tabs.map((tab, index) => {
           if (!tab) {
