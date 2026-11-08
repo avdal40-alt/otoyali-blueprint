@@ -3,7 +3,9 @@
 ## Preview and access window — 2026-11-08
 
 - Preview tested: `jolcar-staging-f03ks000x-otoyali.vercel.app`.
-- Deployment tested: `dpl_7bjUyUyJFjJd1xLRaBCwfG2HhAe5` (`65d21db`).
+- Initial deployment tested: `dpl_7bjUyUyJFjJd1xLRaBCwfG2HhAe5` (`65d21db`).
+- Fresh deployment after the responsive fix: `dpl_8ViGXTaZZGTuc1sXcEQ34u9Xkd66`
+  (`c813924`).
 - Staging database: `uxlenqburgxmkaadlyji`.
 - A temporary staging-project-only Vercel SSO access window was used for the
   browser session; no share-link URL or token was recorded.
@@ -42,5 +44,9 @@
 - `git diff --check`: pass.
 - No phone authentication, registration OTP, password login, or reset OTP was
   run.
+- Original Vercel protection was restored after QA: SSO is enabled for
+  `all_except_custom_domains`; password and trusted-IP protection remain
+  disabled. A clean unauthenticated navigation to the fresh Preview redirected
+  to the expected Vercel login layer.
 - No production Vercel project or environment, canonical Supabase project,
   database schema, migration, or remote database data was changed.
